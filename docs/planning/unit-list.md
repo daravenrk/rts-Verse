@@ -41,6 +41,32 @@ Use this baseline for any new faction concept so role coverage is complete befor
   - Loss of all valid home bases should reduce sortie tempo until a base is rebuilt.
   - Carrier-based and airfield-based craft must share role identities while allowing faction-specific stat asymmetry.
 
+### Colony and Civilian Unit List
+
+| Unit | Class | Tier | Produced From | Cost | Role | Notes |
+| --- | --- | --- | --- | --- | --- | --- |
+| Colony Worker | Civilian Utility Infantry | T0 | Habitat Complex | Small | Build-assist, logistics, and economy upkeep | Non-combat by default |
+| Cargo Hauler | Civilian Transport Vehicle | T0 or T1 | Logistics Hub | Small | Moves goods between economy and colony structures | Vulnerable and escort-dependent |
+| Civil Engineer Team | Civilian Support Infantry | T1 | Civic Planning Office | Medium | Expands colony footprint and accelerates repairs | Weak in combat, high infrastructure value |
+| Emergency Medic Team | Civilian Support Infantry | T1 | Habitat Complex | Small | Stabilizes civilian casualties and boosts recovery uptime | No frontline durability |
+| Security Militia Squad | Defensive Infantry | T1 | Militia Barracks | Small | Local defense against raids and light harassment | Inferior to dedicated army infantry |
+| Patrol Buggy | Light Security Vehicle | T1 | Militia Barracks | Medium | Fast response and convoy escort | Good vision, low sustained DPS |
+| Peacekeeper Walker | Defensive Support Walker | T2 | Security Command Post | Large | Colony perimeter anchor and riot-control style denial | Strong near colony structures, weak in open assault |
+| Evacuation Shuttle | Civilian Utility Aircraft | T2 | Civil Airfield | Medium | Emergency extraction and rapid civilian relocation | Low direct combat value |
+
+### Colony and Civilian Structure Baseline
+
+| Structure | Tier | Cost Band | Purpose | Notes |
+| --- | --- | --- | --- | --- |
+| Habitat Complex | T0 | Medium | Population housing and civilian unit production | Enables Colony Worker and Emergency Medic Team |
+| Logistics Hub | T0 | Medium | Freight routing and supply throughput | Enables Cargo Hauler and boosts economy consistency |
+| Civic Planning Office | T1 | Medium | Unlocks colony expansion tools | Enables Civil Engineer Team and urban upgrades |
+| Civilian Market | T1 | Medium | Trade income and local economic resilience | Valuable but vulnerable economic target |
+| Militia Barracks | T1 | Medium | Trains local defensive forces | Enables Security Militia Squad and Patrol Buggy |
+| Security Command Post | T2 | High | Coordinates advanced colony defense | Enables Peacekeeper Walker and defense upgrades |
+| Civil Airfield | T2 | High | Supports evacuation and colony air logistics | Enables Evacuation Shuttle and civilian airlift |
+| Governance Center | T3 | Apex | Late-game civilian command and stability bonuses | Improves colony output and recovery after raids |
+
 ## Cost Model
 
 Relative costs use Small, Medium, Large, and Apex to support planning before numerical balance is set.

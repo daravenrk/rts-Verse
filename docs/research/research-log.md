@@ -138,6 +138,31 @@ Use this file to capture evidence-backed findings before changing architecture o
   - Add a validation flow for carrier and airfield sortie behavior.
   - Add backlog tasks for baseline air wing implementation checks.
 
+## Entry-0007 Colony and Civilian Units and Buildings Baseline
+
+- Date: 2026-05-17
+- Query: Add colony and civilian units and buildings, with some defensive roles and some purely civilian roles.
+- Files reviewed:
+  - docs/planning/unit-list.md
+  - docs/planning/tech-tree.md
+  - docs/planning/testing-strategy.md
+  - docs/planning/implementation-plan.md
+  - docs/architecture/decision-log.md
+- Evidence:
+  - Existing roster planning emphasized military combined arms and air operations but had no explicit colony or civilian roster layer.
+  - Tech tiers already support economic and map-control decisions that can be deepened by civilian infrastructure targets.
+- Interpretation:
+  - Colony and civilian content should be explicit to support strategic raid-and-recover gameplay.
+  - Role boundaries are required so militia and security tools defend colonies without eclipsing main military lines.
+- Risks or unknowns:
+  - Civilian output tuning may produce runaway leads if protection costs are too low.
+  - Militia scaling may blur identity with standard combat rosters.
+- Recommended decision:
+  - Accept ADR-0007 and adopt shared colony-civilian baseline roles and structures for all factions.
+- Follow-up tasks:
+  - Add a validation flow for colony resilience and logistics disruption.
+  - Add first-pass pricing sanity checks for civilian and militia units.
+
 ## Research Entry Template
 
 ## Entry-XXXX Title

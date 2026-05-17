@@ -15,6 +15,8 @@ Keep this list short, actionable, and current.
 - [ ] Build first duel map using map-standards.md.
 - [ ] Define initial numeric price bands for vertical-slice units and structures.
 - [ ] Add a carrier and airfield air-wing validation checklist for Fighter and Corvette basing behavior.
+- [ ] Define first-pass numeric pricing and upkeep rules for colony and civilian units and structures.
+- [ ] Prototype one colony-defense path (Militia Barracks to Security Command Post) in scenario validation.
 
 ## Ready Queue
 
@@ -35,6 +37,7 @@ Keep this list short, actionable, and current.
 - 2026-05-17: Full faction tech tree and unit list baselines added for Helion Directorate and Obsidian Forge.
 - 2026-05-17: Map layout and economy standards added for spawns, resource locations, pricing, and map control.
 - 2026-05-17: Any-faction core roster baseline added, including Carrier, Fighter, Corvette, and shared basing constraints.
+- 2026-05-17: Colony and civilian unit/building baselines added, including militia and logistics role boundaries.
 
 ## Owner Map
 

@@ -144,6 +144,31 @@ Status values: Proposed, Accepted, Deprecated, Superseded
 - Related research:
   - Entry-0006 in research/research-log.md
 
+## ADR-0007 Colony and Civilian Roster and Structure Baseline
+
+- Date: 2026-05-17
+- Status: Accepted
+- Context: Core military rosters and tech progression were defined, but planning lacked explicit colony and civilian units or buildings, including the distinction between non-combat civic roles and defensive local security roles.
+- Decision: Add a shared colony and civilian baseline in planning/unit-list.md and planning/tech-tree.md, including civilian logistics and population structures, militia/security progression, and constraints that prevent colony forces from replacing mainline military armies.
+- Rationale:
+  - Makes economic and territorial warfare more legible through civilian infrastructure targets and defense priorities.
+  - Clarifies which units are civilian utility, which are local defense, and which remain primary army roles.
+- Tradeoffs:
+  - Adds content breadth and balancing complexity.
+  - Increases risk of economy snowball if colony structures are over-efficient.
+- Alternatives considered:
+  - Keep colony activity abstract and avoid explicit civilian units.
+  - Add only militia units without civilian economy infrastructure.
+- Validation approach:
+  - Functional: Faction designs map all required colony and civilian unit or structure roles.
+  - Integration: Colony structures connect to economy, defense, and tech tiers without blocking military progression.
+  - Smoke: Scenario can establish a colony, defend it with militia, and recover civilian output after a raid.
+  - Observability: Test notes capture colony uptime, logistics interruption impact, and militia effectiveness.
+- Related plan items:
+  - M3 Content and Balance Pass
+- Related research:
+  - Entry-0007 in research/research-log.md
+
 ## ADR Template
 
 ## ADR-XXXX Title

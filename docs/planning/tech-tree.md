@@ -24,6 +24,24 @@ This document defines faction progression, production structure unlocks, and upg
   - Tier 2: Advanced warfare, air control, and deeper economy.
   - Tier 3: Apex weapons, elite units, and decisive siege tools.
 
+## Shared Colony and Civilian Infrastructure Model
+
+- Design intent:
+  - Colony systems provide strategic depth and raid targets without replacing core military armies.
+  - Civilian throughput should reward map control, logistics safety, and defensive planning.
+- Required faction-equivalent structures:
+  - Tier 0: Habitat Complex and Logistics Hub equivalents.
+  - Tier 1: Civic Planning Office, Civilian Market, and Militia Barracks equivalents.
+  - Tier 2: Security Command Post and Civil Airfield equivalents.
+  - Tier 3: Governance Center equivalent.
+- Required faction-equivalent units:
+  - Colony Worker, Cargo Hauler, Civil Engineer Team, Emergency Medic Team.
+  - Security Militia Squad and Patrol Buggy for local defense.
+  - Peacekeeper Walker and Evacuation Shuttle for advanced colony response.
+- Combat boundary:
+  - Colony military elements are defensive support and should not out-trade frontline army tech at equal cost.
+  - Civilian units should create strategic consequences when lost but remain weak in direct battle.
+
 ## Faction A: Helion Directorate
 
 Identity: aggressive tempo faction with fast deployment, shielded spearheads, and clean production chains.
@@ -174,9 +192,11 @@ Implement first:
 - Tier 0 and Tier 1 economy and ground production for both factions.
 - One representative Tier 2 unlock path per faction.
 - No Tier 3 gameplay required for earliest playable build, but names and role targets are fixed for future planning.
+- Colony and civilian systems are planned in full, but only one T1 colony-defense path is required for earliest playable validation.
 
 ## Validation Notes
 
 - Faction asymmetry must be visible by Tier 1.
 - Tech transitions should create new decisions, not just larger numbers.
 - Resource pressure must force tradeoffs between expansion, army size, and tier advancement.
+- Colony and civilian content must increase strategic objectives without creating mandatory non-interactive macro loops.

@@ -110,6 +110,21 @@ This document defines validation layers for milestone delivery.
   - Loss of all home bases visibly reduces sustained air pressure.
   - Rebuilding a valid home base restores sortie cadence.
 
+## Flow F-10 Colony and Civilian Resilience Loop
+
+- Setup: Scenario includes Habitat Complex, Logistics Hub, Militia Barracks, and at least one civilian convoy route.
+- Steps:
+  - Establish initial colony throughput with Colony Worker and Cargo Hauler activity.
+  - Harass one logistics route and observe economy impact.
+  - Defend colony using Security Militia Squad and Patrol Buggy.
+  - Escalate with Security Command Post and Peacekeeper Walker.
+  - Restore disrupted economy and confirm civilian systems recover after defense stabilizes.
+- Expected:
+  - Civilian systems provide measurable economic value while vulnerable to raids.
+  - Militia can buy time and protect infrastructure but does not outperform frontline military units in open battle.
+  - Logistics disruption creates temporary strategic pressure rather than permanent unrecoverable collapse.
+  - Colony recovery is possible with correct rebuilding and escort play.
+
 ## Reporting Template
 
 - Date:
