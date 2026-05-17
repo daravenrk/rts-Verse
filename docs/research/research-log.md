@@ -339,6 +339,58 @@ Use this file to capture evidence-backed findings before changing architecture o
   - Implement full command-card hotkey grid and remapping support.
   - Add control-specific validation flows and backlog tasks for camera, groups, and HUD feedback.
 
+## Entry-0015 Resource Discovery and Security Core Loop
+
+- Date: 2026-05-17
+- Query: Establish resource finding and resource security as the central gameplay objective.
+- Files reviewed:
+  - docs/planning/game-vision.md
+  - docs/planning/economy-standards.md
+  - docs/planning/map-standards.md
+  - docs/planning/testing-strategy.md
+  - docs/architecture/decision-log.md
+- Evidence:
+  - Economy and map standards already reward expansion and contested objective control.
+  - Existing vision did not explicitly state resource discovery and security as the primary match objective.
+  - Multiple systems reference control pressure, but objective prioritization needed unification.
+- Interpretation:
+  - Declaring resource security as the primary loop improves consistency across implementation, balancing, and validation.
+  - Combat identity remains important, but functions as a means of securing or denying economic control.
+- Risks or unknowns:
+  - Poorly tuned early expansion value can cause snowballing.
+  - Objective overload can reduce readability if too many resource prompts appear simultaneously.
+- Recommended decision:
+  - Accept ADR-0015 and align vision, plan, and tests to resource-first objective weighting.
+- Follow-up tasks:
+  - Add explicit resource-security success criteria to M2 and M3 test reporting.
+  - Tune map objective spacing to support contest and recovery windows.
+
+## Entry-0016 Competitive Clarity First and Phase-Gated Complexity
+
+- Date: 2026-05-17
+- Query: Ensure the match opens with competitive clarity and introduces civilization complexity gradually through escalation.
+- Files reviewed:
+  - docs/planning/game-vision.md
+  - docs/planning/economy-standards.md
+  - docs/planning/tech-tree.md
+  - docs/planning/testing-strategy.md
+  - docs/architecture/decision-log.md
+- Evidence:
+  - Existing direction supports deep late-game systems but required explicit opening simplicity constraints.
+  - Resource-security objective and dynamic escalation are already in place and can anchor phased complexity.
+  - Competitive parity in the opening window is critical for multiplayer viability.
+- Interpretation:
+  - Early-phase readability should prioritize standard RTS macro and tactical decisions.
+  - Advanced systems should unlock as consequences of successful expansion and tech commitment.
+- Risks or unknowns:
+  - Late-system unlocks may feel too delayed if thresholds are too conservative.
+  - Faction asymmetry can become unfair if opening parity baselines are not continuously validated.
+- Recommended decision:
+  - Accept ADR-0016 and enforce phase-gated complexity and opening-parity constraints across planning and tests.
+- Follow-up tasks:
+  - Add opening clarity and parity validation flow.
+  - Define concrete unlock thresholds for advanced system activation windows.
+
 ## Research Entry Template
 
 ## Entry-XXXX Title

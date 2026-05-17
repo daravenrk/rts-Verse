@@ -7,6 +7,7 @@ This document defines pricing bands, income pacing, and resource-control expecta
 - Make expansion and map control matter more than passive turtling.
 - Keep pricing readable and internally consistent across tiers.
 - Let faction asymmetry express through timing, durability, and efficiency rather than arbitrary rule exceptions.
+- Preserve competitive clarity in the opening window before advanced simulation systems activate.
 - Provide provisional standards before final numeric tuning begins.
 
 ## Resource Model
@@ -28,6 +29,45 @@ This document defines pricing bands, income pacing, and resource-control expecta
 - Strategic control resource tied to capturable map objectives.
 - Used for advanced research, apex unlocks, and a small number of high-impact upgrades.
 - Must force players into contested map space by Tier 2.
+
+## Competitive Opening Resource Set
+
+For the opening competitive window, active player management should remain intentionally simple:
+
+- Metal-equivalent: Alloy (core construction and production spend).
+- Power: capacity and activation gate.
+- Fuel: operational mobility and sortie pressure resource (introduced as phased MVP extension).
+- Population: force-cap and colony labor ceiling.
+- Optional contested Data: strategic objective resource that increases in importance by mid-game.
+
+Opening rule:
+
+- The first 10 to 15 minutes should prioritize expansion, scouting, harassment, and tactical territory control without requiring deep civilization-instability management.
+
+## Phase-Gated Complexity Model
+
+- Phase 1 Conventional Conflict:
+  - Emphasize core resources and military tempo.
+  - Keep advanced stability systems hidden or low-impact.
+- Phase 2 Technological Divergence:
+  - Increase Data and specialization pressure.
+  - Introduce branch-specific efficiency and maintenance differences.
+- Phase 3 Industrial War Machine:
+  - Activate logistics, maintenance, and infrastructure stress as first-order constraints.
+- Phase 4 Planetary Instability:
+  - Escalate civilization-wide disruption effects that punish overextended macro states.
+
+## Asymmetrically Stabilized Economies
+
+Faction openings must remain competitively viable while late-game stabilization logic diverges.
+
+- Human stabilization examples: morale, governance, civilian throughput, trade reliability.
+- Machine stabilization examples: network integrity, processing load, cooling margin, relay synchronization.
+- Alien stabilization examples: biomass coherence, psionic integrity, ecosystem compatibility.
+
+Shared design rule:
+
+- Different faction stabilization models must serve equivalent gameplay purpose so no faction is invalidated at equal skill in opening and mid-game windows.
 
 ## Unified Global Stockpile Model
 

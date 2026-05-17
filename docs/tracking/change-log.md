@@ -29,3 +29,7 @@ Track high-level project changes with links to decisions and plans.
 - Added UI and controls standards for keyboard and mouse bindings, camera controls, command grid, HUD layout, and alerts.
 - Logged ADR-0014 and research entry for RTS input and UI baseline.
 - Added F-18 and F-19 validation flows plus backlog and sprint tasks for controls and HUD implementation.
+- Logged ADR-0015 and research entry establishing resource discovery and security as the primary match objective.
+- Added F-20 validation flow and next-step tasks for resource-zone discovery, control, denial, and recapture pacing.
+- Logged ADR-0016 and research entry for competitive-clarity-first and phase-gated complexity direction.
+- Added F-21 validation flow and implementation tasks for opening-parity and complexity-unlock pacing.

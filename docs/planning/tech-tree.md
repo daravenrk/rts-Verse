@@ -31,6 +31,13 @@ This document defines faction progression, production structure unlocks, and upg
 - Fixed-start faction variants are allowed for specific scenarios, but dynamic evolution remains the default architecture target.
 - Descent objectives should be represented by controllable access nodes, transit corridors, and uplink control points that interact with economy and tech unlock pressure.
 
+## Competitive Opening and Complexity Gating
+
+- Opening competitive clarity has priority over simulation depth.
+- Tier 0 and Tier 1 should emphasize expansion, production, scouting, and tactical engagements.
+- Advanced civilization systems (stability, entropy, large-scale infrastructure burden) should activate through progression thresholds, not at match start.
+- Tech unlock pacing must preserve opening parity between factions even when late-game identities diverge.
+
 ## Shared Match Economy Model
 
 - Resources:

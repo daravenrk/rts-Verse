@@ -37,3 +37,6 @@ Use this file for implementation-ready tasks linked to milestones.
 | T-0017 | M2 | P0 | Implement keyboard and mouse control bindings from planning/controls-standards.md | Unassigned | M | T-0001, T-0002 | F-18 passes all command and group control checks | Todo |
 | T-0018 | M2 | P0 | Implement MVP HUD baseline: resource bar, minimap, command card, alerts, and queues | Unassigned | L | T-0004, T-0017 | F-19 passes camera and HUD synchronization checks | Todo |
 | T-0019 | M2 | P1 | Add remappable hotkeys and camera sensitivity settings with persistence | Unassigned | M | T-0017 | F-19 optional settings persistence passes after restart | Todo |
+| T-0020 | M2 | P0 | Implement phase-gated activation for advanced civilization systems | Unassigned | M | T-0006, T-0014 | F-21 confirms advanced systems are gated during opening window | Todo |
+| T-0021 | M2 | P1 | Add opening parity telemetry for expansion timing, first factory timing, and first contested objective timing | Unassigned | M | T-0010, T-0011 | F-21 parity metrics are recorded for both factions and spawns | Todo |
+| T-0022 | M3 | P1 | Tune faction-specific stabilization models for equivalent opening viability | Unassigned | L | T-0020, T-0021 | Opening parity maintained while late-game identities diverge | Todo |

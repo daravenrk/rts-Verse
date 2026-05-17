@@ -240,6 +240,34 @@ This document defines validation layers for milestone delivery.
   - HUD alerts are visible, timely, and non-blocking.
   - UI state always matches gameplay state for selected entity commands and queue progress.
 
+## Flow F-20 Resource Discovery and Security Dominance Loop
+
+- Setup: Duel map with safe home resource, natural expansion, contested midfield resource points, and at least one Data Node.
+- Steps:
+  - Execute one scouting-first opening focused on locating priority resource zones.
+  - Secure one expansion and one contested objective while maintaining defense coverage.
+  - Execute one denial cycle: raid enemy extraction or logistics and force a recapture response.
+  - Validate recovery path by reclaiming or retaking one lost resource zone.
+- Expected:
+  - Players can discover and prioritize resource opportunities early without hidden information dependencies.
+  - Securing and defending resources produces clear strategic leverage over passive turtling.
+  - Resource denial and recapture create comeback windows without immediate match collapse.
+  - Match outcomes correlate with sustained resource security and disruption quality, not only raw unit trades.
+
+## Flow F-21 Opening Clarity and Parity Gate
+
+- Setup: MVP duel scenario starts with opening resource set and advanced civilization systems gated.
+- Steps:
+  - Play first 10 to 15 minutes with both factions from both spawns.
+  - Verify players can execute expansion, scouting, harassment, and first factory scaling without interacting with advanced instability systems.
+  - Trigger one phase transition and confirm newly unlocked complexity is announced and readable.
+  - Compare opening tempo parity metrics between factions.
+- Expected:
+  - Opening actions are strategically deep but cognitively manageable.
+  - Factions remain competitively viable in opening windows despite identity differences.
+  - Advanced systems emerge through clear progression triggers rather than immediate simulation load.
+  - Transition into deeper systems increases strategic options without invalidating prior play.
+
 ## Reporting Template
 
 - Date:

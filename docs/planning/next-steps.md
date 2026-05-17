@@ -42,6 +42,10 @@ Keep this list short, actionable, and current.
 - [ ] Implement MVP HUD components: resource bar, minimap, command card, alerts, and queue display.
 - [ ] Run F-18 Keyboard and Mouse Command Coverage and resolve command gap defects.
 - [ ] Run F-19 Camera and HUD Usability Validation and tune camera responsiveness.
+- [ ] Run F-20 Resource Discovery and Security Dominance Loop and tune objective control pacing.
+- [ ] Run F-21 Opening Clarity and Parity Gate and tune early-phase cognitive load.
+- [ ] Add explicit map annotations for primary, secondary, and high-risk resource zones in first duel scenario.
+- [ ] Define concrete unlock thresholds for advanced systems (maintenance, instability, civilization stress).
 
 ## Ready Queue
 
@@ -70,6 +74,8 @@ Keep this list short, actionable, and current.
 - 2026-05-17: Three-way collision direction documented with Humanity, One Box, alien systems, and Descent-centered escalation model.
 - 2026-05-17: MVP Human-vs-Alien solution documented with complete Veyari alien faction, duel roster lock, and smart map-fighting validation flows.
 - 2026-05-17: UI and controls baseline documented with keyboard and mouse bindings, HUD standards, and validation flows.
+- 2026-05-17: Resource discovery and resource security documented as the primary gameplay objective across vision and architecture.
+- 2026-05-17: Competitive-clarity-first and phase-gated-complexity model documented for opening parity and escalation pacing.
 
 ## Owner Map
 

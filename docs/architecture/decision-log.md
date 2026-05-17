@@ -352,6 +352,60 @@ Status values: Proposed, Accepted, Deprecated, Superseded
 - Related research:
   - Entry-0014 in research/research-log.md
 
+## ADR-0015 Resource Discovery and Security as Primary Match Objective
+
+- Date: 2026-05-17
+- Status: Accepted
+- Context: Economy, map standards, and faction progression already emphasize map control, but the core player objective needed a single explicit statement for prioritization and implementation decisions.
+- Decision: Treat resource discovery and resource-zone security as the primary gameplay objective for the MVP and long-term direction. Combat, tech progression, and Descent events should reinforce control, denial, and recapture of economic infrastructure.
+- Rationale:
+  - Aligns all systems around one clear strategic purpose.
+  - Preserves RTS tension through territorial control and logistics pressure.
+  - Provides objective criteria for balancing maps, factions, and event effects.
+- Tradeoffs:
+  - Requires careful anti-snowball tuning so early resource leads are contestable.
+  - Increases dependence on map readability and objective telegraphing.
+- Alternatives considered:
+  - Keep mixed objective weighting where combat elimination and resource control are equal priorities.
+  - Prioritize faction-specific win identities without a unified economic objective.
+- Validation approach:
+  - Functional: Players can identify, claim, and defend resource opportunities within opening and mid-game windows.
+  - Integration: Map layout, economy rules, and control behaviors consistently reward secure resource play.
+  - Smoke: Matches avoid passive stalemate and still offer comeback routes through denial and retake actions.
+  - Observability: Scenario logs capture expansion timing, contested-node flips, resource denial events, and recovery outcomes.
+- Related plan items:
+  - M2 Core Gameplay Loop
+  - M3 Content and Balance Pass
+- Related research:
+  - Entry-0015 in research/research-log.md
+
+## ADR-0016 Competitive Clarity First with Phase-Gated Complexity
+
+- Date: 2026-05-17
+- Status: Accepted
+- Context: Resource-security direction is established, but opening gameplay needed explicit guardrails to prevent early cognitive overload from late-game civilization systems.
+- Decision: Prioritize competitive clarity in the opening phase and gate advanced civilization complexity behind escalation milestones. Opening economy and controls must remain readable and fair, while deeper systems emerge through expansion, tech progression, and infrastructure commitment.
+- Rationale:
+  - Preserves competitive onboarding and match readability.
+  - Supports strong early-game RTS pacing while retaining long-form strategic depth.
+  - Aligns phase progression with player learning curve and replayability.
+- Tradeoffs:
+  - Delays visibility of some signature late-game mechanics.
+  - Requires careful tuning of unlock thresholds to avoid abrupt complexity spikes.
+- Alternatives considered:
+  - Expose all simulation systems from match start.
+  - Keep complexity static across all match phases.
+- Validation approach:
+  - Functional: Opening phase supports clean expansion, scouting, harassment, and combat without advanced-system overload.
+  - Integration: Advanced systems unlock progressively and interact correctly with economy and tech transitions.
+  - Smoke: Matches remain readable in early game and strategically rich in late game.
+  - Observability: Logs capture phase transitions, system unlock timing, and player response metrics.
+- Related plan items:
+  - M2 Core Gameplay Loop
+  - M3 Content and Balance Pass
+- Related research:
+  - Entry-0016 in research/research-log.md
+
 ## ADR Template
 
 ## ADR-XXXX Title

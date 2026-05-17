@@ -8,6 +8,8 @@ Build a fast and readable RTS with strong faction personality, satisfying base g
 
 The long-term identity is a civilizational transition match arc where each game tells the story of humanity, hybridization, and machine autonomy colliding under escalating logistical strain.
 
+Primary gameplay loop: find resources, secure resource zones, and deny opponent access long enough to convert control into strategic escalation.
+
 ## Experience Pillars
 
 - Aggressive early game pressure with clear tactical counters.
@@ -16,6 +18,7 @@ The long-term identity is a civilizational transition match arc where each game 
 - Strong strategic map control through expansion and denial.
 - Era-based escalation from human survival warfare to post-human network conflict.
 - High-tech power comes with high-tech fragility through upkeep, bandwidth, and stability pressure.
+- Competitive clarity first, civilization complexity later.
 
 ## Core Multiplayer Fantasy
 
@@ -28,6 +31,21 @@ Matches should evolve through a readable transition:
 - Late game: autonomous machine war networks dominate combat but are difficult to sustain.
 
 The goal is to prevent tech rushes from becoming automatic wins by making advanced warfare operationally demanding.
+
+The central player objective is resource security under pressure:
+
+- locate high-value economic opportunities before opponents,
+- secure and defend extraction infrastructure,
+- disrupt enemy logistics and recapture contested supply zones.
+
+Opening match design must be intentionally simple and competitively readable. Deep civilization-management systems emerge through escalation, not at match start.
+
+## Competitive Clarity First Policy
+
+- Early game must feel familiar, fast, and strategically fair.
+- Opening decisions should prioritize expansion, scouting, harassment, and tactical map control.
+- Advanced macro systems should unlock gradually as players industrialize and specialize.
+- Faction openings must be competitively balanced even when long-term identities diverge strongly.
 
 ## Three-Way Civilizational Collision
 
@@ -60,6 +78,7 @@ The Descent is the arrival of a colossal orbital structure that anchors to the p
 - Signature feel: fast, scrappy, territorial, expansion-focused.
 - Typical forces: infantry, tanks, artillery, helicopters, engineers, miners, radar trucks, mobile AA, APCs.
 - Design emphasis: cheap production, tactical positioning, and protecting civilian or colony infrastructure.
+- Complexity rule: only core competitive systems are active by default.
 - Descent context: factions secure quarantine zones, impact corridors, and salvage sites while understanding remains limited.
 
 ### Era 2 Augmented Warfare
@@ -70,6 +89,7 @@ The Descent is the arrival of a colossal orbital structure that anchors to the p
 	- Purists: low-cost human-centric armies with easier maintenance and weaker late scaling.
 	- Symbiotes: adaptive biotech forces with regeneration and mutation-risk tradeoffs.
 	- Cybernetic Ascendants: precision automation with high power and upkeep burden.
+- Complexity rule: specialized strategic systems begin to unlock through player commitment.
 - Descent context: alien systems and recovered materials become active technology accelerants.
 
 ### Era 3 Autonomous War
@@ -77,6 +97,7 @@ The Descent is the arrival of a colossal orbital structure that anchors to the p
 - Signature feel: large-scale autonomous combat where humans are commanders and operators rather than primary frontline mass.
 - Typical forces: drone swarms, robotic armies, orbital systems, and AI-coordinated war fleets.
 - Design emphasis: escalation in scale without removing strategic counterplay.
+- Complexity rule: maintenance and infrastructure burden become major strategic constraints.
 - Descent context: orbital throughput, relay control, and alien-grade energy systems become core to force projection.
 
 ### Era 4 Post-Human War Networks
@@ -84,6 +105,7 @@ The Descent is the arrival of a colossal orbital structure that anchors to the p
 - Signature feel: distributed machine civilizations fighting through infrastructure denial and network disruption.
 - Typical tools: relay webs, backup cores, command shards, and infrastructure superweapons.
 - Design emphasis: victory requires collapsing hostile war networks, not only deleting one frontline army.
+- Complexity rule: civilization instability and global-system stress become decisive factors.
 - Descent context: the anchor site evolves toward megastructure-scale industrial and terraforming influence.
 
 ## One Box Premise
@@ -119,6 +141,32 @@ Endgame strategic weapons should primarily attack systems and networks, not just
 - Primary multiplayer direction: dynamic evolution where all players begin in human-survival conditions and diverge through machine integration, alien integration, or hybrid paths.
 - Secondary mode option: fixed three-faction starts can exist for curated scenarios, but dynamic evolution is the baseline architecture target.
 
+## Match Escalation Structure
+
+### Phase 1 Conventional Conflict
+
+- Active resources: Metal-equivalent, Power, Fuel, Population, and optional contested Data.
+- Focus: expansion, scouting, harassment, territory control, and factory scaling.
+- Constraint: avoid early cognitive overload from advanced simulation systems.
+
+### Phase 2 Technological Divergence
+
+- Trigger: successful expansion plus faction tech commitments.
+- New pressure: Data importance increases and doctrine asymmetry deepens.
+- Outcome: faction identity becomes visibly asymmetric while opening parity remains preserved.
+
+### Phase 3 Industrial War Machine
+
+- Trigger: sustained multi-zone control and advanced production activation.
+- New pressure: logistics, maintenance, and infrastructure uptime become critical.
+- Outcome: larger army scale with higher operational risk.
+
+### Phase 4 Planetary Instability
+
+- Trigger: high-tier escalation and prolonged system strain.
+- New pressure: environmental and systemic disruption events heavily influence strategy.
+- Outcome: deathball stagnation is reduced through infrastructure fragility and denial play.
+
 ## Product Principles
 
 - Inspiration, not imitation: preserve genre strengths while creating original art, lore, units, names, and faction identity.
@@ -126,6 +174,7 @@ Endgame strategic weapons should primarily attack systems and networks, not just
 - Decisions over micromanagement: APM should matter, but strategic choices should matter more.
 - Momentum with comeback paths: strong snowball potential balanced by recoverable states.
 - Narrative-through-systems: match progression should visibly tell the story of civilization transforming into machine sovereignty.
+- Resource-first warfare: territorial control and economic security define victory pace more than raw unit trading alone.
 
 ## Vertical Slice Definition
 
