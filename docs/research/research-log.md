@@ -65,6 +65,53 @@ Use this file to capture evidence-backed findings before changing architecture o
 - Follow-up tasks:
   - Add vision-aligned checks to testing strategy and backlog acceptance text.
 
+## Entry-0004 Faction Progression and Roster Definition
+
+- Date: 2026-05-17
+- Query: Define the full tech tree and unit list needed for planning and implementation.
+- Files reviewed:
+  - docs/planning/game-vision.md
+  - docs/planning/task-backlog.md
+  - docs/planning/testing-strategy.md
+  - docs/planning/implementation-plan.md
+  - docs/planning/next-steps.md
+- Evidence:
+  - Vision required two asymmetric factions and combined-arms gameplay, but no named units or structure unlock paths existed.
+  - M2 and M3 outcomes referenced faction asymmetry and unit roster without a concrete source of truth.
+- Interpretation:
+  - A dedicated tech progression and roster baseline is required before implementation estimates or validation criteria can be reliable.
+  - Vertical-slice scope should lock a subset of the larger roster while preserving full-faction planning context.
+- Risks or unknowns:
+  - Final balance values and exact upgrade timing remain provisional until playtesting begins.
+- Recommended decision:
+  - Accept ADR-0004 and use tech-tree.md plus unit-list.md as the design baseline for implementation planning.
+- Follow-up tasks:
+  - Update backlog and test flows to reference faction-specific units and tech milestones.
+
+## Entry-0005 Map Fairness and Economy Control Standards
+
+- Date: 2026-05-17
+- Query: Define standards for starting points, resource locations, pricing, and economic control.
+- Files reviewed:
+  - docs/planning/game-vision.md
+  - docs/planning/tech-tree.md
+  - docs/planning/unit-list.md
+  - docs/planning/testing-strategy.md
+  - docs/planning/implementation-plan.md
+- Evidence:
+  - Game vision requires strong map control through expansion and denial, but no formal map layout rules existed.
+  - Tech tree defines Alloy, Power, and Data, but no pricing or economic pacing standards existed.
+  - Testing strategy validated unit behavior and progression, but not spawn fairness or resource-control outcomes.
+- Interpretation:
+  - Map standards and economy standards are required before prototype level design and balance work can be evaluated consistently.
+  - Pricing should be governed by relative bands first, with numeric tuning deferred until playtesting.
+- Risks or unknowns:
+  - Over-constraining early maps may slow experimentation if standards are treated as immutable too soon.
+- Recommended decision:
+  - Accept ADR-0005 and use map-standards.md plus economy-standards.md as the planning baseline for level and economy work.
+- Follow-up tasks:
+  - Add map fairness and economy-control checks to testing flows and backlog items.
+
 ## Research Entry Template
 
 ## Entry-XXXX Title

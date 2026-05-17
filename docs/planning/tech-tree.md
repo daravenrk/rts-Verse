@@ -1,0 +1,182 @@
+# Tech Tree
+
+This document defines faction progression, production structure unlocks, and upgrade paths for the initial playable roster.
+
+## Design Goals
+
+- Support a readable early-game rush and expansion phase.
+- Create distinct faction asymmetry without requiring totally different control schemes.
+- Enable progression from light skirmish to heavy combined-arms warfare.
+- Keep the vertical slice implementable by staging tech in clear tiers.
+
+## Shared Match Economy Model
+
+- Resources:
+  - Alloy: primary construction and production resource.
+  - Power: generated capacity required for advanced buildings and some weapons systems.
+  - Data: late-game research and elite production resource generated from map control nodes.
+- Builder rules:
+  - Construction units can place structures directly.
+  - Advanced structures require both tier unlock and sufficient power margin.
+- Tiering model:
+  - Tier 0: Command, economy bootstrap, and scouting.
+  - Tier 1: Early combat and first expansion.
+  - Tier 2: Advanced warfare, air control, and deeper economy.
+  - Tier 3: Apex weapons, elite units, and decisive siege tools.
+
+## Faction A: Helion Directorate
+
+Identity: aggressive tempo faction with fast deployment, shielded spearheads, and clean production chains.
+
+### Tier 0
+
+- Command Spire:
+  - Starts match.
+  - Produces: Surveyor Drone, Line Engineer.
+  - Unlocks: Relay Reactor, Alloy Extractor, Barracks Node.
+- Relay Reactor:
+  - Generates Power.
+- Alloy Extractor:
+  - Harvests Alloy from deposits.
+- Barracks Node:
+  - Produces: Lancer Squad, Breach Team, Field Medic.
+
+### Tier 1
+
+- Motor Pool:
+  - Requirement: Barracks Node + Relay Reactor.
+  - Produces: Strider Bike, Bulwark APC, Ember Tank.
+- Sensor Uplink:
+  - Requirement: Barracks Node.
+  - Unlocks radar range and stealth reveal upgrades.
+- Expansion Hub:
+  - Requirement: Alloy Extractor.
+  - Allows forward build radius and secondary extractors.
+- Upgrades:
+  - Overclocked Servos: vehicle speed increase.
+  - Capacitor Weave: infantry shield durability increase.
+  - Sweep Scan: active detection pulse on Sensor Uplink.
+
+### Tier 2
+
+- War Foundry:
+  - Requirement: Motor Pool + Expansion Hub.
+  - Produces: Aegis Walker, Sunforge Artillery, Sable AA Platform.
+- Sky Anchor:
+  - Requirement: Sensor Uplink + Relay Reactor.
+  - Produces: Raptor Gunship, Halo Transport.
+- Research Prism:
+  - Requirement: Data Node captured + Command Spire upgrade.
+  - Unlocks advanced weapon and command upgrades.
+- Upgrades:
+  - Prism Targeting: artillery accuracy increase.
+  - Phase Screen: temporary directional shields for walkers and APCs.
+  - Rapid Deployment: transport unload speed and forward reinforce bonus.
+
+### Tier 3
+
+- Ascendant Core:
+  - Requirement: War Foundry + Sky Anchor + Research Prism.
+  - Produces: Solarch Titan.
+  - Unlocks: Solar Lance Protocol, Directorate Command Matrix.
+- Solar Lance Protocol:
+  - Tactical beam strike targeted by line of sight.
+- Directorate Command Matrix:
+  - Global buff choice between production surge or shield recharge surge.
+
+### Helion Production Flow Summary
+
+- Open with Barracks Node for map control.
+- Transition to Motor Pool for pressure and expansion denial.
+- Hit Tier 2 with War Foundry or Sky Anchor depending on ground or air read.
+- Reach Ascendant Core only if economy is stabilized across Alloy and Data.
+
+## Faction B: Obsidian Forge
+
+Identity: macro-heavy siege faction with durable chassis, reclaim economy, and punishing long-range escalation.
+
+### Tier 0
+
+- Forge Nexus:
+  - Starts match.
+  - Produces: Reclaimer, Foundry Engineer.
+  - Unlocks: Smelter Grid, Scrap Harvester, Muster Hall.
+- Smelter Grid:
+  - Generates Power with slower ramp but higher efficiency than Helion.
+- Scrap Harvester:
+  - Harvests Alloy and can reclaim battlefield wreckage.
+- Muster Hall:
+  - Produces: Warder Team, Breacher Team, Repair Crew.
+
+### Tier 1
+
+- Tread Assembly:
+  - Requirement: Muster Hall + Smelter Grid.
+  - Produces: Maul Rover, Bastion Carrier, Cinder Mortar.
+- Range Beacon:
+  - Requirement: Muster Hall.
+  - Provides artillery spotting and defensive warning radius.
+- Excavation Post:
+  - Requirement: Scrap Harvester.
+  - Improves reclaim efficiency and opens fortified expansion sites.
+- Upgrades:
+  - Reinforced Treads: tracked unit health increase.
+  - Salvage Protocol: wreck reclaim yield increase.
+  - Embedded Turrets: Bastion Carrier garrison firepower increase.
+
+### Tier 2
+
+- Siege Crucible:
+  - Requirement: Tread Assembly + Excavation Post.
+  - Produces: Anvil Walker, Ruin Launcher, Bastion AA Rig.
+- Aero Furnace:
+  - Requirement: Range Beacon + Smelter Grid.
+  - Produces: Ashwing Bomber, Hoist Lifter.
+- Core Archive:
+  - Requirement: Data Node captured + Forge Nexus upgrade.
+  - Unlocks advanced munitions and command upgrades.
+- Upgrades:
+  - Seismic Shells: siege splash radius increase.
+  - Furnace Plating: walker and heavy vehicle armor increase.
+  - Battlefield Fabrication: engineer repair and fortification speed increase.
+
+### Tier 3
+
+- Cataclysm Engine:
+  - Requirement: Siege Crucible + Aero Furnace + Core Archive.
+  - Produces: Worldbreaker Colossus.
+  - Unlocks: Meteor Salvo, Iron Mandate.
+- Meteor Salvo:
+  - Delayed multi-impact artillery strike over a broad area.
+- Iron Mandate:
+  - Global buff choice between armor overdrive or reclaim conversion surge.
+
+### Obsidian Production Flow Summary
+
+- Open with Muster Hall and reclaim economy to absorb pressure.
+- Use Tread Assembly to establish ground presence and fortified expansion.
+- Advance into Siege Crucible for battlefield control and attrition dominance.
+- Reach Cataclysm Engine when map control and reclaim income support heavy investment.
+
+## Neutral and Shared Map Tech
+
+- Data Node:
+  - Capturable strategic point required for Tier 2 research structures.
+- Watchtower Relay:
+  - Optional capturable vision structure.
+- Debris Field:
+  - Reclaimable battlefield resource source, more valuable to Obsidian Forge.
+
+## Vertical Slice Tech Scope
+
+Implement first:
+
+- Tier 0 and Tier 1 economy and ground production for both factions.
+- One representative Tier 2 unlock path per faction.
+- No Tier 3 gameplay required for earliest playable build, but names and role targets are fixed for future planning.
+
+## Validation Notes
+
+- Faction asymmetry must be visible by Tier 1.
+- Tech transitions should create new decisions, not just larger numbers.
+- Resource pressure must force tradeoffs between expansion, army size, and tier advancement.

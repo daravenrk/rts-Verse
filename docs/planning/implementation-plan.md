@@ -34,6 +34,8 @@ Define and deliver the first playable RTS vertical slice expressing daravenrk's 
   - Win and loss conditions for a small map.
   - First pass of asymmetry between two prototype factions.
   - Prototype base expansion pressure loop.
+  - Vertical-slice roster lock implemented from planning/unit-list.md.
+  - First duel map built to planning/map-standards.md baseline.
 - Validation:
   - Functional: Manual playthrough confirms loop from start to finish.
   - Integration: Input, simulation, and UI flow work together without blocking issues.
@@ -44,6 +46,8 @@ Define and deliver the first playable RTS vertical slice expressing daravenrk's 
 - Outcomes:
   - Starter factions and unit roster.
   - Baseline economy and combat tuning.
+  - Tier 2 progression paths validated against planning/tech-tree.md.
+  - Numeric price sheet aligned to planning/economy-standards.md.
 - Validation:
   - Functional: Controlled scenario checks expected combat and economy behavior.
 
@@ -64,6 +68,11 @@ Define and deliver the first playable RTS vertical slice expressing daravenrk's 
 ## Working Artifacts
 
 - Conventions: planning/conventions.md
+- Game vision: planning/game-vision.md
+- Tech tree: planning/tech-tree.md
+- Unit list: planning/unit-list.md
+- Map standards: planning/map-standards.md
+- Economy standards: planning/economy-standards.md
 - Task backlog: planning/task-backlog.md
 - Testing strategy: planning/testing-strategy.md
 - Definition of done: planning/definition-of-done.md

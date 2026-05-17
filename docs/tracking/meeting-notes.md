@@ -62,3 +62,35 @@ Use this running log for planning and architecture sync notes.
 - References:
   - docs/planning/game-vision.md
   - docs/architecture/decision-log.md
+
+## 2026-05-17 Faction Roster and Tech Baseline
+
+- Participants: Project owner
+- Agenda: Define full faction progression and unit roster planning artifacts.
+- Decisions made:
+  - Lock prototype factions as Helion Directorate and Obsidian Forge.
+  - Use full-faction planning with a narrower vertical-slice implementation lock.
+- Open questions:
+  - Which Tier 2 unlock path should each faction prototype first for best signal-to-effort ratio?
+- Action items:
+  - [ ] Break T-0006 through T-0009 into scene, script, and data tasks.
+  - [ ] Run F-05 once first playable locked-roster build exists.
+- References:
+  - docs/planning/tech-tree.md
+  - docs/planning/unit-list.md
+
+## 2026-05-17 Map and Economy Standards
+
+- Participants: Project owner
+- Agenda: Define source-of-truth standards for start positions, resource layout, pricing, and map-control economy.
+- Decisions made:
+  - Duel map layout will be standardized around fair starts, natural expansions, contested midfield resources, and at least one contested Data Node.
+  - Pricing will use relative bands first, with numeric values deferred until prototype playtesting.
+- Open questions:
+  - What exact travel-time parity band should be accepted for spawn fairness on the first duel map?
+- Action items:
+  - [ ] Build first duel map to map-standards.md baseline.
+  - [ ] Draft initial numeric price sheet from economy-standards.md.
+- References:
+  - docs/planning/map-standards.md
+  - docs/planning/economy-standards.md

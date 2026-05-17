@@ -10,6 +10,10 @@ This folder contains architecture, planning, research, and delivery tracking art
 - Active next steps: docs/planning/next-steps.md
 - Project conventions: docs/planning/conventions.md
 - Game vision: docs/planning/game-vision.md
+- Tech tree: docs/planning/tech-tree.md
+- Unit list: docs/planning/unit-list.md
+- Map standards: docs/planning/map-standards.md
+- Economy and pricing standards: docs/planning/economy-standards.md
 - Task backlog: docs/planning/task-backlog.md
 - Testing strategy: docs/planning/testing-strategy.md
 - Definition of done: docs/planning/definition-of-done.md
