@@ -139,6 +139,32 @@ This document defines validation layers for milestone delivery.
   - Event volatility changes strategic priorities without hard-locking match progression.
   - Recovery paths remain available through map control, timing, and adaptation.
 
+## Flow F-12 Civilizational Era Transition Readability
+
+- Setup: Scenario enables progression checkpoints that represent Era 1 through Era 3 transitions.
+- Steps:
+  - Play opening with human-heavy roster and expansion pressure.
+  - Trigger first augmentation threshold and unlock one ideology branch behavior.
+  - Reach autonomous warfare threshold and field machine-dominant combat group.
+  - Record transition cues, player decision points, and pace changes.
+- Expected:
+  - Era transitions are visible through units, structures, and economy behavior without external explanation.
+  - Midgame ideology choices produce meaningful strategic divergence.
+  - Late-game machine power increases combat scale but also increases operational burden.
+
+## Flow F-13 One Box Core and Distributed Network Resilience
+
+- Setup: Scenario includes original core, relay nodes, and at least one backup command shard path.
+- Steps:
+  - Expand network control through relay and shard infrastructure.
+  - Disable original core and observe command-side penalties.
+  - Recover through distributed infrastructure and confirm partial stabilization.
+  - Collapse network relays and confirm compounded degradation.
+- Expected:
+  - Original core loss causes severe but non-terminal coordination penalties.
+  - Distributed infrastructure provides measurable resilience and recovery options.
+  - Network collapse outcomes are strategic and readable, not purely random failure events.
+
 ## Reporting Template
 
 - Date:

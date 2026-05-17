@@ -26,6 +26,11 @@ Keep this list short, actionable, and current.
 - [ ] Define first-pass global stockpile caps and depletion behavior for Alloy, Power, Data, and Reclaim.
 - [ ] Define random world event table with bounded positive and negative resource effects.
 - [ ] Add UI and telemetry checklist for global stockpile visibility and world event announcements.
+- [ ] Define era transition triggers and pacing targets for Survival, Augmented, Autonomous, and Network warfare phases.
+- [ ] Draft first-pass ideology paths for Purists, Symbiotes, and Cybernetic Ascendants with strengths and failure modes.
+- [ ] Define One Box original-core penalty rules and distributed network recovery mechanics.
+- [ ] Define maintenance-instability resource model for high-tier automation (upkeep, bandwidth, cooling, logistics).
+- [ ] Add infrastructure warfare design checklist for system-targeting superweapons and command disruption effects.
 
 ## Ready Queue
 
@@ -50,6 +55,7 @@ Keep this list short, actionable, and current.
 - 2026-05-17: Five-faction baseline (3 human, 1 alien, 1 robot) added to planning and architecture docs.
 - 2026-05-17: Five-tier tech tree baseline added for all factions.
 - 2026-05-17: Unified global stockpile economy direction documented, including finite resources and random world event volatility.
+- 2026-05-17: Civilizational transition vision documented with four-era battlefield arc, One Box premise, and distributed network warfare direction.
 
 ## Owner Map
 

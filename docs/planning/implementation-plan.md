@@ -49,12 +49,18 @@ Define and deliver the first playable RTS vertical slice expressing daravenrk's 
   - Colony and civilian units and structures integrated as a shared baseline with clear civilian versus militia combat boundaries.
   - Five-faction baseline (3 human, 1 alien, 1 robot) established for all future planning and test flows.
   - Five-tier tech tree baseline established for all factions, with roles and unlocks mapped to each tier.
+  - Four-era civilizational transition pacing model defined and mapped to gameplay systems.
+  - One Box core-state model and distributed network expansion rules defined for multiplayer identity.
+  - Maintenance and instability economy rules implemented for high-tier machine warfare.
   - Unified global stockpile economy model implemented with finite shared resources and event-driven volatility.
   - Baseline economy and combat tuning.
   - Tier 2 progression paths validated against planning/tech-tree.md.
   - Numeric price sheet aligned to planning/economy-standards.md.
 - Validation:
   - Functional: Controlled scenario checks expected combat and economy behavior.
+  - Functional: Matches show readable progression from Survival Warfare into at least one Autonomous War state.
+  - Integration: One Box core penalties and distributed network recovery integrate with production, command, and logistics.
+  - Integration: Maintenance and instability pressure create counterplay against runaway tech leads.
   - Integration: Global stockpile depletion and world event shifts integrate correctly with extraction, tech gates, and production pacing.
   - Integration: Air production, basing, launch, and recovery behave consistently between Carrier and Airfield contexts.
   - Integration: Colony logistics, militia defense, and frontline military systems interact without role collapse.

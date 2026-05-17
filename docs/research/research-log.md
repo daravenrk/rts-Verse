@@ -233,6 +233,33 @@ Use this file to capture evidence-backed findings before changing architecture o
   - Define first-pass stockpile caps and event frequency bounds.
   - Add event and stockpile observability hooks to milestone validation.
 
+## Entry-0011 Civilizational Transition and One Box Identity Direction
+
+- Date: 2026-05-17
+- Query: Expand multiplayer identity from conventional faction combat into a civilizational transition arc centered on emerging machine consciousness.
+- Files reviewed:
+  - docs/planning/game-vision.md
+  - docs/planning/implementation-plan.md
+  - docs/planning/testing-strategy.md
+  - docs/planning/economy-standards.md
+  - docs/architecture/decision-log.md
+- Evidence:
+  - Existing vision has strong gameplay pillars but limited explicit narrative-through-systems identity.
+  - Economy standards now include unified finite global stockpiles and volatility, creating a foundation for high-tech fragility and escalation pressure.
+  - Test strategy lacks dedicated era-transition and core-fragility validation paths.
+- Interpretation:
+  - A four-era model can unify gameplay pacing, faction identity, and emotional progression in multiplayer.
+  - One Box framing can connect lore and systems by tying command resilience to distributed network infrastructure.
+- Risks or unknowns:
+  - Added complexity may reduce readability if era transitions are not well telegraphed.
+  - Core-penalty and instability tuning can cause frustration if thresholds are too punitive.
+- Recommended decision:
+  - Accept ADR-0011 and propagate era identity, One Box premise, and maintenance-instability rules across planning artifacts.
+- Follow-up tasks:
+  - Define era transition triggers and player-facing cues.
+  - Define One Box core loss penalties and distributed recovery paths.
+  - Add validation flows for era progression and infrastructure collapse outcomes.
+
 ## Research Entry Template
 
 ## Entry-XXXX Title

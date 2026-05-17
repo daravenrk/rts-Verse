@@ -247,6 +247,32 @@ Status values: Proposed, Accepted, Deprecated, Superseded
 - Related research:
   - Entry-0010 in research/research-log.md
 
+## ADR-0011 Civilizational Transition Match Identity and One Box Premise
+
+- Date: 2026-05-17
+- Status: Accepted
+- Context: Existing vision establishes RTS pillars and scale goals, but does not yet define a distinct emotional arc that differentiates the game from generic human-versus-robot framing.
+- Decision: Anchor match identity to a four-era civilizational transition arc: Survival Warfare, Augmented Warfare, Autonomous War, and Post-Human War Networks. Adopt the One Box premise as core multiplayer fantasy where players represent emerging synthetic consciousnesses operating with or against human remnants.
+- Rationale:
+  - Gives tech progression narrative momentum inside multiplayer matches.
+  - Connects economy, faction ideology, and escalation pacing into one coherent identity.
+  - Creates a stronger differentiator through maintenance pressure and infrastructure warfare.
+- Tradeoffs:
+  - Adds narrative and systems complexity across economy, tech, and UX.
+  - Requires careful readability to avoid overwhelming players during era transitions.
+- Alternatives considered:
+  - Keep identity framed only as classic faction asymmetry with no era-based transformation.
+  - Treat One Box premise as campaign-only lore with no multiplayer mechanics impact.
+- Validation approach:
+  - Functional: Match states show clear era progression cues and One Box core-state effects.
+  - Integration: Economy upkeep, tech gating, faction paths, and infrastructure warfare rules align to era progression.
+  - Smoke: A full scenario can progress from Era 1 into at least one Era 3 state without undefined systems.
+  - Observability: Telemetry captures era transition timing, instability pressure, and network-collapse outcomes.
+- Related plan items:
+  - M3 Content and Balance Pass
+- Related research:
+  - Entry-0011 in research/research-log.md
+
 ## ADR Template
 
 ## ADR-XXXX Title

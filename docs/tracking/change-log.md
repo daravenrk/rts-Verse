@@ -17,3 +17,6 @@ Track high-level project changes with links to decisions and plans.
 - Added map standards for starting locations, expansion layout, contested objectives, and resource placement.
 - Added economy and pricing standards for Alloy, Power, Data, pricing bands, and resource-control expectations.
 - Logged ADR-0005 and research entry for map and economy standards.
+- Logged ADR-0010 and research entry for unified finite global stockpiles with random world event volatility.
+- Expanded game vision with four-era civilizational transition identity, One Box premise, maintenance-instability differentiator, and infrastructure warfare framing.
+- Logged ADR-0011 and research entry for civilizational transition multiplayer identity and distributed network warfare direction.
