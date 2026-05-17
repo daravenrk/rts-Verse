@@ -70,6 +70,28 @@ This document defines faction progression, production structure unlocks, and upg
   - Colony military elements are defensive support and should not out-trade frontline army tech at equal cost.
   - Civilian units should create strategic consequences when lost but remain weak in direct battle.
 
+## MVP Duel Solution: Human Helion vs Alien Veyari
+
+This MVP package defines one complete human faction and one complete alien faction for implementation-first combat validation.
+
+- Human faction for MVP: Helion Directorate (existing complete chain in this document).
+- Alien faction for MVP: Veyari Ascendancy (defined below).
+- Match objective: both factions must express distinct doctrine and still fight effectively across lanes, chokepoints, flanks, and contested resource nodes.
+
+### MVP Smart Combat Requirements
+
+- Scout and information cycle:
+  - Each faction must field early scouting and trigger first map read before committing to its first T1 major production branch.
+- Lane choice behavior:
+  - Armies must be able to choose between direct pressure lane and flank lane based on enemy fortification and travel time.
+- Terrain response:
+  - Infantry-focused groups should prefer cover and garrison opportunities where available.
+  - Heavy units should avoid pathing traps and preserve firing arcs in chokepoint fights.
+- Objective intelligence:
+  - Factions must contest at least one Data Node timing window and react to Descent-linked objective pressure.
+- Combat sustainability:
+  - Armies should disengage and re-form when sustain units are lost or frontline integrity collapses.
+
 ## Faction A: Helion Directorate
 
 Identity: aggressive tempo faction with fast deployment, shielded spearheads, and clean production chains.
@@ -204,6 +226,73 @@ Identity: macro-heavy siege faction with durable chassis, reclaim economy, and p
 - Advance into Siege Crucible for battlefield control and attrition dominance.
 - Reach Cataclysm Engine when map control and reclaim income support heavy investment.
 
+## Faction C: Veyari Ascendancy (Alien MVP)
+
+Identity: adaptive alien force with bio-gravity manipulation, zone denial growths, and high-impact precision strikes that rely on map anchors.
+
+### Tier 0
+
+- Descent Spire:
+  - Starts match.
+  - Produces: Echo Skimmer, Brood Architect.
+  - Unlocks: Biomass Conduit, Resonance Well, Clutch Hive.
+- Biomass Conduit:
+  - Generates Power-equivalent bio-energy throughput.
+- Resonance Well:
+  - Extracts Alloy-equivalent material through alien resonance drilling.
+- Clutch Hive:
+  - Produces: Needle Brood, Rift Claw, Spore Warden.
+
+### Tier 1
+
+- Carapace Forge:
+  - Requirement: Clutch Hive + Biomass Conduit.
+  - Produces: Skitter Lance, Bulwark Husk, Mire Spitter.
+- Phase Relay:
+  - Requirement: Clutch Hive.
+  - Provides sensor distortion and stealth reveal pulse.
+- Tendril Node:
+  - Requirement: Resonance Well.
+  - Expands alien creep influence and forward deployment radius.
+- Upgrades:
+  - Accelerated Moulting: light unit speed and turn-rate increase.
+  - Chitin Lattice: frontline durability increase.
+  - Predatory Echo: short-duration tracking pulse against retreating enemies.
+
+### Tier 2
+
+- Gravity Crucible:
+  - Requirement: Carapace Forge + Tendril Node.
+  - Produces: Rift Behemoth, Singularity Lobber, Veil Thorn Battery.
+- Sky Brood Nexus:
+  - Requirement: Phase Relay + Biomass Conduit.
+  - Produces: Talon Ray, Spire Carrier.
+- Synapse Archive:
+  - Requirement: Data Node captured + Descent Spire upgrade.
+  - Unlocks advanced adaptation and command upgrades.
+- Upgrades:
+  - Event Horizon Spines: siege splash and slow increase.
+  - Synaptic Overcast: command aura improves nearby reaction speed.
+  - Predation Cycle: bonus damage against isolated targets.
+
+### Tier 3
+
+- World Nerve:
+  - Requirement: Gravity Crucible + Sky Brood Nexus + Synapse Archive.
+  - Produces: Ascendant Leviathan.
+  - Unlocks: Gravity Bloom, Dominion Pulse.
+- Gravity Bloom:
+  - Area field that distorts movement and projectile travel.
+- Dominion Pulse:
+  - Global buff choice between regeneration surge or acceleration surge.
+
+### Veyari Production Flow Summary
+
+- Open with Clutch Hive control groups to secure early map vision and harassment.
+- Transition to Carapace Forge for durable lane presence and flank threat.
+- Hit Tier 2 through Gravity Crucible for ground break or Sky Brood Nexus for air-control pressure.
+- Reach World Nerve when Data access and mid-map tendril control are stable.
+
 ## Neutral and Shared Map Tech
 
 - Data Node:
@@ -221,6 +310,10 @@ Implement first:
 - One representative Tier 2 unlock path per faction.
 - No Tier 3 gameplay required for earliest playable build, but names and role targets are fixed for future planning.
 - Colony and civilian systems are planned in full, but only one T1 colony-defense path is required for earliest playable validation.
+- MVP duel implementation target:
+  - Use Helion Directorate as complete human faction.
+  - Use Veyari Ascendancy as complete alien faction.
+  - Validate smart combat behaviors on a standards-compliant duel map before expanding to additional factions.
 
 ## Validation Notes
 

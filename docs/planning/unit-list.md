@@ -125,6 +125,42 @@ Relative costs use Small, Medium, Large, and Apex to support planning before num
 | Hoist Lifter | Utility Aircraft | T2 | Aero Furnace | Medium | Heavy transport and salvage lift | Reposition tool |
 | Worldbreaker Colossus | Apex Siege Engine | T3 | Cataclysm Engine | Apex | Endgame siege finisher | Dominates static fronts |
 
+## Veyari Ascendancy (Alien MVP)
+
+| Unit | Class | Tier | Produced From | Cost | Role | Notes |
+| --- | --- | --- | --- | --- | --- | --- |
+| Echo Skimmer | Utility Air | T0 | Descent Spire | Small | Scout and early map read | Fast recon with low durability |
+| Brood Architect | Builder Infantry | T0 | Descent Spire | Small | Construction, healing growths, expansion setup | Core alien macro unit |
+| Needle Brood | Rifle Swarm Infantry | T0 | Clutch Hive | Small | Baseline anti-infantry objective pressure | High DPS in short bursts |
+| Rift Claw | Assault Infantry | T0 | Clutch Hive | Small | Close anti-armor and anti-structure pressure | Vulnerable to focus fire |
+| Spore Warden | Support Infantry | T0 | Clutch Hive | Small | Area sustain and debuff support | Low direct damage |
+| Skitter Lance | Light Vehicle | T1 | Carapace Forge | Small | Fast flanking and chase pressure | Excels in side lanes |
+| Bulwark Husk | Mainline Armor | T1 | Carapace Forge | Medium | Durable frontline and escort | Slower but efficient |
+| Mire Spitter | Siege Vehicle | T1 | Carapace Forge | Medium | Early indirect pressure and zone denial | Needs vision support |
+| Rift Behemoth | Heavy Breaker | T2 | Gravity Crucible | Large | Spearhead and area control | Strong anchor, costly |
+| Singularity Lobber | Heavy Artillery | T2 | Gravity Crucible | Large | Long-range break of static positions | Setup delay before fire |
+| Veil Thorn Battery | Mobile AA | T2 | Gravity Crucible | Medium | Air denial and escort support | Limited anti-ground |
+| Talon Ray | Strike Aircraft | T2 | Sky Brood Nexus | Large | Precision anti-armor strike | Vulnerable to concentrated AA |
+| Spire Carrier | Utility Aircraft | T2 | Sky Brood Nexus | Medium | Rapid redeploy and brood reinforcement | Mobility enabler |
+| Ascendant Leviathan | Apex Bio-Gravity Engine | T3 | World Nerve | Apex | Endgame center-of-mass pressure tool | High impact, high upkeep |
+
+## MVP Human and Alien Role Coverage Matrix
+
+| Role | Helion Directorate (Human MVP) | Veyari Ascendancy (Alien MVP) |
+| --- | --- | --- |
+| Scout | Surveyor Drone, Strider Bike | Echo Skimmer, Skitter Lance |
+| Builder | Line Engineer | Brood Architect |
+| Baseline Infantry | Lancer Squad | Needle Brood |
+| Breach Infantry | Breach Team | Rift Claw |
+| Sustain Support | Field Medic | Spore Warden |
+| Light Vehicle Pressure | Strider Bike | Skitter Lance |
+| Mainline Armor | Ember Tank | Bulwark Husk, Rift Behemoth |
+| Siege | Sunforge Artillery | Mire Spitter, Singularity Lobber |
+| Anti-Air | Sable AA Platform | Veil Thorn Battery |
+| Air Strike | Raptor Gunship | Talon Ray |
+| Air Utility | Halo Transport | Spire Carrier |
+| Apex Unit | Solarch Titan | Ascendant Leviathan |
+
 ## Role Coverage Matrix
 
 | Role | Helion Directorate | Obsidian Forge |
@@ -162,6 +198,30 @@ Units required for first playable slice:
   - One builder for each faction
   - One economy harvester structure for each faction
   - One captured Data Node objective
+
+## MVP Duel Roster Lock (Human vs Alien)
+
+Units required for MVP combat validation:
+
+- Helion Directorate (Human):
+  - Line Engineer
+  - Lancer Squad
+  - Breach Team
+  - Strider Bike
+  - Ember Tank
+  - Sunforge Artillery
+- Veyari Ascendancy (Alien):
+  - Brood Architect
+  - Needle Brood
+  - Rift Claw
+  - Skitter Lance
+  - Bulwark Husk
+  - Mire Spitter
+- Shared support:
+  - One builder for each faction
+  - One economy harvester structure for each faction
+  - One contested Data Node objective
+  - One flank lane and one chokepoint lane validated for combat behavior testing
 
 ## Balance Intent Summary
 

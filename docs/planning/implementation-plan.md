@@ -33,18 +33,22 @@ Define and deliver the first playable RTS vertical slice expressing daravenrk's 
   - Basic resource gathering.
   - Win and loss conditions for a small map.
   - First pass of asymmetry between two prototype factions.
+  - MVP faction pair lock: complete Human Helion and complete Alien Veyari combat rosters.
   - Prototype base expansion pressure loop.
   - Vertical-slice roster lock implemented from planning/unit-list.md.
   - First duel map built to planning/map-standards.md baseline.
 - Validation:
   - Functional: Manual playthrough confirms loop from start to finish.
+  - Functional: Human and alien MVP factions can complete opening, transition, and first combined-arms engagements.
   - Integration: Input, simulation, and UI flow work together without blocking issues.
+  - Integration: Map-aware route choice, objective contest behavior, and regroup logic function for both factions.
 
 ## M3 Content and Balance Pass
 
 - Status: Not Started
 - Outcomes:
   - Starter factions and unit roster.
+  - Human-vs-alien MVP duel package validated as production baseline before additional faction rollout.
   - Any-faction core roster baseline applied to new faction concepts, including Carrier plus Fighter and Corvette air-wing roles.
   - Colony and civilian units and structures integrated as a shared baseline with clear civilian versus militia combat boundaries.
   - Five-faction baseline (3 human, 1 alien, 1 robot) established for all future planning and test flows.

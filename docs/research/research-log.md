@@ -287,6 +287,33 @@ Use this file to capture evidence-backed findings before changing architecture o
   - Define access-node objective rules and orbital corridor contest behavior.
   - Add branch-emergence validation flows for human, machine, alien, and hybrid trajectories.
 
+## Entry-0013 Human vs Alien MVP Complete-Faction Solution
+
+- Date: 2026-05-17
+- Query: Design an MVP solution with one complete human faction and one complete alien faction that both fight intelligently in map environments.
+- Files reviewed:
+  - docs/planning/unit-list.md
+  - docs/planning/tech-tree.md
+  - docs/planning/map-standards.md
+  - docs/planning/testing-strategy.md
+  - docs/planning/implementation-plan.md
+- Evidence:
+  - Existing complete human implementation baseline already exists in Helion structures and roster.
+  - Alien faction baseline was still placeholder-level in faction scope sections.
+  - Testing strategy had strong economy and progression checks but required direct map-intelligence validation for tactical behavior.
+- Interpretation:
+  - Helion can serve as the human MVP anchor while a complete alien chain is added as Veyari Ascendancy.
+  - MVP quality depends on behavior intelligence, not only roster completeness; lane choice, objective timing, and regroup logic must be explicit tests.
+- Risks or unknowns:
+  - Tactical behavior tuning may take multiple iterations before stable asymmetry emerges.
+  - Alien roster power curve can overperform if area-control tools are not constrained in early tiers.
+- Recommended decision:
+  - Accept ADR-0013 and lock Human Helion vs Alien Veyari as the implementation-first duel package with smart map-fighting validation.
+- Follow-up tasks:
+  - Implement Veyari Tier 0 and Tier 1 production chain.
+  - Run F-16 and F-17 and record behavior deltas per map spawn.
+  - Tune route selection and regroup triggers to avoid repeated chokepoint attrition failures.
+
 ## Research Entry Template
 
 ## Entry-XXXX Title

@@ -31,3 +31,6 @@ Use this file for implementation-ready tasks linked to milestones.
 | T-0011 | M2 | P1 | Implement Data Node, contested Alloy deposits, and reclaim field objectives | Unassigned | M | T-0010 | Map objectives support resource-control and first contested fights | Todo |
 | T-0012 | M3 | P0 | Create initial numeric price sheet for locked vertical-slice units and structures | Unassigned | M | T-0006, T-0007, T-0010 | Price sheet satisfies economy-standards.md opening and expansion rules | Todo |
 | T-0013 | M3 | P1 | Validate faction economy identity against resource-control standards | Unassigned | M | T-0011, T-0012 | Helion and Obsidian express intended tempo and attrition differences | Todo |
+| T-0014 | M2 | P0 | Implement Veyari Ascendancy Tier 0 and Tier 1 production chain for alien MVP faction | Unassigned | L | T-0003 | Veyari can build all MVP lock units from documented structures | Todo |
+| T-0015 | M2 | P0 | Validate Helion and Veyari MVP duel roster lock completeness | Unassigned | M | T-0006, T-0014 | F-16 passes with no undefined unit or structure dependencies | Todo |
+| T-0016 | M2 | P1 | Implement map-aware tactical behaviors for lane choice, objective contest, and regroup logic | Unassigned | L | T-0002, T-0010, T-0011 | F-17 passes for both factions across both spawns | Todo |

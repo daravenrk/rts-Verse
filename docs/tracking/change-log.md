@@ -23,3 +23,6 @@ Track high-level project changes with links to decisions and plans.
 - Expanded vision with three-way civilizational collision framing and The Descent as persistent world catalyst.
 - Logged ADR-0012 and research entry for Descent-centered architecture and dynamic evolution baseline.
 - Added implementation, testing, tech-tree, and sprint tracking updates for Descent objectives and branch emergence validation.
+- Added Human-vs-Alien MVP solution with complete Helion and Veyari faction definitions for implementation-first combat scope.
+- Logged ADR-0013 and research entry for complete-faction MVP duel baseline and smart map-fighting requirements.
+- Added F-16 and F-17 validation flows plus backlog tasks for map-aware tactical behavior.

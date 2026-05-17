@@ -35,6 +35,9 @@ Keep this list short, actionable, and current.
 - [ ] Define Descent event catalog (debris, storms, gravity anomalies, surges, contamination, resource blooms) with bounded cadence.
 - [ ] Define dynamic evolution branch thresholds for machine, alien, and hybrid progression from shared human opening.
 - [ ] Add player-facing readability rules for branch state, Descent status, and event warning windows.
+- [ ] Implement MVP faction pair: Helion (Human) and Veyari (Alien) with full roster-lock completeness checks.
+- [ ] Run F-16 Human vs Alien MVP Combat Completeness and record failures by dependency type.
+- [ ] Run F-17 Map-Aware Tactical Combat Intelligence and tune lane selection, objective timing, and regroup logic.
 
 ## Ready Queue
 
@@ -61,6 +64,7 @@ Keep this list short, actionable, and current.
 - 2026-05-17: Unified global stockpile economy direction documented, including finite resources and random world event volatility.
 - 2026-05-17: Civilizational transition vision documented with four-era battlefield arc, One Box premise, and distributed network warfare direction.
 - 2026-05-17: Three-way collision direction documented with Humanity, One Box, alien systems, and Descent-centered escalation model.
+- 2026-05-17: MVP Human-vs-Alien solution documented with complete Veyari alien faction, duel roster lock, and smart map-fighting validation flows.
 
 ## Owner Map
 

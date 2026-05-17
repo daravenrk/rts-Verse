@@ -299,6 +299,33 @@ Status values: Proposed, Accepted, Deprecated, Superseded
 - Related research:
   - Entry-0012 in research/research-log.md
 
+## ADR-0013 Human vs Alien MVP Complete-Faction Combat Baseline
+
+- Date: 2026-05-17
+- Status: Accepted
+- Context: The project now has broad multi-faction direction, but implementation needs a tightly scoped MVP where one human faction and one alien faction are complete and battle-ready on real map objectives.
+- Decision: Use Helion Directorate as the complete Human MVP faction and Veyari Ascendancy as the complete Alien MVP faction. Define an MVP duel roster lock and require map-aware combat behavior (lane selection, objective contest, terrain response, and regroup logic) for both factions.
+- Rationale:
+  - Creates a concrete, buildable milestone aligned with the three-way setting and Descent escalation.
+  - Delivers immediate asymmetric gameplay signal without waiting for full five-faction completion.
+  - Makes combat intelligence testable against map standards, not only unit stats.
+- Tradeoffs:
+  - Defers full parity work for remaining factions.
+  - Requires additional AI behavior tuning effort earlier in MVP timeline.
+- Alternatives considered:
+  - Keep the previous Helion vs Obsidian pair as sole MVP baseline.
+  - Delay alien faction completion until after core loop implementation.
+- Validation approach:
+  - Functional: Both factions can execute full documented production and field the MVP lock roster.
+  - Integration: Map-aware combat behaviors interact correctly with lanes, chokepoints, flanks, and contested Data objectives.
+  - Smoke: Full duel scenario reaches repeated engagements and at least one T2 transition for both factions.
+  - Observability: Scenario logs capture route choice, objective timing, retreat-regroup cycles, and unit loss efficiency.
+- Related plan items:
+  - M2 Core Gameplay Loop
+  - M3 Content and Balance Pass
+- Related research:
+  - Entry-0013 in research/research-log.md
+
 ## ADR Template
 
 ## ADR-XXXX Title

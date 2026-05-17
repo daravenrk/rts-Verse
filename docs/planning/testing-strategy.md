@@ -189,6 +189,31 @@ This document defines validation layers for milestone delivery.
   - Machine, alien, and hybrid branches each create distinct advantages and liabilities.
   - No branch produces deterministic victory with equal execution quality.
 
+## Flow F-16 Human vs Alien MVP Combat Completeness
+
+- Setup: Scenario uses Helion Directorate and Veyari Ascendancy with MVP duel roster lock enabled.
+- Steps:
+  - Execute one full opening cycle for each faction from first builder to first T1 armor.
+  - Field each required roster-lock unit in a controlled engagement.
+  - Trigger one T2 transition option for each faction and validate no dependency deadlocks.
+- Expected:
+  - Both factions can complete their documented production chain without undefined content.
+  - Human and alien combat identities are readable by Tier 1.
+  - Both factions retain viable paths to recover after one failed engagement.
+
+## Flow F-17 Map-Aware Tactical Combat Intelligence
+
+- Setup: Duel map includes one direct lane, one flank lane, one chokepoint, and one contested Data Node.
+- Steps:
+  - Run one pressure plan through direct lane and one through flank lane for each faction.
+  - Validate cover and chokepoint response: infantry groups should seek cover while siege units maintain protected firing lines.
+  - Validate objective behavior: both factions must contest Data Node timing rather than remain static in home area.
+  - Validate disengage and regroup logic after frontline collapse.
+- Expected:
+  - Armies choose context-appropriate routes and do not repeatedly path into obvious kill zones.
+  - Faction behavior responds to terrain and objective pressure instead of only nearest-target attack logic.
+  - Retreat and regroup behavior preserves strategic counterplay and reduces all-in collapse frequency.
+
 ## Reporting Template
 
 - Date:
