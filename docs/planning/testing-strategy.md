@@ -165,6 +165,30 @@ This document defines validation layers for milestone delivery.
   - Distributed infrastructure provides measurable resilience and recovery options.
   - Network collapse outcomes are strategic and readable, not purely random failure events.
 
+## Flow F-14 Descent Objective and Orbital Event Pressure
+
+- Setup: Scenario includes The Descent anchor, access nodes, orbital traffic corridors, and at least two Descent-linked world-event categories.
+- Steps:
+  - Contest one Descent access node from both player perspectives.
+  - Trigger one logistics-disruptive event and one economy-opportunity event from the Descent system.
+  - Measure extraction, routing, and combat posture changes during event windows.
+- Expected:
+  - Descent objectives are strategically valuable and visibly contested.
+  - Event pressure changes map priorities without creating unavoidable collapse states.
+  - Descent-linked opportunities reward timing and map control rather than passive waiting.
+
+## Flow F-15 Dynamic Evolution Branch Emergence
+
+- Setup: All players begin in shared human-survival opening conditions with branch unlocks enabled.
+- Steps:
+  - Execute one machine-integration line, one alien-integration line, and one hybrid line across repeat runs.
+  - Record divergence timing, required commitments, and branch-defining capabilities.
+  - Validate branch counterplay from a non-matching doctrine in each run.
+- Expected:
+  - Branch identity emerges from gameplay decisions rather than pre-match labels.
+  - Machine, alien, and hybrid branches each create distinct advantages and liabilities.
+  - No branch produces deterministic victory with equal execution quality.
+
 ## Reporting Template
 
 - Date:

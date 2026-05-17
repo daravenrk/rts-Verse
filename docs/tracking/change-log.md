@@ -20,3 +20,6 @@ Track high-level project changes with links to decisions and plans.
 - Logged ADR-0010 and research entry for unified finite global stockpiles with random world event volatility.
 - Expanded game vision with four-era civilizational transition identity, One Box premise, maintenance-instability differentiator, and infrastructure warfare framing.
 - Logged ADR-0011 and research entry for civilizational transition multiplayer identity and distributed network warfare direction.
+- Expanded vision with three-way civilizational collision framing and The Descent as persistent world catalyst.
+- Logged ADR-0012 and research entry for Descent-centered architecture and dynamic evolution baseline.
+- Added implementation, testing, tech-tree, and sprint tracking updates for Descent objectives and branch emergence validation.

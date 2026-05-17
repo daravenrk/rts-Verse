@@ -31,6 +31,10 @@ Keep this list short, actionable, and current.
 - [ ] Define One Box original-core penalty rules and distributed network recovery mechanics.
 - [ ] Define maintenance-instability resource model for high-tier automation (upkeep, bandwidth, cooling, logistics).
 - [ ] Add infrastructure warfare design checklist for system-targeting superweapons and command disruption effects.
+- [ ] Define Descent access-node control rules and orbital corridor contest mechanics.
+- [ ] Define Descent event catalog (debris, storms, gravity anomalies, surges, contamination, resource blooms) with bounded cadence.
+- [ ] Define dynamic evolution branch thresholds for machine, alien, and hybrid progression from shared human opening.
+- [ ] Add player-facing readability rules for branch state, Descent status, and event warning windows.
 
 ## Ready Queue
 
@@ -56,6 +60,7 @@ Keep this list short, actionable, and current.
 - 2026-05-17: Five-tier tech tree baseline added for all factions.
 - 2026-05-17: Unified global stockpile economy direction documented, including finite resources and random world event volatility.
 - 2026-05-17: Civilizational transition vision documented with four-era battlefield arc, One Box premise, and distributed network warfare direction.
+- 2026-05-17: Three-way collision direction documented with Humanity, One Box, alien systems, and Descent-centered escalation model.
 
 ## Owner Map
 

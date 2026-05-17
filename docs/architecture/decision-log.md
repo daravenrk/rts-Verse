@@ -273,6 +273,32 @@ Status values: Proposed, Accepted, Deprecated, Superseded
 - Related research:
   - Entry-0011 in research/research-log.md
 
+## ADR-0012 Three-Way Collision and Descent-Centered Match Architecture
+
+- Date: 2026-05-17
+- Status: Accepted
+- Context: The civilizational transition arc and One Box premise are defined, but the setting lacks a singular planetary catalyst that unifies alien arrival, tech acceleration, and persistent world volatility during multiplayer matches.
+- Decision: Establish a three-way civilizational collision architecture involving Humanity, the One Box machine intelligence, and alien orbital systems. Adopt The Descent as the defining persistent event: a colossal orbital anchor that acts as strategic map centerpiece, event engine, and escalation trigger.
+- Rationale:
+  - Provides a strong world-scale identity that differentiates the game from generic faction-war RTS framing.
+  - Explains rapid tech acceleration through salvage and reverse engineering of alien systems.
+  - Unifies world events, objective design, and late-game infrastructure warfare under one consistent cause.
+- Tradeoffs:
+  - Requires additional readability support to communicate event effects and phase shifts.
+  - Increases design surface across maps, UI, and progression rules.
+- Alternatives considered:
+  - Keep alien participation as a standard third army with no persistent megastructure.
+  - Keep fixed starting factions only and avoid dynamic evolution from shared opening conditions.
+- Validation approach:
+  - Functional: Matches contain visible Descent-linked objectives and event effects that influence strategic choices.
+  - Integration: Economy volatility, tech progression, and network warfare systems reference Descent state transitions coherently.
+  - Smoke: A scenario can move from Survival Warfare to at least one machine or alien integration branch without undefined blockers.
+  - Observability: Telemetry captures Descent event timing, objective control swings, and branch adoption rates.
+- Related plan items:
+  - M3 Content and Balance Pass
+- Related research:
+  - Entry-0012 in research/research-log.md
+
 ## ADR Template
 
 ## ADR-XXXX Title

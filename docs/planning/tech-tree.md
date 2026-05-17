@@ -21,6 +21,16 @@ This document defines faction progression, production structure unlocks, and upg
 - Enable progression from light skirmish to heavy combined-arms warfare.
 - Keep the vertical slice implementable by staging tech in clear tiers.
 
+## Descent Catalyst and Evolution Policy
+
+- The match world includes a persistent orbital anchor event called The Descent.
+- Descent-linked systems are the canonical source of alien acceleration effects, major world-event volatility, and late-game orbital access pressure.
+- Primary multiplayer baseline uses dynamic evolution:
+  - All players begin in human-survival conditions.
+  - Players diverge through machine integration, alien integration, or hybrid trajectories as the match escalates.
+- Fixed-start faction variants are allowed for specific scenarios, but dynamic evolution remains the default architecture target.
+- Descent objectives should be represented by controllable access nodes, transit corridors, and uplink control points that interact with economy and tech unlock pressure.
+
 ## Shared Match Economy Model
 
 - Resources:

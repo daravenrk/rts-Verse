@@ -260,6 +260,33 @@ Use this file to capture evidence-backed findings before changing architecture o
   - Define One Box core loss penalties and distributed recovery paths.
   - Add validation flows for era progression and infrastructure collapse outcomes.
 
+## Entry-0012 Three-Way Collision and Descent Event Architecture
+
+- Date: 2026-05-17
+- Query: Expand the setting into a three-way collision and define a planetary catalyst event that drives escalation and world volatility.
+- Files reviewed:
+  - docs/planning/game-vision.md
+  - docs/planning/tech-tree.md
+  - docs/planning/economy-standards.md
+  - docs/planning/testing-strategy.md
+  - docs/architecture/decision-log.md
+- Evidence:
+  - Current identity already supports machine emergence and instability, but lacked a single world-defining event to anchor alien influence.
+  - Unified global stockpile and random world event standards already exist and can be tied to a persistent source.
+  - Era progression and One Box systems benefit from a visible strategic centerpiece that all players contest.
+- Interpretation:
+  - The Descent can serve as both lore catalyst and deterministic systems anchor for event generation, map objectives, and technology acceleration.
+  - Dynamic evolution from shared starting conditions should remain the primary multiplayer model for replayability.
+- Risks or unknowns:
+  - Descent-driven event intensity may overwhelm readability if effect windows are not clearly telegraphed.
+  - Alien integration branches require careful tuning to avoid invalidating human and machine paths.
+- Recommended decision:
+  - Accept ADR-0012 and propagate Descent-linked objective, event, and evolution-path requirements across planning artifacts.
+- Follow-up tasks:
+  - Define Descent event categories, cadence bounds, and warning windows.
+  - Define access-node objective rules and orbital corridor contest behavior.
+  - Add branch-emergence validation flows for human, machine, alien, and hybrid trajectories.
+
 ## Research Entry Template
 
 ## Entry-XXXX Title
