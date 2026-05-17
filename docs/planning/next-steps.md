@@ -38,6 +38,10 @@ Keep this list short, actionable, and current.
 - [ ] Implement MVP faction pair: Helion (Human) and Veyari (Alien) with full roster-lock completeness checks.
 - [ ] Run F-16 Human vs Alien MVP Combat Completeness and record failures by dependency type.
 - [ ] Run F-17 Map-Aware Tactical Combat Intelligence and tune lane selection, objective timing, and regroup logic.
+- [ ] Implement default keyboard and mouse bindings from planning/controls-standards.md.
+- [ ] Implement MVP HUD components: resource bar, minimap, command card, alerts, and queue display.
+- [ ] Run F-18 Keyboard and Mouse Command Coverage and resolve command gap defects.
+- [ ] Run F-19 Camera and HUD Usability Validation and tune camera responsiveness.
 
 ## Ready Queue
 
@@ -65,6 +69,7 @@ Keep this list short, actionable, and current.
 - 2026-05-17: Civilizational transition vision documented with four-era battlefield arc, One Box premise, and distributed network warfare direction.
 - 2026-05-17: Three-way collision direction documented with Humanity, One Box, alien systems, and Descent-centered escalation model.
 - 2026-05-17: MVP Human-vs-Alien solution documented with complete Veyari alien faction, duel roster lock, and smart map-fighting validation flows.
+- 2026-05-17: UI and controls baseline documented with keyboard and mouse bindings, HUD standards, and validation flows.
 
 ## Owner Map
 

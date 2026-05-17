@@ -12,6 +12,7 @@ This folder contains architecture, planning, research, and delivery tracking art
 - Game vision: docs/planning/game-vision.md
 - Tech tree: docs/planning/tech-tree.md
 - Unit list: docs/planning/unit-list.md
+- UI and controls standards: docs/planning/controls-standards.md
 - Map standards: docs/planning/map-standards.md
 - Economy and pricing standards: docs/planning/economy-standards.md
 - Task backlog: docs/planning/task-backlog.md

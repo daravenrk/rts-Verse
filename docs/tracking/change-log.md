@@ -26,3 +26,6 @@ Track high-level project changes with links to decisions and plans.
 - Added Human-vs-Alien MVP solution with complete Helion and Veyari faction definitions for implementation-first combat scope.
 - Logged ADR-0013 and research entry for complete-faction MVP duel baseline and smart map-fighting requirements.
 - Added F-16 and F-17 validation flows plus backlog tasks for map-aware tactical behavior.
+- Added UI and controls standards for keyboard and mouse bindings, camera controls, command grid, HUD layout, and alerts.
+- Logged ADR-0014 and research entry for RTS input and UI baseline.
+- Added F-18 and F-19 validation flows plus backlog and sprint tasks for controls and HUD implementation.

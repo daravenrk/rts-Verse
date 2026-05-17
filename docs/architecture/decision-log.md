@@ -326,6 +326,32 @@ Status values: Proposed, Accepted, Deprecated, Superseded
 - Related research:
   - Entry-0013 in research/research-log.md
 
+## ADR-0014 RTS UI and Keyboard-Mouse Control Baseline
+
+- Date: 2026-05-17
+- Status: Accepted
+- Context: Core gameplay and faction scope are defined, but UI interaction and input controls were not yet standardized as a source-of-truth baseline for MVP implementation.
+- Decision: Adopt docs/planning/controls-standards.md as the canonical control and HUD baseline for MVP. Require keyboard and mouse support for selection, command issuing, camera control, control groups, production hotkeys, and critical feedback states.
+- Rationale:
+  - Ensures players can execute core RTS actions reliably before content expansion.
+  - Reduces ambiguity between gameplay logic and UI interaction expectations.
+  - Makes input behavior testable with concrete flows and acceptance criteria.
+- Tradeoffs:
+  - Adds up-front implementation work for remapping and accessibility toggles.
+  - May require iterative tuning after playtests to optimize ergonomics.
+- Alternatives considered:
+  - Keep controls implicit and define bindings only during implementation.
+  - Ship MVP with mouse-only controls and add keyboard support later.
+- Validation approach:
+  - Functional: Players can select, issue commands, control camera, and manage production entirely through documented bindings.
+  - Integration: HUD state reflects resource, objective, and command feedback without desync from simulation events.
+  - Smoke: Full match can be played end-to-end with no blocked actions due to missing bindings.
+  - Observability: Input logs and scenario notes capture command acknowledgment, invalid command causes, and camera control issues.
+- Related plan items:
+  - M2 Core Gameplay Loop
+- Related research:
+  - Entry-0014 in research/research-log.md
+
 ## ADR Template
 
 ## ADR-XXXX Title

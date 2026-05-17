@@ -34,3 +34,6 @@ Use this file for implementation-ready tasks linked to milestones.
 | T-0014 | M2 | P0 | Implement Veyari Ascendancy Tier 0 and Tier 1 production chain for alien MVP faction | Unassigned | L | T-0003 | Veyari can build all MVP lock units from documented structures | Todo |
 | T-0015 | M2 | P0 | Validate Helion and Veyari MVP duel roster lock completeness | Unassigned | M | T-0006, T-0014 | F-16 passes with no undefined unit or structure dependencies | Todo |
 | T-0016 | M2 | P1 | Implement map-aware tactical behaviors for lane choice, objective contest, and regroup logic | Unassigned | L | T-0002, T-0010, T-0011 | F-17 passes for both factions across both spawns | Todo |
+| T-0017 | M2 | P0 | Implement keyboard and mouse control bindings from planning/controls-standards.md | Unassigned | M | T-0001, T-0002 | F-18 passes all command and group control checks | Todo |
+| T-0018 | M2 | P0 | Implement MVP HUD baseline: resource bar, minimap, command card, alerts, and queues | Unassigned | L | T-0004, T-0017 | F-19 passes camera and HUD synchronization checks | Todo |
+| T-0019 | M2 | P1 | Add remappable hotkeys and camera sensitivity settings with persistence | Unassigned | M | T-0017 | F-19 optional settings persistence passes after restart | Todo |

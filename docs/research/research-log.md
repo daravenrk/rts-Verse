@@ -314,6 +314,31 @@ Use this file to capture evidence-backed findings before changing architecture o
   - Run F-16 and F-17 and record behavior deltas per map spawn.
   - Tune route selection and regroup triggers to avoid repeated chokepoint attrition failures.
 
+## Entry-0014 RTS UI and Keyboard-Mouse Control Baseline
+
+- Date: 2026-05-17
+- Query: Define MVP UI controls and complete keyboard and mouse control standards.
+- Files reviewed:
+  - docs/planning/conventions.md
+  - docs/planning/testing-strategy.md
+  - docs/planning/implementation-plan.md
+  - docs/planning/task-backlog.md
+- Evidence:
+  - Conventions require centralized input naming, but no complete binding baseline existed.
+  - Existing test flows validate movement and selection, but did not cover full control-group, camera, and production hotkey behavior.
+  - M2 outcomes require end-to-end playable core loop, which depends on reliable input and HUD feedback.
+- Interpretation:
+  - A dedicated controls standards document is needed to align gameplay, UI, and input implementation.
+  - Input should be validated as a system, not as isolated commands.
+- Risks or unknowns:
+  - Key layout may need iteration for ergonomics and accessibility.
+  - Camera defaults can feel too slow or too fast without early tuning.
+- Recommended decision:
+  - Accept ADR-0014 and enforce controls-standards.md as MVP source of truth.
+- Follow-up tasks:
+  - Implement full command-card hotkey grid and remapping support.
+  - Add control-specific validation flows and backlog tasks for camera, groups, and HUD feedback.
+
 ## Research Entry Template
 
 ## Entry-XXXX Title

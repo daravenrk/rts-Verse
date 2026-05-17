@@ -33,6 +33,8 @@ Define and deliver the first playable RTS vertical slice expressing daravenrk's 
   - Basic resource gathering.
   - Win and loss conditions for a small map.
   - First pass of asymmetry between two prototype factions.
+  - Keyboard and mouse control baseline implemented from planning/controls-standards.md.
+  - MVP HUD implemented with command card, minimap, resource bars, and alert states.
   - MVP faction pair lock: complete Human Helion and complete Alien Veyari combat rosters.
   - Prototype base expansion pressure loop.
   - Vertical-slice roster lock implemented from planning/unit-list.md.
@@ -41,6 +43,8 @@ Define and deliver the first playable RTS vertical slice expressing daravenrk's 
   - Functional: Manual playthrough confirms loop from start to finish.
   - Functional: Human and alien MVP factions can complete opening, transition, and first combined-arms engagements.
   - Integration: Input, simulation, and UI flow work together without blocking issues.
+  - Functional: Players can execute all core commands and camera actions using documented bindings.
+  - Integration: Resource, alert, and command feedback states match gameplay events without stale or missing HUD updates.
   - Integration: Map-aware route choice, objective contest behavior, and regroup logic function for both factions.
 
 ## M3 Content and Balance Pass
@@ -95,6 +99,7 @@ Define and deliver the first playable RTS vertical slice expressing daravenrk's 
 - Tech tree: planning/tech-tree.md
 - Unit list: planning/unit-list.md
 - Map standards: planning/map-standards.md
+- UI and controls standards: planning/controls-standards.md
 - Economy standards: planning/economy-standards.md
 - Task backlog: planning/task-backlog.md
 - Testing strategy: planning/testing-strategy.md

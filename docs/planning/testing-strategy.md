@@ -214,6 +214,32 @@ This document defines validation layers for milestone delivery.
   - Faction behavior responds to terrain and objective pressure instead of only nearest-target attack logic.
   - Retreat and regroup behavior preserves strategic counterplay and reduces all-in collapse frequency.
 
+## Flow F-18 Keyboard and Mouse Command Coverage
+
+- Setup: Scenario loads with default controls profile from planning/controls-standards.md.
+- Steps:
+  - Execute selection suite: single, box, additive, subtractive, and same-type double-select.
+  - Execute command suite: move, attack, attack-move, gather, repair, patrol, hold, stop.
+  - Execute control groups: assign, recall, and double-tap camera center behavior.
+  - Execute production grid inputs and queue behavior with shift modifiers.
+- Expected:
+  - All documented actions are reachable through keyboard and mouse without fallback debug commands.
+  - Command acknowledgments are immediate and consistent.
+  - Invalid commands return clear reasons without silent failures.
+
+## Flow F-19 Camera and HUD Usability Validation
+
+- Setup: MVP duel scenario with minimap, resource HUD, command card, and alert states enabled.
+- Steps:
+  - Validate camera pan, zoom, center-on-selection, and base-focus controls.
+  - Trigger resource shortage, objective contest, and Descent event warnings.
+  - Verify command card state updates for selected units and structure production queues.
+  - Toggle optional controls (edge scroll and sensitivity settings) and confirm persistence.
+- Expected:
+  - Camera controls remain responsive and predictable across all map sectors.
+  - HUD alerts are visible, timely, and non-blocking.
+  - UI state always matches gameplay state for selected entity commands and queue progress.
+
 ## Reporting Template
 
 - Date:
