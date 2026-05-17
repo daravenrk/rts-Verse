@@ -8,6 +8,10 @@ This folder contains architecture, planning, research, and delivery tracking art
 - Research evidence: docs/research/research-log.md
 - Implementation plan: docs/planning/implementation-plan.md
 - Active next steps: docs/planning/next-steps.md
+- Project conventions: docs/planning/conventions.md
+- Task backlog: docs/planning/task-backlog.md
+- Testing strategy: docs/planning/testing-strategy.md
+- Definition of done: docs/planning/definition-of-done.md
 
 ## Supporting Trackers
 
@@ -22,4 +26,7 @@ This folder contains architecture, planning, research, and delivery tracking art
 - Research log: update whenever a meaningful finding is confirmed.
 - Implementation plan: update at milestone boundaries.
 - Next steps: update daily while active work is in progress.
+- Conventions and definition of done: update when process or quality expectations change.
+- Task backlog: update as tasks move or are reprioritized.
+- Testing strategy: update when milestones or acceptance flows change.
 - Risk and assumptions: update as soon as status changes.

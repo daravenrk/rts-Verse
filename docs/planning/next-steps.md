@@ -5,15 +5,17 @@ Keep this list short, actionable, and current.
 ## Current Sprint
 
 - [x] Create architecture and planning documentation baseline.
-- [ ] Define coding conventions for scenes, scripts, and assets.
+- [x] Define coding conventions for scenes, scripts, and assets.
 - [ ] Define initial vertical slice requirements and acceptance criteria.
-- [ ] Create first gameplay task breakdown for M2.
+- [x] Create first gameplay task breakdown for M2.
+- [ ] Assign owners and estimates for M2 seed backlog tasks.
+- [ ] Execute first pass of M2 validation flows F-01 and F-02.
 
 ## Ready Queue
 
-- [ ] Establish folder conventions for gameplay systems.
+- [x] Establish folder conventions for gameplay systems.
 - [ ] Define deterministic simulation constraints.
-- [ ] Draft test scenarios for core loop validation.
+- [x] Draft test scenarios for core loop validation.
 
 ## Blocked
 
@@ -22,6 +24,7 @@ Keep this list short, actionable, and current.
 ## Completed
 
 - 2026-05-17: Documentation baseline created under docs.
+- 2026-05-17: Project conventions, task backlog, testing strategy, and definition of done added.
 
 ## Owner Map
 

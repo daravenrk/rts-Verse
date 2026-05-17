@@ -17,6 +17,31 @@ Use this file to capture evidence-backed findings before changing architecture o
 - Decision impact:
   - Supports ADR-0001 by justifying creation of documentation baseline.
 
+## Entry-0002 Process and Execution Gaps
+
+- Date: 2026-05-17
+- Query: Add conventions and other generally beneficial project operating artifacts.
+- Files reviewed:
+  - docs/README.md
+  - docs/architecture/decision-log.md
+  - docs/planning/implementation-plan.md
+  - docs/planning/next-steps.md
+  - docs/tracking/assumptions.md
+  - docs/tracking/risk-register.md
+- Evidence:
+  - Next-steps tracker had open item for coding conventions.
+  - Implementation plan M1 listed conventions as a required outcome.
+  - No explicit testing strategy, task backlog structure, or done criteria existed.
+- Interpretation:
+  - Foundational planning existed but execution standards were incomplete.
+  - Additional planning artifacts would reduce ambiguity and improve delivery reliability.
+- Risks or unknowns:
+  - Process overhead may slow very small changes if over-applied.
+- Recommended decision:
+  - Accept a conventions and delivery-quality baseline as ADR-0002.
+- Follow-up tasks:
+  - Keep backlog and testing flows aligned with active milestone work.
+
 ## Research Entry Template
 
 ## Entry-XXXX Title

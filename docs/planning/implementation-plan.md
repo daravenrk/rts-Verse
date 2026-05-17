@@ -16,12 +16,14 @@ Define and deliver the first playable RTS vertical slice with reliable build and
 
 ## M1 Project Foundations
 
-- Status: In Progress
+- Status: Complete
 - Outcomes:
   - Documentation system is in place.
   - Development conventions are defined.
+  - Delivery-quality artifacts are defined: backlog, testing strategy, and definition of done.
 - Validation:
   - Smoke: Required tracking docs exist and are linked from docs index.
+  - Functional: Conventions and test-flow templates are available for contributor use.
 
 ## M2 Core Gameplay Loop
 
@@ -56,3 +58,10 @@ Define and deliver the first playable RTS vertical slice with reliable build and
 
 - See tracking/risk-register.md for active risks.
 - See tracking/assumptions.md for assumptions that can affect scope.
+
+## Working Artifacts
+
+- Conventions: planning/conventions.md
+- Task backlog: planning/task-backlog.md
+- Testing strategy: planning/testing-strategy.md
+- Definition of done: planning/definition-of-done.md
