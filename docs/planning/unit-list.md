@@ -2,6 +2,45 @@
 
 This document defines the planned roster for both prototype factions.
 
+## Any-Faction Core Roster Baseline
+
+Use this baseline for any new faction concept so role coverage is complete before faction-specific asymmetry is layered in.
+
+### Core Unit List
+
+| Unit | Class | Tier | Produced From | Cost | Role | Notes |
+| --- | --- | --- | --- | --- | --- | --- |
+| Recon Scout | Utility Vehicle or Utility Air | T0 | Command structure | Small | Early scouting and map vision | Fast and lightly armed or unarmed |
+| Combat Engineer | Builder Infantry | T0 | Command structure | Small | Construction, repair, expansion setup | Required for economy and tech progression |
+| Line Infantry | Rifle Infantry | T0 | Barracks-equivalent | Small | Baseline anti-infantry and objective control | Reliable generalist combat unit |
+| Breach Infantry | Assault or Demolition Infantry | T0 | Barracks-equivalent | Small | Close-range anti-structure and anti-armor pressure | Short range and counterable in open ground |
+| Field Support Team | Support Infantry | T0 | Barracks-equivalent | Small | Sustain, healing, or repair support | Low direct damage |
+| Raider Vehicle | Light Vehicle | T1 | Vehicle structure | Small | Harassment, flanking, and chase | Speed-focused with low durability |
+| Main Battle Vehicle | Tank or Heavy Vehicle | T1 | Vehicle structure | Medium | Mainline ground fighting power | Core frontline unit for midgame pushes |
+| Mobile AA | Support Vehicle | T1 or T2 | Vehicle structure | Medium | Escort anti-air coverage | Keeps air play interactive and punishable |
+| Siege Platform | Artillery or Siege Vehicle | T2 | Advanced ground structure | Large | Break static fronts and force movement | Requires vision and frontline protection |
+| Heavy Breaker | Heavy Walker or Assault Vehicle | T2 | Advanced ground structure | Large | Durable spearhead and zone control | Expensive anchor unit |
+| Fighter | Interceptor Aircraft | T2 | Carrier or Airfield | Medium | Air superiority and anti-air interception | Must be cost-effective against strike craft |
+| Corvette | Strike Aircraft | T2 | Carrier or Airfield | Medium or Large | Anti-armor and anti-ship strike role | Lower dogfight efficiency than Fighter |
+| Tactical Transport | Utility Aircraft | T2 | Airfield | Medium | Rapid redeploy and extraction | Enables multi-front pressure |
+| Carrier | Capital Command Vessel | T2 or T3 | Naval Yard or Air Command | Large or Apex | Mobile launch and recovery base for Fighters and Corvettes | Limited direct firepower; force multiplier through hosted craft |
+| Apex Unit | Endgame centerpiece | T3 | Apex structure | Apex | Decisive late-game pressure tool | Must require clear economic and tech commitment |
+
+### Carrier and Airfield Basing Rules
+
+- Carrier:
+  - Hosts and launches Fighter and Corvette squadrons.
+  - Can rearm and repair hosted craft while out on the map.
+  - Should project power by position and timing, not raw solo DPS.
+- Airfield:
+  - Produces and services Fighter, Corvette, and Tactical Transport.
+  - Provides safer sustained air production than a forward carrier.
+  - Should be a high-value strategic target in base raids.
+- Shared constraints:
+  - Fighters and Corvettes must always have at least one valid home base (Carrier or Airfield).
+  - Loss of all valid home bases should reduce sortie tempo until a base is rebuilt.
+  - Carrier-based and airfield-based craft must share role identities while allowing faction-specific stat asymmetry.
+
 ## Cost Model
 
 Relative costs use Small, Medium, Large, and Apex to support planning before numerical balance is set.

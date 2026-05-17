@@ -112,6 +112,32 @@ Use this file to capture evidence-backed findings before changing architecture o
 - Follow-up tasks:
   - Add map fairness and economy-control checks to testing flows and backlog items.
 
+## Entry-0006 Any-Faction Unit Coverage with Carrier Air Wing
+
+- Date: 2026-05-17
+- Query: What units are required for any faction baseline, including a carrier and fighter/corvette craft based from a carrier or airfield?
+- Files reviewed:
+  - docs/planning/unit-list.md
+  - docs/planning/tech-tree.md
+  - docs/planning/testing-strategy.md
+  - docs/planning/implementation-plan.md
+  - docs/architecture/decision-log.md
+- Evidence:
+  - unit-list.md documents faction-specific rosters and role matrix but no explicit reusable any-faction baseline.
+  - tech-tree.md emphasizes Tier 2 air control and combined-arms transitions, implying mandatory anti-air and strike role coverage.
+  - implementation-plan.md M3 expects starter factions and unit roster work, which benefits from standardized role completeness checks.
+- Interpretation:
+  - A faction-agnostic roster baseline is needed to keep new faction design complete and comparable without weakening asymmetry.
+  - Carrier and airfield basing rules should be explicit so Fighter and Corvette operations remain testable and predictable.
+- Risks or unknowns:
+  - Carrier timing may create snowball patterns if launch and rearm tempo is not bounded.
+  - Exact numeric tuning for Fighter/Corvette efficiency remains provisional.
+- Recommended decision:
+  - Accept ADR-0006 and use planning/unit-list.md any-faction baseline for future faction design and review.
+- Follow-up tasks:
+  - Add a validation flow for carrier and airfield sortie behavior.
+  - Add backlog tasks for baseline air wing implementation checks.
+
 ## Research Entry Template
 
 ## Entry-XXXX Title

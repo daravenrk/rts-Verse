@@ -95,6 +95,21 @@ This document defines validation layers for milestone delivery.
   - Expansion and contested objective control create visible economic and tactical leverage.
   - No one resource path trivializes all others.
 
+## Flow F-09 Carrier and Airfield Sortie Lifecycle
+
+- Setup: Scenario includes one Carrier, one Airfield, Fighter production, and Corvette production.
+- Steps:
+  - Produce Fighters and Corvettes from Airfield.
+  - Transfer at least one squadron to Carrier basing.
+  - Launch sorties from Carrier and recover for rearm.
+  - Destroy one home base type and verify the other can sustain operations.
+  - Destroy both home base types and observe sortie tempo degradation until rebuild.
+- Expected:
+  - Fighters and Corvettes always require a valid home base (Carrier or Airfield).
+  - Rearm and repair behavior is consistent and understandable.
+  - Loss of all home bases visibly reduces sustained air pressure.
+  - Rebuilding a valid home base restores sortie cadence.
+
 ## Reporting Template
 
 - Date:

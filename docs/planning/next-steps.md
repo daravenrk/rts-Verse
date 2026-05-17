@@ -14,6 +14,7 @@ Keep this list short, actionable, and current.
 - [ ] Convert tech-tree vertical-slice lock into scene and script implementation checklist.
 - [ ] Build first duel map using map-standards.md.
 - [ ] Define initial numeric price bands for vertical-slice units and structures.
+- [ ] Add a carrier and airfield air-wing validation checklist for Fighter and Corvette basing behavior.
 
 ## Ready Queue
 
@@ -33,6 +34,7 @@ Keep this list short, actionable, and current.
 - 2026-05-17: Game vision established for Command and Conquer plus Total Annihilation inspired identity.
 - 2026-05-17: Full faction tech tree and unit list baselines added for Helion Directorate and Obsidian Forge.
 - 2026-05-17: Map layout and economy standards added for spawns, resource locations, pricing, and map control.
+- 2026-05-17: Any-faction core roster baseline added, including Carrier, Fighter, Corvette, and shared basing constraints.
 
 ## Owner Map
 

@@ -45,11 +45,13 @@ Define and deliver the first playable RTS vertical slice expressing daravenrk's 
 - Status: Not Started
 - Outcomes:
   - Starter factions and unit roster.
+  - Any-faction core roster baseline applied to new faction concepts, including Carrier plus Fighter and Corvette air-wing roles.
   - Baseline economy and combat tuning.
   - Tier 2 progression paths validated against planning/tech-tree.md.
   - Numeric price sheet aligned to planning/economy-standards.md.
 - Validation:
   - Functional: Controlled scenario checks expected combat and economy behavior.
+  - Integration: Air production, basing, launch, and recovery behave consistently between Carrier and Airfield contexts.
 
 ## M4 Packaging and Readiness
 

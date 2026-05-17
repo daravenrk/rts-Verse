@@ -119,6 +119,31 @@ Status values: Proposed, Accepted, Deprecated, Superseded
 - Related research:
   - Entry-0005 in research/research-log.md
 
+## ADR-0006 Any-Faction Core Roster Baseline with Carrier Air Wing
+
+- Date: 2026-05-17
+- Status: Accepted
+- Context: Existing planning defines Helion and Obsidian rosters, but there was no explicit faction-agnostic checklist for creating new factions with complete role coverage, especially for carrier-based and airfield-based air forces.
+- Decision: Add an any-faction core roster baseline in planning/unit-list.md that requires foundational combat, economy, and support roles, including Carrier, Fighter, and Corvette units with shared basing constraints between Carrier and Airfield.
+- Rationale:
+  - Provides a reusable design floor for future factions without re-deriving mandatory role coverage.
+  - Keeps carrier-centered air operations consistent with map-control and combined-arms goals.
+- Tradeoffs:
+  - Adds design constraints that may reduce freedom for highly unconventional faction concepts.
+  - Increases up-front planning requirements before faction-specific flavor tuning.
+- Alternatives considered:
+  - Keep only faction-specific rosters and define new factions ad hoc.
+  - Require airfield-only air operations and omit carrier-based basing.
+- Validation approach:
+  - Functional: New faction drafts can map one unit to each baseline role, including Fighter, Corvette, and Carrier.
+  - Integration: Tech progression and production structures support at least one valid home base for each air wing unit.
+  - Smoke: Scenario setup confirms Fighter and Corvette production, launch, and recovery from Carrier or Airfield.
+  - Observability: Test notes capture sortie uptime, rearm delays, and behavior when home bases are destroyed.
+- Related plan items:
+  - M3 Content and Balance Pass
+- Related research:
+  - Entry-0006 in research/research-log.md
+
 ## ADR Template
 
 ## ADR-XXXX Title
