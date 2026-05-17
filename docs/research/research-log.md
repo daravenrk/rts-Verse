@@ -163,6 +163,52 @@ Use this file to capture evidence-backed findings before changing architecture o
   - Add a validation flow for colony resilience and logistics disruption.
   - Add first-pass pricing sanity checks for civilian and militia units.
 
+## Entry-0008 Five-Faction Baseline (3 Human, 1 Alien, 1 Robot)
+
+## Entry-0008 Five-Faction Baseline (American, Chinese, Civilian, Alien, Robot)
+
+## Entry-0009 Five-Tier Tech Tree Baseline
+
+- Date: 2026-05-17
+- Query: Extend the tech tree to five tiers for all factions, with clear roles and unlocks.
+- Files reviewed:
+  - docs/planning/tech-tree.md
+  - docs/architecture/decision-log.md
+- Evidence:
+  - Previous tech tree planning used a 4-tier model.
+  - Project scope and faction diversity require a 5-tier tech tree for all factions.
+- Interpretation:
+  - A 5-tier model supports deeper progression, late-game escalation, and unique faction-defining powers.
+- Risks or unknowns:
+  - Increased design and balance complexity.
+  - Additional content and tuning required for each faction.
+- Recommended decision:
+  - Accept ADR-0009 and update all planning baselines to support a 5-tier tech tree.
+- Follow-up tasks:
+  - Map all existing and planned units/structures to the new 5-tier model.
+  - Update test flows and backlog for 5-tier progression coverage.
+
+- Date: 2026-05-17
+- Query: Expand project scope to five factions: American, Chinese, Civilian/Colony, Alien, Robot (robot is fully unique).
+- Files reviewed:
+  - docs/planning/unit-list.md
+  - docs/planning/tech-tree.md
+  - docs/architecture/decision-log.md
+- Evidence:
+  - Previous planning and implementation focused on two human factions.
+  - Project vision and replay value benefit from a five-faction model, with robot faction requiring a distinct, non-humanoid roster.
+- Interpretation:
+  - Early planning for five factions will reduce rework and clarify balance/content needs.
+  - The robot faction will need a dedicated planning section and cannot simply map to the human/alien baselines.
+- Risks or unknowns:
+  - Increased design and implementation workload.
+  - Placeholder names and content for new factions until further planning.
+- Recommended decision:
+  - Accept ADR-0008 and update all planning baselines to support five factions, with a dedicated robot planning section.
+- Follow-up tasks:
+  - Add placeholder names and initial flavor notes for new factions.
+  - Update test flows and backlog for multi-faction coverage.
+
 ## Research Entry Template
 
 ## Entry-XXXX Title

@@ -17,6 +17,12 @@ Keep this list short, actionable, and current.
 - [ ] Add a carrier and airfield air-wing validation checklist for Fighter and Corvette basing behavior.
 - [ ] Define first-pass numeric pricing and upkeep rules for colony and civilian units and structures.
 - [ ] Prototype one colony-defense path (Militia Barracks to Security Command Post) in scenario validation.
+- [ ] Add placeholder names and initial flavor notes for third human, alien, and robot factions.
+- [ ] Update all planning baselines to specify American, Chinese, Civilian/Colony, Alien, and Robot (robot is fully unique, non-humanoid).
+- [ ] Add a dedicated planning section for the robot faction’s unique roster and structures.
+- [ ] Map all existing and planned units/structures to the new 5-tier model.
+- [ ] Update test flows and backlog for 5-tier progression coverage.
+- [ ] Update test flows and backlog for five-faction coverage.
 
 ## Ready Queue
 
@@ -38,6 +44,8 @@ Keep this list short, actionable, and current.
 - 2026-05-17: Map layout and economy standards added for spawns, resource locations, pricing, and map control.
 - 2026-05-17: Any-faction core roster baseline added, including Carrier, Fighter, Corvette, and shared basing constraints.
 - 2026-05-17: Colony and civilian unit/building baselines added, including militia and logistics role boundaries.
+- 2026-05-17: Five-faction baseline (3 human, 1 alien, 1 robot) added to planning and architecture docs.
+- 2026-05-17: Five-tier tech tree baseline added for all factions.
 
 ## Owner Map
 

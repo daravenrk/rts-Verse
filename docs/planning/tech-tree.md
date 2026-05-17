@@ -1,5 +1,17 @@
 # Tech Tree
 
+## Faction Scope Baseline
+
+The game will support five major factions:
+
+- Human Faction 1: American (military/industrial theme)
+- Human Faction 2: Chinese (military/industrial theme)
+- Human Faction 3: Civilian/Colony (non-state, survivalist, or corporate)
+- Alien Faction: [TBD]
+- Robot Faction: [TBD, fully unique, non-humanoid units and structures]
+
+All tech tree and progression planning must support this multi-faction model, with each human and alien faction expressing the shared baselines and unique progression. The robot faction will require a distinct, non-humanoid unit and structure roster, to be planned in a dedicated section.
+
 This document defines faction progression, production structure unlocks, and upgrade paths for the initial playable roster.
 
 ## Design Goals
@@ -18,11 +30,13 @@ This document defines faction progression, production structure unlocks, and upg
 - Builder rules:
   - Construction units can place structures directly.
   - Advanced structures require both tier unlock and sufficient power margin.
-- Tiering model:
-  - Tier 0: Command, economy bootstrap, and scouting.
-  - Tier 1: Early combat and first expansion.
-  - Tier 2: Advanced warfare, air control, and deeper economy.
-  - Tier 3: Apex weapons, elite units, and decisive siege tools.
+
+  - Tiering model (all factions):
+    - Tier 0: Command, economy bootstrap, and scouting. (Start of match, basic resource and builder access)
+    - Tier 1: Early combat, first expansion, and basic tech. (Infantry, light vehicles, first defenses, basic civilian/civilian defense)
+    - Tier 2: Advanced warfare, air control, and deeper economy. (Heavy vehicles, air units, advanced support, colony upgrades)
+    - Tier 3: Apex weapons, elite units, and decisive siege tools. (Superweapons, top-tier units, advanced command/hero units)
+    - Tier 4: Endgame escalation, ultimate tech, and faction-defining powers. (Game-ending superweapons, ultimate economy, unique faction mechanics, final upgrades)
 
 ## Shared Colony and Civilian Infrastructure Model
 

@@ -1,5 +1,21 @@
 # Unit List
 
+## Faction Baseline
+
+The project will support five major factions:
+
+- Human Faction 1: American (military/industrial theme)
+- Human Faction 2: Chinese (military/industrial theme)
+- Human Faction 3: Civilian/Colony (non-state, survivalist, or corporate)
+- Alien Faction: [Placeholder Name – e.g., Veyari Swarm]
+- Robot Faction: [Placeholder Name – e.g., Promethean Assembly; fully unique, non-humanoid units and structures]
+
+Each human and alien faction must map to the Any-Faction Core Roster Baseline, Colony/Civilian Baseline, and Structure Baseline, with unique flavor, tech, and asymmetry.
+
+The Robot faction will require a distinct, non-humanoid unit and structure roster, with new planning sections to be added.
+
+Faction-specific names, units, and structures for the new factions will be defined in future planning passes.
+
 This document defines the planned roster for both prototype factions.
 
 ## Any-Faction Core Roster Baseline

@@ -169,6 +169,58 @@ Status values: Proposed, Accepted, Deprecated, Superseded
 - Related research:
   - Entry-0007 in research/research-log.md
 
+## ADR-0008 Five-Faction Baseline (3 Human, 1 Alien, 1 Robot)
+
+## ADR-0008 Five-Faction Baseline (American, Chinese, Civilian, Alien, Robot)
+
+## ADR-0009 Five-Tier Tech Tree Baseline
+
+- Date: 2026-05-17
+- Status: Accepted
+- Context: Previous tech tree planning used a 4-tier model. Project scope and faction diversity require a 5-tier tech tree for all factions, with clear roles and unlocks at each tier.
+- Decision: Extend the tech tree baseline in planning/tech-tree.md to five tiers for all factions. Each tier must have defined roles, unlocks, and validation hooks for progression and balance.
+- Rationale:
+  - Supports deeper progression, late-game escalation, and unique faction-defining powers.
+  - Provides more room for asymmetric tech and endgame content.
+- Tradeoffs:
+  - Increases design and balance complexity.
+  - May require additional content and tuning for each faction.
+- Alternatives considered:
+  - Remain with a 4-tier model and add more content per tier.
+- Validation approach:
+  - Functional: All factions have a mapped 5-tier progression with clear unlocks and roles.
+  - Integration: Tech, unit, and structure planning reference all five tiers.
+  - Smoke: Scenario and test flows validate progression through all five tiers.
+  - Observability: Backlog and test plans include 5-tier coverage.
+- Related plan items:
+  - M3 Content and Balance Pass
+- Related research:
+  - Entry-0009 in research/research-log.md
+
+- Date: 2026-05-17
+- Status: Accepted
+- Context: Previous planning and implementation focused on two prototype human factions. Project vision and scope now require five major factions: American, Chinese, Civilian/Colony, Alien, and Robot. The robot faction will require a fully unique, non-humanoid unit and structure roster.
+- Decision: Add a five-faction baseline to planning/unit-list.md and planning/tech-tree.md. All future planning, tech, and roster work must support this expanded model, with each human and alien faction mapping to the shared baselines and expressing unique asymmetry. The robot faction will be planned as a distinct, non-humanoid roster.
+- Rationale:
+  - Enables richer strategic diversity and replay value.
+  - Forces early planning for multi-faction balance and content scalability.
+  - Allows for a truly unique robot faction with different gameplay and roster logic.
+- Tradeoffs:
+  - Increases design, art, and balance workload.
+  - Delays finalization of faction-specific content for new factions.
+- Alternatives considered:
+  - Continue with only two prototype factions and add more post-launch.
+  - Add only one non-human faction for vertical slice.
+- Validation approach:
+  - Functional: All five factions can be mapped to the shared baselines and have unique progression plans (except robot, which will have a dedicated baseline).
+  - Integration: Tech tree, unit list, and structure planning support five-faction scenarios.
+  - Smoke: Scenario setup and test flows reference all five factions.
+  - Observability: Backlog and test plans include multi-faction coverage.
+- Related plan items:
+  - M3 Content and Balance Pass
+- Related research:
+  - Entry-0008 in research/research-log.md
+
 ## ADR Template
 
 ## ADR-XXXX Title

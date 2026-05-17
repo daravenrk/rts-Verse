@@ -47,6 +47,8 @@ Define and deliver the first playable RTS vertical slice expressing daravenrk's 
   - Starter factions and unit roster.
   - Any-faction core roster baseline applied to new faction concepts, including Carrier plus Fighter and Corvette air-wing roles.
   - Colony and civilian units and structures integrated as a shared baseline with clear civilian versus militia combat boundaries.
+  - Five-faction baseline (3 human, 1 alien, 1 robot) established for all future planning and test flows.
+  - Five-tier tech tree baseline established for all factions, with roles and unlocks mapped to each tier.
   - Baseline economy and combat tuning.
   - Tier 2 progression paths validated against planning/tech-tree.md.
   - Numeric price sheet aligned to planning/economy-standards.md.
