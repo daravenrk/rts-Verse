@@ -7,6 +7,7 @@ Track risks with clear ownership and mitigation.
 | R-001 | Scope growth before core loop is stable | High | Medium | Project owner | Enforce milestone scope gates in implementation plan | New features added without acceptance criteria | Open |
 | R-002 | Late architecture decisions for simulation model | High | Medium | Tech lead | Record decisions early in ADR log and review before implementation | Rework in gameplay systems | Open |
 | R-003 | Documentation process overhead slows implementation throughput | Medium | Medium | Project owner | Timebox doc updates and use templates for quick updates | Frequent delays attributed to tracking effort | Monitoring |
+| R-004 | Vision drift or derivative mechanics reduce originality | High | Medium | Tech lead | Enforce original faction and unit design criteria in game vision and ADR reviews | Milestone features map too directly to reference titles | Open |
 
 ## Status Values
 

@@ -4,7 +4,7 @@ This is the active delivery plan. Keep phases small and testable.
 
 ## Objective
 
-Define and deliver the first playable RTS vertical slice with reliable build and test flow.
+Define and deliver the first playable RTS vertical slice expressing daravenrk's Command and Conquer meets Total Annihilation identity with reliable build and test flow.
 
 ## Scope Guardrails
 
@@ -32,6 +32,8 @@ Define and deliver the first playable RTS vertical slice with reliable build and
   - Unit selection and movement.
   - Basic resource gathering.
   - Win and loss conditions for a small map.
+  - First pass of asymmetry between two prototype factions.
+  - Prototype base expansion pressure loop.
 - Validation:
   - Functional: Manual playthrough confirms loop from start to finish.
   - Integration: Input, simulation, and UI flow work together without blocking issues.

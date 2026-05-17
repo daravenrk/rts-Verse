@@ -6,10 +6,11 @@ Keep this list short, actionable, and current.
 
 - [x] Create architecture and planning documentation baseline.
 - [x] Define coding conventions for scenes, scripts, and assets.
-- [ ] Define initial vertical slice requirements and acceptance criteria.
+- [x] Define initial vertical slice requirements and acceptance criteria.
 - [x] Create first gameplay task breakdown for M2.
 - [ ] Assign owners and estimates for M2 seed backlog tasks.
 - [ ] Execute first pass of M2 validation flows F-01 and F-02.
+- [ ] Add faction asymmetry acceptance checks to M2 validation flows.
 
 ## Ready Queue
 
@@ -25,6 +26,7 @@ Keep this list short, actionable, and current.
 
 - 2026-05-17: Documentation baseline created under docs.
 - 2026-05-17: Project conventions, task backlog, testing strategy, and definition of done added.
+- 2026-05-17: Game vision established for Command and Conquer plus Total Annihilation inspired identity.
 
 ## Owner Map
 

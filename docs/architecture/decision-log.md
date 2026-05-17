@@ -41,6 +41,32 @@ Status values: Proposed, Accepted, Deprecated, Superseded
 - Related research:
   - Entry-0002 in research/research-log.md
 
+## ADR-0003 Game Identity and Design Pillars
+
+- Date: 2026-05-17
+- Status: Accepted
+- Context: The project needed explicit game identity guidance so milestone work aligns to the intended style and avoids drifting into generic RTS implementation.
+- Decision: Adopt a vision baseline of daravenrk's Command and Conquer meets Total Annihilation, with original creative execution and defined experience pillars in planning/game-vision.md.
+- Rationale:
+  - Provides clear direction for feature prioritization and prototype acceptance.
+  - Keeps gameplay, economy, and unit design decisions aligned around a cohesive identity.
+- Tradeoffs:
+  - Strong identity constraints reduce flexibility for unrelated feature exploration.
+  - Additional requirement to validate pillar alignment per milestone.
+- Alternatives considered:
+  - Keep vision informal and rely on iterative taste decisions.
+  - Define identity after core mechanics are already implemented.
+- Validation approach:
+  - Functional: Vertical slice demonstrates pressure, expansion, and combined-arms interaction.
+  - Integration: Economy, production, movement, combat, and UI remain coherent over full match flow.
+  - Smoke: End-to-end scenario reaches win and loss states reliably.
+  - Observability: Scenario notes and logs allow diagnosis of balance and flow failures.
+- Related plan items:
+  - M2 Core Gameplay Loop
+  - M3 Content and Balance Pass
+- Related research:
+  - Entry-0003 in research/research-log.md
+
 ## ADR Template
 
 ## ADR-XXXX Title

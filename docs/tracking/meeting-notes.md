@@ -46,3 +46,19 @@ Use this running log for planning and architecture sync notes.
   - docs/planning/task-backlog.md
   - docs/planning/testing-strategy.md
   - docs/planning/definition-of-done.md
+
+## 2026-05-17 Game Vision Alignment
+
+- Participants: Project owner
+- Agenda: Formalize intended RTS identity and convert into planning constraints.
+- Decisions made:
+  - Adopt vision direction of daravenrk's Command and Conquer plus Total Annihilation inspired gameplay identity.
+  - Require original creative execution with non-derivative factions, units, and naming.
+- Open questions:
+  - Which faction asymmetry model should be validated first in M2?
+- Action items:
+  - [ ] Extend M2 test flows with asymmetry and expansion pressure checks.
+  - [ ] Update seed backlog tasks with pillar alignment notes.
+- References:
+  - docs/planning/game-vision.md
+  - docs/architecture/decision-log.md

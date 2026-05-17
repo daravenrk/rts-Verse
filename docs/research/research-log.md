@@ -42,6 +42,29 @@ Use this file to capture evidence-backed findings before changing architecture o
 - Follow-up tasks:
   - Keep backlog and testing flows aligned with active milestone work.
 
+## Entry-0003 Vision Alignment for RTS Identity
+
+- Date: 2026-05-17
+- Query: Capture and operationalize project identity as daravenrk's Command and Conquer meets Total Annihilation.
+- Files reviewed:
+  - docs/planning/implementation-plan.md
+  - docs/planning/next-steps.md
+  - docs/architecture/decision-log.md
+  - docs/planning/task-backlog.md
+  - docs/planning/testing-strategy.md
+- Evidence:
+  - Implementation plan defined milestone flow but not explicit creative identity criteria.
+  - Next-steps and backlog existed, but requirements for asymmetry and strategic scale were implicit.
+- Interpretation:
+  - A dedicated vision artifact is required to make gameplay acceptance objective and traceable.
+  - The direction should be expressed as pillars and validated through vertical slice outcomes.
+- Risks or unknowns:
+  - Strong inspiration references can cause unintentional derivative design pressure.
+- Recommended decision:
+  - Accept ADR-0003 and maintain original creative implementation while honoring genre pillars.
+- Follow-up tasks:
+  - Add vision-aligned checks to testing strategy and backlog acceptance text.
+
 ## Research Entry Template
 
 ## Entry-XXXX Title
