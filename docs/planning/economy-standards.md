@@ -29,6 +29,26 @@ This document defines pricing bands, income pacing, and resource-control expecta
 - Used for advanced research, apex unlocks, and a small number of high-impact upgrades.
 - Must force players into contested map space by Tier 2.
 
+## Unified Global Stockpile Model
+
+- The world economy is shared across all factions.
+- Alloy, Power, Data, and Reclaim each have a finite global stockpile.
+- Resource extraction and conversion always pull from global stockpiles rather than infinite local supply.
+- Local map control still matters because deposits, nodes, and reclaim fields determine who can access the remaining global resources first.
+
+### Stockpile Behavior
+
+- Each resource has a world reserve value with a minimum floor of zero.
+- If a stockpile reaches zero, related extraction output is reduced or halted until recovery events occur.
+- Reclaim returns value into usable faction income but does not create infinite global supply.
+
+### Random World Events
+
+- Random world events periodically modify one or more global stockpiles.
+- Event outcomes can be positive (discovery, efficiency breakthrough) or negative (disaster, disruption, contamination).
+- Event effects must be bounded so volatility shifts strategy without making match outcomes purely random.
+- Event impacts should be surfaced clearly to all players through shared notifications.
+
 ## Pricing Framework
 
 Use category bands first. Exact numbers can be assigned later inside these relationships.
@@ -119,6 +139,7 @@ Use category bands first. Exact numbers can be assigned later inside these relat
 - Players who hold contested nodes should gain strategic options, not only bigger numbers.
 - Home economy must be enough to stay alive, but not enough to ignore the map.
 - Comeback windows should exist through raids, reclaim denial, and contested node flips.
+- Global stockpile pressure must reward adaptability and timing, not passive waiting.
 
 ## Faction Economic Identity
 
@@ -158,9 +179,13 @@ For first playable implementation:
 - Functional:
   - Players can complete opening build orders and sustain early combat production.
   - Expansion creates visible economic advantage within the same match.
+  - Shared stockpile depletion and replenishment behave predictably under extraction and event effects.
 - Integration:
   - Map resource layout and tech timing reinforce the intended faction identities and tier gates.
+  - World event modifiers correctly affect extraction, tech pacing, and spending decisions.
 - Smoke:
   - Matches do not collapse into single-base stalemate or uncontestable snowball by default.
+  - Negative event sequences do not produce irreversible hard-lock states.
 - Observability:
   - Track expansion timing, unit production cadence, idle resource float, and first Data capture.
+  - Track stockpile trend lines, event frequency, and per-faction extraction share.

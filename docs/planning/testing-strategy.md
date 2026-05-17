@@ -125,6 +125,20 @@ This document defines validation layers for milestone delivery.
   - Logistics disruption creates temporary strategic pressure rather than permanent unrecoverable collapse.
   - Colony recovery is possible with correct rebuilding and escort play.
 
+## Flow F-11 Unified Stockpile and World Event Volatility
+
+- Setup: Scenario includes shared global stockpiles for Alloy, Power, Data, and Reclaim with world events enabled.
+- Steps:
+  - Run one match segment with stable extraction and no major map swings.
+  - Trigger at least one negative event and one positive event affecting different resources.
+  - Observe extraction and production behavior during low-stock and recovery phases.
+  - Repeat from both player perspectives to verify shared visibility and fairness.
+- Expected:
+  - Global stockpile changes are visible to all players in real time.
+  - Extraction throughput responds correctly to stockpile scarcity and replenishment.
+  - Event volatility changes strategic priorities without hard-locking match progression.
+  - Recovery paths remain available through map control, timing, and adaptation.
+
 ## Reporting Template
 
 - Date:

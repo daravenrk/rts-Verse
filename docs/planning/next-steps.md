@@ -23,6 +23,9 @@ Keep this list short, actionable, and current.
 - [ ] Map all existing and planned units/structures to the new 5-tier model.
 - [ ] Update test flows and backlog for 5-tier progression coverage.
 - [ ] Update test flows and backlog for five-faction coverage.
+- [ ] Define first-pass global stockpile caps and depletion behavior for Alloy, Power, Data, and Reclaim.
+- [ ] Define random world event table with bounded positive and negative resource effects.
+- [ ] Add UI and telemetry checklist for global stockpile visibility and world event announcements.
 
 ## Ready Queue
 
@@ -46,6 +49,7 @@ Keep this list short, actionable, and current.
 - 2026-05-17: Colony and civilian unit/building baselines added, including militia and logistics role boundaries.
 - 2026-05-17: Five-faction baseline (3 human, 1 alien, 1 robot) added to planning and architecture docs.
 - 2026-05-17: Five-tier tech tree baseline added for all factions.
+- 2026-05-17: Unified global stockpile economy direction documented, including finite resources and random world event volatility.
 
 ## Owner Map
 

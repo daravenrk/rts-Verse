@@ -221,6 +221,32 @@ Status values: Proposed, Accepted, Deprecated, Superseded
 - Related research:
   - Entry-0008 in research/research-log.md
 
+## ADR-0010 Unified Global Stockpile Economy with World Event Volatility
+
+- Date: 2026-05-17
+- Status: Accepted
+- Context: Economy planning currently emphasizes map-control and local extraction, but the project direction now requires a united world economy where resource totals are finite and fluctuate due to random world events.
+- Decision: Add a shared global stockpile model for Alloy, Power, Data, and Reclaim. All factions draw from the same finite world resource pools. Introduce periodic world events that increase or decrease available stockpiles and force strategic adaptation.
+- Rationale:
+  - Aligns economy behavior with world-scale scarcity and volatility goals.
+  - Creates strategic pressure beyond static map extraction loops.
+  - Improves replayability by adding event-driven shifts in priorities.
+- Tradeoffs:
+  - Adds simulation and UI complexity for global economy visibility.
+  - Requires safeguards so random swings feel challenging rather than arbitrary.
+- Alternatives considered:
+  - Keep local infinite extraction with no world-level stockpile.
+  - Use a hybrid model where only one resource has global volatility.
+- Validation approach:
+  - Functional: Shared stockpile values deplete and recover correctly as factions extract and spend.
+  - Integration: Tech gates, map objectives, and extraction systems respond correctly to global stockpile state.
+  - Smoke: Full matches remain playable under both negative and positive event swings.
+  - Observability: Runtime telemetry records stockpile levels, event triggers, and extraction throughput deltas.
+- Related plan items:
+  - M3 Content and Balance Pass
+- Related research:
+  - Entry-0010 in research/research-log.md
+
 ## ADR Template
 
 ## ADR-XXXX Title

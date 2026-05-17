@@ -209,6 +209,30 @@ Use this file to capture evidence-backed findings before changing architecture o
   - Add placeholder names and initial flavor notes for new factions.
   - Update test flows and backlog for multi-faction coverage.
 
+## Entry-0010 Unified Global Stockpile Economy with World Events
+
+- Date: 2026-05-17
+- Query: Record a united world economy where resources are finite and fluctuate based on random world events.
+- Files reviewed:
+  - docs/planning/economy-standards.md
+  - docs/planning/tech-tree.md
+  - docs/planning/map-standards.md
+  - docs/planning/testing-strategy.md
+- Evidence:
+  - Existing standards define resource pressure through map control, but no global finite stockpile mechanism is defined.
+  - Existing validation flows do not yet cover event-driven resource volatility.
+- Interpretation:
+  - A global stockpile model is required to represent world-scale scarcity while preserving map-control gameplay.
+  - Random event effects must be bounded and observable to avoid unfair or opaque outcomes.
+- Risks or unknowns:
+  - Poorly tuned event variance could create perceived randomness over strategic skill.
+  - Additional UI and telemetry requirements are needed for player clarity.
+- Recommended decision:
+  - Accept ADR-0010 and update economy, tech, plan, testing, and tracking artifacts to include finite shared stockpiles plus world events.
+- Follow-up tasks:
+  - Define first-pass stockpile caps and event frequency bounds.
+  - Add event and stockpile observability hooks to milestone validation.
+
 ## Research Entry Template
 
 ## Entry-XXXX Title

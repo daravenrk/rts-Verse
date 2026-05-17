@@ -27,6 +27,10 @@ This document defines faction progression, production structure unlocks, and upg
   - Alloy: primary construction and production resource.
   - Power: generated capacity required for advanced buildings and some weapons systems.
   - Data: late-game research and elite production resource generated from map control nodes.
+- Global stockpile rules:
+  - All resources are tracked as finite global world stockpiles shared by every faction.
+  - Extraction and conversion draw from the same world reserves, so map control determines access priority to scarce supply.
+  - Random world events can increase or decrease stockpiles during a match and must be announced to all players.
 - Builder rules:
   - Construction units can place structures directly.
   - Advanced structures require both tier unlock and sufficient power margin.
