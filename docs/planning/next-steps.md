@@ -69,6 +69,9 @@ Keep this list short, actionable, and current.
 - [ ] Define campaign mission order baseline with Veyari as first perspective block and Helion as final perspective block.
 - [ ] Implement skirmish faction selector to allow any available faction and disable unavailable factions with Coming Soon labels.
 - [ ] Run F-25 Campaign Perspective Order and Skirmish Availability Gate and capture menu-state evidence.
+- [ ] Select primary environment type for first duel map and document why it fits MVP combat goals.
+- [ ] Apply Helion center-Tether placement rule to any Helion-authored start layout and document any near-center exceptions.
+- [ ] Run F-26 Environment Type and Helion Center-Tether Readability and capture first-engagement notes.
 - [ ] Define concrete unlock thresholds for advanced systems (maintenance, instability, civilization stress).
 - [ ] Draft itch.io page copy using planning/itch-io-launch-and-feedback-plan.md blueprint sections.
 - [ ] Prepare Stage 0 media bundle (screenshots or clips) with gameplay-first captions.

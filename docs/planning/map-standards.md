@@ -19,6 +19,53 @@ This document defines baseline standards for starting locations, lane structure,
 - Experimental map:
   - Allowed for mechanic stress tests, but excluded from balance decisions unless normalized later.
 
+## Shape-Forward Environment Types
+
+Use these environment types when building battlefields intended to produce strong combat readability and good fights across multiple approach angles.
+
+### 1. Open Basin
+
+- Core shape: broad lowland or crater floor with long sightlines and limited hard blockers.
+- Best for: armor pushes, artillery pressure, and early map reads.
+- Required counterbalance: flank route, sparse cover clusters, and at least one LOS break chain to prevent pure firing-line dominance.
+
+### 2. Broken Ridge Network
+
+- Core shape: elevated ridges, partial ramps, and split plateaus with multiple firing shelves.
+- Best for: lane choice, positional siege play, and scout value.
+- Required counterbalance: more than one ascent path and at least one non-ridge bypass route.
+
+### 3. Chokepoint Corridor Field
+
+- Core shape: narrow passes between large blockers with intermittent pocket arenas.
+- Best for: infantry timing fights, breach tools, and defense-to-counterpush transitions.
+- Required counterbalance: corridor locks must always be breakable through alternate route access or destructible terrain options.
+
+### 4. Radial Impact Zone
+
+- Core shape: central objective crater or anchor site with spoke-like approach routes.
+- Best for: Data-node fights, repeated center control swings, and readable objective gravity.
+- Required counterbalance: spoke routes must vary risk profile so center control is contestable, not binary.
+
+### 5. Fragmented Salvage Field
+
+- Core shape: debris clusters, wreck fields, and partial cover islands spread across contested space.
+- Best for: reclaim play, ambushes, and route denial without full terrain walls.
+- Required counterbalance: salvage density must not create one-faction uncontestable advantage or collapse route readability.
+
+### 6. Split-Pocket Frontier
+
+- Core shape: several medium arenas connected by soft lanes instead of one dominant centerline.
+- Best for: skirmish-style multi-front pressure, air mobility relevance, and expansion harassment.
+- Required counterbalance: each pocket must reconnect into global map pressure so fights do not fragment into isolated non-interactive lanes.
+
+### Environment Selection Rules
+
+- Every competitive map should declare one primary environment type and at most one secondary type.
+- The first duel map should prefer Radial Impact Zone, Broken Ridge Network, or Open Basin as the primary identity.
+- Environment geometry should create choices, not hidden pathing traps or unreadable clutter.
+- Decorative biome dressing is allowed, but it must not obscure lane readability or silhouette clarity for small 3D actors.
+
 ## Starting Position Standards
 
 ### Spawn Count and Orientation
@@ -51,6 +98,16 @@ Allowed asymmetry:
   - first production structure
   - first defensive or utility structure
 - Builders must be able to move cleanly around the initial base without pathing traps.
+
+### Faction Placement Rule: Helion Center Tether
+
+- On Helion-authored scenario layouts, the Helion Tether Point should sit at the visual and navigational center of the starting base footprint.
+- Center placement means:
+  - primary production branches radiate outward from the Tether Point,
+  - the initial build radius is readable from all major approach angles,
+  - the base silhouette communicates Helion's organized industrial structure.
+- The center-Tether rule is a faction readability rule, not permission to violate overall spawn fairness.
+- If strict geometric center conflicts with pathing, fairness, or required building footprint rules, use near-center placement while preserving the same visual anchor role.
 
 ## Distance Bands
 
@@ -188,9 +245,12 @@ Use this as the source-of-truth list for placeable and interactive items in MVP 
 - Functional:
   - Both factions can execute intended opening build orders from either spawn.
   - Early scouting reveals enemy opening before irreversible Tier 1 commitments.
+  - Selected environment type produces readable lane and objective fights without pathing ambiguity.
 - Integration:
   - Resource placement, pathing, expansion timing, and combat lanes reinforce faction identity without breaking fairness.
+  - Helion center-Tether placement reinforces faction readability without creating spatial advantage.
 - Smoke:
   - A full match reaches expansion and first Tier 2 transition without layout-caused deadlock.
 - Observability:
   - Scenario notes record spawn, first contact timing, expansion timing, and first contested node capture.
+  - Scenario notes record environment type, center-objective pressure pattern, and any Helion base-anchor readability issues.

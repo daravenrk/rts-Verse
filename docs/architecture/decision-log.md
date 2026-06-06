@@ -617,6 +617,36 @@ Status values: Proposed, Accepted, Deprecated, Superseded
 - Related research:
   - Entry-0023 in research/research-log.md
 
+## ADR-0024 Environment Type Catalog and Helion Center-Tether Placement Baseline
+
+- Date: 2026-06-06
+- Status: Accepted
+- Context: Map standards defined fairness, lanes, and resources, but did not yet classify environment types for combat readability or codify requested faction-specific Helion base-anchor placement.
+- Decision:
+  - Add a shape-forward environment catalog to planning/map-standards.md.
+  - Require each competitive map to declare one primary environment type and at most one secondary type.
+  - Adopt Helion center-Tether placement as a faction readability rule for Helion-authored start layouts, with near-center fallback when fairness or pathing requires it.
+- Rationale:
+  - Gives level design a repeatable vocabulary for building good fights.
+  - Preserves readability by constraining environment identity and blocker usage.
+  - Strengthens Helion faction readability through consistent base-anchor composition.
+- Tradeoffs:
+  - Adds more up-front environment planning before freeform map experimentation.
+  - Helion-specific placement rule requires careful fairness review to avoid unintended spawn bias.
+- Alternatives considered:
+  - Keep environment selection informal and taste-driven.
+  - Treat Helion Tether placement the same as all other factions with no faction readability rule.
+- Validation approach:
+  - Functional: First map declares environment type and produces readable fights matching that type.
+  - Integration: Environment geometry, objectives, and faction behavior align without hidden fairness breaks.
+  - Smoke: First duel map reaches first combat window without layout confusion or anchor-placement blockers.
+  - Observability: Scenario notes capture environment type, fight pattern, and Helion Tether placement results.
+- Related plan items:
+  - M2 Core Gameplay Loop
+  - M3 Content and Balance Pass
+- Related research:
+  - Entry-0024 in research/research-log.md
+
 ## ADR Template
 
 ## ADR-XXXX Title

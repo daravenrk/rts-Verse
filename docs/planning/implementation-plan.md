@@ -46,6 +46,7 @@ Define and deliver the first playable RTS vertical slice expressing daravenrk's 
   - First duel map built to planning/map-standards.md baseline.
   - MVP map item catalog baseline implemented on first duel map, including required strategic and tactical items.
   - Tether Point primary base role implemented for MVP factions with shared opening buildable chain rules.
+  - First duel map declares one primary environment type and applies faction placement rules, including Helion center-Tether placement where relevant.
 - Validation:
   - Smoke: Project launch enters splash and transitions to main menu without blocking errors.
   - Functional: Splash advances to main menu on first key press and also auto-advances at 5 seconds with no input.
@@ -60,6 +61,7 @@ Define and deliver the first playable RTS vertical slice expressing daravenrk's 
   - Integration: Map-aware route choice, objective contest behavior, and regroup logic function for both factions.
   - Observability: Map validation notes include stable item IDs for objective capture, contest timing, and route-denial events.
   - Integration: Tether Point state transitions integrate with command response, production availability, and recovery behavior.
+  - Integration: Chosen environment type produces readable combat spaces and objective pressure consistent with faction behavior goals.
   - Functional: Required MVP buildable structures can be constructed from T0 opening through T1 progression for all MVP factions.
   - Observability: Tether Point lifecycle events are captured with stable IDs and timestamped recovery metrics.
 
@@ -70,6 +72,7 @@ Define and deliver the first playable RTS vertical slice expressing daravenrk's 
   - Starter factions and unit roster.
   - Campaign perspective arc baseline defined with Veyari-first and Helion-last mission order.
   - Skirmish faction selection supports all currently available factions and disables unavailable factions with clear status labeling.
+  - Environment-type catalog expanded beyond first duel map for future skirmish and campaign mission variety.
   - Human-vs-alien MVP duel package validated as production baseline before additional faction rollout.
   - Any-faction core roster baseline applied to new faction concepts, including Carrier plus Fighter and Corvette air-wing roles.
   - Colony and civilian units and structures integrated as a shared baseline with clear civilian versus militia combat boundaries.

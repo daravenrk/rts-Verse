@@ -587,6 +587,35 @@ Use this file to capture evidence-backed findings before changing architecture o
   - Implement skirmish availability gating logic in faction selection UI.
   - Execute F-25 and record enabled or disabled state evidence.
 
+## Entry-0024 Environment Type Vocabulary and Helion Base-Anchor Rule
+
+- Date: 2026-06-06
+- Query: Define environment types that create good fights and set Helion Tether placement to center by default.
+- Files reviewed:
+  - docs/planning/game-vision.md
+  - docs/planning/map-standards.md
+  - docs/planning/unit-list.md
+  - docs/planning/implementation-plan.md
+  - docs/planning/testing-strategy.md
+  - docs/planning/next-steps.md
+  - docs/architecture/decision-log.md
+- Evidence:
+  - Existing map standards already define lanes, chokepoints, contested nodes, and fairness constraints but not a named environment taxonomy.
+  - Tether Point rules define Helion command structure role but not faction-specific base composition placement in map layouts.
+  - Current combat and readability goals depend on geometry that creates choices without clutter or hidden route ambiguity.
+- Interpretation:
+  - Environment types need a reusable vocabulary centered on fight shape, objective pull, and route structure.
+  - Helion can carry a center-Tether readability rule as long as fairness and pathing still override strict geometric symmetry when required.
+- Risks or unknowns:
+  - Environment types may be over-applied too rigidly if maps stop mixing secondary traits.
+  - Helion center-placement may unintentionally bias artillery spacing or build order safety if not reviewed under spawn fairness checks.
+- Recommended decision:
+  - Accept ADR-0024 and standardize shape-forward environment types plus Helion center-Tether placement rule with near-center fallback.
+- Follow-up tasks:
+  - Select first duel-map primary environment type.
+  - Validate Helion start footprint against F-26.
+  - Expand environment taxonomy into future skirmish and campaign map planning after MVP map proves readable.
+
 ## Research Entry Template
 
 ## Entry-XXXX Title
