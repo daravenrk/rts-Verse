@@ -466,6 +466,33 @@ Status values: Proposed, Accepted, Deprecated, Superseded
 - Related research:
   - Entry-0018 in research/research-log.md
 
+## ADR-0019 MVP Map Item Catalog Baseline
+
+- Date: 2026-06-06
+- Status: Accepted
+- Context: Map standards defined layout fairness and resource positioning, but did not provide a concrete and testable catalog of required map items for MVP implementation.
+- Decision: Add an MVP map item catalog in planning/map-standards.md with required strategic items, required tactical terrain items, optional extension items, and item authoring rules.
+- Rationale:
+  - Converts high-level map intent into concrete implementation targets for scene assembly.
+  - Improves testability by defining item presence, placement constraints, and observability requirements.
+  - Reduces map-iteration churn by clarifying what is mandatory before balance tuning begins.
+- Tradeoffs:
+  - Adds up-front content checklist overhead before freeform experimentation.
+  - Some optional items may need later reclassification as systems mature.
+- Alternatives considered:
+  - Keep item selection implicit in map designer discretion.
+  - Define only resource nodes and defer tactical terrain standards until post-MVP.
+- Validation approach:
+  - Functional: First duel map contains all required strategic and tactical items with valid placement.
+  - Integration: Item placement supports faction behavior flows for lane choice, contest timing, and regroup logic.
+  - Smoke: Full match reaches first contested objective windows without missing-item blockers.
+  - Observability: Scenario notes and logs reference stable item IDs for capture, contest, and destruction events.
+- Related plan items:
+  - M2 Core Gameplay Loop
+  - M3 Content and Balance Pass
+- Related research:
+  - Entry-0019 in research/research-log.md
+
 ## ADR Template
 
 ## ADR-XXXX Title

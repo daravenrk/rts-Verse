@@ -49,6 +49,10 @@ Keep this list short, actionable, and current.
 - [ ] Run F-21 Opening Clarity and Parity Gate and tune early-phase cognitive load.
 - [ ] Run startup smoke pass from cold launch and capture bootstrap logs for failure triage.
 - [ ] Add explicit map annotations for primary, secondary, and high-risk resource zones in first duel scenario.
+- [ ] Place all required strategic map items from planning/map-standards.md MVP Map Item Catalog on first duel map.
+- [ ] Place all required tactical terrain items from planning/map-standards.md MVP Map Item Catalog on first duel map.
+- [ ] Assign stable item IDs to all interactive map items and add them to scenario validation notes.
+- [ ] Prototype exactly one optional MVP extension item after required map items pass checklist validation.
 - [ ] Define concrete unlock thresholds for advanced systems (maintenance, instability, civilization stress).
 - [ ] Draft itch.io page copy using planning/itch-io-launch-and-feedback-plan.md blueprint sections.
 - [ ] Prepare Stage 0 media bundle (screenshots or clips) with gameplay-first captions.

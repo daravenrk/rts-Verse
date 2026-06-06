@@ -447,6 +447,33 @@ Use this file to capture evidence-backed findings before changing architecture o
   - Add M4 outcomes and sprint tasks for page publish, metrics review, and triage cadence.
   - Align external feedback categories with backlog and validation flows.
 
+## Entry-0019 MVP Map Item Definition for Implementable Level Assembly
+
+- Date: 2026-06-06
+- Query: Define concrete items that should exist in MVP maps so map building is actionable and test-ready.
+- Files reviewed:
+  - docs/planning/map-standards.md
+  - docs/planning/testing-strategy.md
+  - docs/planning/implementation-plan.md
+  - docs/planning/next-steps.md
+  - docs/architecture/decision-log.md
+- Evidence:
+  - Map standards defined duel fairness, lanes, and resource principles, but item-level implementation targets were implicit.
+  - Current sprint and backlog reference building the first duel map, but lacked a mandatory item checklist.
+  - Test flows depend on lane, contest, and objective behavior that require explicit map items to validate reliably.
+- Interpretation:
+  - MVP map delivery needs a concrete item catalog with required counts and placement constraints.
+  - Item IDs and observability rules should be part of standards to improve repeatability of validation runs.
+- Risks or unknowns:
+  - Too-rigid item counts could reduce creative map iteration if treated as immutable beyond MVP.
+  - Optional extension items may require rebalance once advanced event systems are implemented.
+- Recommended decision:
+  - Accept ADR-0019 and adopt MVP map item catalog baseline under planning/map-standards.md.
+- Follow-up tasks:
+  - Build first duel map using required strategic and tactical item sets.
+  - Add item-ID capture to map validation notes.
+  - Prototype one optional extension item only after required checklist is complete.
+
 ## Research Entry Template
 
 ## Entry-XXXX Title

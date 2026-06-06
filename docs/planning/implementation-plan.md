@@ -40,6 +40,7 @@ Define and deliver the first playable RTS vertical slice expressing daravenrk's 
   - Prototype base expansion pressure loop.
   - Vertical-slice roster lock implemented from planning/unit-list.md.
   - First duel map built to planning/map-standards.md baseline.
+  - MVP map item catalog baseline implemented on first duel map, including required strategic and tactical items.
 - Validation:
   - Smoke: Project launch enters startup scene and transitions to gameplay without blocking errors.
   - Functional: Manual playthrough confirms loop from start to finish.
@@ -48,6 +49,7 @@ Define and deliver the first playable RTS vertical slice expressing daravenrk's 
   - Functional: Players can execute all core commands and camera actions using documented bindings.
   - Integration: Resource, alert, and command feedback states match gameplay events without stale or missing HUD updates.
   - Integration: Map-aware route choice, objective contest behavior, and regroup logic function for both factions.
+  - Observability: Map validation notes include stable item IDs for objective capture, contest timing, and route-denial events.
 
 ## M3 Content and Balance Pass
 

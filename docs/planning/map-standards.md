@@ -143,6 +143,46 @@ The first playable duel map must support:
 - 1 flank route around the central conflict lane.
 - 1 small reclaim field near the center.
 
+## MVP Map Item Catalog
+
+Use this as the source-of-truth list for placeable and interactive items in MVP maps.
+
+### Required Strategic Items (First Duel Map)
+
+| Item | Duel Count | Purpose | Placement Rules |
+| --- | --- | --- | --- |
+| Spawn Core Zone Marker | 2 | Defines valid start footprints and fairness checks | One per spawn; must match starting-footprint rules and not overlap path blockers |
+| Safe Alloy Node | 2 | Guarantees opening economy stability | One per spawn inside defended footprint; cannot be shelled directly from enemy start |
+| Natural Alloy Node | 2 | Creates first expansion timing decision | One per spawn at comparable travel-time bands |
+| Contested Midfield Alloy Node | 2 | Forces early map interaction and denial play | Place on separable lanes so one static defense line cannot lock both |
+| Contested Data Node | 1 | Triggers first high-value objective fight | Central or near-crossroads; reachable by both factions in narrow timing window |
+| Reclaim Field Cluster | 1 | Rewards combat cleanup and route control | Near center conflict line; total reclaim value must not favor one spawn |
+
+### Required Tactical Terrain Items (First Duel Map)
+
+| Item | Duel Count | Purpose | Placement Rules |
+| --- | --- | --- | --- |
+| Cover Cluster | 4 to 8 | Enables infantry positioning decisions | Distribute across direct lane, flank lane, and Data approach paths |
+| Chokepoint Gate | 1 to 2 | Creates contest timing and siege posture decisions | Must always have at least one alternate pressure route |
+| Elevated Fire Position | 1 to 2 | Adds artillery and vision control tradeoffs | Requires counterplay access through flank, air, or multi-angle approach |
+| LOS Blocker (Rock/Wreck/Structure) | 6 to 12 | Breaks single-lane dominance and supports ambush/reposition play | Mirror tactical value by exposure and route impact, not strict geometry |
+
+### Optional MVP Extension Items (Second Map or Skirmish-Prep)
+
+| Item | Recommended Count | Purpose | Placement Rules |
+| --- | --- | --- | --- |
+| Neutral Relay Tower | 1 to 2 | Temporary vision or command utility objective | Must be contestable and not safe-capturable from home perimeter |
+| Destructible Bridge or Gate | 1 | Adds route-denial decision with comeback potential | Destroyed state must still leave at least one viable attack route |
+| Hazard Pocket (Storm/Contamination Zone) | 1 to 3 | Introduces local risk management before full event system | Hazards cannot fully block mandatory expansion access |
+| Civilian or Colony Outpost | 1 to 2 | Supports narrative-through-systems and protection choices | Place in exposed zones with at least two approach vectors |
+
+### Item Authoring Rules
+
+- Every item must have a stable scenario ID for observability and test notes.
+- If an item grants value over time (resource, vision, utility), both players must have equivalent contest windows.
+- Decorative-only props are allowed, but they must not alter collision, sight, or pathing unless documented as tactical terrain.
+- MVP duel acceptance requires all required strategic and tactical items to be present before balance tuning starts.
+
 ## Map Validation Checklist
 
 - Functional:
