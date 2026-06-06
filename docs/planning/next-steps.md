@@ -50,6 +50,11 @@ Keep this list short, actionable, and current.
 - [ ] Run startup smoke pass from cold launch and capture bootstrap logs for failure triage.
 - [ ] Add explicit map annotations for primary, secondary, and high-risk resource zones in first duel scenario.
 - [ ] Define concrete unlock thresholds for advanced systems (maintenance, instability, civilization stress).
+- [ ] Draft itch.io page copy using planning/itch-io-launch-and-feedback-plan.md blueprint sections.
+- [ ] Prepare Stage 0 media bundle (screenshots or clips) with gameplay-first captions.
+- [ ] Publish itch.io Stage 0 Coming Soon page with transparent Pre-Alpha status.
+- [ ] Define structured feedback template fields and publish feedback instructions on itch page.
+- [ ] Start weekly feedback triage cadence and publish first feedback-response devlog summary.
 
 ## Ready Queue
 

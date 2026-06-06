@@ -436,6 +436,36 @@ Status values: Proposed, Accepted, Deprecated, Superseded
 - Related research:
   - Entry-0017 in research/research-log.md
 
+## ADR-0018 Staged itch.io Launch and Structured Feedback Collation
+
+- Date: 2026-06-06
+- Status: Accepted
+- Context: The project needs a publish strategy that can build audience interest early without overpromising unfinished systems, and it needs a repeatable way to convert player feedback into prioritized implementation work.
+- Decision: Use a three-stage itch.io release path with structured feedback collation:
+  - Stage 0: Coming Soon page with no public download to begin audience capture.
+  - Stage 1: Restricted prototype distribution for targeted validation and issue discovery.
+  - Stage 2: Public demo release after minimum quality gate checks pass.
+  - Use a standard intake schema and weekly triage cadence for all external feedback.
+- Rationale:
+  - Preserves trust by matching page claims to playable scope.
+  - Increases conversion by publishing clear value proposition and regular devlog updates.
+  - Reduces feedback chaos by enforcing a common report and triage structure.
+- Tradeoffs:
+  - Requires ongoing operational effort for triage and communication.
+  - Slower public exposure than immediate open release.
+- Alternatives considered:
+  - Immediate public demo launch with ad hoc feedback handling.
+  - Delay all public presence until full M3 completion.
+- Validation approach:
+  - Functional: Stage goals are completed in order and each stage has explicit exit criteria met.
+  - Integration: Player feedback is traceable from intake source to backlog or plan updates.
+  - Smoke: Public-facing page and downloadable build links remain valid through release iterations.
+  - Observability: Weekly metrics capture page interest, conversion, issue inflow, and report-to-fix cycle time.
+- Related plan items:
+  - M4 Packaging and Readiness
+- Related research:
+  - Entry-0018 in research/research-log.md
+
 ## ADR Template
 
 ## ADR-XXXX Title

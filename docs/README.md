@@ -15,6 +15,7 @@ This folder contains architecture, planning, research, and delivery tracking art
 - UI and controls standards: docs/planning/controls-standards.md
 - Map standards: docs/planning/map-standards.md
 - Economy and pricing standards: docs/planning/economy-standards.md
+- itch.io launch and feedback plan: docs/planning/itch-io-launch-and-feedback-plan.md
 - Task backlog: docs/planning/task-backlog.md
 - Testing strategy: docs/planning/testing-strategy.md
 - Definition of done: docs/planning/definition-of-done.md

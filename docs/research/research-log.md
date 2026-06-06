@@ -419,6 +419,34 @@ Use this file to capture evidence-backed findings before changing architecture o
   - Add bootstrap startup checklist to M2 execution and smoke validation notes.
   - Add startup observability events for scene load and initialization failures.
 
+## Entry-0018 itch.io Launch Planning and Feedback Collation
+
+- Date: 2026-06-06
+- Query: Define a launch plan for itch.io page setup and a reliable process for collecting and triaging player feedback.
+- Files reviewed:
+  - docs/planning/game-vision.md
+  - docs/planning/implementation-plan.md
+  - docs/planning/next-steps.md
+  - docs/planning/testing-strategy.md
+  - docs/architecture/decision-log.md
+  - scripts/core/Main.gd
+- Evidence:
+  - Vision and identity pillars are strong and marketable, but current gameplay milestones remain in-progress for M2 and M4.
+  - Startup baseline exists, but gameplay transition target scene is still placeholder and not release-ready.
+  - Existing process is strong for internal validation, but no external feedback intake standard or cadence is defined.
+- Interpretation:
+  - A staged launch model is required to capture audience interest now while protecting trust during early development.
+  - Structured feedback collation is needed so community input becomes actionable engineering and design work.
+- Risks or unknowns:
+  - Public launch too early can create negative perception if core loop is unstable.
+  - Unstructured feedback can overwhelm prioritization and hide blockers.
+- Recommended decision:
+  - Accept ADR-0018 and adopt a three-stage itch.io launch plan plus standard feedback intake and weekly triage flow.
+- Follow-up tasks:
+  - Add planning artifact for page blueprint, stage gates, and feedback schema.
+  - Add M4 outcomes and sprint tasks for page publish, metrics review, and triage cadence.
+  - Align external feedback categories with backlog and validation flows.
+
 ## Research Entry Template
 
 ## Entry-XXXX Title

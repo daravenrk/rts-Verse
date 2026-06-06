@@ -88,8 +88,15 @@ Define and deliver the first playable RTS vertical slice expressing daravenrk's 
 - Outcomes:
   - Export profile configuration.
   - Release checklist and known issue list.
+  - itch.io Stage 0 Coming Soon page published with aligned value proposition and media.
+  - itch.io Stage 1 restricted prototype workflow prepared for targeted playtest distribution.
+  - Feedback collation workflow active with standardized intake fields and weekly triage cadence.
+  - Public demo page criteria and promotion checklist defined for Stage 2 launch.
 - Validation:
   - Smoke: Exported build launches and core loop works end-to-end.
+  - Functional: Page content matches currently implemented gameplay scope and status labeling.
+  - Integration: External feedback entries map into triage outcomes and prioritized implementation tasks.
+  - Observability: Weekly reporting captures page views, follows, conversion, and report-to-fix cycle metrics.
 
 ## Dependencies and Risks
 
