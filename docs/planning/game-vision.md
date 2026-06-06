@@ -176,6 +176,34 @@ Endgame strategic weapons should primarily attack systems and networks, not just
 - Narrative-through-systems: match progression should visibly tell the story of civilization transforming into machine sovereignty.
 - Resource-first warfare: territorial control and economic security define victory pace more than raw unit trading alone.
 
+## Visual Representation and Animation Subspace Policy
+
+- Core battlefield actors should read as small 3D objects at gameplay camera height.
+- Visual clarity takes priority over high-detail close-up realism.
+- Unit and structure motion should come from a predefined animation subspace rather than bespoke one-off animation sets.
+
+### MVP Animation Subspace Baseline
+
+Every playable unit should map to a constrained subset of reusable animation states:
+
+- Idle
+- Move
+- Primary action (attack, gather, build, or repair)
+- Hit or reaction
+- Death or disable
+
+Optional per-role states (used only when role needs it):
+
+- Ability cast
+- Deploy or pack
+- Takeoff or land (air units)
+
+Subspace rules:
+
+- New unit concepts should select from existing state definitions before adding new states.
+- New animation states require explicit justification tied to readability or role identity.
+- Animation timing and silhouette readability should remain consistent enough that players can identify intent quickly at RTS zoom levels.
+
 ## Vertical Slice Definition
 
 The first slice proves the identity through one playable match scenario with:
@@ -198,6 +226,22 @@ The first slice proves the identity through one playable match scenario with:
 	- Campaign: visible but disabled with label Coming Soon.
 - The disabled Campaign option must still be readable and clearly non-interactive.
 - Menu flow must be deterministic so first-play startup behavior is identical across runs.
+
+## Campaign Arc and Skirmish Availability Direction
+
+### Campaign Story Perspective Order
+
+- Campaign narrative starts from Veyari perspective.
+- Campaign then transitions to Helion perspective.
+- Campaign finale is Helion-side end-state operations (Helion is last perspective block).
+- Perspective handoff between factions must be explicit in mission transition framing so players understand side change.
+
+### Skirmish Faction Availability Policy
+
+- Skirmish mode should allow selection of any currently available faction.
+- Available means implemented, playable, and passing required validation flows for current build scope.
+- Factions not yet available should still be visible in the faction list but disabled and labeled Coming Soon.
+- MVP minimum skirmish availability target is Helion and Veyari.
 
 ## Out of Scope for Initial Slice
 

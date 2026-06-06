@@ -298,6 +298,36 @@ This document defines validation layers for milestone delivery.
   - Disabled Campaign option cannot be activated by keyboard or mouse.
   - Observability logs include splash start, transition trigger reason, and menu state payload.
 
+## Flow F-24 Small-Scale 3D Readability and Animation Subspace Compliance
+
+- Setup: MVP duel scenario with default RTS camera settings and all roster-lock units spawnable.
+- Steps:
+  - Use the mapping table in planning/unit-list.md (MVP Per-Unit Animation Mapping) as source-of-truth state expectations.
+  - Spawn each MVP playable unit class and verify small-scale 3D readability at default zoom.
+  - Verify baseline state coverage per unit: Idle, Move, Primary Action, Hit or Reaction, Death or Disable.
+  - Trigger one combat interaction and one non-combat interaction per relevant role.
+  - Rotate and zoom camera through standard ranges and verify intent remains readable.
+- Expected:
+  - Unit silhouettes remain distinguishable as small 3D objects in normal gameplay camera conditions.
+  - No MVP playable unit is missing required animation baseline states.
+  - Animation intent remains readable without requiring close-up camera framing.
+  - Any optional states (ability, deploy, takeoff or land) are used consistently by role and never replace required baseline states.
+
+## Flow F-25 Campaign Perspective Order and Skirmish Availability Gate
+
+- Setup: Main menu, skirmish faction selection UI, and campaign arc data source are present in build.
+- Steps:
+  - Open skirmish mode and inspect faction selection list.
+  - Verify all currently available factions are selectable.
+  - Verify unavailable factions are visible but disabled with Coming Soon labeling.
+  - Inspect campaign mission-order data and confirm first perspective block is Veyari.
+  - Confirm final perspective block is Helion.
+- Expected:
+  - Skirmish mode selection accurately reflects current faction availability with no false-enabled unavailable factions.
+  - MVP build exposes Helion and Veyari as available skirmish choices.
+  - Campaign ordering definition is unambiguous and consistent with Veyari-first, Helion-last direction.
+  - Menu and campaign data states remain synchronized with current documented scope.
+
 ## Reporting Template
 
 - Date:

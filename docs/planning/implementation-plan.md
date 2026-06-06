@@ -32,6 +32,8 @@ Define and deliver the first playable RTS vertical slice expressing daravenrk's 
   - Default startup scene baseline implemented (Main.tscn) and wired as project main scene.
   - Startup UX flow implemented: splash first, then main menu on first key press or 5-second timeout.
   - Main menu includes Skirmish enabled and Campaign visible as disabled Coming Soon option.
+  - MVP units and structures are represented as small 3D battlefield objects with readable silhouettes at default RTS camera height.
+  - MVP playable units use predefined animation subspace states from game-vision baseline.
   - Unit selection and movement.
   - Basic resource gathering.
   - Win and loss conditions for a small map.
@@ -48,6 +50,8 @@ Define and deliver the first playable RTS vertical slice expressing daravenrk's 
   - Smoke: Project launch enters splash and transitions to main menu without blocking errors.
   - Functional: Splash advances to main menu on first key press and also auto-advances at 5 seconds with no input.
   - Functional: Main menu shows Skirmish as playable and Campaign as disabled Coming Soon.
+  - Functional: Every MVP playable unit has at least Idle, Move, Primary Action, Hit or Reaction, and Death or Disable animation coverage.
+  - Integration: Camera zoom and rotation preserve readability of small 3D units and intent-signaling animation states.
   - Functional: Manual playthrough confirms loop from start to finish.
   - Functional: Human and alien MVP factions can complete opening, transition, and first combined-arms engagements.
   - Integration: Input, simulation, and UI flow work together without blocking issues.
@@ -64,6 +68,8 @@ Define and deliver the first playable RTS vertical slice expressing daravenrk's 
 - Status: Not Started
 - Outcomes:
   - Starter factions and unit roster.
+  - Campaign perspective arc baseline defined with Veyari-first and Helion-last mission order.
+  - Skirmish faction selection supports all currently available factions and disables unavailable factions with clear status labeling.
   - Human-vs-alien MVP duel package validated as production baseline before additional faction rollout.
   - Any-faction core roster baseline applied to new faction concepts, including Carrier plus Fighter and Corvette air-wing roles.
   - Colony and civilian units and structures integrated as a shared baseline with clear civilian versus militia combat boundaries.
@@ -82,6 +88,8 @@ Define and deliver the first playable RTS vertical slice expressing daravenrk's 
   - Numeric price sheet aligned to planning/economy-standards.md.
 - Validation:
   - Functional: Controlled scenario checks expected combat and economy behavior.
+  - Functional: Campaign mission-order data validates perspective progression from Veyari to Helion.
+  - Integration: Skirmish faction menu state reflects real faction availability in current build with no selectable unavailable entries.
   - Functional: Matches show readable progression from Survival Warfare into at least one Autonomous War state.
   - Functional: Matches show visible Descent influence on economy, objectives, and escalation timing.
   - Integration: One Box core penalties and distributed network recovery integrate with production, command, and logistics.

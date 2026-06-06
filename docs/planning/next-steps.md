@@ -63,6 +63,12 @@ Keep this list short, actionable, and current.
 - [x] Implement main menu options with Skirmish enabled and Campaign disabled labeled Coming Soon.
 - [x] Add startup telemetry fields for transition reason (keypress or timeout) and timestamp.
 - [ ] Run F-23 Startup Splash and Main Menu Gate and record deterministic behavior results.
+- [ ] Define first-pass camera default and zoom bands for small 3D unit readability.
+- [ ] Implement MVP unit animation state mapping to predefined subspace baseline.
+- [ ] Run F-24 Small-Scale 3D Readability and Animation Subspace Compliance and record gaps by unit role.
+- [ ] Define campaign mission order baseline with Veyari as first perspective block and Helion as final perspective block.
+- [ ] Implement skirmish faction selector to allow any available faction and disable unavailable factions with Coming Soon labels.
+- [ ] Run F-25 Campaign Perspective Order and Skirmish Availability Gate and capture menu-state evidence.
 - [ ] Define concrete unlock thresholds for advanced systems (maintenance, instability, civilization stress).
 - [ ] Draft itch.io page copy using planning/itch-io-launch-and-feedback-plan.md blueprint sections.
 - [ ] Prepare Stage 0 media bundle (screenshots or clips) with gameplay-first captions.

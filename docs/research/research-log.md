@@ -531,6 +531,62 @@ Use this file to capture evidence-backed findings before changing architecture o
   - Execute F-23 to validate both transition paths and disabled campaign behavior.
   - Add transition-reason telemetry for startup diagnostics.
 
+## Entry-0022 Small-Scale 3D Presentation and Animation Subspace Direction
+
+- Date: 2026-06-06
+- Query: Define visual presentation so battlefield actors are small 3D objects and animation behavior is constrained to a predefined subspace.
+- Files reviewed:
+  - docs/planning/game-vision.md
+  - docs/planning/implementation-plan.md
+  - docs/planning/testing-strategy.md
+  - docs/planning/task-backlog.md
+  - docs/planning/next-steps.md
+  - docs/architecture/decision-log.md
+- Evidence:
+  - Existing planning emphasized RTS readability and control clarity but did not explicitly standardize 3D scale and animation-state constraints.
+  - MVP scope already carries significant systems load, so unconstrained per-unit animation growth creates delivery risk.
+  - Camera and HUD validation flows require readable intent signaling at gameplay zoom levels.
+- Interpretation:
+  - A small-scale 3D style with shared animation-state baseline aligns visual goals with MVP implementation capacity.
+  - Required per-unit animation state coverage should be explicitly tested as part of core gameplay readiness.
+- Risks or unknowns:
+  - Small-scale readability may degrade if silhouette contrast and camera defaults are not tuned early.
+  - Optional role-specific states can create drift if baseline-state requirements are not enforced.
+- Recommended decision:
+  - Accept ADR-0022 and enforce predefined animation subspace baseline for MVP playable roster.
+- Follow-up tasks:
+  - Define camera default and zoom bands for readability tests.
+  - Map each MVP unit to required and optional animation states.
+  - Execute F-24 and log gaps by unit role.
+
+## Entry-0023 Campaign Perspective Sequence and Skirmish Availability Rules
+
+- Date: 2026-06-06
+- Query: Define campaign side order so Veyari perspective is first and Helion is last, and define skirmish faction availability behavior.
+- Files reviewed:
+  - docs/planning/game-vision.md
+  - docs/planning/implementation-plan.md
+  - docs/planning/testing-strategy.md
+  - docs/planning/task-backlog.md
+  - docs/planning/next-steps.md
+  - docs/architecture/decision-log.md
+- Evidence:
+  - Startup menu behavior was defined, but campaign progression order and skirmish availability gating were not formally captured.
+  - Current MVP faction baseline already centers Helion and Veyari, enabling immediate availability-policy definition.
+  - Future faction expansion requires deterministic UI rules for enabled versus disabled options.
+- Interpretation:
+  - Campaign perspective ordering must be explicit to avoid narrative sequencing drift.
+  - Skirmish should expose all currently available factions while keeping unavailable factions visible for roadmap clarity.
+- Risks or unknowns:
+  - Campaign content pacing may require intermediate perspective transitions before final mission ordering is finalized.
+  - Availability flags must remain synchronized with build content or UI trust will degrade.
+- Recommended decision:
+  - Accept ADR-0023 and enforce Veyari-first, Helion-last campaign order plus skirmish available-faction selection and disabled Coming Soon states.
+- Follow-up tasks:
+  - Implement campaign mission-order metadata and transition markers.
+  - Implement skirmish availability gating logic in faction selection UI.
+  - Execute F-25 and record enabled or disabled state evidence.
+
 ## Research Entry Template
 
 ## Entry-XXXX Title

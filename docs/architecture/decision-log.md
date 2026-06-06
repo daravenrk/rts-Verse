@@ -555,6 +555,68 @@ Status values: Proposed, Accepted, Deprecated, Superseded
 - Related research:
   - Entry-0021 in research/research-log.md
 
+## ADR-0022 Small-Scale 3D Presentation and Animation Subspace Baseline
+
+- Date: 2026-06-06
+- Status: Accepted
+- Context: Core gameplay and UI direction were documented, but the visual representation and animation-system constraints for MVP units were not explicitly standardized.
+- Decision: Standardize MVP visual and animation baseline as follows:
+  - Playable battlefield actors are presented as small 3D objects readable at RTS camera height.
+  - MVP playable units use a predefined animation subspace baseline.
+  - Required baseline states per playable unit: Idle, Move, Primary Action, Hit or Reaction, Death or Disable.
+  - Optional states (for example ability, deploy, takeoff or land) are role-driven additions and do not replace required baseline coverage.
+- Rationale:
+  - Preserves strategic readability while enabling 3D presentation style.
+  - Reduces content scope risk by constraining animation set growth in MVP.
+  - Improves consistency across factions through shared state semantics.
+- Tradeoffs:
+  - Limits unique per-unit animation variety in early milestones.
+  - Requires stricter role-to-animation mapping discipline during content authoring.
+- Alternatives considered:
+  - Use bespoke animation sets per unit with no shared baseline.
+  - Use 2D sprite pipeline for MVP and defer 3D representation.
+- Validation approach:
+  - Functional: MVP playable roster has complete required animation state coverage.
+  - Integration: Camera behavior preserves readability of small 3D units and state intent cues.
+  - Smoke: Full match can run with no missing-animation blockers on core actions.
+  - Observability: Validation notes capture missing states, readability failures, and per-role animation exceptions.
+- Related plan items:
+  - M2 Core Gameplay Loop
+  - M3 Content and Balance Pass
+- Related research:
+  - Entry-0022 in research/research-log.md
+
+## ADR-0023 Campaign Perspective Order and Skirmish Faction Availability Baseline
+
+- Date: 2026-06-06
+- Status: Accepted
+- Context: Menu and faction planning exist, but campaign perspective progression order and skirmish faction-selection availability rules were not explicitly standardized.
+- Decision:
+  - Campaign narrative progression is ordered Veyari first, then Helion, with Helion as final perspective block.
+  - Skirmish mode allows selection of any currently available faction.
+  - Unavailable factions remain visible but disabled and labeled Coming Soon.
+  - MVP availability baseline for skirmish is Helion and Veyari.
+- Rationale:
+  - Provides a clear narrative framing arc with explicit perspective transition.
+  - Prevents ambiguity in skirmish faction access rules as roster expands.
+  - Keeps UI expectations aligned with implementation scope and progression state.
+- Tradeoffs:
+  - Requires campaign data and UI gating logic to stay synchronized with faction readiness.
+  - Visible disabled factions may increase perceived incomplete scope in early builds.
+- Alternatives considered:
+  - Start campaign from Helion perspective and reveal Veyari later.
+  - Hide unavailable skirmish factions entirely.
+- Validation approach:
+  - Functional: Campaign order definitions resolve to Veyari-first and Helion-last sequence.
+  - Integration: Skirmish faction UI reflects availability status with correct enabled or disabled state.
+  - Smoke: Main menu to skirmish flow loads without invalid faction selection paths.
+  - Observability: Logs and validation notes capture selected faction, disabled-state attempts, and campaign perspective transitions.
+- Related plan items:
+  - M2 Core Gameplay Loop
+  - M3 Content and Balance Pass
+- Related research:
+  - Entry-0023 in research/research-log.md
+
 ## ADR Template
 
 ## ADR-XXXX Title

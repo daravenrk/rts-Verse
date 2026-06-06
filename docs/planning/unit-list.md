@@ -261,6 +261,44 @@ Units required for MVP combat validation:
   - One contested Data Node objective
   - One flank lane and one chokepoint lane validated for combat behavior testing
 
+## MVP Per-Unit Animation Mapping (Helion and Veyari)
+
+Required baseline states from visual policy:
+
+- Idle
+- Move
+- Primary Action
+- Hit or Reaction
+- Death or Disable
+
+State naming convention (recommended clip IDs):
+
+- idle
+- move
+- action_primary
+- react_hit
+- death
+
+| Faction | Unit | Idle | Move | Primary Action | Hit or Reaction | Death or Disable | Optional States |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| Helion | Line Engineer | idle | move | action_primary_build_repair | react_hit | death | action_secondary_salvage |
+| Helion | Lancer Squad | idle | move | action_primary_rifle_fire | react_hit | death | action_secondary_grenade |
+| Helion | Breach Team | idle | move | action_primary_breach_fire | react_hit | death | action_secondary_charge |
+| Helion | Strider Bike | idle | move | action_primary_autocannon_fire | react_hit | death | action_secondary_boost |
+| Helion | Ember Tank | idle | move | action_primary_cannon_fire | react_hit | death | action_secondary_siege_brace |
+| Helion | Sunforge Artillery | idle | move | action_primary_artillery_fire | react_hit | death | deploy_enter, deploy_exit |
+| Veyari | Brood Architect | idle | move | action_primary_construct_heal | react_hit | death | action_secondary_tendril_seed |
+| Veyari | Needle Brood | idle | move | action_primary_spine_burst | react_hit | death | action_secondary_swarm_surge |
+| Veyari | Rift Claw | idle | move | action_primary_claw_strike | react_hit | death | action_secondary_lunge |
+| Veyari | Skitter Lance | idle | move | action_primary_spike_fire | react_hit | death | action_secondary_flank_dash |
+| Veyari | Bulwark Husk | idle | move | action_primary_heavy_bio_blast | react_hit | death | action_secondary_guard_stance |
+| Veyari | Mire Spitter | idle | move | action_primary_acid_mortar | react_hit | death | deploy_enter, deploy_exit |
+
+Implementation notes:
+
+- If a unit has a role-specific optional state, it still must keep all required baseline states.
+- Any additional state beyond this table requires readability justification and test-note entry under Flow F-24.
+
 ## Balance Intent Summary
 
 - Helion should feel faster, cleaner, and better at decisive timing attacks.
