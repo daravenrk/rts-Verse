@@ -41,6 +41,7 @@ Define and deliver the first playable RTS vertical slice expressing daravenrk's 
   - Vertical-slice roster lock implemented from planning/unit-list.md.
   - First duel map built to planning/map-standards.md baseline.
   - MVP map item catalog baseline implemented on first duel map, including required strategic and tactical items.
+  - Tether Point primary base role implemented for MVP factions with shared opening buildable chain rules.
 - Validation:
   - Smoke: Project launch enters startup scene and transitions to gameplay without blocking errors.
   - Functional: Manual playthrough confirms loop from start to finish.
@@ -50,6 +51,9 @@ Define and deliver the first playable RTS vertical slice expressing daravenrk's 
   - Integration: Resource, alert, and command feedback states match gameplay events without stale or missing HUD updates.
   - Integration: Map-aware route choice, objective contest behavior, and regroup logic function for both factions.
   - Observability: Map validation notes include stable item IDs for objective capture, contest timing, and route-denial events.
+  - Integration: Tether Point state transitions integrate with command response, production availability, and recovery behavior.
+  - Functional: Required MVP buildable structures can be constructed from T0 opening through T1 progression for all MVP factions.
+  - Observability: Tether Point lifecycle events are captured with stable IDs and timestamped recovery metrics.
 
 ## M3 Content and Balance Pass
 

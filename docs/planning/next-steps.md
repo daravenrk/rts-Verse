@@ -53,6 +53,11 @@ Keep this list short, actionable, and current.
 - [ ] Place all required tactical terrain items from planning/map-standards.md MVP Map Item Catalog on first duel map.
 - [ ] Assign stable item IDs to all interactive map items and add them to scenario validation notes.
 - [ ] Prototype exactly one optional MVP extension item after required map items pass checklist validation.
+- [ ] Implement shared Tether Point primary base behavior for Helion, Obsidian, and Veyari command structures.
+- [ ] Implement MVP T0 buildables from Tether Point unlock chain: Power Core, Alloy Extractor, and Barracks-equivalent.
+- [ ] Implement MVP T1 buildables: Vehicle Structure, Sensor/Uplink Structure, and Expansion Hub or Radius Extender.
+- [ ] Add command-penalty and recovery-state telemetry for controlled Tether Point destruction tests.
+- [ ] Run F-22 Tether Point and Buildable Chain Integrity across both spawns for all MVP factions.
 - [ ] Define concrete unlock thresholds for advanced systems (maintenance, instability, civilization stress).
 - [ ] Draft itch.io page copy using planning/itch-io-launch-and-feedback-plan.md blueprint sections.
 - [ ] Prepare Stage 0 media bundle (screenshots or clips) with gameplay-first captions.

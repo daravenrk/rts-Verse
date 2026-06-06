@@ -268,6 +268,21 @@ This document defines validation layers for milestone delivery.
   - Advanced systems emerge through clear progression triggers rather than immediate simulation load.
   - Transition into deeper systems increases strategic options without invalidating prior play.
 
+## Flow F-22 Tether Point and Buildable Chain Integrity
+
+- Setup: MVP duel scenario with faction-specific Tether Point structures and full T0 to T1 build options enabled.
+- Steps:
+  - Start match from both spawns and verify Tether Point auto-creation and ownership assignment.
+  - Build opening chain from Tether Point unlocks: Power Core, Alloy Extractor, and Barracks-equivalent.
+  - Progress into T1 and build Vehicle Structure plus Sensor or Uplink Structure.
+  - Destroy Tether Point in controlled scenario and confirm command penalties activate.
+  - Establish secondary command-capable structure and verify recovery-state transition.
+- Expected:
+  - Every faction can complete required MVP buildables without missing dependency links.
+  - Tether Point consistently controls opening build radius and production responsibilities.
+  - Tether Point destruction creates severe but non-terminal command impact when recovery conditions are met.
+  - Recovery transitions are logged and readable in observability outputs.
+
 ## Reporting Template
 
 - Date:

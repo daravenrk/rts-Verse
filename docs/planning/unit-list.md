@@ -42,6 +42,44 @@ Use this baseline for any new faction concept so role coverage is complete befor
 | Carrier | Capital Command Vessel | T2 or T3 | Naval Yard or Air Command | Large or Apex | Mobile launch and recovery base for Fighters and Corvettes | Limited direct firepower; force multiplier through hosted craft |
 | Apex Unit | Endgame centerpiece | T3 | Apex structure | Apex | Decisive late-game pressure tool | Must require clear economic and tech commitment |
 
+### MVP Buildable Structure Baseline
+
+These are the core items a player can build on MVP maps. They define the minimum structure set for duel scenario implementation.
+
+| Structure Class | Tier | Build Source | Cost Band | Primary Function | MVP Constraints |
+| --- | --- | --- | --- | --- | --- |
+| Tether Point (Primary Base Structure) | T0 | Match start spawn creation only | N/A at start | Base anchor, build radius source, opening production, command continuity | Exactly 1 created per player at match start; see Tether Point rules below |
+| Power Core | T0 | Builder unit | Low | Provides baseline power for early production | Must be available from Tether Point unlock set |
+| Alloy Extractor | T0 | Builder unit | Low | Harvests Alloy from valid map node | Requires Alloy node footprint and ownership check |
+| Barracks-Equivalent | T0 | Builder unit | Medium | Produces opening infantry and support units | Must unlock at least baseline infantry, breach infantry, and sustain support |
+| Light Defense Node | T0 or T1 | Builder unit | Medium | Early perimeter defense and delay tool | Must not fully lock all attack routes from one placement cluster |
+| Vehicle Structure | T1 | Builder unit | Medium | Produces light and mainline vehicles | Requires Barracks-Equivalent plus minimum power margin |
+| Sensor or Uplink Structure | T1 | Builder unit | Medium | Detection, scouting support, tactical information | Must include at least one active or passive reveal capability |
+| Expansion Hub or Radius Extender | T1 | Builder unit | Medium | Forward build radius and expansion logistics enablement | Must be contestable when placed at natural expansion |
+| Advanced Ground Structure | T2 | Builder unit | High | Unlocks heavy/siege/AA midgame roster elements | Requires Data-linked progression gate |
+| Air Structure | T2 | Builder unit | High | Produces air strike and transport units | Must maintain compatibility with shared air basing rules |
+
+### Tether Point Primary Base Rules
+
+The Tether Point is the shared gameplay role for each faction's first base structure.
+
+| Rule | Definition |
+| --- | --- |
+| Creation | Auto-created at each valid spawn when match begins. |
+| Ownership | Permanent to player slot unless destroyed; cannot be captured in MVP. |
+| Build Radius | Defines initial legal build radius and enables first expansion chain. |
+| Opening Production | Must produce one scout-class unit and one builder-class unit. |
+| Opening Unlock Set | Must unlock Power Core, Alloy Extractor, and Barracks-Equivalent structures. |
+| Command Dependency | Loss applies severe command penalties (for example reduced order throughput and delayed command response) but does not force immediate defeat if at least one secondary command-capable structure exists. |
+| Recovery Path | Player can restore stable command state by completing a replacement command-capable structure through expansion tech path. |
+| Observability | Spawn time, damage, destruction time, and recovery state transitions must be logged with stable structure IDs. |
+
+### Faction Mapping for Tether Point Role
+
+| Shared Role | Helion | Obsidian | Veyari |
+| --- | --- | --- | --- |
+| Tether Point | Command Spire | Forge Nexus | Descent Spire |
+
 ### Carrier and Airfield Basing Rules
 
 - Carrier:

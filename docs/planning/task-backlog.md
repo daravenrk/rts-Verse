@@ -40,3 +40,4 @@ Use this file for implementation-ready tasks linked to milestones.
 | T-0020 | M2 | P0 | Implement phase-gated activation for advanced civilization systems | Unassigned | M | T-0006, T-0014 | F-21 confirms advanced systems are gated during opening window | Todo |
 | T-0021 | M2 | P1 | Add opening parity telemetry for expansion timing, first factory timing, and first contested objective timing | Unassigned | M | T-0010, T-0011 | F-21 parity metrics are recorded for both factions and spawns | Todo |
 | T-0022 | M3 | P1 | Tune faction-specific stabilization models for equivalent opening viability | Unassigned | L | T-0020, T-0021 | Opening parity maintained while late-game identities diverge | Todo |
+| T-0023 | M2 | P0 | Implement Tether Point primary base behavior and MVP buildable structure chain | Unassigned | L | T-0003, T-0006, T-0014 | F-22 passes for Helion, Obsidian, and Veyari from both spawns | Todo |

@@ -493,6 +493,37 @@ Status values: Proposed, Accepted, Deprecated, Superseded
 - Related research:
   - Entry-0019 in research/research-log.md
 
+## ADR-0020 Tether Point Primary Base and MVP Buildable Structures Baseline
+
+- Date: 2026-06-06
+- Status: Accepted
+- Context: MVP map item standards now define what exists on the map, but implementation still needed explicit definitions for what players can build and how primary base behavior is enforced across factions.
+- Decision: Define a shared Tether Point primary base role and a shared MVP buildable structure class baseline in planning/unit-list.md and planning/tech-tree.md.
+  - Tether Point is the canonical primary base role (mapped to faction-specific command structures).
+  - Tether Point sets opening build radius, opening production, and opening unlock chain.
+  - MVP buildable structure classes are fixed from T0 through one T2 path minimum.
+  - Tether Point destruction causes severe command penalties with explicit non-terminal recovery path rules.
+- Rationale:
+  - Removes ambiguity in early build chain and base-structure behavior.
+  - Improves cross-faction consistency while preserving faction flavor names.
+  - Provides concrete targets for implementation, test flows, and observability.
+- Tradeoffs:
+  - Constrains early experimentation with alternative opening structure systems.
+  - Requires additional command-state and recovery handling logic in MVP implementation.
+- Alternatives considered:
+  - Keep base behavior faction-specific without shared role definition.
+  - Treat primary base destruction as immediate defeat in all MVP modes.
+- Validation approach:
+  - Functional: Players can build required T0 and T1 structures from Tether Point opening chain.
+  - Integration: Tether Point state changes integrate with production, command response, and recovery systems.
+  - Smoke: Matches remain playable after controlled Tether Point loss when recovery conditions are met.
+  - Observability: Tether Point lifecycle and recovery events are logged with stable structure IDs.
+- Related plan items:
+  - M2 Core Gameplay Loop
+  - M3 Content and Balance Pass
+- Related research:
+  - Entry-0020 in research/research-log.md
+
 ## ADR Template
 
 ## ADR-XXXX Title

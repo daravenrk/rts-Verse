@@ -52,6 +52,28 @@ This document defines faction progression, production structure unlocks, and upg
   - Construction units can place structures directly.
   - Advanced structures require both tier unlock and sufficient power margin.
 
+### Shared Primary Base Rule (Tether Point)
+
+- Every faction starts with one Tether Point role structure at spawn (faction-specific name allowed).
+- Tether Point responsibilities:
+  - Provides initial build radius and command authority.
+  - Produces opening scout and builder units.
+  - Unlocks first buildables: Power Core equivalent, Alloy Extractor equivalent, and Barracks-equivalent.
+- Command failure policy:
+  - Tether Point destruction applies severe command penalties.
+  - Immediate defeat is not required if player has valid secondary command-capable infrastructure.
+  - Recovery path must be available through expansion or tech progression.
+- Observability requirements:
+  - Log creation, first damage, destruction, recovery initiation, and recovery completion events.
+
+### Shared MVP Buildable Structure Set
+
+For MVP map implementation, all factions must support equivalent structure classes even when names and visuals differ:
+
+- T0: Tether Point, Power Core equivalent, Alloy Extractor equivalent, Barracks-equivalent, optional Light Defense Node.
+- T1: Vehicle Structure, Sensor or Uplink Structure, Expansion Hub or Radius Extender.
+- T2 (one path minimum for MVP): Advanced Ground Structure or Air Structure.
+
   - Tiering model (all factions):
     - Tier 0: Command, economy bootstrap, and scouting. (Start of match, basic resource and builder access)
     - Tier 1: Early combat, first expansion, and basic tech. (Infantry, light vehicles, first defenses, basic civilian/civilian defense)
@@ -328,3 +350,5 @@ Implement first:
 - Tech transitions should create new decisions, not just larger numbers.
 - Resource pressure must force tradeoffs between expansion, army size, and tier advancement.
 - Colony and civilian content must increase strategic objectives without creating mandatory non-interactive macro loops.
+- Tether Point loss and recovery must produce readable command-state changes with no undefined defeat behavior.
+- MVP buildable structure chain must remain unbroken from T0 opening through at least one T2 path.

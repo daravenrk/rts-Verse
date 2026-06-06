@@ -474,6 +474,34 @@ Use this file to capture evidence-backed findings before changing architecture o
   - Add item-ID capture to map validation notes.
   - Prototype one optional extension item only after required checklist is complete.
 
+## Entry-0020 Buildable Structure Definitions and Tether Point Primary Base Role
+
+- Date: 2026-06-06
+- Query: Define what players can build in MVP maps and formalize the Tether Point as the primary base structure role.
+- Files reviewed:
+  - docs/planning/unit-list.md
+  - docs/planning/tech-tree.md
+  - docs/planning/testing-strategy.md
+  - docs/planning/task-backlog.md
+  - docs/planning/implementation-plan.md
+  - docs/architecture/decision-log.md
+- Evidence:
+  - Unit and tech planning defined faction production structures but lacked a shared base-structure role contract for MVP implementation.
+  - Existing validation flows did not explicitly test primary base destruction and recovery behavior.
+  - MVP scope already depends on reliable opening build chains and readable command-state transitions.
+- Interpretation:
+  - A shared primary base role (Tether Point) is required for consistent gameplay behavior across faction-specific command structure names.
+  - MVP buildable structure classes should be explicit and tier-scoped to prevent undefined dependencies during implementation.
+- Risks or unknowns:
+  - Recovery rules may require tuning to avoid overly forgiving or overly punishing base-loss outcomes.
+  - Tier 2 structure class requirements may need adjustment once air and heavy-ground paths are both fully playable.
+- Recommended decision:
+  - Accept ADR-0020 and use the Tether Point plus shared MVP buildable class baseline as source-of-truth.
+- Follow-up tasks:
+  - Implement Tether Point lifecycle and command-penalty state handling.
+  - Execute F-22 across all MVP factions and both spawns.
+  - Add telemetry fields for Tether Point lifecycle timestamps and recovery duration.
+
 ## Research Entry Template
 
 ## Entry-XXXX Title
