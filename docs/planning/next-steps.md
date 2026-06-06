@@ -58,6 +58,11 @@ Keep this list short, actionable, and current.
 - [ ] Implement MVP T1 buildables: Vehicle Structure, Sensor/Uplink Structure, and Expansion Hub or Radius Extender.
 - [ ] Add command-penalty and recovery-state telemetry for controlled Tether Point destruction tests.
 - [ ] Run F-22 Tether Point and Buildable Chain Integrity across both spawns for all MVP factions.
+- [x] Implement splash scene as first visual state before any menu interaction.
+- [x] Implement startup gate: transition to main menu on first key press or auto-transition at 5 seconds.
+- [x] Implement main menu options with Skirmish enabled and Campaign disabled labeled Coming Soon.
+- [x] Add startup telemetry fields for transition reason (keypress or timeout) and timestamp.
+- [ ] Run F-23 Startup Splash and Main Menu Gate and record deterministic behavior results.
 - [ ] Define concrete unlock thresholds for advanced systems (maintenance, instability, civilization stress).
 - [ ] Draft itch.io page copy using planning/itch-io-launch-and-feedback-plan.md blueprint sections.
 - [ ] Prepare Stage 0 media bundle (screenshots or clips) with gameplay-first captions.

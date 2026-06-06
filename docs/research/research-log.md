@@ -502,6 +502,35 @@ Use this file to capture evidence-backed findings before changing architecture o
   - Execute F-22 across all MVP factions and both spawns.
   - Add telemetry fields for Tether Point lifecycle timestamps and recovery duration.
 
+## Entry-0021 Startup Splash and Main Menu Mode Gate Definition
+
+- Date: 2026-06-06
+- Query: Define startup flow so splash shows first, then main menu appears on first key press or after 5 seconds, with Campaign shown as Coming Soon.
+- Files reviewed:
+  - docs/planning/game-vision.md
+  - docs/planning/implementation-plan.md
+  - docs/planning/testing-strategy.md
+  - docs/planning/task-backlog.md
+  - docs/planning/next-steps.md
+  - docs/architecture/decision-log.md
+  - scripts/core/Main.gd
+- Evidence:
+  - Existing bootstrap flow routes directly toward gameplay and does not define splash-to-menu behavior.
+  - MVP planning needed explicit mode visibility constraints so unavailable campaign content is communicated without being selectable.
+  - Current testing strategy lacked a dedicated startup UX flow covering both input-triggered and timeout-triggered transitions.
+- Interpretation:
+  - Startup behavior should be formalized as deterministic shell-state logic before gameplay concerns.
+  - Visible-disabled campaign option is preferable to hidden mode for roadmap clarity in MVP.
+- Risks or unknowns:
+  - Timing edge cases around input handling near timeout boundary may create inconsistent transitions.
+  - Disabled menu option needs clear accessibility treatment so it is understandable but non-interactive.
+- Recommended decision:
+  - Accept ADR-0021 and standardize splash-first startup with keypress or 5-second timeout transition into menu containing Skirmish enabled and Campaign Coming Soon disabled.
+- Follow-up tasks:
+  - Implement startup shell scenes and transition controller.
+  - Execute F-23 to validate both transition paths and disabled campaign behavior.
+  - Add transition-reason telemetry for startup diagnostics.
+
 ## Research Entry Template
 
 ## Entry-XXXX Title

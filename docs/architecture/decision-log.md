@@ -524,6 +524,37 @@ Status values: Proposed, Accepted, Deprecated, Superseded
 - Related research:
   - Entry-0020 in research/research-log.md
 
+## ADR-0021 Startup Splash Gate and Main Menu MVP Navigation Baseline
+
+- Date: 2026-06-06
+- Status: Accepted
+- Context: Startup baseline previously focused on bootstrap transition to gameplay, but MVP product framing now requires a player-facing shell flow with controlled first impression and explicit mode availability messaging.
+- Decision: Standardize MVP startup and menu behavior as follows:
+  - Show splash screen first at launch.
+  - Transition to main menu on first key press or automatically after 5 seconds.
+  - Main menu exposes Skirmish as enabled.
+  - Main menu exposes Campaign as visible but disabled and labeled Coming Soon.
+- Rationale:
+  - Provides a clear first-run presentation layer before gameplay entry.
+  - Ensures deterministic startup behavior with two explicit transition triggers.
+  - Communicates planned scope without exposing unavailable campaign mode.
+- Tradeoffs:
+  - Adds one more startup state and timing path to validate.
+  - Requires explicit disabled-state UX handling for menu navigation.
+- Alternatives considered:
+  - Skip splash and open directly to menu.
+  - Keep campaign hidden instead of visible-disabled.
+  - Transition only on input with no timeout fallback.
+- Validation approach:
+  - Functional: Splash appears first and transitions correctly on keypress or 5-second timeout.
+  - Integration: Main menu state is identical regardless of transition trigger path.
+  - Smoke: Cold launch reaches main menu reliably with no blocked input or scene-load errors.
+  - Observability: Startup logs record splash start, transition reason, timeout path, and final menu state.
+- Related plan items:
+  - M2 Core Gameplay Loop
+- Related research:
+  - Entry-0021 in research/research-log.md
+
 ## ADR Template
 
 ## ADR-XXXX Title

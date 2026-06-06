@@ -187,6 +187,18 @@ The first slice proves the identity through one playable match scenario with:
 - Early to mid transition signals that demonstrate the survival-to-augmentation arc.
 - Initial Descent-linked objective signals that prove the world-event catalyst behavior.
 
+## Startup and Menu Experience (MVP)
+
+- On launch, the game shows a splash screen first.
+- The splash transitions to the main menu on either condition:
+	- first key press, or
+	- automatic timeout after 5 seconds.
+- Main menu options for MVP:
+	- Skirmish: enabled and selectable.
+	- Campaign: visible but disabled with label Coming Soon.
+- The disabled Campaign option must still be readable and clearly non-interactive.
+- Menu flow must be deterministic so first-play startup behavior is identical across runs.
+
 ## Out of Scope for Initial Slice
 
 - Final narrative campaign.

@@ -283,6 +283,21 @@ This document defines validation layers for milestone delivery.
   - Tether Point destruction creates severe but non-terminal command impact when recovery conditions are met.
   - Recovery transitions are logged and readable in observability outputs.
 
+## Flow F-23 Startup Splash and Main Menu Gate
+
+- Setup: Project launch target is scenes/core/Main.tscn with splash and main menu scenes wired.
+- Steps:
+  - Cold launch and verify splash appears first.
+  - Press one key before 5 seconds and verify immediate transition to main menu.
+  - Relaunch, provide no input, and verify transition occurs at 5-second timeout.
+  - Verify main menu shows Skirmish enabled.
+  - Verify Campaign is visible, disabled, and labeled Coming Soon.
+- Expected:
+  - Startup order is deterministic: splash always precedes main menu.
+  - Both transition paths (key press and timeout) reach identical main-menu state.
+  - Disabled Campaign option cannot be activated by keyboard or mouse.
+  - Observability logs include splash start, transition trigger reason, and menu state payload.
+
 ## Reporting Template
 
 - Date:
