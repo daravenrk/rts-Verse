@@ -406,6 +406,36 @@ Status values: Proposed, Accepted, Deprecated, Superseded
 - Related research:
   - Entry-0016 in research/research-log.md
 
+## ADR-0017 Default Startup Scene and Bootstrap Flow Baseline
+
+- Date: 2026-06-05
+- Status: Accepted
+- Context: The workspace currently has no configured startup scene in project.godot and no .tscn scene files, which blocks smoke validation for startup and makes M2 implementation sequencing ambiguous.
+- Decision: Adopt a default startup scene baseline for MVP:
+  - Main startup scene path: scenes/core/Main.tscn.
+  - Main scene must be configured in project.godot via run/main_scene once the scene exists.
+  - Main.tscn serves as a bootstrap coordinator that transitions into the first duel gameplay scene after startup checks.
+  - Keep startup responsibilities minimal: load baseline input profile, initialize core managers, and route to gameplay scene.
+- Rationale:
+  - Removes startup ambiguity and enables consistent smoke testing.
+  - Creates a stable entrypoint for integrating controls, HUD, and scenario loading.
+  - Aligns with conventions favoring clear scene responsibility and scalable folder structure.
+- Tradeoffs:
+  - Adds up-front implementation work before deeper gameplay systems are complete.
+  - Introduces a bootstrap layer that must be kept small to avoid becoming a monolithic scene.
+- Alternatives considered:
+  - Launch directly into gameplay scene with no bootstrap coordinator.
+  - Delay startup-scene decision until after first duel map implementation.
+- Validation approach:
+  - Functional: Running the project loads Main.tscn and reaches gameplay scene without manual editor intervention.
+  - Integration: Input bindings, baseline HUD state, and scenario initialization occur in correct order with no null-state dependencies.
+  - Smoke: Fresh project launch reaches controllable gameplay state and exits cleanly without startup errors.
+  - Observability: Startup logs capture bootstrap steps, scene transitions, and initialization failures with subsystem tags.
+- Related plan items:
+  - M2 Core Gameplay Loop
+- Related research:
+  - Entry-0017 in research/research-log.md
+
 ## ADR Template
 
 ## ADR-XXXX Title

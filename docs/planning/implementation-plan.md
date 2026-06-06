@@ -29,6 +29,7 @@ Define and deliver the first playable RTS vertical slice expressing daravenrk's 
 
 - Status: Not Started
 - Outcomes:
+  - Default startup scene baseline implemented (Main.tscn) and wired as project main scene.
   - Unit selection and movement.
   - Basic resource gathering.
   - Win and loss conditions for a small map.
@@ -40,6 +41,7 @@ Define and deliver the first playable RTS vertical slice expressing daravenrk's 
   - Vertical-slice roster lock implemented from planning/unit-list.md.
   - First duel map built to planning/map-standards.md baseline.
 - Validation:
+  - Smoke: Project launch enters startup scene and transitions to gameplay without blocking errors.
   - Functional: Manual playthrough confirms loop from start to finish.
   - Functional: Human and alien MVP factions can complete opening, transition, and first combined-arms engagements.
   - Integration: Input, simulation, and UI flow work together without blocking issues.

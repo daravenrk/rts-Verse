@@ -391,6 +391,34 @@ Use this file to capture evidence-backed findings before changing architecture o
   - Add opening clarity and parity validation flow.
   - Define concrete unlock thresholds for advanced system activation windows.
 
+## Entry-0017 Default Startup Scene and Bootstrap Flow
+
+- Date: 2026-06-05
+- Query: Add and plan a default main scene for the Godot project startup flow.
+- Files reviewed:
+  - project.godot
+  - docs/planning/conventions.md
+  - docs/planning/implementation-plan.md
+  - docs/planning/testing-strategy.md
+  - docs/planning/next-steps.md
+- Evidence:
+  - project.godot has no run/main_scene configured.
+  - Workspace currently has no .tscn scene files.
+  - conventions.md defines scene naming and folder conventions (for example scenes/core), which can host a default startup entrypoint.
+  - testing-strategy.md smoke layer requires reliable startup and scene-load behavior.
+- Interpretation:
+  - A canonical startup scene is a prerequisite for repeatable M2 smoke and integration validation.
+  - Startup should be treated as a minimal bootstrap responsibility that initializes required systems and routes to gameplay.
+- Risks or unknowns:
+  - Overloading startup with gameplay logic can increase coupling and slow iteration.
+  - Scene transition timing may cause initialization race issues if manager readiness is not explicit.
+- Recommended decision:
+  - Accept ADR-0017 and standardize Main.tscn as startup coordinator with explicit project.godot main-scene wiring.
+- Follow-up tasks:
+  - Create scenes/core/Main.tscn and set run/main_scene.
+  - Add bootstrap startup checklist to M2 execution and smoke validation notes.
+  - Add startup observability events for scene load and initialization failures.
+
 ## Research Entry Template
 
 ## Entry-XXXX Title

@@ -11,6 +11,9 @@ Keep this list short, actionable, and current.
 - [ ] Assign owners and estimates for M2 seed backlog tasks.
 - [ ] Execute first pass of M2 validation flows F-01 and F-02.
 - [x] Add faction asymmetry acceptance checks to M2 validation flows.
+- [x] Create default startup scene at scenes/core/Main.tscn with single-responsibility bootstrap flow.
+- [x] Configure project.godot run/main_scene to scenes/core/Main.tscn after scene creation.
+- [ ] Add startup bootstrap checklist: input profile load, core manager init, gameplay scene transition.
 - [ ] Convert tech-tree vertical-slice lock into scene and script implementation checklist.
 - [ ] Build first duel map using map-standards.md.
 - [ ] Define initial numeric price bands for vertical-slice units and structures.
@@ -44,6 +47,7 @@ Keep this list short, actionable, and current.
 - [ ] Run F-19 Camera and HUD Usability Validation and tune camera responsiveness.
 - [ ] Run F-20 Resource Discovery and Security Dominance Loop and tune objective control pacing.
 - [ ] Run F-21 Opening Clarity and Parity Gate and tune early-phase cognitive load.
+- [ ] Run startup smoke pass from cold launch and capture bootstrap logs for failure triage.
 - [ ] Add explicit map annotations for primary, secondary, and high-risk resource zones in first duel scenario.
 - [ ] Define concrete unlock thresholds for advanced systems (maintenance, instability, civilization stress).
 
