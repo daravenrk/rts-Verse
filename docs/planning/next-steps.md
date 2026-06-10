@@ -41,18 +41,18 @@ Keep this list short, actionable, and current.
 - [ ] Implement MVP faction pair: Helion (Human) and Veyari (Alien) with full roster-lock completeness checks.
 - [ ] Run F-16 Human vs Alien MVP Combat Completeness and record failures by dependency type.
 - [ ] Run F-17 Map-Aware Tactical Combat Intelligence and tune lane selection, objective timing, and regroup logic.
-- [ ] Implement default keyboard and mouse bindings from planning/controls-standards.md.
-- [ ] Implement MVP HUD components: resource bar, minimap, command card, alerts, and queue display.
+- [x] Implement default keyboard and mouse bindings from planning/controls-standards.md.
+- [x] Implement MVP HUD components: resource bar, minimap, command card, alerts, and queue display.
 - [ ] Run F-18 Keyboard and Mouse Command Coverage and resolve command gap defects.
 - [ ] Run F-19 Camera and HUD Usability Validation and tune camera responsiveness.
 - [ ] Run F-20 Resource Discovery and Security Dominance Loop and tune objective control pacing.
 - [ ] Run F-21 Opening Clarity and Parity Gate and tune early-phase cognitive load.
 - [x] Run startup smoke pass from cold launch and capture bootstrap logs for failure triage.
-- [ ] Add explicit map annotations for primary, secondary, and high-risk resource zones in first duel scenario.
-- [ ] Place all required strategic map items from planning/map-standards.md MVP Map Item Catalog on first duel map.
-- [ ] Place all required tactical terrain items from planning/map-standards.md MVP Map Item Catalog on first duel map.
-- [ ] Assign stable item IDs to all interactive map items and add them to scenario validation notes.
-- [ ] Prototype exactly one optional MVP extension item after required map items pass checklist validation.
+- [x] Add explicit map annotations for primary, secondary, and high-risk resource zones in first duel scenario.
+- [x] Place all required strategic map items from planning/map-standards.md MVP Map Item Catalog on first duel map.
+- [x] Place all required tactical terrain items from planning/map-standards.md MVP Map Item Catalog on first duel map.
+- [x] Assign stable item IDs to all interactive map items and add them to scenario validation notes.
+- [x] Prototype exactly one optional MVP extension item after required map items pass checklist validation.
 - [x] Implement shared Tether Point primary base behavior for Helion, Obsidian, and Veyari command structures.
 - [x] Implement MVP T0 buildables from Tether Point unlock chain: Power Core, Alloy Extractor, and Barracks-equivalent.
 - [x] Implement MVP T1 buildables: Vehicle Structure, Sensor/Uplink Structure, and Expansion Hub or Radius Extender.
@@ -127,6 +127,9 @@ Keep this list short, actionable, and current.
 - 2026-06-10: Weekly feedback triage cadence kickoff and first feedback-response devlog summary draft added to launch workflow.
 - 2026-06-10: First-pass camera defaults and zoom bands for small 3D readability added to controls standards for F-24 baseline.
 - 2026-06-10: MVP animation subspace per-unit mapping baseline confirmed in unit-list and linked as F-24 source-of-truth.
+- 2026-06-10: First duel map now includes required strategic and tactical item catalog, explicit resource-zone annotations, stable map item IDs, and one optional neutral relay prototype with scenario-note evidence.
+- 2026-06-10: Default RTS keyboard and mouse binding profile implemented in startup input initialization from controls-standards baseline and validated in headless startup run.
+- 2026-06-10: MVP HUD baseline layer initialized in duel map runtime with resource bar, minimap, command card, alerts, and queue placeholders.
 
 ## Owner Map
 

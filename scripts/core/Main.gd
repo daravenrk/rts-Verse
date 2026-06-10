@@ -6,6 +6,44 @@ const STARTUP_STEP_INPUT_PROFILE := "input_profile_load"
 const STARTUP_STEP_CORE_MANAGER_INIT := "core_manager_init"
 const STARTUP_STEP_GAMEPLAY_TRANSITION := "gameplay_scene_transition"
 const STARTUP_TEST_AUTO_KEYPRESS_FLAG := "--startup-test-keypress"
+const INPUT_PROFILE_CONFIG_PATH := "user://input_profile.cfg"
+
+const PROFILE_ACTIONS := [
+	"rts_camera_pan_up",
+	"rts_camera_pan_down",
+	"rts_camera_pan_left",
+	"rts_camera_pan_right",
+	"rts_camera_rotate_left",
+	"rts_camera_rotate_right",
+	"rts_camera_center_selection",
+	"rts_camera_center_command",
+	"rts_toggle_strategic_map",
+	"rts_order_attack_move",
+	"rts_order_stop",
+	"rts_order_hold",
+	"rts_order_patrol",
+	"rts_order_gather",
+	"rts_order_repair",
+	"rts_order_build",
+	"rts_order_tactical_panel",
+	"rts_mouse_select_primary",
+	"rts_mouse_command_context",
+	"rts_mouse_pan",
+	"rts_mouse_zoom_in",
+	"rts_mouse_zoom_out",
+	"rts_queue_modifier",
+	"rts_group_assign_modifier",
+	"rts_group_1",
+	"rts_group_2",
+	"rts_group_3",
+	"rts_group_4",
+	"rts_group_5",
+	"rts_group_6",
+	"rts_group_7",
+	"rts_group_8",
+	"rts_group_9",
+	"rts_group_0"
+]
 
 var _menu_shown: bool = false
 var _splash_timer: Timer
@@ -42,12 +80,143 @@ func _mark_startup_step(step_id: String, status: String, detail: String) -> void
 
 
 func _load_input_profile() -> void:
-	var required_actions := PackedStringArray(["ui_accept", "ui_cancel", "ui_select", "ui_right_click"])
-	for action in required_actions:
-		if not InputMap.has_action(action):
-			InputMap.add_action(action)
+	_ensure_action_with_key("ui_accept", KEY_ENTER)
+	_ensure_action_with_key("ui_cancel", KEY_ESCAPE)
+	_ensure_action_with_mouse_button("ui_select", MOUSE_BUTTON_LEFT)
+	_ensure_action_with_mouse_button("ui_right_click", MOUSE_BUTTON_RIGHT)
 
-	_mark_startup_step(STARTUP_STEP_INPUT_PROFILE, "done", "input actions prepared")
+	_ensure_action_with_key("rts_camera_pan_up", KEY_W)
+	_ensure_action_with_key("rts_camera_pan_up", KEY_UP)
+	_ensure_action_with_key("rts_camera_pan_down", KEY_S)
+	_ensure_action_with_key("rts_camera_pan_down", KEY_DOWN)
+	_ensure_action_with_key("rts_camera_pan_left", KEY_A)
+	_ensure_action_with_key("rts_camera_pan_left", KEY_LEFT)
+	_ensure_action_with_key("rts_camera_pan_right", KEY_D)
+	_ensure_action_with_key("rts_camera_pan_right", KEY_RIGHT)
+	_ensure_action_with_key("rts_camera_rotate_left", KEY_Q)
+	_ensure_action_with_key("rts_camera_rotate_right", KEY_E)
+	_ensure_action_with_key("rts_camera_center_selection", KEY_SPACE)
+	_ensure_action_with_key("rts_camera_center_command", KEY_F1)
+	_ensure_action_with_key("rts_toggle_strategic_map", KEY_M)
+
+	_ensure_action_with_key("rts_order_attack_move", KEY_A)
+	_ensure_action_with_key("rts_order_stop", KEY_S)
+	_ensure_action_with_key("rts_order_hold", KEY_H)
+	_ensure_action_with_key("rts_order_patrol", KEY_P)
+	_ensure_action_with_key("rts_order_gather", KEY_G)
+	_ensure_action_with_key("rts_order_repair", KEY_R)
+	_ensure_action_with_key("rts_order_build", KEY_B)
+	_ensure_action_with_key("rts_order_tactical_panel", KEY_T)
+
+	_ensure_action_with_mouse_button("rts_mouse_select_primary", MOUSE_BUTTON_LEFT)
+	_ensure_action_with_mouse_button("rts_mouse_command_context", MOUSE_BUTTON_RIGHT)
+	_ensure_action_with_mouse_button("rts_mouse_pan", MOUSE_BUTTON_MIDDLE)
+	_ensure_action_with_mouse_button("rts_mouse_zoom_in", MOUSE_BUTTON_WHEEL_UP)
+	_ensure_action_with_mouse_button("rts_mouse_zoom_out", MOUSE_BUTTON_WHEEL_DOWN)
+
+	_ensure_action_with_key("rts_queue_modifier", KEY_SHIFT)
+	_ensure_action_with_key("rts_group_assign_modifier", KEY_CTRL)
+
+	_ensure_action_with_key("rts_group_1", KEY_1)
+	_ensure_action_with_key("rts_group_2", KEY_2)
+	_ensure_action_with_key("rts_group_3", KEY_3)
+	_ensure_action_with_key("rts_group_4", KEY_4)
+	_ensure_action_with_key("rts_group_5", KEY_5)
+	_ensure_action_with_key("rts_group_6", KEY_6)
+	_ensure_action_with_key("rts_group_7", KEY_7)
+	_ensure_action_with_key("rts_group_8", KEY_8)
+	_ensure_action_with_key("rts_group_9", KEY_9)
+	_ensure_action_with_key("rts_group_0", KEY_0)
+	_load_or_create_input_profile()
+
+	_mark_startup_step(STARTUP_STEP_INPUT_PROFILE, "done", "default RTS bindings prepared")
+
+
+func _ensure_action_with_key(action: StringName, keycode: Key) -> void:
+	if not InputMap.has_action(action):
+		InputMap.add_action(action)
+
+	for existing_event in InputMap.action_get_events(action):
+		if existing_event is InputEventKey and existing_event.keycode == keycode:
+			return
+
+	var key_event := InputEventKey.new()
+	key_event.keycode = keycode
+	InputMap.action_add_event(action, key_event)
+
+
+func _ensure_action_with_mouse_button(action: StringName, mouse_button: MouseButton) -> void:
+	if not InputMap.has_action(action):
+		InputMap.add_action(action)
+
+	for existing_event in InputMap.action_get_events(action):
+		if existing_event is InputEventMouseButton and existing_event.button_index == mouse_button:
+			return
+
+	var mouse_event := InputEventMouseButton.new()
+	mouse_event.button_index = mouse_button
+	InputMap.action_add_event(action, mouse_event)
+
+
+func _load_or_create_input_profile() -> void:
+	var config := ConfigFile.new()
+	var load_result := config.load(INPUT_PROFILE_CONFIG_PATH)
+	if load_result == OK:
+		_apply_input_profile(config)
+		print("[Input] Profile loaded path=%s" % INPUT_PROFILE_CONFIG_PATH)
+		return
+
+	_write_input_profile(config)
+	print("[Input] Profile created path=%s" % INPUT_PROFILE_CONFIG_PATH)
+
+
+func _write_input_profile(config: ConfigFile) -> void:
+	config.set_value("camera", "edge_scroll", true)
+	config.set_value("camera", "sensitivity", 1.0)
+	config.set_value("camera", "zoom_speed", 1.0)
+
+	for action_name in PROFILE_ACTIONS:
+		var keycodes: Array[int] = []
+		var mouse_buttons: Array[int] = []
+		for event in InputMap.action_get_events(action_name):
+			if event is InputEventKey:
+				keycodes.append(event.keycode)
+			elif event is InputEventMouseButton:
+				mouse_buttons.append(event.button_index)
+
+		config.set_value("bindings", "%s_keys" % action_name, keycodes)
+		config.set_value("bindings", "%s_mouse" % action_name, mouse_buttons)
+
+	config.save(INPUT_PROFILE_CONFIG_PATH)
+
+
+func _apply_input_profile(config: ConfigFile) -> void:
+	for action_name in PROFILE_ACTIONS:
+		if not InputMap.has_action(action_name):
+			continue
+
+		var keycodes_variant: Variant = config.get_value("bindings", "%s_keys" % action_name, [])
+		var mouse_variant: Variant = config.get_value("bindings", "%s_mouse" % action_name, [])
+		var keycodes: Array = []
+		var mouse_buttons: Array = []
+		if keycodes_variant is Array:
+			keycodes = keycodes_variant
+		if mouse_variant is Array:
+			mouse_buttons = mouse_variant
+
+		if keycodes.is_empty() and mouse_buttons.is_empty():
+			continue
+
+		InputMap.action_erase_events(action_name)
+		for keycode_value in keycodes:
+			var key_event := InputEventKey.new()
+			key_event.keycode = int(keycode_value)
+			InputMap.action_add_event(action_name, key_event)
+
+		for mouse_button_value in mouse_buttons:
+			var mouse_event := InputEventMouseButton.new()
+			mouse_event.button_index = int(mouse_button_value)
+			InputMap.action_add_event(action_name, mouse_event)
 
 
 func _initialize_core_managers() -> void:

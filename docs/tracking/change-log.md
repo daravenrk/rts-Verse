@@ -31,6 +31,11 @@ Track high-level project changes with links to decisions and plans.
 - Added weekly feedback triage cadence kickoff parameters and a first feedback-response devlog summary draft template.
 - Added first-pass camera defaults and zoom-band standards for small 3D unit readability in controls standards.
 - Confirmed MVP per-unit animation subspace mapping baseline in unit-list as F-24 source-of-truth input.
+- Added first duel map strategic and tactical item catalog implementation with explicit zone annotations and stable map item IDs.
+- Added scenario validation notes artifact documenting map item IDs, optional extension prototype, and headless validation command evidence.
+- Implemented default RTS keyboard and mouse input bindings during startup profile initialization aligned to controls standards.
+- Implemented MVP HUD baseline placeholders in duel map runtime for resource bar, minimap, command card, alerts, and production queue.
+- Added persisted input profile support (`user://input_profile.cfg`) for remappable hotkeys and camera settings, validated by create-on-first-run and load-on-restart behavior.
 
 ## 2026-05-17
 
