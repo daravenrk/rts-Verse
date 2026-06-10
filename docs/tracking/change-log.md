@@ -27,6 +27,8 @@ Track high-level project changes with links to decisions and plans.
 - Implemented live right-click world-space move command dispatch for selected units.
 - Added command acknowledgement move ping marker for accepted move commands.
 - Added deterministic F-32 interaction validation hook (`--duel-test-f32-interaction`) and executed headless validation with pass evidence (`select_pass=true`, `move_pass=true`).
+- Added minimal world blockers and no-go zones in duel map runtime with path intersection checks for move-command rejection.
+- Added deterministic F-33 blocker validation hook (`--duel-test-f33-blocker`) and executed headless validation with pass evidence (`still_idle=true`, `alert_ok=true`).
 - Decomposed Stage 0 sprint next steps into operator-ready micro-steps covering media freeze, staging, audit, publish, evidence capture, and tracker synchronization.
 - Updated M4 status to in-progress with a dedicated Stage 0 immediate execution slice and formal entry or exit criteria.
 - Added ADR-0025 and research Entry-0025 to document deterministic Stage 0 closure decomposition rationale and validation strategy.

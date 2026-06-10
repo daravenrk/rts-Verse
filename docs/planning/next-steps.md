@@ -83,7 +83,7 @@ Keep this list short, actionable, and current.
 - [x] Implement left-click selection from camera ray and multi-select modifier handling in duel map.
 - [x] Implement right-click movement command from world ray target for selected units.
 - [x] Add selection and command acknowledgement feedback (selection highlight and move marker ping).
-- [ ] Add blocker-collision sanity checks and invalid-move rejection feedback.
+- [x] Add blocker-collision sanity checks and invalid-move rejection feedback.
 - [ ] Run manual cold-launch visual smoke playthrough from splash to move command with no blocking errors.
 - [ ] Freeze Stage 0 media set: select 3 to 6 screenshots and optional clips, then finalize gameplay-first captions.
 - [ ] Stage finalized media and captions in docs/release/stage0-media/ using required naming and ordering.

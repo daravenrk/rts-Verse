@@ -18,6 +18,7 @@ const TEST_MAP_BASELINE_FLAG := "--duel-test-map-baseline"
 const TEST_F16_FLAG := "--duel-test-f16"
 const TEST_F17_FLAG := "--duel-test-f17"
 const TEST_F32_INTERACTION_FLAG := "--duel-test-f32-interaction"
+const TEST_F33_BLOCKER_FLAG := "--duel-test-f33-blocker"
 const TEST_ROSTER_BEHAVIORS_FLAG := "--duel-test-roster-behaviors"
 const TEST_T2_PATHS_FLAG := "--duel-test-t2-paths"
 const TEST_COLONY_DEFENSE_FLAG := "--duel-test-colony-defense"
@@ -174,6 +175,11 @@ const _CAMERA_PAN_SPEED := 200.0
 const _CAMERA_ROTATE_SPEED := 60.0
 const _CAMERA_ZOOM_STEP := 50.0
 const _SELECT_RADIUS_UNITS := 18.0
+const _BLOCKER_RECTS: Array[Rect2] = [
+	Rect2(Vector2(-30.0, -30.0), Vector2(60.0, 60.0)),
+	Rect2(Vector2(-170.0, 60.0), Vector2(50.0, 50.0)),
+	Rect2(Vector2(120.0, 60.0), Vector2(50.0, 50.0))
+]
 var _tether_points_by_slot: Dictionary = {}
 var _buildables_by_slot: Dictionary = {"A": {}, "B": {}}
 var _build_sequence: int = 0
@@ -200,6 +206,7 @@ func _ready() -> void:
 	print("[Map] First duel environment primary=Radial Impact Zone secondary=None")
 	_create_mvp_hud()
 	_spawn_map_items()
+	_spawn_world_blockers()
 	_validate_map_item_catalog()
 	_spawn_tether_point("A", player_faction, _spawn_a)
 	_spawn_tether_point("B", enemy_faction, _spawn_b)
@@ -211,6 +218,7 @@ func _ready() -> void:
 	_run_f20_f21_test_hook()
 	_run_f01_f02_test_hook()
 	_run_f32_interaction_test_hook()
+	_run_f33_blocker_test_hook()
 	_run_f03_test_hook()
 	_run_f04_test_hook()
 	_run_production_chain_test_hook()
@@ -246,6 +254,22 @@ func _spawn_opening_squads() -> void:
 			actor.initialize(unit_id, faction, marker.position + Vector3(off.x * mirror, 0.0, off.z))
 			_controllable_units[actor.name] = actor
 		print("[Squad] Spawned slot=%s faction=%s count=%d" % [slot, faction, mini(units_for_slot.size(), offsets.size())])
+
+
+func _spawn_world_blockers() -> void:
+	for index in _BLOCKER_RECTS.size():
+		var rect: Rect2 = _BLOCKER_RECTS[index]
+		var blocker := MeshInstance3D.new()
+		var box := BoxMesh.new()
+		box.size = Vector3(rect.size.x, 16.0, rect.size.y)
+		blocker.mesh = box
+		var mat := StandardMaterial3D.new()
+		mat.albedo_color = Color(0.25, 0.16, 0.14)
+		mat.roughness = 0.85
+		blocker.material_override = mat
+		blocker.position = Vector3(rect.position.x + rect.size.x * 0.5, 8.0, rect.position.y + rect.size.y * 0.5)
+		blocker.name = "WorldBlocker_%02d" % index
+		add_child(blocker)
 
 
 func _resolve_faction(meta_key: String, cli_prefix: String, fallback: String) -> String:
@@ -578,13 +602,32 @@ func _issue_move_command(target: Vector3) -> void:
 	if _selected_controllable_units.is_empty():
 		print("[F02] Move rejected reason=no_selection")
 		return
+	if _is_point_blocked(target):
+		_reject_move("target_blocked", target)
+		return
+
+	var queued_units: Array[String] = []
+	var blocked_units: Array[String] = []
 
 	for unit_id in _selected_controllable_units:
 		var unit: SelectableUnit2D = _controllable_units[unit_id]
+		var from := Vector2(unit.position.x, unit.position.z)
+		var to := Vector2(target.x, target.z)
+		if _is_path_blocked(from, to):
+			blocked_units.append(unit_id)
+			continue
 		unit.queue_move(target)
+		queued_units.append(unit_id)
+
+	if queued_units.is_empty():
+		_reject_move("path_blocked", target)
+		print("[F02] Move rejected reason=path_blocked units=%s target=%s" % [str(blocked_units), str(target)])
+		return
 
 	_spawn_move_ping(target)
-	print("[F02] Move issued units=%s target=%s" % [str(_selected_controllable_units), str(target)])
+	if not blocked_units.is_empty() and _hud_alert_item:
+		_hud_alert_item.text = "Blocked: %d unit path(s) rejected" % blocked_units.size()
+	print("[F02] Move issued units=%s blocked_units=%s target=%s" % [str(queued_units), str(blocked_units), str(target)])
 
 
 func _simulate_until_arrival(max_steps: int) -> bool:
@@ -654,12 +697,35 @@ func _run_f32_interaction_test_hook() -> void:
 	_handle_left_click_selection(select_screen)
 
 	var select_pass := _selected_controllable_units.size() == 1 and _selected_controllable_units.has(first_id)
-	var target_world := Vector3(0.0, 0.0, 0.0)
+	var target_world := Vector3(-120.0, 0.0, 30.0)
 	var target_screen := _rts_camera.unproject_position(target_world)
 	_handle_right_click_command(target_screen)
 	var move_pass := _simulate_until_arrival(120)
 
 	print("[F32] Summary select_pass=%s move_pass=%s selected=%s" % [str(select_pass), str(move_pass), str(_selected_controllable_units)])
+
+
+func _run_f33_blocker_test_hook() -> void:
+	if not _has_user_flag(TEST_F33_BLOCKER_FLAG):
+		return
+
+	if _controllable_units.is_empty() or not _rts_camera:
+		print("[F33] Summary pass=false reason=missing_units_or_camera")
+		return
+
+	var first_id: String = str(_controllable_units.keys()[0])
+	var first_unit: SelectableUnit2D = _controllable_units[first_id]
+	var select_screen := _rts_camera.unproject_position(first_unit.position)
+	_handle_left_click_selection(select_screen)
+
+	var blocked_target := Vector3(0.0, 0.0, 0.0)
+	var blocked_screen := _rts_camera.unproject_position(blocked_target)
+	_handle_right_click_command(blocked_screen)
+
+	var unit_after: SelectableUnit2D = _controllable_units[first_id]
+	var still_idle := not unit_after.has_move_target()
+	var alert_ok := _hud_alert_item and _hud_alert_item.text.find("rejected") >= 0
+	print("[F33] Summary blocked_target=%s still_idle=%s alert_ok=%s" % [str(blocked_target), str(still_idle), str(alert_ok)])
 
 
 func _run_f04_test_hook() -> void:
@@ -1048,7 +1114,39 @@ func _screen_to_ground_point(screen_pos: Vector2) -> Dictionary:
 	return {"ok": true, "point": origin + direction * t}
 
 
-func _spawn_move_ping(world_pos: Vector3) -> void:
+func _is_point_blocked(world_pos: Vector3) -> bool:
+	var point := Vector2(world_pos.x, world_pos.z)
+	for rect in _BLOCKER_RECTS:
+		if rect.has_point(point):
+			return true
+	return false
+
+
+func _is_path_blocked(from: Vector2, to: Vector2) -> bool:
+	for rect in _BLOCKER_RECTS:
+		if rect.has_point(from) or rect.has_point(to):
+			return true
+		var corners := [
+			rect.position,
+			rect.position + Vector2(rect.size.x, 0.0),
+			rect.position + rect.size,
+			rect.position + Vector2(0.0, rect.size.y)
+		]
+		for i in 4:
+			var a: Vector2 = corners[i]
+			var b: Vector2 = corners[(i + 1) % 4]
+			if Geometry2D.segment_intersects_segment(from, to, a, b) != null:
+				return true
+	return false
+
+
+func _reject_move(reason: String, world_pos: Vector3) -> void:
+	if _hud_alert_item:
+		_hud_alert_item.text = "Move rejected: %s" % reason
+	_spawn_move_ping(world_pos, Color(1.0, 0.2, 0.2, 0.85))
+
+
+func _spawn_move_ping(world_pos: Vector3, color: Color = Color(0.95, 0.95, 0.2, 0.8)) -> void:
 	var marker := MeshInstance3D.new()
 	var cyl := CylinderMesh.new()
 	cyl.height = 0.5
@@ -1056,9 +1154,9 @@ func _spawn_move_ping(world_pos: Vector3) -> void:
 	cyl.bottom_radius = 4.0
 	marker.mesh = cyl
 	var mat := StandardMaterial3D.new()
-	mat.albedo_color = Color(0.95, 0.95, 0.2, 0.8)
+	mat.albedo_color = color
 	mat.emission_enabled = true
-	mat.emission = Color(0.95, 0.95, 0.2)
+	mat.emission = Color(color.r, color.g, color.b)
 	marker.material_override = mat
 	marker.position = world_pos + Vector3(0.0, 0.25, 0.0)
 	add_child(marker)
