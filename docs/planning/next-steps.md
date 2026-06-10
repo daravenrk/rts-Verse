@@ -66,9 +66,9 @@ Keep this list short, actionable, and current.
 - [ ] Define first-pass camera default and zoom bands for small 3D unit readability.
 - [ ] Implement MVP unit animation state mapping to predefined subspace baseline.
 - [ ] Run F-24 Small-Scale 3D Readability and Animation Subspace Compliance and record gaps by unit role.
-- [ ] Define campaign mission order baseline with Veyari as first perspective block and Helion as final perspective block.
+- [x] Define campaign mission order baseline with Veyari as first perspective block and Helion as final perspective block.
 - [x] Implement skirmish faction selector to allow any available faction and disable unavailable factions with Coming Soon labels.
-- [ ] Run F-25 Campaign Perspective Order and Skirmish Availability Gate and capture menu-state evidence.
+- [x] Run F-25 Campaign Perspective Order and Skirmish Availability Gate and capture menu-state evidence.
 - [ ] Select primary environment type for first duel map and document why it fits MVP combat goals.
 - [ ] Confirm Tether Point spawn positions are map-defined and work correctly for both Helion and Veyari at all valid spawn locations.
 - [ ] Run F-26 Environment Type Readability and capture first-engagement notes.
@@ -111,6 +111,8 @@ Keep this list short, actionable, and current.
 - 2026-06-09: Startup bootstrap checklist implemented in Main bootstrap flow for input profile load, core manager initialization, and gameplay scene transition state tracking.
 - 2026-06-09: Startup cold-launch smoke pass executed in headless mode and bootstrap logs captured for triage baseline.
 - 2026-06-09: Skirmish faction selector implemented with availability gating; Helion and Veyari selectable while unavailable factions remain visible and disabled with Coming Soon labels.
+- 2026-06-09: Campaign perspective order data source added with Veyari-first and Helion-last sequence wired into skirmish state display and logs.
+- 2026-06-09: F-25 executed via headless skirmish scene validation; faction availability gate and campaign-order evidence captured in runtime logs.
 
 ## Owner Map
 

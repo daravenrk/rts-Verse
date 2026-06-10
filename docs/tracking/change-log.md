@@ -9,6 +9,9 @@ Track high-level project changes with links to decisions and plans.
 - Updated sprint tracker to mark startup bootstrap checklist task complete.
 - Implemented skirmish faction selector UI gate with explicit availability states and disabled Coming Soon entries for unavailable factions.
 - Ran headless skirmish scene smoke check and captured faction availability logs for selector initialization.
+- Added campaign perspective-order runtime data source with Veyari-first and Helion-last sequence.
+- Wired campaign-order summary into skirmish UI and status telemetry so menu state and campaign-order data remain synchronized.
+- Executed F-25 validation in headless skirmish scene run and captured logs proving available and unavailable faction states plus Veyari-first and Helion-last campaign ordering.
 
 ## 2026-05-17
 
