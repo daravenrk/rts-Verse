@@ -1,5 +1,7 @@
-extends Node2D
+extends Node3D
 class_name TetherPoint
+
+signal command_penalty_activated(item_id: String, slot: String, faction: String)
 
 const MAX_HEALTH := 1000.0
 const OPENING_UNLOCK_SET := ["power_core", "alloy_extractor", "barracks_equivalent"]
@@ -49,6 +51,7 @@ func _activate_command_penalty() -> void:
 	is_command_penalty_active = true
 	recovery_state = "destroyed"
 	print("[Tether] Destroyed id=%s slot=%s faction=%s command_penalty=active" % [stable_item_id, spawn_slot, faction_id])
+	command_penalty_activated.emit(stable_item_id, spawn_slot, faction_id)
 
 
 func begin_recovery(secondary_structure_id: String) -> void:

@@ -1,4 +1,4 @@
-extends Node2D
+extends Node3D
 
 const DEFAULT_PLAYER_FACTION := "helion"
 const DEFAULT_ENEMY_FACTION := "veyari"
@@ -20,10 +20,6 @@ const TEST_F17_FLAG := "--duel-test-f17"
 const TEST_ROSTER_BEHAVIORS_FLAG := "--duel-test-roster-behaviors"
 const TEST_T2_PATHS_FLAG := "--duel-test-t2-paths"
 const TEST_COLONY_DEFENSE_FLAG := "--duel-test-colony-defense"
-const TetherPoint := preload("res://scripts/core/TetherPoint.gd")
-const BuildableNode := preload("res://scripts/core/BuildableNode.gd")
-const MapItem := preload("res://scripts/core/MapItem.gd")
-const UnitActor := preload("res://scripts/core/UnitActor.gd")
 const SelectableUnit2D := preload("res://scripts/core/SelectableUnit2D.gd")
 const BUILDABLE_DEFS := {
 	"power_core": {"tier": "T0", "deps": []},
@@ -164,8 +160,18 @@ const F24_UNIT_PROFILES := [
 	{"faction": "veyari", "unit": "mire_spitter", "primary_clip": "action_primary_acid_mortar", "optional": ["deploy_enter", "deploy_exit"]}
 ]
 
-@onready var _spawn_a: Marker2D = %SpawnA
-@onready var _spawn_b: Marker2D = %SpawnB
+@onready var _spawn_a: Marker3D = %SpawnA
+@onready var _spawn_b: Marker3D = %SpawnB
+@onready var _rts_camera: Camera3D = %RTSCamera
+var _camera_target := Vector3.ZERO
+var _camera_yaw := 0.0
+var _camera_arm := 400.0
+const _CAMERA_PITCH := -52.0
+const _CAMERA_ARM_MIN := 200.0
+const _CAMERA_ARM_MAX := 750.0
+const _CAMERA_PAN_SPEED := 200.0
+const _CAMERA_ROTATE_SPEED := 60.0
+const _CAMERA_ZOOM_STEP := 50.0
 var _tether_points_by_slot: Dictionary = {}
 var _buildables_by_slot: Dictionary = {"A": {}, "B": {}}
 var _build_sequence: int = 0
@@ -210,6 +216,7 @@ func _ready() -> void:
 	_run_roster_behavior_test_hook()
 	_run_t2_path_test_hook()
 	_run_colony_defense_test_hook()
+	_apply_camera_transform()
 
 
 func _resolve_faction(meta_key: String, cli_prefix: String, fallback: String) -> String:
@@ -237,7 +244,7 @@ func _has_user_flag(flag: String) -> bool:
 	return false
 
 
-func _spawn_tether_point(slot: String, faction_id: String, spawn_marker: Marker2D) -> void:
+func _spawn_tether_point(slot: String, faction_id: String, spawn_marker: Marker3D) -> void:
 	var tether := TetherPoint.new()
 	tether.name = "TetherPoint%s" % slot
 	tether.position = spawn_marker.position
@@ -246,6 +253,7 @@ func _spawn_tether_point(slot: String, faction_id: String, spawn_marker: Marker2
 
 	var stable_item_id := "TP-SPAWN-%s" % slot
 	tether.initialize(stable_item_id, slot, faction_id)
+	tether.command_penalty_activated.connect(_on_tether_penalty)
 	print("[Tether] Spawn slot=%s marker=%s position=%s faction=%s stable_item_id=%s" % [slot, spawn_marker.name, str(spawn_marker.position), faction_id, stable_item_id])
 
 
@@ -253,7 +261,8 @@ func _spawn_map_items() -> void:
 	for spec in MAP_ITEM_SPECS:
 		var item := MapItem.new()
 		item.name = str(spec["id"])
-		item.position = spec["position"]
+		var pos2d: Vector2 = spec["position"]
+		item.position = Vector3(pos2d.x, 0.0, pos2d.y)
 		add_child(item)
 		item.initialize(str(spec["id"]), str(spec["type"]), str(spec["lane"]))
 
@@ -405,7 +414,7 @@ func _build_for_slot(slot: String, buildable_id: String) -> void:
 	_build_sequence += 1
 	var buildable_node := BuildableNode.new()
 	buildable_node.name = "Buildable%s_%s" % [slot, str(_build_sequence)]
-	buildable_node.position = tether.position + Vector2(24.0 * float(_build_sequence), 0.0)
+	buildable_node.position = tether.position + Vector3(24.0 * float(_build_sequence), 0.0, 0.0)
 	add_child(buildable_node)
 
 	var stable_item_id := "BLD-%s-%03d" % [slot, _build_sequence]
@@ -432,7 +441,7 @@ func _run_f24_test_hook() -> void:
 		var profile: Dictionary = F24_UNIT_PROFILES[index]
 		var actor := UnitActor.new()
 		actor.name = "UnitActor_%02d" % (index + 1)
-		actor.position = Vector2(-220 + float(index % 6) * 88.0, -220 + float(index / 6) * 72.0)
+		actor.position = Vector3(-220.0 + float(index % 6) * 88.0, 0.0, -220.0 + float(index / 6.0) * 72.0)
 		add_child(actor)
 		actor.initialize(profile)
 
@@ -466,11 +475,11 @@ func _run_f01_f02_test_hook() -> void:
 
 	print("[F01] Selection summary selected_units=%s pass=%s" % [str(_selected_controllable_units), str(selection_pass)])
 
-	var first_move := Vector2(-30, 84)
+	var first_move := Vector3(-30, 0, 84)
 	_issue_move_command(first_move)
 	var first_move_pass := _simulate_until_arrival(90)
 
-	var second_move := Vector2(64, 28)
+	var second_move := Vector3(64, 0, 28)
 	_issue_move_command(second_move)
 	var second_move_pass := _simulate_until_arrival(90)
 
@@ -485,10 +494,10 @@ func _initialize_controllable_units() -> void:
 	_selected_controllable_units.clear()
 
 	var spawn_data := [
-		{"id": "unit_alpha", "faction": "helion", "position": Vector2(-280, 120)},
-		{"id": "unit_beta", "faction": "helion", "position": Vector2(-240, 120)},
-		{"id": "unit_gamma", "faction": "helion", "position": Vector2(-200, 120)},
-		{"id": "unit_delta", "faction": "helion", "position": Vector2(-160, 120)}
+		{"id": "unit_alpha", "faction": "helion", "position": Vector3(-280, 0, 120)},
+		{"id": "unit_beta", "faction": "helion", "position": Vector3(-240, 0, 120)},
+		{"id": "unit_gamma", "faction": "helion", "position": Vector3(-200, 0, 120)},
+		{"id": "unit_delta", "faction": "helion", "position": Vector3(-160, 0, 120)}
 	]
 
 	for data in spawn_data:
@@ -525,7 +534,8 @@ func _box_select_units(selection_box: Rect2, additive: bool) -> void:
 
 	for unit_id in _controllable_units.keys():
 		var unit: SelectableUnit2D = _controllable_units[unit_id]
-		if selection_box.has_point(unit.position):
+		var unit_xz := Vector2(unit.position.x, unit.position.z)
+		if selection_box.has_point(unit_xz):
 			if not _selected_controllable_units.has(unit_id):
 				_selected_controllable_units.append(unit_id)
 			unit.set_selected(true)
@@ -533,7 +543,7 @@ func _box_select_units(selection_box: Rect2, additive: bool) -> void:
 	print("[F01] Box select additive=%s units=%s" % [str(additive), str(_selected_controllable_units)])
 
 
-func _issue_move_command(target: Vector2) -> void:
+func _issue_move_command(target: Vector3) -> void:
 	if _selected_controllable_units.is_empty():
 		print("[F02] Move rejected reason=no_selection")
 		return
@@ -572,8 +582,8 @@ func _run_f03_test_hook() -> void:
 		_initialize_controllable_units()
 
 	_resource_alloy_total = 0
-	var gather_node: Vector2 = Vector2(-230, 0)
-	var return_node: Vector2 = _spawn_a.position
+	var gather_node := Vector3(-230.0, 0.0, 0.0)
+	var return_node: Vector3 = _spawn_a.position
 	_select_single_unit("unit_alpha")
 
 	var cycle_pass := true
@@ -703,11 +713,12 @@ func _run_map_baseline_test_hook() -> void:
 	print("[MapBaseline] Summary pass=%s" % str(parity_pass and objectives_pass))
 
 
-func _get_map_spec_position(item_id: String) -> Vector2:
+func _get_map_spec_position(item_id: String) -> Vector3:
 	for spec in MAP_ITEM_SPECS:
 		if str(spec["id"]) == item_id:
-			return spec["position"]
-	return Vector2.ZERO
+			var pos2d: Vector2 = spec["position"]
+			return Vector3(pos2d.x, 0.0, pos2d.y)
+	return Vector3.ZERO
 
 
 func _run_f16_test_hook() -> void:
@@ -789,8 +800,8 @@ func _run_f17_test_hook() -> void:
 		var estimated_contest_sec := int((route_distance + contest_distance) / 7.0)
 		var contest_within_window := estimated_contest_sec <= 85
 
-		var collapse_position := chosen_anchor + Vector2(18, -12)
-		var regroup_point := spawn + Vector2(42, 0)
+		var collapse_position := chosen_anchor + Vector3(18, 0, -12)
+		var regroup_point := spawn + Vector3(42, 0, 0)
 		var regroup_distance := collapse_position.distance_to(regroup_point)
 		var regroup_within_limit := regroup_distance <= route_distance + 80.0
 
@@ -898,6 +909,74 @@ func _produce_colony_unit(slot: String, unit_id: String) -> bool:
 	_colony_units_by_slot[slot][unit_id] = stable_item_id
 	print("[ColonyDefense] Produced slot=%s unit=%s producer=%s stable_item_id=%s" % [slot, unit_id, producer, stable_item_id])
 	return true
+
+
+# ── Live systems ──────────────────────────────────────────────────────────────
+
+func _process(delta: float) -> void:
+	_update_hud()
+	_process_camera(delta)
+
+
+func _update_hud() -> void:
+	if _hud_resource_bar:
+		_hud_resource_bar.text = "Alloy: %d  Power: 400/520  Data: 0  Reclaim: 0" % _resource_alloy_total
+
+
+func _on_tether_penalty(item_id: String, slot: String, faction: String) -> void:
+	if _hud_alert_item:
+		_hud_alert_item.text = "ALERT: %s command lost (slot %s)" % [faction.capitalize(), slot]
+	print("[HUD] Tether alert id=%s slot=%s faction=%s" % [item_id, slot, faction])
+
+
+# ── Camera ────────────────────────────────────────────────────────────────────
+
+func _unhandled_input(event: InputEvent) -> void:
+	if event is InputEventMouseButton and event.pressed:
+		if event.button_index == MOUSE_BUTTON_WHEEL_UP:
+			_camera_arm = clamp(_camera_arm - _CAMERA_ZOOM_STEP, _CAMERA_ARM_MIN, _CAMERA_ARM_MAX)
+			_apply_camera_transform()
+		elif event.button_index == MOUSE_BUTTON_WHEEL_DOWN:
+			_camera_arm = clamp(_camera_arm + _CAMERA_ZOOM_STEP, _CAMERA_ARM_MIN, _CAMERA_ARM_MAX)
+			_apply_camera_transform()
+
+
+func _process_camera(delta: float) -> void:
+	if not _rts_camera:
+		return
+	var changed := false
+	if InputMap.has_action("rts_camera_pan_up") and Input.is_action_pressed("rts_camera_pan_up"):
+		_camera_target.z -= _CAMERA_PAN_SPEED * delta
+		changed = true
+	if InputMap.has_action("rts_camera_pan_down") and Input.is_action_pressed("rts_camera_pan_down"):
+		_camera_target.z += _CAMERA_PAN_SPEED * delta
+		changed = true
+	if InputMap.has_action("rts_camera_pan_left") and Input.is_action_pressed("rts_camera_pan_left"):
+		_camera_target.x -= _CAMERA_PAN_SPEED * delta
+		changed = true
+	if InputMap.has_action("rts_camera_pan_right") and Input.is_action_pressed("rts_camera_pan_right"):
+		_camera_target.x += _CAMERA_PAN_SPEED * delta
+		changed = true
+	if InputMap.has_action("rts_camera_rotate_left") and Input.is_action_pressed("rts_camera_rotate_left"):
+		_camera_yaw -= _CAMERA_ROTATE_SPEED * delta
+		changed = true
+	if InputMap.has_action("rts_camera_rotate_right") and Input.is_action_pressed("rts_camera_rotate_right"):
+		_camera_yaw += _CAMERA_ROTATE_SPEED * delta
+		changed = true
+	if changed:
+		_apply_camera_transform()
+
+
+func _apply_camera_transform() -> void:
+	if not _rts_camera:
+		return
+	var yaw_rad := deg_to_rad(_camera_yaw)
+	var pitch_rad := deg_to_rad(_CAMERA_PITCH)
+	var horiz := _camera_arm * cos(absf(pitch_rad))
+	var vert := _camera_arm * sin(absf(pitch_rad))
+	var offset_dir := Vector3(-sin(yaw_rad), 0.0, -cos(yaw_rad))
+	_rts_camera.position = _camera_target + offset_dir * horiz + Vector3(0.0, vert, 0.0)
+	_rts_camera.look_at(_camera_target, Vector3.UP)
 
 
 func _run_f18_f19_test_hook() -> void:

@@ -2,13 +2,23 @@
 
 [ext_resource type="Script" path="res://scripts/core/FirstDuelMap.gd" id="1_uxht5"]
 
-[node name="FirstDuelMap" type="Node2D"]
+[node name="FirstDuelMap" type="Node3D"]
 script = ExtResource("1_uxht5")
 
-[node name="SpawnA" type="Marker2D" parent="."]
+[node name="SpawnA" type="Marker3D" parent="."]
 unique_name_in_owner = true
-position = Vector2(-280, 0)
+position = Vector3(-280, 0, 0)
 
-[node name="SpawnB" type="Marker2D" parent="."]
+[node name="SpawnB" type="Marker3D" parent="."]
 unique_name_in_owner = true
-position = Vector2(280, 0)
+position = Vector3(280, 0, 0)
+
+[node name="RTSCamera" type="Camera3D" parent="."]
+unique_name_in_owner = true
+position = Vector3(0, 300, 280)
+rotation_degrees = Vector3(-52, 0, 0)
+
+[node name="SunLight" type="DirectionalLight3D" parent="."]
+rotation_degrees = Vector3(-60, 30, 0)
+light_energy = 1.2
+shadow_enabled = true

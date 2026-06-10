@@ -1,4 +1,4 @@
-extends Node2D
+extends Node3D
 class_name UnitActor
 
 const REQUIRED_BASELINE_STATES := ["idle", "move", "action_primary", "react_hit", "death"]

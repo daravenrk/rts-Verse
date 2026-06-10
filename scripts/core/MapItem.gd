@@ -1,4 +1,4 @@
-extends Node2D
+extends Node3D
 class_name MapItem
 
 var stable_item_id: String = ""

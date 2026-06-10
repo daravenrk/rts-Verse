@@ -76,11 +76,11 @@ Keep this list short, actionable, and current.
 - [x] Run F-26 Environment Type Readability and capture first-engagement notes.
 - [x] Define concrete unlock thresholds for advanced systems (maintenance, instability, civilization stress).
 - [x] Draft itch.io page copy using planning/itch-io-launch-and-feedback-plan.md blueprint sections.
-- [ ] Build Skirmish.tscn scene tree with OptionButton, label, and start button nodes matching Skirmish.gd @onready references.
-- [ ] Replace 2D simulation units with visible Node3D placeholder actors in FirstDuelMap, distinguishable by faction color.
-- [ ] Add Camera3D to FirstDuelMap.tscn at documented baseline pitch and zoom with pan, rotate, and zoom bindings active.
-- [ ] Wire resource bar, alert label, and match-state label to live game state so HUD updates from actual alloy and Tether events.
-- [ ] Execute manual cold-launch visual smoke playthrough from splash to move command with no blocking errors.
+- [x] Build Skirmish.tscn scene tree with OptionButton, label, and start button nodes matching Skirmish.gd @onready references.
+- [x] Replace 2D simulation units with visible Node3D placeholder actors in FirstDuelMap, distinguishable by faction color.
+- [x] Add Camera3D to FirstDuelMap.tscn at documented baseline pitch and zoom with pan, rotate, and zoom bindings active.
+- [x] Wire resource bar, alert label, and match-state label to live game state so HUD updates from actual alloy and Tether events.
+- [x] Execute manual cold-launch visual smoke playthrough from splash to move command with no blocking errors.
 - [ ] Freeze Stage 0 media set: select 3 to 6 screenshots and optional clips, then finalize gameplay-first captions.
 - [ ] Stage finalized media and captions in docs/release/stage0-media/ using required naming and ordering.
 - [ ] Run zsh docs/release/stage0-media/prepublish_audit.sh and clear all unresolved findings.

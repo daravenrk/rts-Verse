@@ -4,6 +4,16 @@ Track high-level project changes with links to decisions and plans.
 
 ## 2026-06-09
 
+- Converted all simulation node classes from Node2D to Node3D: SelectableUnit2D, TetherPoint, BuildableNode, UnitActor, MapItem, FirstDuelMap.
+- Added faction-colored BoxMesh placeholder actors to SelectableUnit2D with emission highlight on selection.
+- Added TetherPoint.command_penalty_activated signal wired to HUD alert label via _on_tether_penalty handler.
+- Added Camera3D with 52-degree pitch and 400-unit arm to FirstDuelMap.tscn; pan, rotate, and wheel zoom handled in _process_camera and _unhandled_input.
+- Added DirectionalLight3D to FirstDuelMap.tscn for basic scene illumination.
+- Added _process-driven live HUD alloy-bar update so _resource_alloy_total drives label text each frame.
+- Removed redundant preload consts for globally registered classes in FirstDuelMap.gd.
+- Headless F-01/F-02 revalidated at 3D positions: pass=true.
+- Headless F-03 revalidated with 3D gather/return nodes: alloy_total=70 pass=true.
+- Headless Tether penalty signal smoke: HUD alert fires on command_penalty_activated with correct item_id, slot, and faction.
 - Corrected M2 milestone status from Not Started to In Progress (simulation baseline and headless validation complete; visual scene assembly pending).
 - Corrected M3 milestone status from Not Started to In Progress (design and planning baseline complete; gameplay system implementation not started).
 - Added Objective 4 to DEV_NEXT_STEPS for visual scene assembly with story queue S-4001 through S-4005.
