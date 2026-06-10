@@ -333,3 +333,34 @@ steps:
 - Plant-life density rules are now defined in map-standards.md terrain and plant-life vocabulary.
   - owner: Tech lead
   - resolution: completed on 2026-06-10 in S-2005 closure.
+
+---
+
+## Objective 3: Stage 0 External Publication Closure (Parked)
+
+### Objective Summary
+
+- Active objective name: Stage 0 media capture and itch.io Coming Soon publication closure.
+- Intended gameplay outcome: present truthful Pre-Alpha visibility with representative gameplay-first media and deterministic evidence capture.
+- Scope boundary: in-repo preparation is complete; remaining execution requires manual external actions.
+
+### Closure State
+
+```yaml
+- objective_id: O-3001
+  title: Prepare Stage 0 media bundle (screenshots or clips) with gameplay-first captions
+  status: parked
+  blocker: media capture requires manual operator authoring workflow
+  reentry_condition: capture assets following docs/planning/stage0-media-bundle-spec.md and stage them in docs/release/stage0-media/
+
+- objective_id: O-3002
+  title: Publish itch.io Stage 0 Coming Soon page with transparent Pre-Alpha status
+  status: parked
+  blocker: publication requires manual itch.io web platform interaction
+  reentry_condition: execute docs/planning/itch-stage0-publish-runbook.md and record evidence using docs/tracking/stage0-publication-evidence-template.md
+```
+
+### Operator Command Aids
+
+- `zsh docs/release/stage0-media/prepublish_audit.sh`
+- `zsh docs/release/stage0-media/stage0_status_report.sh`

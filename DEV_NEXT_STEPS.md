@@ -171,3 +171,32 @@
 - Plant-life density rules now defined in map-standards.md.
   - Owner: Tech lead
   - Resolution: completed on 2026-06-10 during S-2005 closure.
+
+---
+
+### 3. Stage 0 Publication Closure Lane (External, Parked)
+
+- Outcome: close Stage 0 visibility lane with truthful Pre-Alpha page, representative gameplay media, and evidence-backed tracker updates.
+- Scope boundary: remaining actions are external operator tasks; all in-repo preparation artifacts are complete.
+
+### Parked Objective Queue
+
+```yaml
+- objective_id: O-3001
+  title: Prepare Stage 0 media bundle
+  status: parked
+  blocker: manual media capture and export required
+  reentry_condition: populate docs/release/stage0-media/ with required assets then pass prepublish audit script
+
+- objective_id: O-3002
+  title: Publish itch.io Stage 0 Coming Soon page
+  status: parked
+  blocker: manual web publication required
+  reentry_condition: complete runbook and evidence template, then mark next-steps items done
+```
+
+### Closure Utilities
+
+- `zsh docs/release/stage0-media/prepublish_audit.sh`
+- `zsh docs/release/stage0-media/stage0_status_report.sh`
+- `docs/planning/stage0-postpublish-closure-checklist.md`

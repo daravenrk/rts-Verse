@@ -102,6 +102,7 @@ Track high-level project changes with links to decisions and plans.
 - Added docs/release/stage0-media/prepublish_audit.sh to verify Stage 0 media readiness before manual upload.
 - Added docs/planning/stage0-postpublish-closure-checklist.md to standardize final tracker closure after manual publication.
 - Added docs/release/stage0-media/stage0_status_report.sh to run media audit and unresolved next-step blocker check in one command.
+- Added explicit parked Stage 0 external-objective lane and re-entry conditions to AGENT_PLAN.md and DEV_NEXT_STEPS.md for closure-audit integrity.
 
 ## 2026-05-17
 

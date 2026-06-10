@@ -421,3 +421,14 @@ Track scenario-level evidence for map and flow validation runs.
 - Notes:
   - Status report utility executes prepublish media audit and unresolved next-steps check in one command.
   - Output confirms blocker state remains external until media capture and manual publication are completed.
+
+## 2026-06-10 Parked Objective Tracker Synchronization Validation
+
+- Flow: `Planning tracker validation for parked external Stage 0 objectives`
+- Validation command:
+  - `grep -nE "Objective 3: Stage 0 External Publication Closure|objective_id: O-3001|objective_id: O-3002|reentry_condition" AGENT_PLAN.md`
+  - `grep -nE "Stage 0 Publication Closure Lane|objective_id: O-3001|objective_id: O-3002|Closure Utilities" DEV_NEXT_STEPS.md`
+- Result: Pass
+- Notes:
+  - AGENT_PLAN and DEV_NEXT_STEPS now explicitly track external Stage 0 objectives as parked.
+  - Re-entry conditions and command aids are documented for deterministic continuation after manual actions.
