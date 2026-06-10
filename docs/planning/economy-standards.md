@@ -82,6 +82,37 @@ Shared design rule:
 - If a stockpile reaches zero, related extraction output is reduced or halted until recovery events occur.
 - Reclaim returns value into usable faction income but does not create infinite global supply.
 
+### First-Pass Global Stockpile Caps and Depletion Rules
+
+Use these values as planning baselines for first simulation passes. They are intentionally conservative and should be tuned after volatility testing.
+
+| Resource | Global Cap (World Reserve) | Soft Depletion Threshold | Hard Depletion Threshold | Recovery Trigger |
+| --- | --- | --- | --- | --- |
+| Alloy | 200000 | 30 percent remaining | 10 percent remaining | map reclaim events, salvage surges, and controlled world-discovery events |
+| Power | 160000 | 35 percent remaining | 12 percent remaining | vent stabilization events and infrastructure restoration windows |
+| Data | 120000 | 40 percent remaining | 15 percent remaining | relay-cache discoveries and objective retake pulses |
+| Reclaim | 100000 | 25 percent remaining | 8 percent remaining | debris-field refresh events and major battle aftermath |
+
+Depletion behavior by threshold:
+
+- Above soft threshold:
+  - Normal extraction and conversion behavior.
+- At or below soft threshold:
+  - Extraction throughput multiplier: `0.85`.
+  - Event cadence increases for both positive and negative stockpile effects.
+  - UI should raise non-blocking warning state for all players.
+- At or below hard threshold:
+  - Extraction throughput multiplier: `0.60`.
+  - Conversion efficiency penalties apply to credit-to-alloy and similar bridging systems.
+  - Objective-control bonuses are increased slightly to preserve comeback windows through map play.
+
+Floor and anti-collapse rules:
+
+- No stockpile may go below zero.
+- Negative events cannot reduce any stockpile by more than 7 percent of cap in one event.
+- Positive events cannot increase any stockpile by more than 10 percent of cap in one event.
+- Two consecutive events may not target the same resource with the same polarity in the same short window.
+
 ### Random World Events
 
 - Random world events periodically modify one or more global stockpiles.
@@ -330,6 +361,54 @@ Use this table as the first playable numeric baseline. Values are intentionally 
   - Mainline armor class: 2 Alloy per 30 seconds.
 - Upkeep pauses while a unit is under construction.
 - Upkeep penalties must never reduce stockpiles below zero; production slowdown is preferred over negative values.
+
+## Colony and Civilian Pricing Baseline (First Pass)
+
+Use this table for first implementation of colony-economy and local-defense systems.
+
+### Colony and Civilian Structures
+
+| Structure | Tier | Alloy | Power | Data | Build Time (s) | Notes |
+| --- | --- | --- | --- | --- | --- | --- |
+| Habitat Complex | T0 | 180 | 20 | 0 | 24 | Enables population housing and emergency civilian support production. |
+| Logistics Hub | T0 | 160 | 25 | 0 | 22 | Unlocks cargo throughput and convoy routing baseline. |
+| Civic Planning Office | T1 | 230 | 35 | 0 | 28 | Enables colony expansion and infrastructure upgrade path. |
+| Civilian Market | T1 | 210 | 30 | 0 | 26 | Adds credits throughput and trade conversion pressure. |
+| Militia Barracks | T1 | 220 | 35 | 0 | 28 | Produces local colony-defense units. |
+| Security Command Post | T2 | 320 | 55 | 20 | 36 | Unlocks advanced defensive response and heavy colony security units. |
+| Civil Airfield | T2 | 340 | 60 | 20 | 38 | Enables evacuation and colony air logistics units. |
+| Governance Center | T3 | 520 | 90 | 70 | 52 | High-commitment late colony command node and resilience amplifier. |
+
+### Colony and Civilian Units
+
+| Unit | Tier | Alloy | Power | Data | Population | Build Time (s) |
+| --- | --- | --- | --- | --- | --- | --- |
+| Colony Worker | T0 | 55 | 2 | 0 | 1 | 9 |
+| Cargo Hauler | T0/T1 | 85 | 3 | 0 | 2 | 12 |
+| Civil Engineer Team | T1 | 95 | 3 | 0 | 1 | 13 |
+| Emergency Medic Team | T1 | 80 | 3 | 0 | 1 | 11 |
+| Security Militia Squad | T1 | 90 | 3 | 0 | 1 | 12 |
+| Patrol Buggy | T1 | 130 | 5 | 0 | 2 | 16 |
+| Peacekeeper Walker | T2 | 260 | 9 | 20 | 4 | 28 |
+| Evacuation Shuttle | T2 | 240 | 8 | 20 | 3 | 24 |
+
+### Colony and Civilian Upkeep Rules
+
+- Civilian logistics units:
+  - Cargo Hauler upkeep: 1 Alloy per 45 seconds while active.
+- Colony defense units:
+  - Security Militia Squad upkeep: 1 Alloy per 60 seconds.
+  - Patrol Buggy upkeep: 1 Alloy per 40 seconds.
+  - Peacekeeper Walker upkeep: 2 Alloy per 30 seconds.
+- Civil air logistics:
+  - Evacuation Shuttle upkeep: 1 Alloy per 35 seconds.
+- Structure upkeep baseline:
+  - Civilian Market: 1 Alloy per 50 seconds.
+  - Security Command Post: 2 Alloy per 40 seconds.
+  - Governance Center: 3 Alloy per 35 seconds.
+- Upkeep suspension and safety:
+  - Upkeep pauses when owning structure or unit is disabled.
+  - Upkeep penalties cannot force negative stockpile values; fallback behavior is reduced throughput.
 
 ## Validation Checklist
 

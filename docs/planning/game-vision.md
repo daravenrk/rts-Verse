@@ -10,6 +10,16 @@ The long-term identity is a civilizational transition match arc where each game 
 
 Primary gameplay loop: find resources, secure resource zones, and deny opponent access long enough to convert control into strategic escalation.
 
+## Named Faction Baseline
+
+Planning and implementation baselines use these faction names:
+
+- American Expeditionary Command
+- Chinese Systems Front
+- Frontier Covenant (civilian/colony)
+- Veyari Ascendancy
+- Promethean Assembly (non-humanoid robot faction)
+
 ## Experience Pillars
 
 - Aggressive early game pressure with clear tactical counters.

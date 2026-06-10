@@ -139,3 +139,168 @@ Track scenario-level evidence for map and flow validation runs.
   - HUD resource bar update validated through staged resource snapshots (`Alloy: 140` then `Alloy: 40`).
   - Match-state label transitions validated for `Win (objective_control)` and `Loss (command_core_destroyed)`.
   - Summary emitted `pass=true` for F-04 baseline.
+
+## 2026-06-10 T0/T1 Production Chain Baseline (Helion and Veyari)
+
+- Flow: `Production Chain Baseline (Pre-F-16 dependency check)`
+- Scenario: `scenes/core/FirstDuelMap.tscn`
+- Validation command:
+  - `/Applications/Godot.app/Contents/MacOS/godot --headless --path . res://scenes/core/FirstDuelMap.tscn --quit-after 1 -- --duel-test-production-chain`
+- Result: Pass
+- Notes:
+  - Helion slot produced: `line_engineer`, `lancer_squad`, `breach_team`, `strider_bike`, `ember_tank`.
+  - Veyari slot produced: `brood_architect`, `needle_brood`, `rift_claw`, `skitter_lance`, `bulwark_husk`, `mire_spitter`.
+  - Slot summaries and global summary emitted `pass=true`.
+
+## 2026-06-10 Duel Map Baseline Parity and Objective Placement
+
+- Flow: `F-07 Spawn Fairness and Expansion Timing (baseline)` + `F-08 Economy Pressure and Resource Control (layout baseline)`
+- Scenario: `scenes/core/FirstDuelMap.tscn`
+- Validation command:
+  - `/Applications/Godot.app/Contents/MacOS/godot --headless --path . res://scenes/core/FirstDuelMap.tscn --quit-after 1 -- --duel-test-map-baseline`
+- Result: Pass
+- Notes:
+  - Parity summary reported natural and contested-objective travel deltas at `0.00` with `pass=true`.
+  - Objective summary reported required counts met: contested alloy `2`, data nodes `1`, reclaim clusters `1`.
+  - Combined map baseline summary emitted `pass=true`.
+
+## 2026-06-10 F-16 Human vs Alien MVP Combat Completeness Baseline
+
+- Flow: `F-16 Human vs Alien MVP Combat Completeness`
+- Scenario: `scenes/core/FirstDuelMap.tscn`
+- Validation command:
+  - `/Applications/Godot.app/Contents/MacOS/godot --headless --path . res://scenes/core/FirstDuelMap.tscn --quit-after 1 -- --duel-test-f16`
+- Result: Pass
+- Notes:
+  - Helion required roster chain produced: `line_engineer`, `lancer_squad`, `breach_team`, `strider_bike`, `ember_tank`, `sunforge_artillery`.
+  - Veyari required roster chain produced: `brood_architect`, `needle_brood`, `rift_claw`, `skitter_lance`, `bulwark_husk`, `mire_spitter`.
+  - T2 transition options validated with no deadlocks: Helion `sunforge_artillery`, Veyari `singularity_lobber`.
+  - Slot summaries and global summary emitted `pass=true`.
+
+## 2026-06-10 F-17 Map-Aware Tactical Combat Intelligence Baseline
+
+- Flow: `F-17 Map-Aware Tactical Combat Intelligence`
+- Scenario: `scenes/core/FirstDuelMap.tscn`
+- Validation command:
+  - `/Applications/Godot.app/Contents/MacOS/godot --headless --path . res://scenes/core/FirstDuelMap.tscn --quit-after 1 -- --duel-test-f17`
+- Result: Pass
+- Notes:
+  - Lane choice used score-based route selection combining route risk and travel distance.
+  - Objective contest ETA checks passed for both spawns within configured window.
+  - Regroup checks passed for both spawns using collapse-to-regroup distance bounds relative to committed route distance.
+  - Summary emitted `pass=true` with `route_pass=true`, `contest_pass=true`, and `regroup_pass=true`.
+
+## 2026-06-10 Obsidian T0/T1 Production Chain Baseline
+
+- Flow: `Production Chain Baseline (Obsidian slot validation)`
+- Scenario: `scenes/core/FirstDuelMap.tscn`
+- Validation command:
+  - `/Applications/Godot.app/Contents/MacOS/godot --headless --path . res://scenes/core/FirstDuelMap.tscn --quit-after 1 -- --duel-test-player-faction=obsidian --duel-test-production-chain`
+- Result: Pass
+- Notes:
+  - Obsidian slot produced: `foundry_engineer`, `warder_team`, `breacher_team`, `maul_rover`, `cinder_mortar`.
+  - Companion slot produced Veyari baseline chain with pass summary.
+  - Global production summary emitted `pass=true`.
+
+## 2026-06-10 Locked-Slice Faction Behavior Profile Baseline
+
+- Flow: `Locked-slice roster behavior profile validation`
+- Scenario: `scenes/core/FirstDuelMap.tscn`
+- Validation command:
+  - `/Applications/Godot.app/Contents/MacOS/godot --headless --path . res://scenes/core/FirstDuelMap.tscn --quit-after 1 -- --duel-test-roster-behaviors`
+- Result: Pass
+- Notes:
+  - Helion locked units validated with fast or timing-push behavior signatures.
+  - Obsidian locked units validated with attrition-oriented behavior signatures.
+  - Role-tag, tempo, and preferred-lane fields were present for all locked-slice units.
+  - Summary emitted `pass=true` with faction-expression validation success.
+
+## 2026-06-10 Economy Sheet and Identity Standards Validation (T-0012/T-0013)
+
+- Flow: `Planning baseline validation for numeric sheet and faction identity`
+- Validation command:
+  - `grep -nE "First Balance Sheet Draft|Shared MVP Structures|Helion MVP Units|Veyari MVP Units|First-Pass Upkeep Rules|Faction Economic Identity|Helion Directorate|Obsidian Forge|Resource Control Standards" docs/planning/economy-standards.md`
+- Result: Pass
+- Notes:
+  - Numeric MVP sheet sections are present for structures, faction unit rows, and upkeep rules.
+  - Helion and Obsidian identity sections remain aligned with resource-control standards and intended faction tempo differences.
+
+## 2026-06-10 Representative Tier 2 Path Baseline (T-0009)
+
+- Flow: `Representative Tier 2 unlock path validation`
+- Scenario: `scenes/core/FirstDuelMap.tscn`
+- Validation command:
+  - `/Applications/Godot.app/Contents/MacOS/godot --headless --path . res://scenes/core/FirstDuelMap.tscn --quit-after 1 -- --duel-test-enemy-faction=obsidian --duel-test-t2-paths`
+- Result: Pass
+- Notes:
+  - Helion representative T2 unit validated: `sunforge_artillery` from `advanced_ground_structure`.
+  - Obsidian representative T2 unit validated: `ruin_launcher` from `advanced_ground_structure`.
+  - Summary emitted `pass=true`.
+
+## 2026-06-10 Planning Checklist Artifact Validation
+
+- Flow: `Planning artifact presence validation`
+- Validation command:
+  - `grep -nE "Tech-tree implementation checklist|Carrier and air-wing validation checklist" docs/README.md`
+- Result: Pass
+- Notes:
+  - `docs/planning/tech-tree-implementation-checklist.md` present and linked from docs index.
+  - `docs/planning/air-wing-validation-checklist.md` present and linked from docs index.
+
+## 2026-06-10 Colony and Civilian Pricing Baseline Validation
+
+- Flow: `Planning artifact validation for colony/civilian economy baseline`
+- Validation command:
+  - `grep -nE "Colony and Civilian Pricing Baseline|Colony and Civilian Structures|Colony and Civilian Units|Colony and Civilian Upkeep Rules" docs/planning/economy-standards.md`
+- Result: Pass
+- Notes:
+  - Numeric baseline sections for colony and civilian structures, units, and upkeep rules are present.
+
+## 2026-06-10 Colony Defense Path Prototype Baseline
+
+- Flow: `Colony-defense path prototype (Militia Barracks to Security Command Post)`
+- Scenario: `scenes/core/FirstDuelMap.tscn`
+- Validation command:
+  - `/Applications/Godot.app/Contents/MacOS/godot --headless --path . res://scenes/core/FirstDuelMap.tscn --quit-after 1 -- --duel-test-colony-defense`
+- Result: Pass
+- Notes:
+  - Build path validated: `militia_barracks` then `security_command_post` through dependency chain.
+  - Defense production validated: `security_militia_squad`, `patrol_buggy`, and `peacekeeper_walker`.
+  - Summary emitted `pass=true`.
+
+## 2026-06-10 Named Faction and Robot Planning Baseline Validation
+
+- Flow: `Planning artifact validation for named five-faction baseline`
+- Validation command:
+  - `grep -nE "Frontier Covenant|Veyari Ascendancy|Promethean Assembly|Named Faction Baseline" docs/planning/game-vision.md docs/planning/tech-tree.md docs/planning/unit-list.md`
+  - `grep -nE "Robot Faction Planning Section|Robot Baseline Unit Roles|Robot Baseline Structures" docs/planning/unit-list.md`
+- Result: Pass
+- Notes:
+  - Third human, alien, and robot placeholder names and flavor notes are present.
+  - Five-faction baseline naming is synchronized across planning baselines.
+  - Dedicated robot roster and structure planning section is present.
+
+## 2026-06-10 Five-Tier and Five-Faction Coverage Planning Validation
+
+- Flow: `F-29 Five-Tier Progression Coverage Mapping`
+- Flow: `F-30 Named Five-Faction Baseline Coverage`
+- Validation command:
+  - `grep -nE "^# Five-Tier Faction Mapping Baseline|## Unit Tier Mapping|## Structure Tier Mapping|American Expeditionary Command|Chinese Systems Front|Frontier Covenant|Veyari Ascendancy|Promethean Assembly" docs/planning/five-tier-faction-mapping.md`
+  - `grep -nE "F-29|F-30|Five-Tier Progression Coverage Mapping|Named Five-Faction Baseline Coverage" docs/planning/testing-strategy.md`
+  - `grep -nE "T-0030|T-0031|T-0032" docs/planning/task-backlog.md`
+- Result: Pass
+- Notes:
+  - Five-tier mapping artifact exists with named faction coverage and unit/structure tier mappings.
+  - Testing strategy contains explicit F-29 and F-30 definitions and matrix rows.
+  - Backlog includes aligned coverage tasks for mapping and validation updates.
+
+## 2026-06-10 Global Stockpile Cap Baseline Validation
+
+- Flow: `Planning artifact validation for global stockpile cap and depletion rules`
+- Validation command:
+  - `grep -nE "First-Pass Global Stockpile Caps and Depletion Rules|Global Cap \(World Reserve\)|Soft Depletion Threshold|Hard Depletion Threshold|Floor and anti-collapse rules" docs/planning/economy-standards.md`
+- Result: Pass
+- Notes:
+  - First-pass global cap values are defined for Alloy, Power, Data, and Reclaim.
+  - Soft and hard depletion thresholds are explicitly documented.
+  - Anti-collapse event bounds are defined to prevent runaway volatility.

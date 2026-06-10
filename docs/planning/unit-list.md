@@ -6,15 +6,64 @@ The project will support five major factions:
 
 - Human Faction 1: American (military/industrial theme)
 - Human Faction 2: Chinese (military/industrial theme)
-- Human Faction 3: Civilian/Colony (non-state, survivalist, or corporate)
-- Alien Faction: [Placeholder Name – e.g., Veyari Swarm]
-- Robot Faction: [Placeholder Name – e.g., Promethean Assembly; fully unique, non-humanoid units and structures]
+- Human Faction 3: Frontier Covenant (civilian/colony, non-state survival and logistics coalition)
+- Alien Faction: Veyari Ascendancy
+- Robot Faction: Promethean Assembly (fully unique, non-humanoid units and structures)
 
 Each human and alien faction must map to the Any-Faction Core Roster Baseline, Colony/Civilian Baseline, and Structure Baseline, with unique flavor, tech, and asymmetry.
 
 The Robot faction will require a distinct, non-humanoid unit and structure roster, with new planning sections to be added.
 
-Faction-specific names, units, and structures for the new factions will be defined in future planning passes.
+Faction-specific names and baseline flavor notes are now defined below. Full roster details for non-MVP factions continue in future planning passes.
+
+## Faction Flavor Notes (Placeholder-to-Production Bridge)
+
+| Faction | Short Identity Note | Battlefield Flavor Direction |
+| --- | --- | --- |
+| American Expeditionary Command | High-tempo expedition force with precision logistics | Mobile combined-arms pressure and timing windows |
+| Chinese Systems Front | Layered doctrine with disciplined infrastructure scaling | Methodical power spikes through coordinated tech timing |
+| Frontier Covenant | Civilian-colony coalition with improvised resilience tools | Throughput protection, convoy defense, and adaptive local militias |
+| Veyari Ascendancy | Bio-gravity swarm with asymmetric growth logic | Organic pressure, lane disruption, and adaptation under contest |
+| Promethean Assembly | Distributed machine consensus war-network | Non-humanoid modular forces with relay-centric command behavior |
+
+## Robot Faction Planning Section: Promethean Assembly
+
+The Promethean Assembly must not reuse humanoid silhouettes or conventional infantry assumptions.
+
+### Robot Roster Design Constraints
+
+- Unit silhouettes should be machine-native (crawler, pod, lattice, articulated frames), not human proxies.
+- Command logic should emphasize network nodes, relay bandwidth, and distributed autonomy.
+- Recovery and attrition should rely on reassembly and relay restoration, not medical sustain analogs.
+
+### Robot Baseline Unit Roles (Planning Draft)
+
+| Role | Candidate Unit Concept | Core Function |
+| --- | --- | --- |
+| Scout | Threadseer Drone Cluster | Fast distributed vision and signal mapping |
+| Builder | Forge Weaver Node | Structure deployment and relay stitching |
+| Baseline Line Unit | Lattice Carbine Frame | Mainline anti-light pressure |
+| Breach Unit | Ram-Spike Chassis | Close anti-structure assault |
+| Support | Synchrony Beacon Pod | Network buff and repair throughput |
+| Light Vehicle | Razor Track Swarm | Harassment and flank denial |
+| Mainline Armor | Bastion Hex Walker | Durable front control |
+| Siege | Arc Mortar Array | Indirect pressure and zone denial |
+| Anti-Air | Sky-Splitter Grid Rig | Escort anti-air and denial field |
+| Apex | Consensus Titan Kernel | Endgame command-pressure centerpiece |
+
+### Robot Baseline Structures (Planning Draft)
+
+| Structure Class | Candidate Name | Role |
+| --- | --- | --- |
+| Primary Command Structure | Consensus Core | Command authority and relay root |
+| Power Equivalent | Flux Conduit Stack | Power routing and stability margin |
+| Alloy Equivalent | Foundry Siphon | Material extraction and reclaim conversion |
+| Barracks Equivalent | Assembly Spindle | Baseline combat frame production |
+| Vehicle Structure | Chassis Vault | Mobile chassis and heavy frame assembly |
+| Sensor/Uplink | Signal Lattice Hub | Detection, relay amplification, and network range |
+| Expansion Hub | Relay Anchor Node | Forward command radius and distributed build reach |
+| Advanced Ground Structure | War Calculus Crucible | Heavy and siege unlock path |
+| Air Structure | Aerial Fabrication Coil | Drone-wing and strike swarm unlock path |
 
 This document defines the planned roster for both prototype factions.
 

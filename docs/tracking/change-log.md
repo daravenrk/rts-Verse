@@ -59,6 +59,33 @@ Track high-level project changes with links to decisions and plans.
 - Added duel-map F-04 temporary HUD match-state baseline with explicit win or loss transition labels.
 - Executed headless F-04 validation and promoted T-0004 to Done.
 - Added explicit M2 validation scenario matrix to testing strategy and promoted T-0005 to Done.
+- Added duel-map production-chain simulation hook for Helion and Veyari T0/T1 MVP unit outputs tied to Tether, barracks-equivalent, and vehicle-structure producers.
+- Executed headless production-chain validation with pass summaries for both slots and promoted T-0006 and T-0014 to Done.
+- Added duel-map map-baseline validation hook for spawn parity and required objective placement counts.
+- Executed headless map-baseline validation with passing parity and objective summaries and promoted T-0010 and T-0011 to Done.
+- Added duel-map F-16 completeness hook covering required Helion and Veyari MVP roster production plus one T2 transition option per faction.
+- Executed headless F-16 validation with pass summaries and promoted T-0015 to Done.
+- Added duel-map F-17 tactical simulation hook for lane scoring, objective contest timing, and regroup behavior.
+- Executed headless F-17 validation with passing summaries and promoted T-0016 to Done.
+- Extended production baseline mappings with Obsidian T0/T1 chain outputs and baseline-unit filtering for non-T2 production validation.
+- Executed headless Obsidian production validation and promoted T-0007 to Done.
+- Added locked-slice faction behavior profile baseline for Helion and Obsidian with explicit role, tempo, and lane tags.
+- Executed headless roster-behavior validation and promoted T-0008 to Done.
+- Revalidated numeric MVP price-sheet sections and upkeep baselines in economy standards and promoted T-0012 to Done.
+- Revalidated Helion and Obsidian economy-identity sections against resource-control standards and promoted T-0013 to Done.
+- Added Tier 2 transition-path validation hook and representative Obsidian T2 production mapping (`ruin_launcher`).
+- Executed headless T2 path validation for Helion and Obsidian and promoted T-0009 to Done.
+- Added planning/tech-tree-implementation-checklist.md to map vertical-slice tech tree locks into scene and script implementation checkpoints.
+- Added planning/air-wing-validation-checklist.md for Carrier and Airfield Fighter/Corvette lifecycle validation.
+- Added first-pass numeric pricing and upkeep baselines for colony and civilian structures/units in economy standards.
+- Added colony-defense prototype hook from Militia Barracks to Security Command Post with unit production validation.
+- Executed headless colony-defense validation and closed the related next-step prototype item.
+- Added concrete placeholder names and flavor notes for Frontier Covenant, Veyari Ascendancy, and Promethean Assembly.
+- Updated named five-faction baseline references in planning/game-vision.md and planning/tech-tree.md.
+- Added dedicated Promethean Assembly planning section in unit-list with robot-only roster/structure direction.
+- Added planning/five-tier-faction-mapping.md as source-of-truth mapping for units and structures across T0-T4 for all target factions.
+- Added testing-strategy flows F-29 and F-30 and corresponding backlog tasks T-0030 through T-0032 for coverage traceability.
+- Added first-pass global stockpile caps, depletion thresholds, and anti-collapse event bounds in economy-standards.md.
 
 ## 2026-05-17
 

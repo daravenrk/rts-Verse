@@ -4,11 +4,11 @@
 
 The game will support five major factions:
 
-- Human Faction 1: American (military/industrial theme)
-- Human Faction 2: Chinese (military/industrial theme)
-- Human Faction 3: Civilian/Colony (non-state, survivalist, or corporate)
-- Alien Faction: [TBD]
-- Robot Faction: [TBD, fully unique, non-humanoid units and structures]
+- Human Faction 1: American Expeditionary Command (military/industrial theme)
+- Human Faction 2: Chinese Systems Front (military/industrial theme)
+- Human Faction 3: Frontier Covenant (civilian/colony, non-state survivalist and corporate blend)
+- Alien Faction: Veyari Ascendancy
+- Robot Faction: Promethean Assembly (fully unique, non-humanoid units and structures)
 
 All tech tree and progression planning must support this multi-faction model, with each human and alien faction expressing the shared baselines and unique progression. The robot faction will require a distinct, non-humanoid unit and structure roster, to be planned in a dedicated section.
 

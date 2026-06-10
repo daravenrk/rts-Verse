@@ -16,19 +16,19 @@ Keep this list short, actionable, and current.
 - [x] Create default startup scene at scenes/core/Main.tscn with single-responsibility bootstrap flow.
 - [x] Configure project.godot run/main_scene to scenes/core/Main.tscn after scene creation.
 - [x] Add startup bootstrap checklist: input profile load, core manager init, gameplay scene transition.
-- [ ] Convert tech-tree vertical-slice lock into scene and script implementation checklist.
-- [ ] Build first duel map using map-standards.md.
+- [x] Convert tech-tree vertical-slice lock into scene and script implementation checklist.
+- [x] Build first duel map using map-standards.md.
 - [x] Define initial numeric price bands for vertical-slice units and structures.
-- [ ] Add a carrier and airfield air-wing validation checklist for Fighter and Corvette basing behavior.
-- [ ] Define first-pass numeric pricing and upkeep rules for colony and civilian units and structures.
-- [ ] Prototype one colony-defense path (Militia Barracks to Security Command Post) in scenario validation.
-- [ ] Add placeholder names and initial flavor notes for third human, alien, and robot factions.
-- [ ] Update all planning baselines to specify American, Chinese, Civilian/Colony, Alien, and Robot (robot is fully unique, non-humanoid).
-- [ ] Add a dedicated planning section for the robot faction’s unique roster and structures.
-- [ ] Map all existing and planned units/structures to the new 5-tier model.
-- [ ] Update test flows and backlog for 5-tier progression coverage.
-- [ ] Update test flows and backlog for five-faction coverage.
-- [ ] Define first-pass global stockpile caps and depletion behavior for Alloy, Power, Data, and Reclaim.
+- [x] Add a carrier and airfield air-wing validation checklist for Fighter and Corvette basing behavior.
+- [x] Define first-pass numeric pricing and upkeep rules for colony and civilian units and structures.
+- [x] Prototype one colony-defense path (Militia Barracks to Security Command Post) in scenario validation.
+- [x] Map all existing and planned units/structures to the new 5-tier model.
+- [x] Update test flows and backlog for 5-tier progression coverage.
+- [x] Update test flows and backlog for five-faction coverage.
+- [x] Add placeholder names and initial flavor notes for third human, alien, and robot factions.
+- [x] Update all planning baselines to specify American, Chinese, Civilian/Colony, Alien, and Robot (robot is fully unique, non-humanoid).
+- [x] Add a dedicated planning section for the robot faction’s unique roster and structures.
+- [x] Define first-pass global stockpile caps and depletion behavior for Alloy, Power, Data, and Reclaim.
 - [ ] Define random world event table with bounded positive and negative resource effects.
 - [ ] Add UI and telemetry checklist for global stockpile visibility and world event announcements.
 - [ ] Define era transition triggers and pacing targets for Survival, Augmented, Autonomous, and Network warfare phases.
@@ -40,9 +40,9 @@ Keep this list short, actionable, and current.
 - [ ] Define Descent event catalog (debris, storms, gravity anomalies, surges, contamination, resource blooms) with bounded cadence.
 - [ ] Define dynamic evolution branch thresholds for machine, alien, and hybrid progression from shared human opening.
 - [ ] Add player-facing readability rules for branch state, Descent status, and event warning windows.
-- [ ] Implement MVP faction pair: Helion (Human) and Veyari (Alien) with full roster-lock completeness checks.
-- [ ] Run F-16 Human vs Alien MVP Combat Completeness and record failures by dependency type.
-- [ ] Run F-17 Map-Aware Tactical Combat Intelligence and tune lane selection, objective timing, and regroup logic.
+- [x] Implement MVP faction pair: Helion (Human) and Veyari (Alien) with full roster-lock completeness checks.
+- [x] Run F-16 Human vs Alien MVP Combat Completeness and record failures by dependency type.
+- [x] Run F-17 Map-Aware Tactical Combat Intelligence and tune lane selection, objective timing, and regroup logic.
 - [x] Implement default keyboard and mouse bindings from planning/controls-standards.md.
 - [x] Implement MVP HUD components: resource bar, minimap, command card, alerts, and queue display.
 - [x] Run F-18 Keyboard and Mouse Command Coverage and resolve command gap defects.
@@ -149,6 +149,24 @@ Keep this list short, actionable, and current.
 - 2026-06-10: F-03 gather-return loop baseline executed with deterministic two-cycle deposit simulation and positive resource total validation.
 - 2026-06-10: F-04 temporary HUD state baseline executed with win/loss transition labels and resource-bar state updates.
 - 2026-06-10: M2 validation scenario matrix documented in testing strategy with current flow baseline status and evidence links.
+- 2026-06-10: Helion and Veyari T0 to T1 production-chain baseline executed in duel-map production hook with pass coverage for documented MVP lock units.
+- 2026-06-10: First duel map baseline parity and objective placement validated via F-07/F-08 style hook with passing parity and objective-count summaries.
+- 2026-06-10: F-16 baseline executed with full Helion and Veyari MVP roster production coverage and one T2 transition option per faction, with no dependency deadlocks.
+- 2026-06-10: F-17 baseline executed with score-based lane choice, objective contest ETA checks, and regroup validation under frontline collapse simulation.
+- 2026-06-10: Obsidian T0/T1 production chain baseline executed via production hook under explicit Obsidian slot assignment with pass summary.
+- 2026-06-10: Locked-slice faction behavior profiles implemented for Helion and Obsidian with role and tempo validation pass.
+- 2026-06-10: Numeric MVP price sheet coverage revalidated in economy standards and promoted as completed M3 baseline artifact.
+- 2026-06-10: Helion and Obsidian economy-identity validation completed against resource-control standards using documented tempo and attrition rules.
+- 2026-06-10: Representative Tier 2 transition paths validated for Helion and Obsidian through advanced-ground unlock chain with pass summaries.
+- 2026-06-10: Tech-tree vertical-slice lock converted into explicit scene/script implementation checklist artifact.
+- 2026-06-10: Carrier and airfield air-wing lifecycle checklist added for Fighter and Corvette basing validation coverage.
+- 2026-06-10: Colony and civilian structures/units received first-pass numeric pricing and upkeep baselines in economy standards.
+- 2026-06-10: Colony-defense path prototype validated from Militia Barracks into Security Command Post with passing defense-unit production sequence.
+- 2026-06-10: Named five-faction baseline synchronized across game vision, tech-tree, and unit-list planning docs.
+- 2026-06-10: Added flavor-note bridge for all five factions and a dedicated Promethean Assembly robot roster/structure planning section.
+- 2026-06-10: Added five-tier faction mapping artifact covering units and structures from T0 through T4 across all target factions.
+- 2026-06-10: Added F-29 and F-30 test flows and synchronized backlog coverage tasks for five-tier progression and named five-faction validation.
+- 2026-06-10: Added first-pass global stockpile cap values, depletion thresholds, and anti-collapse event bounds for Alloy, Power, Data, and Reclaim.
 
 ## Owner Map
 

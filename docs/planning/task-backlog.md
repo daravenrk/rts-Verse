@@ -23,17 +23,17 @@ Use this file for implementation-ready tasks linked to milestones.
 | T-0003 | M2 | P0 | Implement basic resource gather loop | Economy Systems | M | T-0002 | Resource total increases from gather interaction | Done |
 | T-0004 | M2 | P1 | Add temporary HUD for resources and win/loss state | UI Systems | S | T-0003 | HUD reflects state changes during playthrough | Done |
 | T-0005 | M2 | P1 | Document M2 validation scenarios in testing strategy | QA and Validation | S | None | Scenario checklist completed and reviewed | Done |
-| T-0006 | M2 | P0 | Implement Helion Directorate Tier 0 and Tier 1 production chain | Faction Systems | L | T-0003 | Helion can build locked slice units from documented structures | Todo |
-| T-0007 | M2 | P0 | Implement Obsidian Forge Tier 0 and Tier 1 production chain | Faction Systems | L | T-0003 | Obsidian can build locked slice units from documented structures | Todo |
-| T-0008 | M2 | P1 | Implement faction-specific roster behaviors for locked slice units | Faction Systems | L | T-0006, T-0007 | Unit roles match notes in planning/unit-list.md | Todo |
-| T-0009 | M3 | P1 | Prototype one Tier 2 unlock path per faction from planning/tech-tree.md | Unassigned | L | T-0008 | Each faction reaches a representative Tier 2 unit in scenario play | Todo |
-| T-0010 | M2 | P0 | Build first duel map to planning/map-standards.md baseline | Level Design | L | T-0002, T-0003 | Both spawns satisfy fairness and expansion standards | Todo |
-| T-0011 | M2 | P1 | Implement Data Node, contested Alloy deposits, and reclaim field objectives | Level Design | M | T-0010 | Map objectives support resource-control and first contested fights | Todo |
-| T-0012 | M3 | P0 | Create initial numeric price sheet for locked vertical-slice units and structures | Unassigned | M | T-0006, T-0007, T-0010 | Price sheet satisfies economy-standards.md opening and expansion rules | Todo |
-| T-0013 | M3 | P1 | Validate faction economy identity against resource-control standards | Unassigned | M | T-0011, T-0012 | Helion and Obsidian express intended tempo and attrition differences | Todo |
-| T-0014 | M2 | P0 | Implement Veyari Ascendancy Tier 0 and Tier 1 production chain for alien MVP faction | Faction Systems | L | T-0003 | Veyari can build all MVP lock units from documented structures | Todo |
-| T-0015 | M2 | P0 | Validate Helion and Veyari MVP duel roster lock completeness | QA and Validation | M | T-0006, T-0014 | F-16 passes with no undefined unit or structure dependencies | Todo |
-| T-0016 | M2 | P1 | Implement map-aware tactical behaviors for lane choice, objective contest, and regroup logic | AI Systems | L | T-0002, T-0010, T-0011 | F-17 passes for both factions across both spawns | Todo |
+| T-0006 | M2 | P0 | Implement Helion Directorate Tier 0 and Tier 1 production chain | Faction Systems | L | T-0003 | Helion can build locked slice units from documented structures | Done |
+| T-0007 | M2 | P0 | Implement Obsidian Forge Tier 0 and Tier 1 production chain | Faction Systems | L | T-0003 | Obsidian can build locked slice units from documented structures | Done |
+| T-0008 | M2 | P1 | Implement faction-specific roster behaviors for locked slice units | Faction Systems | L | T-0006, T-0007 | Unit roles match notes in planning/unit-list.md | Done |
+| T-0009 | M3 | P1 | Prototype one Tier 2 unlock path per faction from planning/tech-tree.md | Unassigned | L | T-0008 | Each faction reaches a representative Tier 2 unit in scenario play | Done |
+| T-0010 | M2 | P0 | Build first duel map to planning/map-standards.md baseline | Level Design | L | T-0002, T-0003 | Both spawns satisfy fairness and expansion standards | Done |
+| T-0011 | M2 | P1 | Implement Data Node, contested Alloy deposits, and reclaim field objectives | Level Design | M | T-0010 | Map objectives support resource-control and first contested fights | Done |
+| T-0012 | M3 | P0 | Create initial numeric price sheet for locked vertical-slice units and structures | Unassigned | M | T-0006, T-0007, T-0010 | Price sheet satisfies economy-standards.md opening and expansion rules | Done |
+| T-0013 | M3 | P1 | Validate faction economy identity against resource-control standards | Unassigned | M | T-0011, T-0012 | Helion and Obsidian express intended tempo and attrition differences | Done |
+| T-0014 | M2 | P0 | Implement Veyari Ascendancy Tier 0 and Tier 1 production chain for alien MVP faction | Faction Systems | L | T-0003 | Veyari can build all MVP lock units from documented structures | Done |
+| T-0015 | M2 | P0 | Validate Helion and Veyari MVP duel roster lock completeness | QA and Validation | M | T-0006, T-0014 | F-16 passes with no undefined unit or structure dependencies | Done |
+| T-0016 | M2 | P1 | Implement map-aware tactical behaviors for lane choice, objective contest, and regroup logic | AI Systems | L | T-0002, T-0010, T-0011 | F-17 passes for both factions across both spawns | Done |
 | T-0017 | M2 | P0 | Implement keyboard and mouse control bindings from planning/controls-standards.md | Input Systems | M | T-0001, T-0002 | F-18 passes all command and group control checks | Done |
 | T-0018 | M2 | P0 | Implement MVP HUD baseline: resource bar, minimap, command card, alerts, and queues | UI Systems | L | T-0004, T-0017 | F-19 passes camera and HUD synchronization checks | Done |
 | T-0019 | M2 | P1 | Add remappable hotkeys and camera sensitivity settings with persistence | Input Systems | M | T-0017 | F-19 optional settings persistence passes after restart | Done |
@@ -47,3 +47,6 @@ Use this file for implementation-ready tasks linked to milestones.
 | T-0027 | M2 | P0 | Implement skirmish faction selection gate for all available factions with disabled Coming Soon entries for unavailable factions | UX Systems | M | T-0015, T-0024 | F-25 validates selectable available factions and disabled unavailable entries | Done |
 | T-0028 | M2 | P0 | Define and apply primary environment type for first duel map; confirm Tether Points spawn at map-defined positions for all factions | Level Design | M | T-0010, T-0023 | F-26 confirms environment readability and faction-agnostic spawn positions | Done |
 | T-0029 | M3 | P1 | Expand environment catalog into skirmish and campaign map variants with one-primary-one-secondary shape rule | Unassigned | M | T-0028 | Environment types create varied but readable fights across future maps | Done |
+| T-0030 | M3 | P0 | Map all existing and planned units and structures to a unified five-tier model artifact | Design Systems | M | T-0014, T-0015 | Five-tier mapping artifact is complete and references all five target factions | Done |
+| T-0031 | M3 | P0 | Update testing flows and backlog references for five-tier progression coverage | QA and Validation | M | T-0030 | F-29 is defined in testing strategy and reflected in planning trackers | Done |
+| T-0032 | M3 | P0 | Update testing flows and backlog references for named five-faction coverage | QA and Validation | M | T-0030 | F-30 is defined in testing strategy and reflected in planning trackers | Done |

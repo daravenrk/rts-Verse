@@ -31,6 +31,8 @@ This document defines validation layers for milestone delivery.
 | F-25 | Campaign order and skirmish availability gate | Pass | `docs/tracking/scenario-validation-notes.md` |
 | F-26 | Environment readability and spawn consistency | Pass | `docs/tracking/scenario-validation-notes.md` |
 | F-28 | Day-night and biome readability contract | Planning pass | `docs/tracking/visual-validation-notes.md` |
+| F-29 | Five-tier progression coverage mapping | Pass | `docs/tracking/scenario-validation-notes.md` |
+| F-30 | Named five-faction baseline coverage | Pass | `docs/tracking/scenario-validation-notes.md` |
 
 ## M2 Core Gameplay Validation Flows
 
@@ -387,6 +389,34 @@ This document defines validation layers for milestone delivery.
   - State transition path is deterministic and reproducible by command.
   - Payload structure remains stable between runs while transition reason changes appropriately.
   - Startup/menu observability is sufficient to triage gate regressions without interactive reproduction.
+
+## Flow F-29 Five-Tier Progression Coverage Mapping
+
+- Setup: Five-tier mapping artifact and core planning docs are present.
+- Steps:
+  - Validate each named faction has T0 through T4 planning coverage entries in the five-tier mapping artifact.
+  - Validate unit-tier and structure-tier mappings both include explicit planned markers where implementation is pending.
+  - Validate mapping aligns with tech-tree and unit-list naming for MVP and planned factions.
+  - Validate tracker and backlog references include five-tier coverage closure evidence.
+- Expected:
+  - All five factions have explicit five-tier progression coverage definitions.
+  - No tier is left undefined for units or structures at planning scope.
+  - MVP implemented content and planned content are clearly separated.
+  - Coverage evidence is traceable in scenario-validation notes and task backlog.
+
+## Flow F-30 Named Five-Faction Baseline Coverage
+
+- Setup: Named faction baseline is documented in game vision, unit list, and tech-tree planning docs.
+- Steps:
+  - Validate all three planning baselines use the same five named factions.
+  - Validate third human, alien, and robot factions include identity notes and forward roster direction.
+  - Validate robot planning constraints remain non-humanoid and structurally distinct.
+  - Validate next-steps and change-log reflect closure of five-faction coverage updates.
+- Expected:
+  - Faction naming is consistent across all planning baselines.
+  - Five-faction coverage requirements are explicit and audit-friendly.
+  - Robot faction asymmetry constraints remain explicit and preserved.
+  - Closure evidence exists in scenario-validation notes and planning trackers.
 
 ## Reporting Template
 

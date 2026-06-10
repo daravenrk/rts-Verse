@@ -13,6 +13,13 @@ const TEST_F20_F21_FLAG := "--duel-test-f20f21"
 const TEST_F01_F02_FLAG := "--duel-test-f01f02"
 const TEST_F03_FLAG := "--duel-test-f03"
 const TEST_F04_FLAG := "--duel-test-f04"
+const TEST_PRODUCTION_CHAIN_FLAG := "--duel-test-production-chain"
+const TEST_MAP_BASELINE_FLAG := "--duel-test-map-baseline"
+const TEST_F16_FLAG := "--duel-test-f16"
+const TEST_F17_FLAG := "--duel-test-f17"
+const TEST_ROSTER_BEHAVIORS_FLAG := "--duel-test-roster-behaviors"
+const TEST_T2_PATHS_FLAG := "--duel-test-t2-paths"
+const TEST_COLONY_DEFENSE_FLAG := "--duel-test-colony-defense"
 const TetherPoint := preload("res://scripts/core/TetherPoint.gd")
 const BuildableNode := preload("res://scripts/core/BuildableNode.gd")
 const MapItem := preload("res://scripts/core/MapItem.gd")
@@ -24,7 +31,76 @@ const BUILDABLE_DEFS := {
 	"barracks_equivalent": {"tier": "T0", "deps": []},
 	"vehicle_structure": {"tier": "T1", "deps": ["power_core", "barracks_equivalent"]},
 	"sensor_uplink": {"tier": "T1", "deps": ["power_core", "barracks_equivalent"]},
-	"expansion_hub": {"tier": "T1", "deps": ["alloy_extractor", "barracks_equivalent"]}
+	"expansion_hub": {"tier": "T1", "deps": ["alloy_extractor", "barracks_equivalent"]},
+	"advanced_ground_structure": {"tier": "T2", "deps": ["vehicle_structure", "sensor_uplink"]},
+	"militia_barracks": {"tier": "T1", "deps": ["power_core", "barracks_equivalent"]},
+	"security_command_post": {"tier": "T2", "deps": ["militia_barracks", "sensor_uplink"]}
+}
+const PRODUCTION_CHAINS := {
+	"helion": {
+		"line_engineer": "tether_point",
+		"lancer_squad": "barracks_equivalent",
+		"breach_team": "barracks_equivalent",
+		"strider_bike": "vehicle_structure",
+		"ember_tank": "vehicle_structure",
+		"sunforge_artillery": "advanced_ground_structure"
+	},
+	"obsidian": {
+		"foundry_engineer": "tether_point",
+		"warder_team": "barracks_equivalent",
+		"breacher_team": "barracks_equivalent",
+		"maul_rover": "vehicle_structure",
+		"cinder_mortar": "vehicle_structure",
+		"ruin_launcher": "advanced_ground_structure"
+	},
+	"veyari": {
+		"brood_architect": "tether_point",
+		"needle_brood": "barracks_equivalent",
+		"rift_claw": "barracks_equivalent",
+		"skitter_lance": "vehicle_structure",
+		"bulwark_husk": "vehicle_structure",
+		"mire_spitter": "vehicle_structure",
+		"singularity_lobber": "advanced_ground_structure"
+	}
+}
+const PRODUCTION_BASELINE_UNITS := {
+	"helion": ["line_engineer", "lancer_squad", "breach_team", "strider_bike", "ember_tank"],
+	"obsidian": ["foundry_engineer", "warder_team", "breacher_team", "maul_rover", "cinder_mortar"],
+	"veyari": ["brood_architect", "needle_brood", "rift_claw", "skitter_lance", "bulwark_husk", "mire_spitter"]
+}
+const F16_REQUIRED_UNITS := {
+	"helion": ["line_engineer", "lancer_squad", "breach_team", "strider_bike", "ember_tank", "sunforge_artillery"],
+	"veyari": ["brood_architect", "needle_brood", "rift_claw", "skitter_lance", "bulwark_husk", "mire_spitter"]
+}
+const F16_T2_TRANSITION_UNITS := {
+	"helion": "sunforge_artillery",
+	"veyari": "singularity_lobber"
+}
+const T2_TRANSITION_OPTIONS := {
+	"helion": "sunforge_artillery",
+	"obsidian": "ruin_launcher",
+	"veyari": "singularity_lobber"
+}
+const COLONY_DEFENSE_UNITS := {
+	"security_militia_squad": "militia_barracks",
+	"patrol_buggy": "militia_barracks",
+	"peacekeeper_walker": "security_command_post"
+}
+const LOCKED_ROSTER_BEHAVIOR_PROFILES := {
+	"helion": {
+		"line_engineer": {"role_tag": "builder_support", "tempo": "fast", "preferred_lane": "natural"},
+		"lancer_squad": {"role_tag": "line_infantry", "tempo": "fast", "preferred_lane": "direct"},
+		"breach_team": {"role_tag": "breach_infantry", "tempo": "burst", "preferred_lane": "direct"},
+		"strider_bike": {"role_tag": "harass_vehicle", "tempo": "fast", "preferred_lane": "flank"},
+		"ember_tank": {"role_tag": "mainline_armor", "tempo": "timing_push", "preferred_lane": "direct"}
+	},
+	"obsidian": {
+		"foundry_engineer": {"role_tag": "builder_fortify", "tempo": "attrition", "preferred_lane": "natural"},
+		"warder_team": {"role_tag": "defensive_infantry", "tempo": "attrition", "preferred_lane": "direct"},
+		"breacher_team": {"role_tag": "demolition_infantry", "tempo": "attrition", "preferred_lane": "direct"},
+		"maul_rover": {"role_tag": "durable_skirmisher", "tempo": "attrition", "preferred_lane": "flank"},
+		"cinder_mortar": {"role_tag": "indirect_siege", "tempo": "attrition", "preferred_lane": "direct"}
+	}
 }
 const MAP_ITEM_SPECS := [
 	{"id": "ZONE-PRIMARY-ALLOY", "type": "zone_annotation", "lane": "mid", "position": Vector2(0, -120)},
@@ -104,6 +180,10 @@ var _control_groups: Dictionary = {}
 var _controllable_units: Dictionary = {}
 var _selected_controllable_units: Array[String] = []
 var _resource_alloy_total: int = 0
+var _production_sequence: int = 0
+var _produced_units_by_slot: Dictionary = {"A": {}, "B": {}}
+var _colony_sequence: int = 0
+var _colony_units_by_slot: Dictionary = {"A": {}, "B": {}}
 
 
 func _ready() -> void:
@@ -123,6 +203,13 @@ func _ready() -> void:
 	_run_f01_f02_test_hook()
 	_run_f03_test_hook()
 	_run_f04_test_hook()
+	_run_production_chain_test_hook()
+	_run_map_baseline_test_hook()
+	_run_f16_test_hook()
+	_run_f17_test_hook()
+	_run_roster_behavior_test_hook()
+	_run_t2_path_test_hook()
+	_run_colony_defense_test_hook()
 
 
 func _resolve_faction(meta_key: String, cli_prefix: String, fallback: String) -> String:
@@ -532,6 +619,285 @@ func _run_f04_test_hook() -> void:
 func _set_match_state(state: String, reason: String) -> void:
 	_hud_match_state.text = "State: %s (%s)" % [state, reason]
 	print("[Match] State change state=%s reason=%s" % [state, reason])
+
+
+func _run_production_chain_test_hook() -> void:
+	if not _has_user_flag(TEST_PRODUCTION_CHAIN_FLAG):
+		return
+
+	for slot in ["A", "B"]:
+		_produced_units_by_slot[slot].clear()
+
+	for slot in ["A", "B"]:
+		_ensure_build_chain_for_slot(slot, ["power_core", "alloy_extractor", "barracks_equivalent", "vehicle_structure"])
+
+	var overall_pass := true
+	for slot in ["A", "B"]:
+		var tether: TetherPoint = _tether_points_by_slot[slot]
+		var faction: String = tether.faction_id
+		if not PRODUCTION_CHAINS.has(faction) or not PRODUCTION_BASELINE_UNITS.has(faction):
+			print("[Production] Slot summary slot=%s faction=%s pass=false reason=missing_chain" % [slot, faction])
+			overall_pass = false
+			continue
+
+		var slot_pass := true
+		for unit_id in PRODUCTION_BASELINE_UNITS[faction]:
+			if not _queue_unit_for_slot(slot, faction, str(unit_id)):
+				slot_pass = false
+
+		print("[Production] Slot summary slot=%s faction=%s produced=%s pass=%s" % [slot, faction, str(_produced_units_by_slot[slot].keys()), str(slot_pass)])
+		overall_pass = overall_pass and slot_pass
+
+	print("[Production] Summary pass=%s" % str(overall_pass))
+
+
+func _ensure_build_chain_for_slot(slot: String, buildables: Array) -> void:
+	for buildable_id in buildables:
+		if not _buildables_by_slot[slot].has(buildable_id):
+			_build_for_slot(slot, str(buildable_id))
+
+
+func _queue_unit_for_slot(slot: String, faction: String, unit_id: String) -> bool:
+	var producer := str(PRODUCTION_CHAINS[faction][unit_id])
+	if producer != "tether_point" and not _buildables_by_slot[slot].has(producer):
+		print("[Production] Rejected slot=%s faction=%s unit=%s reason=missing_producer producer=%s" % [slot, faction, unit_id, producer])
+		return false
+
+	var tether: TetherPoint = _tether_points_by_slot[slot]
+	if tether.is_command_penalty_active:
+		print("[Production] Rejected slot=%s faction=%s unit=%s reason=command_penalty_active" % [slot, faction, unit_id])
+		return false
+
+	_production_sequence += 1
+	var stable_item_id := "UNT-%s-%03d" % [slot, _production_sequence]
+	_produced_units_by_slot[slot][unit_id] = stable_item_id
+	print("[Production] Completed slot=%s faction=%s unit=%s producer=%s stable_item_id=%s" % [slot, faction, unit_id, producer, stable_item_id])
+	return true
+
+
+func _run_map_baseline_test_hook() -> void:
+	if not _has_user_flag(TEST_MAP_BASELINE_FLAG):
+		return
+
+	var natural_a := _get_map_spec_position("NATURAL-ALLOY-A")
+	var natural_b := _get_map_spec_position("NATURAL-ALLOY-B")
+	var data_center := _get_map_spec_position("DATA-NODE-CENTER")
+
+	var natural_a_distance: float = _spawn_a.position.distance_to(natural_a)
+	var natural_b_distance: float = _spawn_b.position.distance_to(natural_b)
+	var natural_delta: float = absf(natural_a_distance - natural_b_distance)
+
+	var data_a_distance: float = _spawn_a.position.distance_to(data_center)
+	var data_b_distance: float = _spawn_b.position.distance_to(data_center)
+	var data_delta: float = absf(data_a_distance - data_b_distance)
+
+	var parity_pass := natural_delta <= 2.0 and data_delta <= 2.0
+	print("[F07] Parity summary natural_delta=%.2f data_delta=%.2f pass=%s" % [natural_delta, data_delta, str(parity_pass)])
+
+	var contested_alloy_count := int(_map_item_counts.get("contested_midfield_alloy_node", 0))
+	var data_node_count := int(_map_item_counts.get("contested_data_node", 0))
+	var reclaim_count := int(_map_item_counts.get("reclaim_field_cluster", 0))
+	var objectives_pass := contested_alloy_count >= 2 and data_node_count >= 1 and reclaim_count >= 1
+	print("[F08] Objective summary contested_alloy=%d data_nodes=%d reclaim_clusters=%d pass=%s" % [contested_alloy_count, data_node_count, reclaim_count, str(objectives_pass)])
+
+	print("[MapBaseline] Summary pass=%s" % str(parity_pass and objectives_pass))
+
+
+func _get_map_spec_position(item_id: String) -> Vector2:
+	for spec in MAP_ITEM_SPECS:
+		if str(spec["id"]) == item_id:
+			return spec["position"]
+	return Vector2.ZERO
+
+
+func _run_f16_test_hook() -> void:
+	if not _has_user_flag(TEST_F16_FLAG):
+		return
+
+	for slot in ["A", "B"]:
+		_produced_units_by_slot[slot].clear()
+		_ensure_build_chain_for_slot(slot, [
+			"power_core",
+			"alloy_extractor",
+			"barracks_equivalent",
+			"vehicle_structure",
+			"sensor_uplink",
+			"advanced_ground_structure"
+		])
+
+	var overall_pass := true
+	for slot in ["A", "B"]:
+		var tether: TetherPoint = _tether_points_by_slot[slot]
+		var faction: String = tether.faction_id
+		if not F16_REQUIRED_UNITS.has(faction):
+			print("[F16] Slot summary slot=%s faction=%s pass=false reason=missing_required_units" % [slot, faction])
+			overall_pass = false
+			continue
+
+		var slot_pass := true
+		for unit_id in F16_REQUIRED_UNITS[faction]:
+			if not _queue_unit_for_slot(slot, faction, str(unit_id)):
+				slot_pass = false
+
+		var t2_unit: String = str(F16_T2_TRANSITION_UNITS[faction])
+		var t2_pass := _queue_unit_for_slot(slot, faction, t2_unit)
+		slot_pass = slot_pass and t2_pass
+
+		print("[F16] Slot summary slot=%s faction=%s required_units=%s t2_unit=%s pass=%s" % [slot, faction, str(F16_REQUIRED_UNITS[faction]), t2_unit, str(slot_pass)])
+		overall_pass = overall_pass and slot_pass
+
+	print("[F16] Summary pass=%s" % str(overall_pass))
+
+
+func _run_f17_test_hook() -> void:
+	if not _has_user_flag(TEST_F17_FLAG):
+		return
+
+	var direct_lane_anchor := _get_map_spec_position("CHOKE-01")
+	var flank_lane_anchor := _get_map_spec_position("COVER-03")
+	var data_center := _get_map_spec_position("DATA-NODE-CENTER")
+
+	var direct_lane_risk := 0
+	var flank_lane_risk := 0
+	if int(_map_item_counts.get("chokepoint_gate", 0)) > 0:
+		direct_lane_risk += 2
+	if int(_map_item_counts.get("los_blocker", 0)) >= 6:
+		direct_lane_risk += 1
+	if int(_map_item_counts.get("cover_cluster", 0)) >= 4:
+		flank_lane_risk += 1
+
+	var route_pass := true
+	var contest_pass := true
+	var regroup_pass := true
+
+	for slot in ["A", "B"]:
+		var spawn := _spawn_a.position
+		if slot == "B":
+			spawn = _spawn_b.position
+
+		var direct_score := float(direct_lane_risk * 100) + spawn.distance_to(direct_lane_anchor)
+		var flank_score := float(flank_lane_risk * 100) + spawn.distance_to(flank_lane_anchor)
+
+		var chosen_route := "direct"
+		var chosen_anchor := direct_lane_anchor
+		if flank_score < direct_score:
+			chosen_route = "flank"
+			chosen_anchor = flank_lane_anchor
+
+		var route_distance := spawn.distance_to(chosen_anchor)
+		var contest_distance := chosen_anchor.distance_to(data_center)
+		var estimated_contest_sec := int((route_distance + contest_distance) / 7.0)
+		var contest_within_window := estimated_contest_sec <= 85
+
+		var collapse_position := chosen_anchor + Vector2(18, -12)
+		var regroup_point := spawn + Vector2(42, 0)
+		var regroup_distance := collapse_position.distance_to(regroup_point)
+		var regroup_within_limit := regroup_distance <= route_distance + 80.0
+
+		route_pass = route_pass and (minf(direct_score, flank_score) == (flank_score if chosen_route == "flank" else direct_score))
+		contest_pass = contest_pass and contest_within_window
+		regroup_pass = regroup_pass and regroup_within_limit
+
+		print("[F17] Slot=%s route=%s direct_score=%.2f flank_score=%.2f route_distance=%.2f contest_eta=%d contest_pass=%s regroup_distance=%.2f regroup_pass=%s" % [slot, chosen_route, direct_score, flank_score, route_distance, estimated_contest_sec, str(contest_within_window), regroup_distance, str(regroup_within_limit)])
+
+	var overall_pass := route_pass and contest_pass and regroup_pass
+	print("[F17] Summary route_pass=%s contest_pass=%s regroup_pass=%s pass=%s" % [str(route_pass), str(contest_pass), str(regroup_pass), str(overall_pass)])
+
+
+func _run_roster_behavior_test_hook() -> void:
+	if not _has_user_flag(TEST_ROSTER_BEHAVIORS_FLAG):
+		return
+
+	var profile_pass := true
+	var faction_expression_pass := true
+
+	for faction in LOCKED_ROSTER_BEHAVIOR_PROFILES.keys():
+		var roster: Dictionary = LOCKED_ROSTER_BEHAVIOR_PROFILES[faction]
+		for unit_id in roster.keys():
+			var profile: Dictionary = roster[unit_id]
+			var has_role := profile.has("role_tag")
+			var has_tempo := profile.has("tempo")
+			var has_lane := profile.has("preferred_lane")
+			var unit_pass := has_role and has_tempo and has_lane
+			profile_pass = profile_pass and unit_pass
+
+			if faction == "helion" and str(profile["tempo"]) == "attrition":
+				faction_expression_pass = false
+			if faction == "obsidian" and str(profile["tempo"]) != "attrition":
+				faction_expression_pass = false
+
+			print("[Roster] Profile faction=%s unit=%s role=%s tempo=%s lane=%s pass=%s" % [faction, unit_id, str(profile.get("role_tag", "")), str(profile.get("tempo", "")), str(profile.get("preferred_lane", "")), str(unit_pass)])
+
+	print("[Roster] Summary profile_pass=%s faction_expression_pass=%s pass=%s" % [str(profile_pass), str(faction_expression_pass), str(profile_pass and faction_expression_pass)])
+
+
+func _run_t2_path_test_hook() -> void:
+	if not _has_user_flag(TEST_T2_PATHS_FLAG):
+		return
+
+	for slot in ["A", "B"]:
+		_produced_units_by_slot[slot].clear()
+		_ensure_build_chain_for_slot(slot, [
+			"power_core",
+			"alloy_extractor",
+			"barracks_equivalent",
+			"vehicle_structure",
+			"sensor_uplink",
+			"advanced_ground_structure"
+		])
+
+	var overall_pass := true
+	for slot in ["A", "B"]:
+		var tether: TetherPoint = _tether_points_by_slot[slot]
+		var faction: String = tether.faction_id
+		if not T2_TRANSITION_OPTIONS.has(faction):
+			print("[T2Path] Slot summary slot=%s faction=%s pass=false reason=missing_t2_option" % [slot, faction])
+			overall_pass = false
+			continue
+
+		var unit_id: String = str(T2_TRANSITION_OPTIONS[faction])
+		var slot_pass := _queue_unit_for_slot(slot, faction, unit_id)
+		print("[T2Path] Slot summary slot=%s faction=%s t2_unit=%s pass=%s" % [slot, faction, unit_id, str(slot_pass)])
+		overall_pass = overall_pass and slot_pass
+
+	print("[T2Path] Summary pass=%s" % str(overall_pass))
+
+
+func _run_colony_defense_test_hook() -> void:
+	if not _has_user_flag(TEST_COLONY_DEFENSE_FLAG):
+		return
+
+	var slot := "A"
+	_colony_units_by_slot[slot].clear()
+	_ensure_build_chain_for_slot(slot, [
+		"power_core",
+		"barracks_equivalent",
+		"sensor_uplink",
+		"militia_barracks",
+		"security_command_post"
+	])
+
+	var path_pass := true
+	for unit_id in COLONY_DEFENSE_UNITS.keys():
+		if not _produce_colony_unit(slot, str(unit_id)):
+			path_pass = false
+
+	print("[ColonyDefense] Summary slot=%s produced=%s pass=%s" % [slot, str(_colony_units_by_slot[slot].keys()), str(path_pass)])
+
+
+func _produce_colony_unit(slot: String, unit_id: String) -> bool:
+	if not COLONY_DEFENSE_UNITS.has(unit_id):
+		return false
+	var producer := str(COLONY_DEFENSE_UNITS[unit_id])
+	if not _buildables_by_slot[slot].has(producer):
+		print("[ColonyDefense] Rejected slot=%s unit=%s reason=missing_producer producer=%s" % [slot, unit_id, producer])
+		return false
+
+	_colony_sequence += 1
+	var stable_item_id := "COL-%s-%03d" % [slot, _colony_sequence]
+	_colony_units_by_slot[slot][unit_id] = stable_item_id
+	print("[ColonyDefense] Produced slot=%s unit=%s producer=%s stable_item_id=%s" % [slot, unit_id, producer, stable_item_id])
+	return true
 
 
 func _run_f18_f19_test_hook() -> void:

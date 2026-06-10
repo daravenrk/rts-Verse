@@ -11,6 +11,8 @@ This folder contains architecture, planning, research, and delivery tracking art
 - Project conventions: docs/planning/conventions.md
 - Game vision: docs/planning/game-vision.md
 - Tech tree: docs/planning/tech-tree.md
+- Five-tier faction mapping: docs/planning/five-tier-faction-mapping.md
+- Tech-tree implementation checklist: docs/planning/tech-tree-implementation-checklist.md
 - Unit list: docs/planning/unit-list.md
 - UI and controls standards: docs/planning/controls-standards.md
 - Map standards: docs/planning/map-standards.md
@@ -18,6 +20,7 @@ This folder contains architecture, planning, research, and delivery tracking art
 - Primitive visual baseline: docs/planning/primitive-visual-baseline.md
 - World systems baseline: docs/planning/world-systems-baseline.md
 - itch.io launch and feedback plan: docs/planning/itch-io-launch-and-feedback-plan.md
+- Carrier and air-wing validation checklist: docs/planning/air-wing-validation-checklist.md
 - Task backlog: docs/planning/task-backlog.md
 - Testing strategy: docs/planning/testing-strategy.md
 - Definition of done: docs/planning/definition-of-done.md
