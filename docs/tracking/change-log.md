@@ -36,6 +36,8 @@ Track high-level project changes with links to decisions and plans.
 - Implemented default RTS keyboard and mouse input bindings during startup profile initialization aligned to controls standards.
 - Implemented MVP HUD baseline placeholders in duel map runtime for resource bar, minimap, command card, alerts, and production queue.
 - Added persisted input profile support (`user://input_profile.cfg`) for remappable hotkeys and camera settings, validated by create-on-first-run and load-on-restart behavior.
+- Executed F-26 environment readability validation with first-engagement notes and faction-agnostic Tether spawn evidence across swapped faction assignments.
+- Expanded environment catalog into skirmish and campaign variant packs with explicit one-primary-one-secondary map composition rules.
 
 ## 2026-05-17
 

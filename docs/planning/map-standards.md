@@ -66,6 +66,26 @@ Use these environment types when building battlefields intended to produce stron
 - Environment geometry should create choices, not hidden pathing traps or unreadable clutter.
 - Decorative biome dressing is allowed, but it must not obscure lane readability or silhouette clarity for small 3D actors.
 
+### Skirmish and Campaign Variant Packs
+
+Use the following variant packs when expanding beyond the first duel map. Each map must use exactly one primary type and optionally one secondary type.
+
+| Variant Pack | Mode Target | Primary Type | Secondary Type | Intended Fight Identity |
+| --- | --- | --- | --- | --- |
+| SV-01 Crossfire Basin | Skirmish | Open Basin | Fragmented Salvage Field | Broad armor lanes with reclaim-driven flank denial. |
+| SV-02 Ridge Breakfront | Skirmish | Broken Ridge Network | Chokepoint Corridor Field | Elevated siege pressure with breakable corridor contests. |
+| SV-03 Split Pocket Relay | Skirmish | Split-Pocket Frontier | Radial Impact Zone | Multi-front harassment with central relay pull. |
+| CV-01 First Descent Contact | Campaign (Veyari-first block) | Radial Impact Zone | Chokepoint Corridor Field | High objective gravity and frequent center-retake transitions. |
+| CV-02 Directorate Counteroffensive | Campaign (Helion arc) | Open Basin | Broken Ridge Network | Fast timing pushes with elevated artillery counterplay. |
+| CV-03 Helion End-State Operations | Campaign (Helion final block) | Fragmented Salvage Field | Split-Pocket Frontier | Attrition through reclaim control and distributed front pressure. |
+
+#### Variant Pack Rules
+
+- Primary type sets lane geometry and objective pressure shape.
+- Secondary type can only modify route risk and cover density, not replace the primary fight identity.
+- Campaign maps should align variant choice with mission perspective goals (Veyari pressure-first, Helion closure-last).
+- Any map that cannot be described by one primary and one secondary type must be re-authored before validation.
+
 ### First Duel Map Environment Declaration
 
 - Primary environment type: Radial Impact Zone.
