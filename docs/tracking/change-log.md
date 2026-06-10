@@ -95,6 +95,8 @@ Track high-level project changes with links to decisions and plans.
 - Added planning/infrastructure-warfare-checklist.md for system-targeting superweapon and command-disruption design requirements.
 - Added planning/descent-systems-baseline.md for access-node control, orbital corridor contest, and bounded Descent event cadence.
 - Added planning/dynamic-evolution-and-readability-baseline.md for branch thresholds and player-facing branch/Descent/event readability rules.
+- Added planning/stage0-media-bundle-spec.md to predefine Stage 0 screenshot or clip requirements and gameplay-first caption pack.
+- Added planning/itch-stage0-publish-runbook.md to operationalize manual itch.io Stage 0 publication and post-publish verification.
 
 ## 2026-05-17
 

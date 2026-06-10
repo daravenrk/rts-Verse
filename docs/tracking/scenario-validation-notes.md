@@ -372,3 +372,16 @@ Track scenario-level evidence for map and flow validation runs.
   - Infrastructure warfare checklist defines disruption, counterplay, and observability requirements.
   - Descent baseline defines node-control mechanics, corridor states, and bounded event cadence.
   - Dynamic evolution baseline defines branch thresholds and explicit player-facing readability fail conditions.
+
+## 2026-06-10 Stage 0 Publication Prep Artifact Validation
+
+- Flow: `Planning artifact validation for Stage 0 external publish unblock prep`
+- Validation command:
+  - `grep -nE "^# Stage 0 Media Bundle Specification|Required Shot List|Optional Clip List|Acceptance Checklist|Manual External Step" docs/planning/stage0-media-bundle-spec.md`
+  - `grep -nE "^# itch.io Stage 0 Publish Runbook|Preflight Checklist|Publish Procedure|Post-Publish Validation|Manual External Step" docs/planning/itch-stage0-publish-runbook.md`
+  - `grep -nE "Stage 0 media bundle specification|itch.io Stage 0 publish runbook" docs/README.md`
+  - `grep -nE "T-0044|T-0045" docs/planning/task-backlog.md`
+- Result: Pass
+- Notes:
+  - External Stage 0 blockers now have deterministic internal prep artifacts.
+  - Remaining work is limited to manual capture and itch.io publication execution.

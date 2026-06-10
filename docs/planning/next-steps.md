@@ -91,8 +91,8 @@ Keep this list short, actionable, and current.
 ## Blocked
 
 - Stage 0 media and page publication tasks:
-	- Blocker: screenshot or clip assets and manual itch.io publication step require external authoring/platform actions.
-	- Re-entry condition: produce media bundle and execute platform publish steps in operator workflow.
+	- Blocker: screenshot or clip capture plus manual itch.io publication require external authoring/platform actions.
+	- Re-entry condition: capture assets per `docs/planning/stage0-media-bundle-spec.md` and execute publish procedure in `docs/planning/itch-stage0-publish-runbook.md`.
 
 ## Completed
 

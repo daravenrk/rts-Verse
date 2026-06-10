@@ -25,6 +25,8 @@ This folder contains architecture, planning, research, and delivery tracking art
 - Infrastructure warfare checklist: docs/planning/infrastructure-warfare-checklist.md
 - Descent systems baseline: docs/planning/descent-systems-baseline.md
 - Dynamic evolution and readability baseline: docs/planning/dynamic-evolution-and-readability-baseline.md
+- Stage 0 media bundle specification: docs/planning/stage0-media-bundle-spec.md
+- itch.io Stage 0 publish runbook: docs/planning/itch-stage0-publish-runbook.md
 - itch.io launch and feedback plan: docs/planning/itch-io-launch-and-feedback-plan.md
 - Carrier and air-wing validation checklist: docs/planning/air-wing-validation-checklist.md
 - Task backlog: docs/planning/task-backlog.md
