@@ -17,8 +17,14 @@ This folder contains architecture, planning, research, and delivery tracking art
 - UI and controls standards: docs/planning/controls-standards.md
 - Map standards: docs/planning/map-standards.md
 - Economy and pricing standards: docs/planning/economy-standards.md
+- Stockpile and world-event UI telemetry checklist: docs/planning/stockpile-event-ui-telemetry-checklist.md
 - Primitive visual baseline: docs/planning/primitive-visual-baseline.md
 - World systems baseline: docs/planning/world-systems-baseline.md
+- Ideology paths baseline: docs/planning/ideology-paths-baseline.md
+- Network resilience and maintenance baseline: docs/planning/network-resilience-maintenance-baseline.md
+- Infrastructure warfare checklist: docs/planning/infrastructure-warfare-checklist.md
+- Descent systems baseline: docs/planning/descent-systems-baseline.md
+- Dynamic evolution and readability baseline: docs/planning/dynamic-evolution-and-readability-baseline.md
 - itch.io launch and feedback plan: docs/planning/itch-io-launch-and-feedback-plan.md
 - Carrier and air-wing validation checklist: docs/planning/air-wing-validation-checklist.md
 - Task backlog: docs/planning/task-backlog.md

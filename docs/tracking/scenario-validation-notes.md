@@ -304,3 +304,71 @@ Track scenario-level evidence for map and flow validation runs.
   - First-pass global cap values are defined for Alloy, Power, Data, and Reclaim.
   - Soft and hard depletion thresholds are explicitly documented.
   - Anti-collapse event bounds are defined to prevent runaway volatility.
+
+## 2026-06-10 World Event and Stockpile UI Telemetry Baseline Validation
+
+- Flow: `Planning artifact validation for bounded world events`
+- Flow: `F-31 Stockpile and World-Event UI Telemetry Coverage`
+- Validation command:
+  - `grep -nE "First-Pass Random World Event Table|Cadence and targeting guardrails|Positive event bounds|Negative event bounds|Selection weighting rules|E-00" docs/planning/economy-standards.md`
+  - `grep -nE "^# Stockpile and World Event UI Telemetry Checklist|UI Surface Checklist|Telemetry Payload Checklist|Validation Hooks|Failure Triage Rules" docs/planning/stockpile-event-ui-telemetry-checklist.md`
+  - `grep -nE "F-31|Stockpile and World-Event UI Telemetry Coverage" docs/planning/testing-strategy.md`
+  - `grep -nE "T-0033|T-0034" docs/planning/task-backlog.md`
+- Result: Pass
+- Notes:
+  - Economy standards now includes bounded positive and negative world event definitions.
+  - Checklist artifact defines UI and telemetry observability requirements for stockpile and event systems.
+  - Testing strategy and backlog include aligned flow and task references.
+
+## 2026-06-10 Era Transition Trigger and Pacing Baseline Validation
+
+- Flow: `Planning artifact validation for warfare-era transition triggers`
+- Validation command:
+  - `grep -nE "Civilizational Era Transition Triggers and Pacing Targets|Survival Warfare|Augmented Warfare|Autonomous Warfare|Network Warfare|Trigger Contract|Pacing Targets by Era|Transition Safeguards" docs/planning/world-systems-baseline.md`
+  - `grep -nE "Flow F-12 Civilizational Era Transition Readability|Survival, Augmented, Autonomous, and Network warfare phases|Transition timing remains within documented target bands" docs/planning/testing-strategy.md`
+  - `grep -nE "T-0035" docs/planning/task-backlog.md`
+- Result: Pass
+- Notes:
+  - Four-era transition contract is documented with trigger requirements and pacing guardrails.
+  - F-12 flow now validates transition readability and target-band compliance.
+  - Backlog now tracks era-transition baseline closure with direct references.
+
+## 2026-06-10 Ideology Paths Baseline Validation
+
+- Flow: `Planning artifact validation for ideology path definitions`
+- Validation command:
+  - `grep -nE "^# Ideology Paths Baseline|Path A: Purists|Path B: Symbiotes|Path C: Cybernetic Ascendants|Core Strengths|Failure Modes|Cross-Path Balance Guardrails" docs/planning/ideology-paths-baseline.md`
+  - `grep -nE "Ideology paths baseline" docs/README.md`
+  - `grep -nE "T-0036" docs/planning/task-backlog.md`
+- Result: Pass
+- Notes:
+  - First-pass ideology paths are defined with strengths, liabilities, and failure modes for each branch.
+  - Documentation index and backlog include references to the ideology baseline artifact.
+
+## 2026-06-10 One Box and Maintenance-Instability Baseline Validation
+
+- Flow: `Planning artifact validation for One Box and automation burden systems`
+- Validation command:
+  - `grep -nE "^# Network Resilience and Maintenance Baseline|One Box Original-Core Penalty Rules|Distributed Network Recovery Mechanics|Maintenance-Instability Resource Model|Penalty Profile on Original-Core Loss|Baseline Thresholds|Instability Escalation Rules" docs/planning/network-resilience-maintenance-baseline.md`
+  - `grep -nE "Network resilience and maintenance baseline" docs/README.md`
+  - `grep -nE "T-0037|T-0038" docs/planning/task-backlog.md`
+- Result: Pass
+- Notes:
+  - One Box penalties and staged distributed recovery mechanics are documented with explicit thresholds.
+  - Maintenance-instability model is documented across upkeep, bandwidth, cooling, and logistics.
+  - Index and backlog references are synchronized for closure traceability.
+
+## 2026-06-10 Infrastructure, Descent, and Dynamic Evolution Baseline Validation
+
+- Flow: `Planning artifact validation for infrastructure warfare and Descent branch systems`
+- Validation command:
+  - `grep -nE "^# Infrastructure Warfare Design Checklist|Superweapon System Checklist|Command Disruption Checklist|Counterplay Checklist|Telemetry and UI Checklist|Validation Hooks" docs/planning/infrastructure-warfare-checklist.md`
+  - `grep -nE "^# Descent Systems Baseline|Descent Access-Node Control Rules|Orbital Corridor Contest Mechanics|Descent Event Catalog|Cadence Guardrails|D-00" docs/planning/descent-systems-baseline.md`
+  - `grep -nE "^# Dynamic Evolution and Readability Baseline|Dynamic Evolution Branch Thresholds|Branch Threshold Contract|Player-Facing Readability Rules|Readability Fail Conditions" docs/planning/dynamic-evolution-and-readability-baseline.md`
+  - `grep -nE "Infrastructure warfare checklist|Descent systems baseline|Dynamic evolution and readability baseline" docs/README.md`
+  - `grep -nE "T-0039|T-0040|T-0041|T-0042|T-0043" docs/planning/task-backlog.md`
+- Result: Pass
+- Notes:
+  - Infrastructure warfare checklist defines disruption, counterplay, and observability requirements.
+  - Descent baseline defines node-control mechanics, corridor states, and bounded event cadence.
+  - Dynamic evolution baseline defines branch thresholds and explicit player-facing readability fail conditions.

@@ -120,6 +120,46 @@ Floor and anti-collapse rules:
 - Event effects must be bounded so volatility shifts strategy without making match outcomes purely random.
 - Event impacts should be surfaced clearly to all players through shared notifications.
 
+### First-Pass Random World Event Table (Bounded)
+
+Cadence and targeting guardrails:
+
+- Baseline event check interval: every 120 seconds.
+- Effective event fire window: random roll inside 105 to 135 seconds.
+- Minimum cooldown after any event: 75 seconds.
+- Maximum consecutive events with same polarity: 2.
+- If one resource was targeted in the last event, next event must target a different resource unless all others are at cap or floor constraints.
+
+Positive event bounds:
+
+- Single event increase may not exceed 10 percent of global cap.
+- Positive effects are reduced by 30 percent when the target resource is above 80 percent of cap.
+
+Negative event bounds:
+
+- Single event decrease may not exceed 7 percent of global cap.
+- Negative effects are reduced by 35 percent when the target resource is below hard depletion threshold.
+
+| Event ID | Event Name | Polarity | Target Resource | Magnitude Rule | Duration or Window | Notes |
+| --- | --- | --- | --- | --- | --- | --- |
+| E-001 | Salvage Rush | Positive | Reclaim | +6 percent of cap | instant | Triggered by major battlefield recovery operations. |
+| E-002 | Deep Vein Discovery | Positive | Alloy | +5 percent of cap | instant | Discovery event at remote extraction zones. |
+| E-003 | Grid Stabilization Breakthrough | Positive | Power | +4 percent of cap | instant | Temporary generation optimization at vent network. |
+| E-004 | Signal Cache Recovery | Positive | Data | +5 percent of cap | instant | Relay-cache decode by contested objective holders. |
+| E-005 | Convoy Contract Windfall | Positive | Alloy and Reclaim | +3 percent Alloy, +3 percent Reclaim | instant | Civilian-trade bonus with mixed material gains. |
+| E-006 | Refinery Chain Disruption | Negative | Alloy | -5 percent of cap | instant | Industrial sabotage or geological instability. |
+| E-007 | Relay Blackout | Negative | Power | -4 percent of cap | instant | Grid interruption reduces available world reserve. |
+| E-008 | Data Plague Cascade | Negative | Data | -5 percent of cap | instant | Signal contamination and archive corruption burst. |
+| E-009 | Debris Field Collapse | Negative | Reclaim | -4 percent of cap | instant | Reclaim lanes become unsafe or inaccessible. |
+| E-010 | Orbital Shockfront | Negative | Alloy and Power | -3 percent Alloy, -3 percent Power | instant | Multi-resource disruption event with bounded impact. |
+
+Selection weighting rules:
+
+- Under soft depletion: increase positive-event weight by 20 percent for the depleted resource.
+- Under hard depletion: increase positive-event weight by 35 percent and reduce negative-event weight by 25 percent for that resource.
+- Above 90 percent of cap: reduce positive-event weight by 40 percent for that resource.
+- Mixed-resource events are limited to 20 percent of total event rolls to avoid over-coupled swings.
+
 ## World Resource Sources and Monetary Layer (S-2003)
 
 ### World Source Mapping

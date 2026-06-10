@@ -33,6 +33,7 @@ This document defines validation layers for milestone delivery.
 | F-28 | Day-night and biome readability contract | Planning pass | `docs/tracking/visual-validation-notes.md` |
 | F-29 | Five-tier progression coverage mapping | Pass | `docs/tracking/scenario-validation-notes.md` |
 | F-30 | Named five-faction baseline coverage | Pass | `docs/tracking/scenario-validation-notes.md` |
+| F-31 | Stockpile and world-event UI telemetry coverage | Pass | `docs/tracking/scenario-validation-notes.md` |
 
 ## M2 Core Gameplay Validation Flows
 
@@ -162,16 +163,18 @@ This document defines validation layers for milestone delivery.
 
 ## Flow F-12 Civilizational Era Transition Readability
 
-- Setup: Scenario enables progression checkpoints that represent Era 1 through Era 3 transitions.
+- Setup: Scenario enables progression checkpoints for Survival, Augmented, Autonomous, and Network warfare phases.
 - Steps:
-  - Play opening with human-heavy roster and expansion pressure.
-  - Trigger first augmentation threshold and unlock one ideology branch behavior.
-  - Reach autonomous warfare threshold and field machine-dominant combat group.
-  - Record transition cues, player decision points, and pace changes.
+  - Play opening with human-heavy roster and expansion pressure through Survival phase.
+  - Trigger Augmented transition and unlock one branch-choice behavior.
+  - Reach Autonomous transition and field one automation-heavy combat group.
+  - Reach Network transition and validate one distributed resilience or disruption behavior.
+  - Record transition cues, player decision points, and pacing against era target bands.
 - Expected:
   - Era transitions are visible through units, structures, and economy behavior without external explanation.
-  - Midgame ideology choices produce meaningful strategic divergence.
-  - Late-game machine power increases combat scale but also increases operational burden.
+  - Augmented and Autonomous transitions produce meaningful strategic divergence with readable trigger cues.
+  - Network phase introduces higher systemic pressure without collapsing readability.
+  - Transition timing remains within documented target bands or logs a guardrail exception.
 
 ## Flow F-13 One Box Core and Distributed Network Resilience
 
@@ -197,6 +200,7 @@ This document defines validation layers for milestone delivery.
   - Descent objectives are strategically valuable and visibly contested.
   - Event pressure changes map priorities without creating unavoidable collapse states.
   - Descent-linked opportunities reward timing and map control rather than passive waiting.
+  - Access-node control, corridor state behavior, and event cadence align with planning/descent-systems-baseline.md.
 
 ## Flow F-15 Dynamic Evolution Branch Emergence
 
@@ -209,6 +213,7 @@ This document defines validation layers for milestone delivery.
   - Branch identity emerges from gameplay decisions rather than pre-match labels.
   - Machine, alien, and hybrid branches each create distinct advantages and liabilities.
   - No branch produces deterministic victory with equal execution quality.
+  - Branch progression and readability behavior align with planning/dynamic-evolution-and-readability-baseline.md.
 
 ## Flow F-16 Human vs Alien MVP Combat Completeness
 
@@ -417,6 +422,20 @@ This document defines validation layers for milestone delivery.
   - Five-faction coverage requirements are explicit and audit-friendly.
   - Robot faction asymmetry constraints remain explicit and preserved.
   - Closure evidence exists in scenario-validation notes and planning trackers.
+
+## Flow F-31 Stockpile and World-Event UI Telemetry Coverage
+
+- Setup: Global stockpile cap model, bounded event table, and stockpile-event UI telemetry checklist artifact are present.
+- Steps:
+  - Validate checklist includes UI requirements for reserve or cap visibility, threshold warnings, and event banners.
+  - Validate checklist includes telemetry payload requirements for trigger, apply, clamp or block, and UI acknowledgement states.
+  - Validate checklist includes deterministic ordering and failure-triage rules.
+  - Validate planning trackers reference this flow and related checklist artifact.
+- Expected:
+  - UI and telemetry requirements are explicit and testable for stockpile and event systems.
+  - Event observability coverage is complete enough to triage magnitude, ordering, and display defects.
+  - Threshold visibility rules are clear for both soft and hard depletion states.
+  - Validation evidence is captured in scenario-validation notes and backlog references.
 
 ## Reporting Template
 

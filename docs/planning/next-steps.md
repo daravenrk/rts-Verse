@@ -29,17 +29,17 @@ Keep this list short, actionable, and current.
 - [x] Update all planning baselines to specify American, Chinese, Civilian/Colony, Alien, and Robot (robot is fully unique, non-humanoid).
 - [x] Add a dedicated planning section for the robot faction’s unique roster and structures.
 - [x] Define first-pass global stockpile caps and depletion behavior for Alloy, Power, Data, and Reclaim.
-- [ ] Define random world event table with bounded positive and negative resource effects.
-- [ ] Add UI and telemetry checklist for global stockpile visibility and world event announcements.
-- [ ] Define era transition triggers and pacing targets for Survival, Augmented, Autonomous, and Network warfare phases.
-- [ ] Draft first-pass ideology paths for Purists, Symbiotes, and Cybernetic Ascendants with strengths and failure modes.
-- [ ] Define One Box original-core penalty rules and distributed network recovery mechanics.
-- [ ] Define maintenance-instability resource model for high-tier automation (upkeep, bandwidth, cooling, logistics).
-- [ ] Add infrastructure warfare design checklist for system-targeting superweapons and command disruption effects.
-- [ ] Define Descent access-node control rules and orbital corridor contest mechanics.
-- [ ] Define Descent event catalog (debris, storms, gravity anomalies, surges, contamination, resource blooms) with bounded cadence.
-- [ ] Define dynamic evolution branch thresholds for machine, alien, and hybrid progression from shared human opening.
-- [ ] Add player-facing readability rules for branch state, Descent status, and event warning windows.
+- [x] Define random world event table with bounded positive and negative resource effects.
+- [x] Add UI and telemetry checklist for global stockpile visibility and world event announcements.
+- [x] Define era transition triggers and pacing targets for Survival, Augmented, Autonomous, and Network warfare phases.
+- [x] Draft first-pass ideology paths for Purists, Symbiotes, and Cybernetic Ascendants with strengths and failure modes.
+- [x] Define One Box original-core penalty rules and distributed network recovery mechanics.
+- [x] Define maintenance-instability resource model for high-tier automation (upkeep, bandwidth, cooling, logistics).
+- [x] Add infrastructure warfare design checklist for system-targeting superweapons and command disruption effects.
+- [x] Define Descent access-node control rules and orbital corridor contest mechanics.
+- [x] Define Descent event catalog (debris, storms, gravity anomalies, surges, contamination, resource blooms) with bounded cadence.
+- [x] Define dynamic evolution branch thresholds for machine, alien, and hybrid progression from shared human opening.
+- [x] Add player-facing readability rules for branch state, Descent status, and event warning windows.
 - [x] Implement MVP faction pair: Helion (Human) and Veyari (Alien) with full roster-lock completeness checks.
 - [x] Run F-16 Human vs Alien MVP Combat Completeness and record failures by dependency type.
 - [x] Run F-17 Map-Aware Tactical Combat Intelligence and tune lane selection, objective timing, and regroup logic.
@@ -167,6 +167,15 @@ Keep this list short, actionable, and current.
 - 2026-06-10: Added five-tier faction mapping artifact covering units and structures from T0 through T4 across all target factions.
 - 2026-06-10: Added F-29 and F-30 test flows and synchronized backlog coverage tasks for five-tier progression and named five-faction validation.
 - 2026-06-10: Added first-pass global stockpile cap values, depletion thresholds, and anti-collapse event bounds for Alloy, Power, Data, and Reclaim.
+- 2026-06-10: Added bounded random world-event table with cadence, polarity, and targeting guardrails tied to stockpile thresholds.
+- 2026-06-10: Added dedicated stockpile and world-event UI telemetry checklist and mapped coverage into testing strategy and backlog.
+- 2026-06-10: Defined four warfare-era transition triggers and pacing target bands with explicit guardrails for delayed unlocks.
+- 2026-06-10: Added first-pass ideology paths for Purists, Symbiotes, and Cybernetic Ascendants with explicit strengths, liabilities, and failure modes.
+- 2026-06-10: Added One Box original-core penalty profile and staged distributed recovery mechanics baseline.
+- 2026-06-10: Added first-pass maintenance-instability model for automation burden across upkeep, bandwidth, cooling, and logistics.
+- 2026-06-10: Added infrastructure warfare checklist covering superweapon disruption constraints, counterplay, telemetry, and validation requirements.
+- 2026-06-10: Added Descent systems baseline for access-node control, orbital corridor contest mechanics, and bounded event cadence catalog.
+- 2026-06-10: Added dynamic evolution thresholds and player-facing readability rules for branch, Descent, and event warning state transitions.
 
 ## Owner Map
 

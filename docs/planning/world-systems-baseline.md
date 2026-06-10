@@ -93,6 +93,45 @@ This document defines the world readability contract for structures, lighting, a
 | LS-03 | Small footprint readability | Power Core, Alloy Extractor, and Light Defense Node remain identifiable at default zoom. |
 | LS-04 | Transition stability | No abrupt exposure or emissive pop at day-dusk-night boundaries. |
 
+## Civilizational Era Transition Triggers and Pacing Targets
+
+Define four warfare eras with explicit trigger gates so complexity arrives in readable, controlled layers.
+
+### Era Definitions
+
+- Survival Warfare:
+  - Opening baseline focused on expansion, scouting, and first tactical control.
+- Augmented Warfare:
+  - Mid-opening to midgame layer where branch identity and enhancement systems begin to diverge.
+- Autonomous Warfare:
+  - Midgame to late-midgame layer where machine-scale coordination and automation stress become first-order constraints.
+- Network Warfare:
+  - Late-game layer where distributed command systems, disruption tools, and systemic resilience decide outcomes.
+
+### Trigger Contract (First Pass)
+
+| Transition | Trigger Requirements | Earliest Allowed Time | Target Arrival Band | Hard Delay Guardrail |
+| --- | --- | --- | --- | --- |
+| Survival -> Augmented | 1 T2 structure online, 1 Data objective controlled for at least 60 seconds, and 1 branch-choice unlock completed | 08:00 | 09:00 to 13:00 | 16:00 |
+| Augmented -> Autonomous | 2 active Data-linked systems, 1 automation or doctrine chain completed, and sustained two-zone economy for 120 seconds | 15:00 | 17:00 to 23:00 | 27:00 |
+| Autonomous -> Network | Original core plus at least 2 relay or shard network nodes active, 1 network-level system unlocked, and one successful resilience recovery event | 24:00 | 26:00 to 34:00 | 38:00 |
+
+### Pacing Targets by Era
+
+| Era | Pacing Target | Complexity Budget | Readability Requirement |
+| --- | --- | --- | --- |
+| Survival Warfare | Fast tactical commitments with low systemic overhead | low | Players understand expansion and contest priorities without advanced-system UI dependency |
+| Augmented Warfare | Introduce branch tradeoffs and first nonlinear power spikes | medium | Transition cues must identify what unlocked and why within one HUD alert cycle |
+| Autonomous Warfare | Increase army and economy throughput with maintenance-side constraints | medium-high | New burdens (upkeep, bandwidth, cooling) must surface before failures become catastrophic |
+| Network Warfare | Reward distributed resilience, disruption timing, and macro adaptation | high | Branch or network state must remain interpretable under peak combat load |
+
+### Transition Safeguards
+
+- A transition cannot fire during unresolved critical alert states (for example, base-loss hard warning) unless forced by scripted scenario rules.
+- Each transition must emit a single authoritative transition payload with transition id, source era, target era, and trigger proof fields.
+- If hard delay guardrail is reached without trigger completion, apply assisted unlock window with reduced bonus scaling to avoid deadlocked progression.
+- Era transitions must never invalidate prior-tech investments; they add systems, they do not hard-replace opening viability.
+
 ## Validation Evidence (2026-06-10)
 
 - Functional:

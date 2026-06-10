@@ -86,6 +86,15 @@ Track high-level project changes with links to decisions and plans.
 - Added planning/five-tier-faction-mapping.md as source-of-truth mapping for units and structures across T0-T4 for all target factions.
 - Added testing-strategy flows F-29 and F-30 and corresponding backlog tasks T-0030 through T-0032 for coverage traceability.
 - Added first-pass global stockpile caps, depletion thresholds, and anti-collapse event bounds in economy-standards.md.
+- Added bounded first-pass random world event table in economy-standards.md with explicit positive and negative magnitude limits and cadence rules.
+- Added planning/stockpile-event-ui-telemetry-checklist.md and linked flow coverage in testing strategy and task backlog.
+- Added explicit Survival, Augmented, Autonomous, and Network warfare transition triggers and pacing targets in world-systems baseline.
+- Updated F-12 testing flow and backlog references to align with four-era transition validation.
+- Added planning/ideology-paths-baseline.md covering Purists, Symbiotes, and Cybernetic Ascendants strengths, liabilities, and failure modes.
+- Added planning/network-resilience-maintenance-baseline.md defining One Box penalties, distributed recovery stages, and automation-instability thresholds.
+- Added planning/infrastructure-warfare-checklist.md for system-targeting superweapon and command-disruption design requirements.
+- Added planning/descent-systems-baseline.md for access-node control, orbital corridor contest, and bounded Descent event cadence.
+- Added planning/dynamic-evolution-and-readability-baseline.md for branch thresholds and player-facing branch/Descent/event readability rules.
 
 ## 2026-05-17
 
