@@ -2,6 +2,18 @@
 
 Track scenario-level evidence for map and flow validation runs.
 
+## 2026-06-10 F-35 Live Gather Command and Deposit Loop
+
+- Flow: `F-35 Live gather command and deposit loop`
+- Scenario: `scenes/core/FirstDuelMap.tscn`
+- Validation command:
+  - `/Applications/Godot.app/Contents/MacOS/godot --headless --quit --path . res://scenes/core/FirstDuelMap.tscn -- --duel-test-f35-gather`
+- Result: Pass
+- Notes:
+  - Live gather command was issued to `SAFE-ALLOY-A` for `Squad_A_00`.
+  - Unit reached resource, transitioned to dropoff, and deposited `35` alloy.
+  - Summary emitted `alloy_total=35` and `pass=true`.
+
 ## 2026-06-10 F-34 Startup to Duel-Map End-to-End Smoke (Autoplay)
 
 - Flow: `F-34 Startup to skirmish to duel-map end-to-end autoplay smoke`

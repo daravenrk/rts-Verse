@@ -19,6 +19,7 @@ const TEST_F16_FLAG := "--duel-test-f16"
 const TEST_F17_FLAG := "--duel-test-f17"
 const TEST_F32_INTERACTION_FLAG := "--duel-test-f32-interaction"
 const TEST_F33_BLOCKER_FLAG := "--duel-test-f33-blocker"
+const TEST_F35_GATHER_FLAG := "--duel-test-f35-gather"
 const TEST_AUTO_EXIT_FLAG := "--duel-test-auto-exit"
 const TEST_ROSTER_BEHAVIORS_FLAG := "--duel-test-roster-behaviors"
 const TEST_T2_PATHS_FLAG := "--duel-test-t2-paths"
@@ -185,6 +186,7 @@ var _tether_points_by_slot: Dictionary = {}
 var _buildables_by_slot: Dictionary = {"A": {}, "B": {}}
 var _build_sequence: int = 0
 var _map_item_counts: Dictionary = {}
+var _map_items_by_id: Dictionary = {}
 var _hud_resource_bar: Label
 var _hud_alert_item: Label
 var _hud_queue_item: Label
@@ -195,6 +197,7 @@ var _control_groups: Dictionary = {}
 var _controllable_units: Dictionary = {}
 var _selected_controllable_units: Array[String] = []
 var _resource_alloy_total: int = 0
+var _gather_jobs: Dictionary = {}
 var _production_sequence: int = 0
 var _produced_units_by_slot: Dictionary = {"A": {}, "B": {}}
 var _colony_sequence: int = 0
@@ -220,6 +223,7 @@ func _ready() -> void:
 	_run_f01_f02_test_hook()
 	_run_f32_interaction_test_hook()
 	_run_f33_blocker_test_hook()
+	_run_f35_gather_test_hook()
 	_run_f03_test_hook()
 	_run_f04_test_hook()
 	_run_production_chain_test_hook()
@@ -326,6 +330,7 @@ func _spawn_map_items() -> void:
 		item.position = Vector3(pos2d.x, 0.0, pos2d.y)
 		add_child(item)
 		item.initialize(str(spec["id"]), str(spec["type"]), str(spec["lane"]))
+		_map_items_by_id[str(spec["id"])] = item
 
 		var item_type := str(spec["type"])
 		if not _map_item_counts.has(item_type):
@@ -610,6 +615,7 @@ func _issue_move_command(target: Vector3) -> void:
 	if _selected_controllable_units.is_empty():
 		print("[F02] Move rejected reason=no_selection")
 		return
+	_clear_gather_jobs_for_selected_units()
 	if _is_point_blocked(target):
 		_reject_move("target_blocked", target)
 		return
@@ -638,6 +644,38 @@ func _issue_move_command(target: Vector3) -> void:
 	print("[F02] Move issued units=%s blocked_units=%s target=%s" % [str(queued_units), str(blocked_units), str(target)])
 
 
+func _issue_gather_command(resource_item_id: String) -> void:
+	if _selected_controllable_units.is_empty():
+		print("[F03] Gather rejected reason=no_selection")
+		return
+	if not _map_items_by_id.has(resource_item_id):
+		print("[F03] Gather rejected reason=unknown_resource resource=%s" % resource_item_id)
+		return
+
+	var resource_node: MapItem = _map_items_by_id[resource_item_id]
+	var queued_units: Array[String] = []
+	for unit_id in _selected_controllable_units:
+		var unit: SelectableUnit2D = _controllable_units[unit_id]
+		if not _is_gather_unit(unit.unit_id):
+			continue
+		unit.queue_move(resource_node.position)
+		_gather_jobs[unit_id] = {
+			"resource_id": resource_item_id,
+			"phase": "to_resource",
+			"cycles": 0,
+			"dropoff": _get_dropoff_for_faction(unit.faction_id)
+		}
+		queued_units.append(unit_id)
+
+	if queued_units.is_empty():
+		_reject_move("no_gather_capable_units", resource_node.position)
+		print("[F03] Gather rejected reason=no_gather_capable_units")
+		return
+
+	_spawn_move_ping(resource_node.position, Color(0.2, 1.0, 0.35, 0.85))
+	print("[F03] Gather issued resource=%s units=%s" % [resource_item_id, str(queued_units)])
+
+
 func _simulate_until_arrival(max_steps: int) -> bool:
 	for _step in max_steps:
 		for unit_id in _selected_controllable_units:
@@ -655,6 +693,36 @@ func _simulate_until_arrival(max_steps: int) -> bool:
 			return true
 
 	return false
+
+
+func _run_f35_gather_test_hook() -> void:
+	if not _has_user_flag(TEST_F35_GATHER_FLAG):
+		return
+
+	if _controllable_units.is_empty() or not _rts_camera:
+		print("[F35] Summary pass=false reason=missing_units_or_camera")
+		return
+
+	var gatherer_id := ""
+	for unit_id in _controllable_units.keys():
+		var unit: SelectableUnit2D = _controllable_units[unit_id]
+		if _is_gather_unit(unit.unit_id):
+			gatherer_id = unit_id
+			break
+
+	if gatherer_id == "":
+		print("[F35] Summary pass=false reason=no_gatherer")
+		return
+
+	_resource_alloy_total = 0
+	_select_single_unit(gatherer_id)
+	_issue_gather_command("SAFE-ALLOY-A")
+	for _step in 180:
+		_update_live_units(0.1)
+		_update_gather_jobs()
+
+	var gather_pass := _resource_alloy_total > 0
+	print("[F35] Summary alloy_total=%d pass=%s gatherer=%s" % [_resource_alloy_total, str(gather_pass), gatherer_id])
 
 
 func _run_f03_test_hook() -> void:
@@ -1042,6 +1110,8 @@ func _produce_colony_unit(slot: String, unit_id: String) -> bool:
 # ── Live systems ──────────────────────────────────────────────────────────────
 
 func _process(delta: float) -> void:
+	_update_live_units(delta)
+	_update_gather_jobs()
 	_update_hud()
 	_process_camera(delta)
 
@@ -1103,6 +1173,10 @@ func _handle_right_click_command(screen_pos: Vector2) -> void:
 	if not hit["ok"]:
 		return
 	var target: Vector3 = hit["point"]
+	var resource_id := _find_resource_at_point(target)
+	if resource_id != "":
+		_issue_gather_command(resource_id)
+		return
 	_issue_move_command(target)
 
 
@@ -1178,6 +1252,81 @@ func _spawn_move_ping(world_pos: Vector3, color: Color = Color(0.95, 0.95, 0.2, 
 			marker.queue_free()
 	)
 	timer.start()
+
+
+func _update_live_units(delta: float) -> void:
+	for unit in _controllable_units.values():
+		unit.simulate_step(delta)
+
+
+func _update_gather_jobs() -> void:
+	if _gather_jobs.is_empty():
+		return
+
+	var completed_units: Array[String] = []
+	for unit_id in _gather_jobs.keys():
+		if not _controllable_units.has(unit_id):
+			completed_units.append(unit_id)
+			continue
+
+		var unit: SelectableUnit2D = _controllable_units[unit_id]
+		var job: Dictionary = _gather_jobs[unit_id]
+		if unit.has_move_target():
+			continue
+
+		var phase: String = str(job.get("phase", "to_resource"))
+		if phase == "to_resource":
+			job["phase"] = "to_dropoff"
+			unit.queue_move(job["dropoff"])
+			_gather_jobs[unit_id] = job
+			print("[F03] Live gather state=collecting unit=%s resource=%s" % [unit_id, str(job.get("resource_id", ""))])
+		elif phase == "to_dropoff":
+			_resource_alloy_total += 35
+			var cycles := int(job.get("cycles", 0)) + 1
+			print("[F03] Live gather state=deposit unit=%s alloy_total=%d cycles=%d" % [unit_id, _resource_alloy_total, cycles])
+			if cycles >= 1:
+				completed_units.append(unit_id)
+			else:
+				job["cycles"] = cycles
+				job["phase"] = "to_resource"
+				var resource_id: String = str(job.get("resource_id", ""))
+				if _map_items_by_id.has(resource_id):
+					unit.queue_move(_map_items_by_id[resource_id].position)
+				_gather_jobs[unit_id] = job
+
+	for unit_id in completed_units:
+		_gather_jobs.erase(unit_id)
+
+
+func _find_resource_at_point(world_pos: Vector3) -> String:
+	var point := Vector2(world_pos.x, world_pos.z)
+	var nearest_id := ""
+	var nearest_distance := INF
+	for item_id in _map_items_by_id.keys():
+		var item: MapItem = _map_items_by_id[item_id]
+		if item.item_type != "safe_alloy_node" and item.item_type != "contested_midfield_alloy_node" and item.item_type != "reclaim_field_cluster":
+			continue
+		var distance := Vector2(item.position.x, item.position.z).distance_to(point)
+		if distance < 20.0 and distance < nearest_distance:
+			nearest_distance = distance
+			nearest_id = item_id
+	return nearest_id
+
+
+func _is_gather_unit(unit_name: String) -> bool:
+	return unit_name == "line_engineer" or unit_name == "brood_architect" or unit_name == "foundry_engineer"
+
+
+func _get_dropoff_for_faction(faction_id: String) -> Vector3:
+	for tether in _tether_points_by_slot.values():
+		if tether.faction_id == faction_id:
+			return tether.position
+	return _spawn_a.position
+
+
+func _clear_gather_jobs_for_selected_units() -> void:
+	for unit_id in _selected_controllable_units:
+		_gather_jobs.erase(unit_id)
 
 
 func _process_camera(delta: float) -> void:
