@@ -101,6 +101,7 @@ Track high-level project changes with links to decisions and plans.
 - Added docs/tracking/stage0-publication-evidence-template.md for post-publish evidence capture and tracker update workflow.
 - Added docs/release/stage0-media/prepublish_audit.sh to verify Stage 0 media readiness before manual upload.
 - Added docs/planning/stage0-postpublish-closure-checklist.md to standardize final tracker closure after manual publication.
+- Added docs/release/stage0-media/stage0_status_report.sh to run media audit and unresolved next-step blocker check in one command.
 
 ## 2026-05-17
 

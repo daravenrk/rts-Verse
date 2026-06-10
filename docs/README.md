@@ -29,6 +29,7 @@ This folder contains architecture, planning, research, and delivery tracking art
 - itch.io Stage 0 publish runbook: docs/planning/itch-stage0-publish-runbook.md
 - Stage 0 media staging folder: docs/release/stage0-media/README.md
 - Stage 0 media prepublish audit script: docs/release/stage0-media/prepublish_audit.sh
+- Stage 0 status report utility: docs/release/stage0-media/stage0_status_report.sh
 - itch.io launch and feedback plan: docs/planning/itch-io-launch-and-feedback-plan.md
 - Stage 0 postpublish closure checklist: docs/planning/stage0-postpublish-closure-checklist.md
 - Carrier and air-wing validation checklist: docs/planning/air-wing-validation-checklist.md

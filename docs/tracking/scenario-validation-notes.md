@@ -410,3 +410,14 @@ Track scenario-level evidence for map and flow validation runs.
 - Notes:
   - Prepublish audit script executes and reports readiness status without requiring strict-mode failure.
   - Postpublish closure checklist captures deterministic steps for closing the final two external tasks.
+
+## 2026-06-10 Stage 0 Status Report Utility Validation
+
+- Flow: `Planning artifact validation for Stage 0 status utility`
+- Validation command:
+  - `zsh docs/release/stage0-media/stage0_status_report.sh`
+  - `grep -nE "Stage 0 status report utility" docs/README.md`
+- Result: Pass
+- Notes:
+  - Status report utility executes prepublish media audit and unresolved next-steps check in one command.
+  - Output confirms blocker state remains external until media capture and manual publication are completed.
