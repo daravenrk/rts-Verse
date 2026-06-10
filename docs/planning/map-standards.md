@@ -66,6 +66,16 @@ Use these environment types when building battlefields intended to produce stron
 - Environment geometry should create choices, not hidden pathing traps or unreadable clutter.
 - Decorative biome dressing is allowed, but it must not obscure lane readability or silhouette clarity for small 3D actors.
 
+### First Duel Map Environment Declaration
+
+- Primary environment type: Radial Impact Zone.
+- Secondary environment type: None for MVP pass.
+- Selection rationale:
+  - Reinforces the MVP requirement for early contested objective pressure around a central Data Node.
+  - Produces repeatable flank-versus-direct lane choices that are easy to observe during F-17 and F-26 runs.
+  - Supports readable fight gravity for small 3D actors by concentrating first engagements into known approach spokes.
+  - Keeps duel pacing aligned with resource-security-first goals by forcing center ownership contests instead of passive split-map macro.
+
 ## Starting Position Standards
 
 ### Spawn Count and Orientation

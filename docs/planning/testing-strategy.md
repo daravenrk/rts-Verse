@@ -342,6 +342,19 @@ This document defines validation layers for milestone delivery.
   - Tether Points spawn at map-defined positions consistently for all factions.
   - Map layout is reusable across different faction matchups without layout changes.
 
+## Flow F-27 Deterministic Simulation Constraints Compliance
+
+- Setup: Project includes deterministic-constraint rules from planning/conventions.md and startup observability payload logging.
+- Steps:
+  - Run startup timeout path with fixed FPS and capture startup payload log output.
+  - Run startup keypress path with fixed FPS and `--startup-test-keypress` flag and capture startup payload log output.
+  - Verify both runs emit deterministic payload fields for transition reason, timestamp, and menu availability flags.
+  - Verify campaign remains disabled and Skirmish remains enabled in both payloads.
+- Expected:
+  - State transition path is deterministic and reproducible by command.
+  - Payload structure remains stable between runs while transition reason changes appropriately.
+  - Startup/menu observability is sufficient to triage gate regressions without interactive reproduction.
+
 ## Reporting Template
 
 - Date:

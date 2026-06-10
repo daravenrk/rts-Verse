@@ -12,6 +12,16 @@ Track high-level project changes with links to decisions and plans.
 - Added campaign perspective-order runtime data source with Veyari-first and Helion-last sequence.
 - Wired campaign-order summary into skirmish UI and status telemetry so menu state and campaign-order data remain synchronized.
 - Executed F-25 validation in headless skirmish scene run and captured logs proving available and unavailable faction states plus Veyari-first and Helion-last campaign ordering.
+- Added deterministic startup menu-state payload logging for transition reason, timestamps, and mode availability flags.
+- Added test-only startup keypress simulation flag for reproducible headless validation of input-triggered menu transition.
+- Executed F-23 validation with timeout and keypress transition paths and captured startup observability evidence.
+- Added deterministic simulation constraints baseline to planning conventions, including fixed-tick and seeded-random requirements.
+- Added F-27 deterministic simulation compliance flow to testing strategy for reproducible startup gate validation.
+- Added first MVP economy balance-sheet draft with numeric T0 to T1 structure costs, Helion and Veyari unit costs, and first-pass upkeep rules.
+- Declared first duel map primary environment as Radial Impact Zone in map standards with rationale tied to objective pressure and readability validation.
+- Added concrete advanced-system unlock thresholds in tech-tree planning for maintenance load, instability pressure, and civilization stress events.
+- Added Stage 0 itch.io page copy draft in launch plan, including hero tagline, about copy, feature bullets, trust section, and feedback instructions.
+- Added player-facing feedback template fields and publish-ready submission instructions for itch page feedback collection.
 
 ## 2026-05-17
 

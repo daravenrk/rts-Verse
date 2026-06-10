@@ -16,7 +16,7 @@ Keep this list short, actionable, and current.
 - [x] Add startup bootstrap checklist: input profile load, core manager init, gameplay scene transition.
 - [ ] Convert tech-tree vertical-slice lock into scene and script implementation checklist.
 - [ ] Build first duel map using map-standards.md.
-- [ ] Define initial numeric price bands for vertical-slice units and structures.
+- [x] Define initial numeric price bands for vertical-slice units and structures.
 - [ ] Add a carrier and airfield air-wing validation checklist for Fighter and Corvette basing behavior.
 - [ ] Define first-pass numeric pricing and upkeep rules for colony and civilian units and structures.
 - [ ] Prototype one colony-defense path (Militia Barracks to Security Command Post) in scenario validation.
@@ -62,28 +62,28 @@ Keep this list short, actionable, and current.
 - [x] Implement startup gate: transition to main menu on first key press or auto-transition at 5 seconds.
 - [x] Implement main menu options with Skirmish enabled and Campaign disabled labeled Coming Soon.
 - [x] Add startup telemetry fields for transition reason (keypress or timeout) and timestamp.
-- [ ] Run F-23 Startup Splash and Main Menu Gate and record deterministic behavior results.
+- [x] Run F-23 Startup Splash and Main Menu Gate and record deterministic behavior results.
 - [ ] Define first-pass camera default and zoom bands for small 3D unit readability.
 - [ ] Implement MVP unit animation state mapping to predefined subspace baseline.
 - [ ] Run F-24 Small-Scale 3D Readability and Animation Subspace Compliance and record gaps by unit role.
 - [x] Define campaign mission order baseline with Veyari as first perspective block and Helion as final perspective block.
 - [x] Implement skirmish faction selector to allow any available faction and disable unavailable factions with Coming Soon labels.
 - [x] Run F-25 Campaign Perspective Order and Skirmish Availability Gate and capture menu-state evidence.
-- [ ] Select primary environment type for first duel map and document why it fits MVP combat goals.
+- [x] Select primary environment type for first duel map and document why it fits MVP combat goals.
 - [ ] Confirm Tether Point spawn positions are map-defined and work correctly for both Helion and Veyari at all valid spawn locations.
 - [ ] Run F-26 Environment Type Readability and capture first-engagement notes.
-- [ ] Define concrete unlock thresholds for advanced systems (maintenance, instability, civilization stress).
-- [ ] Draft itch.io page copy using planning/itch-io-launch-and-feedback-plan.md blueprint sections.
+- [x] Define concrete unlock thresholds for advanced systems (maintenance, instability, civilization stress).
+- [x] Draft itch.io page copy using planning/itch-io-launch-and-feedback-plan.md blueprint sections.
 - [ ] Prepare Stage 0 media bundle (screenshots or clips) with gameplay-first captions.
 - [ ] Publish itch.io Stage 0 Coming Soon page with transparent Pre-Alpha status.
-- [ ] Define structured feedback template fields and publish feedback instructions on itch page.
+- [x] Define structured feedback template fields and publish feedback instructions on itch page.
 - [ ] Start weekly feedback triage cadence and publish first feedback-response devlog summary.
 
 ## Ready Queue
 
 - [x] Establish folder conventions for gameplay systems.
-- [ ] Define deterministic simulation constraints.
-- [ ] Convert economy-standards.md into first balance sheet draft.
+- [x] Define deterministic simulation constraints.
+- [x] Convert economy-standards.md into first balance sheet draft.
 - [x] Draft test scenarios for core loop validation.
 
 ## Blocked
@@ -113,6 +113,13 @@ Keep this list short, actionable, and current.
 - 2026-06-09: Skirmish faction selector implemented with availability gating; Helion and Veyari selectable while unavailable factions remain visible and disabled with Coming Soon labels.
 - 2026-06-09: Campaign perspective order data source added with Veyari-first and Helion-last sequence wired into skirmish state display and logs.
 - 2026-06-09: F-25 executed via headless skirmish scene validation; faction availability gate and campaign-order evidence captured in runtime logs.
+- 2026-06-10: F-23 executed with both timeout and keypress paths in headless runs, including deterministic startup payload logs for transition reason and menu state.
+- 2026-06-10: Deterministic simulation constraints documented in conventions and validated with dedicated F-27 startup observability flow.
+- 2026-06-10: Economy standards upgraded with first MVP balance-sheet draft covering T0 to T1 structures, Helion and Veyari unit costs, and first-pass upkeep rules.
+- 2026-06-10: First duel map primary environment declared as Radial Impact Zone with no secondary type for MVP and rationale aligned to objective-pressure readability goals.
+- 2026-06-10: Concrete MVP unlock thresholds defined for maintenance load, instability pressure, and civilization stress events, including earliest windows and telemetry requirements.
+- 2026-06-10: Stage 0 itch.io page copy draft completed from blueprint sections, including hero, about, feature bullets, trust block, and feedback CTA.
+- 2026-06-10: Structured player-facing feedback template and publish-ready submission instructions added for itch page rollout.
 
 ## Owner Map
 

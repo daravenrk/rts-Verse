@@ -43,6 +43,15 @@ Recommended top-level layout for growth:
 - Keep deterministic gameplay logic separated from UI presentation where practical.
 - Time-sensitive gameplay logic should use fixed process when deterministic behavior is needed.
 
+### Deterministic Simulation Constraints
+
+- Core gameplay simulation updates must run in `_physics_process` and never depend on render-frame delta.
+- Use a single simulation tick target of 60 Hz for gameplay state progression.
+- Any random gameplay outcome must be generated from an explicit match-seed value captured in logs.
+- UI animation or camera polish may use `_process`, but must not mutate authoritative gameplay state.
+- Startup and menu gates that affect state flow must emit reason and timestamp telemetry for reproducible triage.
+- New simulation systems must include at least one deterministic validation step in `testing-strategy.md` before being marked Done.
+
 ## Logging and Diagnostics
 
 - Prefix major system logs with subsystem tags, for example [AI], [Economy], [Combat].

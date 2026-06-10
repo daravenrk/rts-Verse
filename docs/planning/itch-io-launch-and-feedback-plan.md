@@ -174,3 +174,70 @@ Release publicly only when all checks pass:
 - [ ] Run closed prototype round (Stage 1) and collect structured reports.
 - [ ] Triage top issues and ship one iteration patch.
 - [ ] Promote to public demo page (Stage 2) after quality gate passes.
+
+## Stage 0 Page Copy Draft (v1)
+
+Use this draft as the default copy block for the Stage 0 Coming Soon page.
+
+### Hero
+
+- Title: RTS VERSE
+- Tagline: Command expanding warfronts, secure finite resources, and out-adapt escalating planetary instability.
+- CTA: Follow Development
+
+### About
+
+RTS VERSE is a resource-security-focused real-time strategy game where battlefield control matters more than passive turtling.
+
+Every match asks you to scout early, establish expansion timing, contest critical nodes, and hold command continuity under pressure. The core loop emphasizes readable strategic decisions: when to push, when to deny, when to stabilize.
+
+The game combines a classic RTS decision cadence with modern escalation systems, including faction asymmetry, contested objective pressure, and late-phase infrastructure stress that creates comeback windows.
+
+### Feature Bullets
+
+- Resource-security-first warfare where map control drives tech and tempo.
+- Asymmetric factions with distinct pressure and recovery patterns.
+- Deterministic startup and menu flow with clear mode availability.
+- Objective-driven skirmish fights designed for readable tactical choices.
+- Planned multi-phase escalation from opening clarity to high-stress late game.
+
+### Trust Section
+
+- Build Status: Pre-Alpha.
+- Current Scope: Startup flow, skirmish setup gating, campaign-order baseline, and planning-locked MVP implementation path.
+- Known Gaps: Full duel-map gameplay implementation, complete Tether Point chain validation, and broader roster/system rollout.
+- Next Milestone Window: M2 core gameplay loop validation pass.
+
+### Feedback CTA
+
+When closed testing opens, please include:
+
+- Build version.
+- Reproduction steps.
+- Expected result vs actual result.
+- Screenshot or short clip when possible.
+
+## Player-Facing Feedback Template (Publish Block)
+
+Copy this block directly into the itch.io page body when feedback collection opens.
+
+```
+Feedback Template
+
+Build version:
+Category (controls/readability/balance/performance/crash/ux/other):
+Severity (blocker/major/minor/suggestion):
+Summary:
+Steps to reproduce:
+Expected result:
+Actual result:
+How often does this happen? (always/intermittent/unknown):
+Attachments (screenshot/clip/log):
+```
+
+### Feedback Submission Instructions (Publish Block)
+
+- Submit one issue per report so triage remains actionable.
+- Include exact reproduction steps even if the issue seems obvious.
+- If the issue is intermittent, include at least one failed and one successful attempt.
+- If possible, attach one screenshot or short clip showing the issue.

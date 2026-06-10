@@ -5,6 +5,7 @@ const SKIRMISH_SCENE_PATH := "res://scenes/core/Skirmish.tscn"
 const STARTUP_STEP_INPUT_PROFILE := "input_profile_load"
 const STARTUP_STEP_CORE_MANAGER_INIT := "core_manager_init"
 const STARTUP_STEP_GAMEPLAY_TRANSITION := "gameplay_scene_transition"
+const STARTUP_TEST_AUTO_KEYPRESS_FLAG := "--startup-test-keypress"
 
 var _menu_shown: bool = false
 var _splash_timer: Timer
@@ -12,15 +13,18 @@ var _splash_layer: CanvasLayer
 var _menu_layer: CanvasLayer
 var _startup_checklist: Dictionary = {}
 var _core_manager_root: Node
+var _startup_boot_timestamp_iso: String = ""
 
 
 func _ready() -> void:
+	_startup_boot_timestamp_iso = Time.get_datetime_string_from_system(true)
 	print("[Startup] Bootstrap initialized")
 	_initialize_startup_checklist()
 	_load_input_profile()
 	_initialize_core_managers()
 	set_process_unhandled_input(true)
 	_show_splash()
+	_apply_startup_test_overrides()
 	print("[Startup] Checklist summary: %s" % str(_startup_checklist))
 
 
@@ -124,7 +128,31 @@ func _show_splash() -> void:
 	add_child(_splash_timer)
 	_splash_timer.start()
 
-	print("[Startup] Splash shown")
+	print("[Startup] Splash shown (timestamp=%s)" % _startup_boot_timestamp_iso)
+
+
+func _apply_startup_test_overrides() -> void:
+	if not _has_user_flag(STARTUP_TEST_AUTO_KEYPRESS_FLAG):
+		return
+
+	var test_keypress_timer := Timer.new()
+	test_keypress_timer.one_shot = true
+	test_keypress_timer.wait_time = 0.2
+	test_keypress_timer.timeout.connect(_on_startup_test_keypress_timeout)
+	add_child(test_keypress_timer)
+	test_keypress_timer.start()
+	print("[Startup] Test override enabled: auto keypress transition")
+
+
+func _on_startup_test_keypress_timeout() -> void:
+	_show_main_menu("keypress")
+
+
+func _has_user_flag(flag: String) -> bool:
+	for argument in OS.get_cmdline_user_args():
+		if argument == flag:
+			return true
+	return false
 
 
 func _on_splash_timeout() -> void:
@@ -189,7 +217,15 @@ func _show_main_menu(reason: String) -> void:
 	vbox.add_child(campaign_button)
 
 	_mark_startup_step(STARTUP_STEP_GAMEPLAY_TRANSITION, "pending", "awaiting skirmish scene transition")
-	print("[Startup] Main menu shown (trigger=%s)" % reason)
+	var menu_state_payload := {
+		"transition_reason": reason,
+		"transition_timestamp": Time.get_datetime_string_from_system(true),
+		"splash_timestamp": _startup_boot_timestamp_iso,
+		"skirmish_enabled": not skirmish_button.disabled,
+		"campaign_enabled": not campaign_button.disabled,
+		"campaign_label": campaign_button.text
+	}
+	print("[Startup] Main menu shown payload=%s" % str(menu_state_payload))
 
 
 func _on_skirmish_pressed() -> void:

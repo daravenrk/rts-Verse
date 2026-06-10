@@ -212,7 +212,63 @@ For first playable implementation:
 - Assign numeric cost bands for all locked vertical-slice units and Tier 0 to Tier 1 structures.
 - Validate that one safe extractor plus one natural expansion is the expected path to sustained Tier 1 pressure.
 - Require at least one Data-linked objective in the slice even if advanced Data spending is limited.
-- Document initial price sheet separately once numbers are chosen.
+- Maintain one shared MVP balance-sheet draft that maps directly to locked units and structures.
+
+## First Balance Sheet Draft (MVP)
+
+Use this table as the first playable numeric baseline. Values are intentionally conservative and should be tuned through F-16, F-17, F-20, and F-21 results.
+
+### Resource Keys
+
+- Alloy: primary build spend.
+- Power: activation footprint consumed while active.
+- Data: strategic gate spend.
+- Population: force-cap consumption.
+
+### Shared MVP Structures (T0 to T1)
+
+| Structure | Tier | Alloy | Power | Data | Build Time (s) | Notes |
+| --- | --- | --- | --- | --- | --- | --- |
+| Power Core | T0 | 120 | 0 | 0 | 18 | Grants +120 power capacity. |
+| Alloy Extractor | T0 | 90 | 10 | 0 | 14 | Baseline extractor footprint per node. |
+| Barracks-equivalent | T0 | 160 | 20 | 0 | 20 | Unlocks core infantry package. |
+| Light Defense Node | T0 or T1 | 140 | 25 | 0 | 20 | Early delay tool, not full lockdown. |
+| Vehicle Structure | T1 | 240 | 40 | 0 | 28 | Unlocks Raider and mainline vehicle roles. |
+| Sensor or Uplink Structure | T1 | 180 | 35 | 0 | 24 | Required for map information and reveal tools. |
+| Expansion Hub or Radius Extender | T1 | 220 | 35 | 0 | 26 | Enables forward build radius at natural expansion. |
+
+### Helion MVP Units
+
+| Unit | Tier | Alloy | Power | Data | Population | Build Time (s) |
+| --- | --- | --- | --- | --- | --- | --- |
+| Surveyor Drone | T0 | 50 | 2 | 0 | 1 | 8 |
+| Line Engineer | T0 | 70 | 2 | 0 | 1 | 10 |
+| Lancer Squad | T0 | 65 | 2 | 0 | 1 | 9 |
+| Breach Team | T0 | 75 | 2 | 0 | 1 | 10 |
+| Field Medic | T0 | 80 | 3 | 0 | 1 | 11 |
+| Strider Bike | T1 | 110 | 4 | 0 | 2 | 13 |
+| Ember Tank | T1 | 210 | 8 | 0 | 4 | 22 |
+
+### Veyari MVP Units
+
+| Unit | Tier | Alloy | Power | Data | Population | Build Time (s) |
+| --- | --- | --- | --- | --- | --- | --- |
+| Echo Skimmer | T0 | 50 | 2 | 0 | 1 | 8 |
+| Brood Architect | T0 | 70 | 2 | 0 | 1 | 10 |
+| Needle Brood | T0 | 65 | 2 | 0 | 1 | 9 |
+| Rift Claw | T0 | 75 | 2 | 0 | 1 | 10 |
+| Spore Warden | T0 | 80 | 3 | 0 | 1 | 11 |
+| Skitter Lance | T1 | 110 | 4 | 0 | 2 | 13 |
+| Bulwark Husk | T1 | 210 | 8 | 0 | 4 | 22 |
+
+### First-Pass Upkeep Rules
+
+- No upkeep for T0 combat units during opening window.
+- T1 vehicles apply low upkeep while active:
+  - Raider class: 1 Alloy per 30 seconds.
+  - Mainline armor class: 2 Alloy per 30 seconds.
+- Upkeep pauses while a unit is under construction.
+- Upkeep penalties must never reduce stockpiles below zero; production slowdown is preferred over negative values.
 
 ## Validation Checklist
 

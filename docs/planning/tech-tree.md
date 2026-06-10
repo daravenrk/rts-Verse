@@ -38,6 +38,22 @@ This document defines faction progression, production structure unlocks, and upg
 - Advanced civilization systems (stability, entropy, large-scale infrastructure burden) should activate through progression thresholds, not at match start.
 - Tech unlock pacing must preserve opening parity between factions even when late-game identities diverge.
 
+### Advanced-System Unlock Thresholds (MVP Baseline)
+
+Use these thresholds as the first playable lock model for maintenance, instability, and civilization stress systems.
+
+| System | Unlock Condition | Earliest Target Window | Gating Rule |
+| --- | --- | --- | --- |
+| Maintenance Load | Player owns at least 1 T2 production structure and at least 2 active T1 or higher combat structures | 12:00 to 15:00 | If unmet, maintenance costs remain zero. |
+| Instability Pressure | Player has at least 120 used population and controls at least 2 economy zones outside starting footprint | 15:00 to 18:00 | If conditions drop below threshold for 90 seconds, instability pressure decays to pre-threshold baseline. |
+| Civilization Stress Events | Global match state has at least 2 players over 160 used population and at least 1 Descent-linked access node contested or owned | 18:00+ | Events cannot trigger more than once every 120 seconds per player domain. |
+
+#### Threshold Design Constraints
+
+- Opening window protection: no advanced-system penalties before 10:00 match time.
+- Recovery grace: first threshold crossing grants a 60-second warning window before penalties apply.
+- Telemetry requirement: each threshold crossing must emit timestamp, player ID, and triggering metric values.
+
 ## Shared Match Economy Model
 
 - Resources:
