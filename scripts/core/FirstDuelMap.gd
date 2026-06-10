@@ -17,6 +17,7 @@ const TEST_PRODUCTION_CHAIN_FLAG := "--duel-test-production-chain"
 const TEST_MAP_BASELINE_FLAG := "--duel-test-map-baseline"
 const TEST_F16_FLAG := "--duel-test-f16"
 const TEST_F17_FLAG := "--duel-test-f17"
+const TEST_F32_INTERACTION_FLAG := "--duel-test-f32-interaction"
 const TEST_ROSTER_BEHAVIORS_FLAG := "--duel-test-roster-behaviors"
 const TEST_T2_PATHS_FLAG := "--duel-test-t2-paths"
 const TEST_COLONY_DEFENSE_FLAG := "--duel-test-colony-defense"
@@ -172,6 +173,7 @@ const _CAMERA_ARM_MAX := 750.0
 const _CAMERA_PAN_SPEED := 200.0
 const _CAMERA_ROTATE_SPEED := 60.0
 const _CAMERA_ZOOM_STEP := 50.0
+const _SELECT_RADIUS_UNITS := 18.0
 var _tether_points_by_slot: Dictionary = {}
 var _buildables_by_slot: Dictionary = {"A": {}, "B": {}}
 var _build_sequence: int = 0
@@ -201,12 +203,14 @@ func _ready() -> void:
 	_validate_map_item_catalog()
 	_spawn_tether_point("A", player_faction, _spawn_a)
 	_spawn_tether_point("B", enemy_faction, _spawn_b)
+	_spawn_opening_squads()
 	_run_tether_test_hooks()
 	_run_build_chain_test_hook()
 	_run_f24_test_hook()
 	_run_f18_f19_test_hook()
 	_run_f20_f21_test_hook()
 	_run_f01_f02_test_hook()
+	_run_f32_interaction_test_hook()
 	_run_f03_test_hook()
 	_run_f04_test_hook()
 	_run_production_chain_test_hook()
@@ -217,6 +221,31 @@ func _ready() -> void:
 	_run_t2_path_test_hook()
 	_run_colony_defense_test_hook()
 	_apply_camera_transform()
+
+
+func _spawn_opening_squads() -> void:
+	_controllable_units.clear()
+	_selected_controllable_units.clear()
+	var offsets: Array[Vector3] = [
+		Vector3(30, 0, -20), Vector3(30, 0, 0), Vector3(30, 0, 20),
+		Vector3(55, 0, -20), Vector3(55, 0, 0), Vector3(55, 0, 20)
+	]
+	for slot_entry in [["A", _spawn_a], ["B", _spawn_b]]:
+		var slot: String = slot_entry[0]
+		var marker: Marker3D = slot_entry[1]
+		var tether: TetherPoint = _tether_points_by_slot[slot]
+		var faction: String = tether.faction_id
+		var mirror: float = -1.0 if slot == "B" else 1.0
+		var units_for_slot: Array = PRODUCTION_BASELINE_UNITS.get(faction, [])
+		for i in mini(units_for_slot.size(), offsets.size()):
+			var unit_id: String = str(units_for_slot[i])
+			var actor := SelectableUnit2D.new()
+			actor.name = "Squad_%s_%02d" % [slot, i]
+			add_child(actor)
+			var off: Vector3 = offsets[i]
+			actor.initialize(unit_id, faction, marker.position + Vector3(off.x * mirror, 0.0, off.z))
+			_controllable_units[actor.name] = actor
+		print("[Squad] Spawned slot=%s faction=%s count=%d" % [slot, faction, mini(units_for_slot.size(), offsets.size())])
 
 
 func _resolve_faction(meta_key: String, cli_prefix: String, fallback: String) -> String:
@@ -518,13 +547,15 @@ func _clear_controllable_selection() -> void:
 	_selected_controllable_units.clear()
 
 
-func _select_single_unit(unit_id: String) -> void:
-	_clear_controllable_selection()
+func _select_single_unit(unit_id: String, additive: bool = false) -> void:
+	if not additive:
+		_clear_controllable_selection()
 	if not _controllable_units.has(unit_id):
 		return
 	var unit: SelectableUnit2D = _controllable_units[unit_id]
 	unit.set_selected(true)
-	_selected_controllable_units.append(unit_id)
+	if not _selected_controllable_units.has(unit_id):
+		_selected_controllable_units.append(unit_id)
 	print("[F01] Single select unit=%s" % unit_id)
 
 
@@ -552,6 +583,7 @@ func _issue_move_command(target: Vector3) -> void:
 		var unit: SelectableUnit2D = _controllable_units[unit_id]
 		unit.queue_move(target)
 
+	_spawn_move_ping(target)
 	print("[F02] Move issued units=%s target=%s" % [str(_selected_controllable_units), str(target)])
 
 
@@ -606,6 +638,28 @@ func _run_f03_test_hook() -> void:
 
 	var gather_pass := cycle_pass and _resource_alloy_total > 0
 	print("[F03] Summary alloy_total=%d pass=%s" % [_resource_alloy_total, str(gather_pass)])
+
+
+func _run_f32_interaction_test_hook() -> void:
+	if not _has_user_flag(TEST_F32_INTERACTION_FLAG):
+		return
+
+	if _controllable_units.is_empty() or not _rts_camera:
+		print("[F32] Summary pass=false reason=missing_units_or_camera")
+		return
+
+	var first_id: String = str(_controllable_units.keys()[0])
+	var first_unit: SelectableUnit2D = _controllable_units[first_id]
+	var select_screen := _rts_camera.unproject_position(first_unit.position)
+	_handle_left_click_selection(select_screen)
+
+	var select_pass := _selected_controllable_units.size() == 1 and _selected_controllable_units.has(first_id)
+	var target_world := Vector3(0.0, 0.0, 0.0)
+	var target_screen := _rts_camera.unproject_position(target_world)
+	_handle_right_click_command(target_screen)
+	var move_pass := _simulate_until_arrival(120)
+
+	print("[F32] Summary select_pass=%s move_pass=%s selected=%s" % [str(select_pass), str(move_pass), str(_selected_controllable_units)])
 
 
 func _run_f04_test_hook() -> void:
@@ -939,6 +993,85 @@ func _unhandled_input(event: InputEvent) -> void:
 		elif event.button_index == MOUSE_BUTTON_WHEEL_DOWN:
 			_camera_arm = clamp(_camera_arm + _CAMERA_ZOOM_STEP, _CAMERA_ARM_MIN, _CAMERA_ARM_MAX)
 			_apply_camera_transform()
+		elif event.button_index == MOUSE_BUTTON_LEFT:
+			_handle_left_click_selection(event.position)
+		elif event.button_index == MOUSE_BUTTON_RIGHT:
+			_handle_right_click_command(event.position)
+
+
+func _handle_left_click_selection(screen_pos: Vector2) -> void:
+	var hit := _screen_to_ground_point(screen_pos)
+	var additive := InputMap.has_action("rts_queue_modifier") and Input.is_action_pressed("rts_queue_modifier")
+	if not hit["ok"]:
+		if not additive:
+			_clear_controllable_selection()
+		return
+
+	var ground_point: Vector3 = hit["point"]
+	var nearest_id := ""
+	var nearest_distance := INF
+	for unit_id in _controllable_units.keys():
+		var unit: SelectableUnit2D = _controllable_units[unit_id]
+		var distance := Vector2(unit.position.x, unit.position.z).distance_to(Vector2(ground_point.x, ground_point.z))
+		if distance < nearest_distance:
+			nearest_distance = distance
+			nearest_id = unit_id
+
+	if nearest_id != "" and nearest_distance <= _SELECT_RADIUS_UNITS:
+		_select_single_unit(nearest_id, additive)
+	else:
+		if not additive:
+			_clear_controllable_selection()
+
+
+func _handle_right_click_command(screen_pos: Vector2) -> void:
+	var hit := _screen_to_ground_point(screen_pos)
+	if not hit["ok"]:
+		return
+	var target: Vector3 = hit["point"]
+	_issue_move_command(target)
+
+
+func _screen_to_ground_point(screen_pos: Vector2) -> Dictionary:
+	if not _rts_camera:
+		return {"ok": false, "point": Vector3.ZERO}
+
+	var origin := _rts_camera.project_ray_origin(screen_pos)
+	var direction := _rts_camera.project_ray_normal(screen_pos)
+	if absf(direction.y) < 0.0001:
+		return {"ok": false, "point": Vector3.ZERO}
+
+	var t := -origin.y / direction.y
+	if t < 0.0:
+		return {"ok": false, "point": Vector3.ZERO}
+
+	return {"ok": true, "point": origin + direction * t}
+
+
+func _spawn_move_ping(world_pos: Vector3) -> void:
+	var marker := MeshInstance3D.new()
+	var cyl := CylinderMesh.new()
+	cyl.height = 0.5
+	cyl.top_radius = 4.0
+	cyl.bottom_radius = 4.0
+	marker.mesh = cyl
+	var mat := StandardMaterial3D.new()
+	mat.albedo_color = Color(0.95, 0.95, 0.2, 0.8)
+	mat.emission_enabled = true
+	mat.emission = Color(0.95, 0.95, 0.2)
+	marker.material_override = mat
+	marker.position = world_pos + Vector3(0.0, 0.25, 0.0)
+	add_child(marker)
+
+	var timer := Timer.new()
+	timer.one_shot = true
+	timer.wait_time = 0.35
+	marker.add_child(timer)
+	timer.timeout.connect(func() -> void:
+		if is_instance_valid(marker):
+			marker.queue_free()
+	)
+	timer.start()
 
 
 func _process_camera(delta: float) -> void:

@@ -9,7 +9,7 @@ Track high-level project changes with links to decisions and plans.
 - Added TetherPoint.command_penalty_activated signal wired to HUD alert label via _on_tether_penalty handler.
 - Added Camera3D with 52-degree pitch and 400-unit arm to FirstDuelMap.tscn; pan, rotate, and wheel zoom handled in _process_camera and _unhandled_input.
 - Added DirectionalLight3D to FirstDuelMap.tscn for basic scene illumination.
-- Added _process-driven live HUD alloy-bar update so _resource_alloy_total drives label text each frame.
+- Added process-driven live HUD alloy-bar update so resource_alloy_total drives label text each frame.
 - Removed redundant preload consts for globally registered classes in FirstDuelMap.gd.
 - Headless F-01/F-02 revalidated at 3D positions: pass=true.
 - Headless F-03 revalidated with 3D gather/return nodes: alloy_total=70 pass=true.
@@ -20,6 +20,13 @@ Track high-level project changes with links to decisions and plans.
 - Added M2 backlog tasks T-0051 through T-0055 for Skirmish.tscn wiring, Node3D unit placeholders, Camera3D, live HUD wiring, and manual smoke playthrough.
 - Added visual scene assembly tasks to next-steps sprint queue as the next implementation increment.
 - Refined Stage 0 closure lane into dependency-ordered M4 tasks T-0046 through T-0050 with explicit acceptance and validation gates.
+- Corrected sprint and backlog sequencing for true playability: manual visual smoke remains open until interactive click-select and right-click move are implemented.
+- Added refined M2 interaction tasks T-0056 through T-0060 covering camera-ray selection, move commands, feedback, blockers, and interaction validation.
+- Updated DEV_NEXT_STEPS Objective 4 story queue to mark delivered visual baseline stories done and added S-4006 through S-4008 for playable control loop closure.
+- Implemented live camera-ray left-click selection with additive modifier support for opening squads in duel map runtime.
+- Implemented live right-click world-space move command dispatch for selected units.
+- Added command acknowledgement move ping marker for accepted move commands.
+- Added deterministic F-32 interaction validation hook (`--duel-test-f32-interaction`) and executed headless validation with pass evidence (`select_pass=true`, `move_pass=true`).
 - Decomposed Stage 0 sprint next steps into operator-ready micro-steps covering media freeze, staging, audit, publish, evidence capture, and tracker synchronization.
 - Updated M4 status to in-progress with a dedicated Stage 0 immediate execution slice and formal entry or exit criteria.
 - Added ADR-0025 and research Entry-0025 to document deterministic Stage 0 closure decomposition rationale and validation strategy.

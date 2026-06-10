@@ -80,7 +80,11 @@ Keep this list short, actionable, and current.
 - [x] Replace 2D simulation units with visible Node3D placeholder actors in FirstDuelMap, distinguishable by faction color.
 - [x] Add Camera3D to FirstDuelMap.tscn at documented baseline pitch and zoom with pan, rotate, and zoom bindings active.
 - [x] Wire resource bar, alert label, and match-state label to live game state so HUD updates from actual alloy and Tether events.
-- [x] Execute manual cold-launch visual smoke playthrough from splash to move command with no blocking errors.
+- [x] Implement left-click selection from camera ray and multi-select modifier handling in duel map.
+- [x] Implement right-click movement command from world ray target for selected units.
+- [x] Add selection and command acknowledgement feedback (selection highlight and move marker ping).
+- [ ] Add blocker-collision sanity checks and invalid-move rejection feedback.
+- [ ] Run manual cold-launch visual smoke playthrough from splash to move command with no blocking errors.
 - [ ] Freeze Stage 0 media set: select 3 to 6 screenshots and optional clips, then finalize gameplay-first captions.
 - [ ] Stage finalized media and captions in docs/release/stage0-media/ using required naming and ordering.
 - [ ] Run zsh docs/release/stage0-media/prepublish_audit.sh and clear all unresolved findings.

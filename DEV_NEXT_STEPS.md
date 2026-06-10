@@ -242,7 +242,7 @@
   validation:
     - type: functional
       method: Run Skirmish.tscn in editor and verify selectors populate with Helion and Veyari enabled and other factions disabled.
-  status: todo
+  status: done
 
 - story_id: S-4002
   title: Replace 2D unit simulation actors with visible Node3D placeholders
@@ -256,7 +256,7 @@
   validation:
     - type: functional
       method: Launch duel map in editor, verify unit shapes are visible and faction-distinguishable at default zoom.
-  status: todo
+  status: done
 
 - story_id: S-4003
   title: Add Camera3D with RTS baseline orbit and zoom
@@ -269,7 +269,7 @@
   validation:
     - type: functional
       method: Run duel map in editor, verify pan, rotate, and zoom actions work and units remain in frame.
-  status: todo
+  status: done
 
 - story_id: S-4004
   title: Wire HUD labels to live game state
@@ -282,7 +282,7 @@
   validation:
     - type: integration
       method: Run gather cycle in editor, confirm resource bar increments; trigger Tether destruction and confirm alert fires.
-  status: todo
+  status: done
 
 - story_id: S-4005
   title: Execute manual cold-launch visual smoke playthrough
@@ -297,4 +297,43 @@
     - type: smoke
       method: Manual playthrough from cold launch to move command, recording any output-panel errors.
   status: todo
+
+- story_id: S-4006
+  title: Implement click-based unit selection in visual runtime
+  user_value: Player can actively select visible units rather than relying on test hooks.
+  dependencies: [S-4002, S-4003]
+  acceptance_criteria:
+    - Left-click raycast from Camera3D selects one unit on click.
+    - Additive selection works via queue-modifier key.
+    - Selected units render clear highlight state.
+  validation:
+    - type: functional
+      method: In editor run, click single and multiple units and verify selected-state transitions with no script errors.
+  status: done
+
+- story_id: S-4007
+  title: Implement right-click move command in visual runtime
+  user_value: Player can issue standard RTS move orders to selected units.
+  dependencies: [S-4006]
+  acceptance_criteria:
+    - Right-click ray on ground issues world-space move target to selected units.
+    - Units visibly move and stop at target destination.
+    - Invalid target handling avoids crashes and emits rejection feedback.
+  validation:
+    - type: integration
+      method: In editor run, right-click several map positions and verify selected units respond with expected movement behavior.
+  status: done
+
+- story_id: S-4008
+  title: Add command acknowledgement feedback for input loop closure
+  user_value: Player gets immediate confidence that selection and move commands were accepted.
+  dependencies: [S-4007]
+  acceptance_criteria:
+    - Selection highlight updates instantly on click events.
+    - Move-marker ping or equivalent feedback appears when move command is accepted.
+    - UI feedback remains readable at default RTS zoom.
+  validation:
+    - type: functional
+      method: In editor run, confirm every successful move command has visible acknowledgement feedback.
+  status: done
 ```
