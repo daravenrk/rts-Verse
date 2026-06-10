@@ -7,7 +7,7 @@
 - Outcome: playable units and buildable structures use primitive-driven 3D forms plus readable shading from all gameplay camera angles.
 - Scope boundary: current iteration is MVP-first, covering Helion, Veyari, and shared MVP building classes before wider faction rollout.
 
-### Ordered Story Queue
+### Ordered Story Queue (Objective 2)
 
 ```yaml
 - story_id: S-1001
@@ -183,16 +183,34 @@
 
 ```yaml
 - objective_id: O-3001
-  title: Prepare Stage 0 media bundle
+  title: Capture Stage 0 media set and finalize captions
   status: parked
   blocker: manual media capture and export required
-  reentry_condition: populate docs/release/stage0-media/ with required assets then pass prepublish audit script
+  reentry_condition: select 3 to 6 screenshots plus optional clips and finalize captions from stage0-media-bundle-spec
 
 - objective_id: O-3002
+  title: Stage media package and pass prepublish audit
+  status: parked
+  blocker: external media assets must be available before audit can run to completion
+  reentry_condition: populate docs/release/stage0-media/ and pass zsh docs/release/stage0-media/prepublish_audit.sh
+
+- objective_id: O-3003
   title: Publish itch.io Stage 0 Coming Soon page
   status: parked
   blocker: manual web publication required
-  reentry_condition: complete runbook and evidence template, then mark next-steps items done
+  reentry_condition: execute docs/planning/itch-stage0-publish-runbook.md with visible Pre-Alpha label and no download exposed
+
+- objective_id: O-3004
+  title: Capture Stage 0 publication evidence and validation notes
+  status: parked
+  blocker: requires successful public page publish and update-post confirmation
+  reentry_condition: complete docs/tracking/stage0-publication-evidence-template.md and post-publish checklist
+
+- objective_id: O-3005
+  title: Close Stage 0 blockers and transition to Stage 1 readiness lane
+  status: parked
+  blocker: requires evidence propagation across planning and tracking artifacts
+  reentry_condition: mark Stage 0 items complete in next-steps and log closure in change-log plus scenario-validation-notes
 ```
 
 ### Closure Utilities
@@ -200,3 +218,4 @@
 - `zsh docs/release/stage0-media/prepublish_audit.sh`
 - `zsh docs/release/stage0-media/stage0_status_report.sh`
 - `docs/planning/stage0-postpublish-closure-checklist.md`
+- `docs/planning/stage0-operator-closure-worksheet.md`

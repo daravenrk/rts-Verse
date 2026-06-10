@@ -76,8 +76,12 @@ Keep this list short, actionable, and current.
 - [x] Run F-26 Environment Type Readability and capture first-engagement notes.
 - [x] Define concrete unlock thresholds for advanced systems (maintenance, instability, civilization stress).
 - [x] Draft itch.io page copy using planning/itch-io-launch-and-feedback-plan.md blueprint sections.
-- [ ] Prepare Stage 0 media bundle (screenshots or clips) with gameplay-first captions.
-- [ ] Publish itch.io Stage 0 Coming Soon page with transparent Pre-Alpha status.
+- [ ] Freeze Stage 0 media set: select 3 to 6 screenshots and optional clips, then finalize gameplay-first captions.
+- [ ] Stage finalized media and captions in docs/release/stage0-media/ using required naming and ordering.
+- [ ] Run zsh docs/release/stage0-media/prepublish_audit.sh and clear all unresolved findings.
+- [ ] Publish Stage 0 itch.io Coming Soon page using runbook procedure with visible Pre-Alpha label and no public download.
+- [ ] Run post-publish validation checklist and record public URL, timestamp, media count, and first update-post confirmation.
+- [ ] Update closure trackers in one pass: next-steps, change-log, and scenario-validation-notes with publication evidence.
 - [x] Define structured feedback template fields and publish feedback instructions on itch page.
 - [x] Start weekly feedback triage cadence and publish first feedback-response devlog summary.
 
@@ -91,8 +95,10 @@ Keep this list short, actionable, and current.
 ## Blocked
 
 - Stage 0 media and page publication tasks:
-	- Blocker: screenshot or clip capture plus manual itch.io publication require external authoring/platform actions.
-	- Re-entry condition: capture assets per `docs/planning/stage0-media-bundle-spec.md` and execute publish procedure in `docs/planning/itch-stage0-publish-runbook.md`.
+  - Blocker: screenshot or clip capture and page publication require manual external operator actions.
+  - Re-entry condition 1: capture assets and captions per docs/planning/stage0-media-bundle-spec.md, then pass docs/release/stage0-media/prepublish_audit.sh.
+  - Re-entry condition 2: execute docs/planning/itch-stage0-publish-runbook.md and complete docs/tracking/stage0-publication-evidence-template.md.
+  - Exit condition: no unchecked Stage 0 tasks remain in this tracker and closure updates are logged in change-log plus scenario validation notes.
 
 ## Completed
 

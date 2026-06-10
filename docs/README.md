@@ -32,6 +32,7 @@ This folder contains architecture, planning, research, and delivery tracking art
 - Stage 0 status report utility: docs/release/stage0-media/stage0_status_report.sh
 - itch.io launch and feedback plan: docs/planning/itch-io-launch-and-feedback-plan.md
 - Stage 0 postpublish closure checklist: docs/planning/stage0-postpublish-closure-checklist.md
+- Stage 0 operator closure worksheet: docs/planning/stage0-operator-closure-worksheet.md
 - Carrier and air-wing validation checklist: docs/planning/air-wing-validation-checklist.md
 - Task backlog: docs/planning/task-backlog.md
 - Testing strategy: docs/planning/testing-strategy.md

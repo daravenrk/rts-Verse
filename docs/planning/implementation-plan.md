@@ -105,7 +105,7 @@ Define and deliver the first playable RTS vertical slice expressing daravenrk's 
 
 ## M4 Packaging and Readiness
 
-- Status: Not Started
+- Status: In Progress (Stage 0 external closure lane active)
 - Outcomes:
   - Export profile configuration.
   - Release checklist and known issue list.
@@ -118,6 +118,26 @@ Define and deliver the first playable RTS vertical slice expressing daravenrk's 
   - Functional: Page content matches currently implemented gameplay scope and status labeling.
   - Integration: External feedback entries map into triage outcomes and prioritized implementation tasks.
   - Observability: Weekly reporting captures page views, follows, conversion, and report-to-fix cycle metrics.
+
+### M4 Immediate Execution Slice: Stage 0 Closure
+
+- Scope:
+  - Finalize and package Stage 0 media bundle.
+  - Publish Stage 0 Coming Soon page with transparent Pre-Alpha messaging.
+  - Capture publication evidence and close blocked tracker items.
+- Entry criteria:
+  - Stage 0 media specification and publish runbook are complete.
+  - Page copy draft and feedback template are complete.
+- Exit criteria:
+  - prepublish_audit.sh passes with no unresolved findings.
+  - Public itch.io page is live with no downloadable build exposed.
+  - stage0-publication-evidence-template.md is fully populated.
+  - next-steps blocker items are checked and closure evidence is logged in tracking artifacts.
+- Validation:
+  - Functional: Media count, captions, and page content match the Stage 0 spec and runbook.
+  - Integration: Publication evidence links to tracker updates (next-steps, change-log, scenario-validation-notes).
+  - Smoke: stage0_status_report.sh shows no unresolved Stage 0 closure blockers.
+  - Observability: Evidence captures URL, publish timestamp, media inventory, and first update-post confirmation.
 
 ## Dependencies and Risks
 

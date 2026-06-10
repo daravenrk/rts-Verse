@@ -673,6 +673,40 @@ Status values: Proposed, Accepted, Deprecated, Superseded
 - Related research:
   - Entry-0024 in research/research-log.md
 
+## ADR-0025 Deterministic Stage 0 Closure Decomposition
+
+- Date: 2026-06-10
+- Status: Accepted
+- Context: Remaining delivery work is concentrated in two broad Stage 0 tracker items, but those items are too coarse for reliable execution, verification, and closure across planning and tracking artifacts.
+- Decision:
+  - Decompose Stage 0 closure into explicit operator-ready steps with ordered dependencies:
+    - media capture and caption finalization,
+    - media staging and prepublish audit pass,
+    - itch.io publication runbook execution,
+    - publication evidence capture,
+    - tracker closure and transition to Stage 1 readiness.
+  - Track decomposition in M4 backlog tasks T-0046 through T-0050.
+  - Require closure evidence to include URL, timestamp, media inventory, and first update-post confirmation before blocker exit.
+- Rationale:
+  - Reduces ambiguity in externally executed steps.
+  - Improves handoff quality between planning and operator execution.
+  - Makes closure testable and auditable with deterministic gates.
+- Tradeoffs:
+  - Adds process overhead and additional tracker rows for a small remaining scope.
+  - Depends on manual external actions that cannot be fully automated in-repo.
+- Alternatives considered:
+  - Keep two broad Stage 0 checklist items and close them ad hoc.
+  - Delay all refinement until after publication attempt failure.
+- Validation approach:
+  - Functional: Each Stage 0 sub-step is completed in dependency order with expected artifact outputs.
+  - Integration: Backlog, implementation plan, and next-steps trackers remain synchronized on status and closure criteria.
+  - Smoke: stage0_status_report.sh shows no unresolved Stage 0 blockers after closure.
+  - Observability: Evidence template contains complete publish metadata and media summary.
+- Related plan items:
+  - M4 Packaging and Readiness
+- Related research:
+  - Entry-0025 in research/research-log.md
+
 ## ADR Template
 
 ## ADR-XXXX Title

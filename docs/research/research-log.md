@@ -643,6 +643,37 @@ Use this file to capture evidence-backed findings before changing architecture o
   - Validate faction-agnostic Tether spawn positions against F-26 for both Helion and Veyari.
   - Expand environment taxonomy into future skirmish and campaign map planning after MVP map proves readable.
 
+## Entry-0025 Stage 0 Next-Step Refinement and Closure Gating
+
+- Date: 2026-06-10
+- Query: Refine remaining next steps so Stage 0 publication closure is execution-ready, better defined, and testable.
+- Files reviewed:
+  - docs/planning/next-steps.md
+  - docs/planning/task-backlog.md
+  - docs/planning/implementation-plan.md
+  - docs/planning/stage0-media-bundle-spec.md
+  - docs/planning/itch-stage0-publish-runbook.md
+  - docs/planning/stage0-postpublish-closure-checklist.md
+  - docs/tracking/stage0-publication-evidence-template.md
+  - DEV_NEXT_STEPS.md
+  - docs/architecture/decision-log.md
+- Evidence:
+  - Only two unchecked next-step items remained and both were broad external actions without explicit sub-step sequencing.
+  - Existing artifacts already define spec, runbook, post-publish checklist, and evidence template, but execution tracking granularity was missing.
+  - Implementation plan M4 and task backlog did not yet reflect a decomposed external-closure execution lane.
+- Interpretation:
+  - The project has a documentation-complete preparation state but lacks a deterministic closure path for final Stage 0 external operations.
+  - Explicit decomposition is needed to ensure operator execution, validation, and tracker closure stay synchronized.
+- Risks or unknowns:
+  - Manual external publication introduces timing and operator variability.
+  - Without strict evidence gating, publication may occur without complete tracker closure proof.
+- Recommended decision:
+  - Accept ADR-0025 and decompose Stage 0 closure into dependency-ordered M4 tasks with explicit evidence-based exit criteria.
+- Follow-up tasks:
+  - Execute T-0046 through T-0050 in order.
+  - Use prepublish audit and status report commands as closure gates.
+  - Complete evidence template and propagate closure updates across next-steps, change-log, and scenario validation notes.
+
 ## Research Entry Template
 
 ## Entry-XXXX Title

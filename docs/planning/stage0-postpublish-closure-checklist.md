@@ -12,8 +12,7 @@ Use this checklist immediately after manual itch.io publication to close the fin
 
 1. Fill out docs/tracking/stage0-publication-evidence-template.md.
 2. Update docs/planning/next-steps.md:
-   - mark Prepare Stage 0 media bundle as complete.
-   - mark Publish itch.io Stage 0 Coming Soon page as complete.
+   - mark all Stage 0 closure items complete (media freeze, staging, audit, publish, validation, tracker sync).
    - add one dated completed note with public URL and media count.
 3. Update docs/tracking/change-log.md with publication event summary.
 4. Update docs/tracking/scenario-validation-notes.md with:
@@ -21,9 +20,27 @@ Use this checklist immediately after manual itch.io publication to close the fin
    - URL,
    - timestamp,
    - first update post confirmation.
-5. Run final gate command:
+5. Update DEV_NEXT_STEPS objective lane:
+   - set O-3001 through O-3005 from parked to closed.
+6. Run final gate command:
    - grep -nE "^- \[ \]" docs/planning/next-steps.md
-6. Confirm no unchecked Stage 0 tasks remain.
+7. Confirm no unchecked Stage 0 tasks remain.
+
+## Copy-Ready Snippets
+
+Use these starter lines to reduce tracker-update friction.
+
+- Change-log summary line:
+  - `Published itch.io Stage 0 Coming Soon page with Pre-Alpha transparency, finalized media pack, and complete tracker evidence synchronization.`
+- Scenario-validation heading:
+  - `## YYYY-MM-DD Stage 0 Publication Closure Validation`
+- Scenario-validation required bullets:
+  - `- Flow: Stage 0 external publication closure`
+  - `- URL: <public page URL>`
+  - `- Publish timestamp (local): <timestamp>`
+  - `- Media uploaded: <screenshots>, <clips>`
+  - `- First update post confirmation: yes or no`
+  - `- Result: Pass or Fail`
 
 ## Suggested Validation Commands
 
@@ -33,4 +50,4 @@ Use this checklist immediately after manual itch.io publication to close the fin
 
 ## Completion Condition
 
-- Closure is complete when both Stage 0 tasks are checked and evidence is logged in all three tracking files.
+- Closure is complete when all refined Stage 0 closure items are checked and evidence is logged in all three tracking files.

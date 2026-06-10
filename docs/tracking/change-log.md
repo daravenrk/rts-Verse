@@ -4,6 +4,14 @@ Track high-level project changes with links to decisions and plans.
 
 ## 2026-06-09
 
+- Refined Stage 0 closure lane into dependency-ordered M4 tasks T-0046 through T-0050 with explicit acceptance and validation gates.
+- Decomposed Stage 0 sprint next steps into operator-ready micro-steps covering media freeze, staging, audit, publish, evidence capture, and tracker synchronization.
+- Updated M4 status to in-progress with a dedicated Stage 0 immediate execution slice and formal entry or exit criteria.
+- Added ADR-0025 and research Entry-0025 to document deterministic Stage 0 closure decomposition rationale and validation strategy.
+- Expanded DEV_NEXT_STEPS parked objective lane to O-3001 through O-3005 with explicit re-entry conditions for each external step.
+- Added Stage 0 operator closure worksheet for execution-time task tracking, validation command runbook, and completion gates.
+- Updated Stage 0 postpublish checklist and publication evidence template to align with refined closure tasks and objective mapping.
+
 - Implemented startup bootstrap checklist in startup script for input profile load, core manager init, and gameplay scene transition state tracking.
 - Ran cold-launch startup smoke pass in headless mode and captured bootstrap checklist logs for failure triage baseline.
 - Updated sprint tracker to mark startup bootstrap checklist task complete.
