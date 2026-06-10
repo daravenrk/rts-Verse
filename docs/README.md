@@ -27,6 +27,7 @@ This folder contains architecture, planning, research, and delivery tracking art
 - Dynamic evolution and readability baseline: docs/planning/dynamic-evolution-and-readability-baseline.md
 - Stage 0 media bundle specification: docs/planning/stage0-media-bundle-spec.md
 - itch.io Stage 0 publish runbook: docs/planning/itch-stage0-publish-runbook.md
+- Stage 0 media staging folder: docs/release/stage0-media/README.md
 - itch.io launch and feedback plan: docs/planning/itch-io-launch-and-feedback-plan.md
 - Carrier and air-wing validation checklist: docs/planning/air-wing-validation-checklist.md
 - Task backlog: docs/planning/task-backlog.md
@@ -40,6 +41,7 @@ This folder contains architecture, planning, research, and delivery tracking art
 - Change log: docs/tracking/change-log.md
 - Visual validation notes: docs/tracking/visual-validation-notes.md
 - Meeting notes: docs/tracking/meeting-notes.md
+- Stage 0 publication evidence template: docs/tracking/stage0-publication-evidence-template.md
 
 ## Update Rhythm
 

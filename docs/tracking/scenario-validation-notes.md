@@ -385,3 +385,16 @@ Track scenario-level evidence for map and flow validation runs.
 - Notes:
   - External Stage 0 blockers now have deterministic internal prep artifacts.
   - Remaining work is limited to manual capture and itch.io publication execution.
+
+## 2026-06-10 Stage 0 Staging and Evidence Template Validation
+
+- Flow: `Planning artifact validation for Stage 0 media handoff and evidence capture`
+- Validation command:
+  - `grep -nE "^# Stage 0 Media Staging Folder|Required Files|Validation Checklist" docs/release/stage0-media/README.md`
+  - `grep -nE "^# Stage 0 Captions Pack|Screenshot Captions|Optional Clip Captions" docs/release/stage0-media/captions-stage0.md`
+  - `grep -nE "^# Stage 0 Publication Evidence Template|Publication Metadata|Media Package Summary|Tracker Update Instructions" docs/tracking/stage0-publication-evidence-template.md`
+  - `grep -nE "Stage 0 media staging folder|Stage 0 publication evidence template" docs/README.md`
+- Result: Pass
+- Notes:
+  - Media staging path and caption pack are ready for operator capture workflow.
+  - Publication evidence template now standardizes post-publish tracker closure steps.

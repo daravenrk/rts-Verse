@@ -97,6 +97,8 @@ Track high-level project changes with links to decisions and plans.
 - Added planning/dynamic-evolution-and-readability-baseline.md for branch thresholds and player-facing branch/Descent/event readability rules.
 - Added planning/stage0-media-bundle-spec.md to predefine Stage 0 screenshot or clip requirements and gameplay-first caption pack.
 - Added planning/itch-stage0-publish-runbook.md to operationalize manual itch.io Stage 0 publication and post-publish verification.
+- Added docs/release/stage0-media/ staging artifacts (asset folder README and captions pack) for deterministic media handoff.
+- Added docs/tracking/stage0-publication-evidence-template.md for post-publish evidence capture and tracker update workflow.
 
 ## 2026-05-17
 
