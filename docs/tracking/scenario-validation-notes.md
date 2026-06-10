@@ -398,3 +398,15 @@ Track scenario-level evidence for map and flow validation runs.
 - Notes:
   - Media staging path and caption pack are ready for operator capture workflow.
   - Publication evidence template now standardizes post-publish tracker closure steps.
+
+## 2026-06-10 Stage 0 Audit and Closure Workflow Validation
+
+- Flow: `Planning artifact validation for Stage 0 prepublish and postpublish workflow`
+- Validation command:
+  - `zsh docs/release/stage0-media/prepublish_audit.sh`
+  - `grep -nE "^# Stage 0 Postpublish Closure Checklist|Closure Steps|Suggested Validation Commands|Completion Condition" docs/planning/stage0-postpublish-closure-checklist.md`
+  - `grep -nE "Stage 0 media prepublish audit script|Stage 0 postpublish closure checklist" docs/README.md`
+- Result: Pass
+- Notes:
+  - Prepublish audit script executes and reports readiness status without requiring strict-mode failure.
+  - Postpublish closure checklist captures deterministic steps for closing the final two external tasks.

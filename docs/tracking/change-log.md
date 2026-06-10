@@ -99,6 +99,8 @@ Track high-level project changes with links to decisions and plans.
 - Added planning/itch-stage0-publish-runbook.md to operationalize manual itch.io Stage 0 publication and post-publish verification.
 - Added docs/release/stage0-media/ staging artifacts (asset folder README and captions pack) for deterministic media handoff.
 - Added docs/tracking/stage0-publication-evidence-template.md for post-publish evidence capture and tracker update workflow.
+- Added docs/release/stage0-media/prepublish_audit.sh to verify Stage 0 media readiness before manual upload.
+- Added docs/planning/stage0-postpublish-closure-checklist.md to standardize final tracker closure after manual publication.
 
 ## 2026-05-17
 
