@@ -6,6 +6,7 @@ const STARTUP_STEP_INPUT_PROFILE := "input_profile_load"
 const STARTUP_STEP_CORE_MANAGER_INIT := "core_manager_init"
 const STARTUP_STEP_GAMEPLAY_TRANSITION := "gameplay_scene_transition"
 const STARTUP_TEST_AUTO_KEYPRESS_FLAG := "--startup-test-keypress"
+const STARTUP_TEST_AUTO_SKIRMISH_FLAG := "--startup-test-auto-skirmish"
 const INPUT_PROFILE_CONFIG_PATH := "user://input_profile.cfg"
 
 const PROFILE_ACTIONS := [
@@ -301,6 +302,11 @@ func _show_splash() -> void:
 
 
 func _apply_startup_test_overrides() -> void:
+	if _has_user_flag(STARTUP_TEST_AUTO_SKIRMISH_FLAG):
+		print("[Startup] Test override enabled: skip splash and open menu for auto skirmish")
+		call_deferred("_show_main_menu", "test_auto_skirmish")
+		return
+
 	if not _has_user_flag(STARTUP_TEST_AUTO_KEYPRESS_FLAG):
 		return
 
@@ -395,6 +401,10 @@ func _show_main_menu(reason: String) -> void:
 		"campaign_label": campaign_button.text
 	}
 	print("[Startup] Main menu shown payload=%s" % str(menu_state_payload))
+
+	if _has_user_flag(STARTUP_TEST_AUTO_SKIRMISH_FLAG):
+		print("[Startup] Test override enabled: auto skirmish press")
+		call_deferred("_on_skirmish_pressed")
 
 
 func _on_skirmish_pressed() -> void:

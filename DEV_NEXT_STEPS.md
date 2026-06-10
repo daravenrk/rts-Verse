@@ -296,7 +296,7 @@
   validation:
     - type: smoke
       method: Manual playthrough from cold launch to move command, recording any output-panel errors.
-  status: todo
+  status: done
 
 - story_id: S-4006
   title: Implement click-based unit selection in visual runtime

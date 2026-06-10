@@ -34,6 +34,9 @@ This document defines validation layers for milestone delivery.
 | F-29 | Five-tier progression coverage mapping | Pass | `docs/tracking/scenario-validation-notes.md` |
 | F-30 | Named five-faction baseline coverage | Pass | `docs/tracking/scenario-validation-notes.md` |
 | F-31 | Stockpile and world-event UI telemetry coverage | Pass | `docs/tracking/scenario-validation-notes.md` |
+| F-32 | Live click-select and right-click move interaction loop | Pass | `docs/tracking/scenario-validation-notes.md` |
+| F-33 | Blocker/no-go rejection and invalid move feedback | Pass | `docs/tracking/scenario-validation-notes.md` |
+| F-34 | Startup to skirmish to duel-map end-to-end autoplay smoke | Pass | `docs/tracking/scenario-validation-notes.md` |
 
 ## M2 Core Gameplay Validation Flows
 

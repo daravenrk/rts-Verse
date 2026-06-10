@@ -2,6 +2,7 @@ extends Control
 
 const MAIN_SCENE_PATH := "res://scenes/core/Main.tscn"
 const FIRST_DUEL_MAP_SCENE_PATH := "res://scenes/core/FirstDuelMap.tscn"
+const SKIRMISH_TEST_AUTO_START_FLAG := "--skirmish-test-auto-start"
 const CampaignData := preload("res://scripts/core/CampaignData.gd")
 
 const FACTIONS := [
@@ -24,6 +25,9 @@ func _ready() -> void:
 	_apply_campaign_order_summary()
 	_update_status()
 	print("[Skirmish] Faction gate initialized")
+	if _has_user_flag(SKIRMISH_TEST_AUTO_START_FLAG):
+		print("[Skirmish] Test override enabled: auto start match")
+		call_deferred("_on_start_match_button_pressed")
 
 
 func _apply_campaign_order_summary() -> void:
@@ -97,3 +101,10 @@ func _update_status() -> void:
 	var first_perspective := CampaignData.get_first_perspective()
 	var final_perspective := CampaignData.get_final_perspective()
 	_status_label.text = "Selected factions: %s vs %s | Campaign: %s -> %s" % [player_faction_id, enemy_faction_id, first_perspective, final_perspective]
+
+
+func _has_user_flag(flag: String) -> bool:
+	for argument in OS.get_cmdline_user_args():
+		if argument == flag:
+			return true
+	return false

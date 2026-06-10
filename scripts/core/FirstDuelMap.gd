@@ -19,6 +19,7 @@ const TEST_F16_FLAG := "--duel-test-f16"
 const TEST_F17_FLAG := "--duel-test-f17"
 const TEST_F32_INTERACTION_FLAG := "--duel-test-f32-interaction"
 const TEST_F33_BLOCKER_FLAG := "--duel-test-f33-blocker"
+const TEST_AUTO_EXIT_FLAG := "--duel-test-auto-exit"
 const TEST_ROSTER_BEHAVIORS_FLAG := "--duel-test-roster-behaviors"
 const TEST_T2_PATHS_FLAG := "--duel-test-t2-paths"
 const TEST_COLONY_DEFENSE_FLAG := "--duel-test-colony-defense"
@@ -228,7 +229,14 @@ func _ready() -> void:
 	_run_roster_behavior_test_hook()
 	_run_t2_path_test_hook()
 	_run_colony_defense_test_hook()
+	if _has_user_flag(TEST_AUTO_EXIT_FLAG):
+		call_deferred("_request_test_exit")
 	_apply_camera_transform()
+
+
+func _request_test_exit() -> void:
+	print("[Map] Test override enabled: auto exit")
+	get_tree().quit()
 
 
 func _spawn_opening_squads() -> void:

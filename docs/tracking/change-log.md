@@ -29,6 +29,10 @@ Track high-level project changes with links to decisions and plans.
 - Added deterministic F-32 interaction validation hook (`--duel-test-f32-interaction`) and executed headless validation with pass evidence (`select_pass=true`, `move_pass=true`).
 - Added minimal world blockers and no-go zones in duel map runtime with path intersection checks for move-command rejection.
 - Added deterministic F-33 blocker validation hook (`--duel-test-f33-blocker`) and executed headless validation with pass evidence (`still_idle=true`, `alert_ok=true`).
+- Added startup autoplay smoke hooks across Main and Skirmish (`--startup-test-auto-skirmish`, `--skirmish-test-auto-start`) for deterministic end-to-end startup validation.
+- Added duel-map auto-exit hook (`--duel-test-auto-exit`) so startup-through-map smoke can run headless without manual termination.
+- Executed end-to-end startup smoke command with interaction and gather checks and recorded pass evidence for F-34.
+- Closed T-0055 and S-4005 after deterministic startup-to-map smoke pass with command-linked scenario validation evidence.
 - Decomposed Stage 0 sprint next steps into operator-ready micro-steps covering media freeze, staging, audit, publish, evidence capture, and tracker synchronization.
 - Updated M4 status to in-progress with a dedicated Stage 0 immediate execution slice and formal entry or exit criteria.
 - Added ADR-0025 and research Entry-0025 to document deterministic Stage 0 closure decomposition rationale and validation strategy.

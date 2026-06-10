@@ -2,6 +2,44 @@
 
 Track scenario-level evidence for map and flow validation runs.
 
+## 2026-06-10 F-34 Startup to Duel-Map End-to-End Smoke (Autoplay)
+
+- Flow: `F-34 Startup to skirmish to duel-map end-to-end autoplay smoke`
+- Scenario: `project startup (Main) -> Skirmish -> FirstDuelMap`
+- Validation command:
+  - `/Applications/Godot.app/Contents/MacOS/godot --headless --path . -- --startup-test-auto-skirmish --skirmish-test-auto-start --duel-test-f32-interaction --duel-test-f03 --duel-test-auto-exit`
+- Result: Pass
+- Notes:
+  - Startup checklist reached gameplay transition done state.
+  - Skirmish auto-start selected available factions and entered duel map.
+  - Interaction validation passed (`[F32] select_pass=true move_pass=true`).
+  - Gather loop passed with positive resource updates (`[F03] alloy_total=70 pass=true`).
+  - Duel-map auto-exit hook executed after validations.
+
+## 2026-06-10 F-32 Live Interaction Loop
+
+- Flow: `F-32 Live click-select and right-click move interaction loop`
+- Scenario: `scenes/core/FirstDuelMap.tscn`
+- Validation command:
+  - `/Applications/Godot.app/Contents/MacOS/godot --headless --quit --path . res://scenes/core/FirstDuelMap.tscn -- --duel-test-f32-interaction`
+- Result: Pass
+- Notes:
+  - Left-click camera-ray selection selected a live squad unit.
+  - Right-click world-space command issued movement successfully.
+  - Summary emitted `select_pass=true` and `move_pass=true`.
+
+## 2026-06-10 F-33 Blocker and Invalid Move Rejection
+
+- Flow: `F-33 Blocker/no-go rejection and invalid move feedback`
+- Scenario: `scenes/core/FirstDuelMap.tscn`
+- Validation command:
+  - `/Applications/Godot.app/Contents/MacOS/godot --headless --quit --path . res://scenes/core/FirstDuelMap.tscn -- --duel-test-f33-blocker`
+- Result: Pass
+- Notes:
+  - Blocked target inside no-go zone was rejected.
+  - Selected unit remained idle (`still_idle=true`).
+  - HUD rejection alert feedback emitted (`alert_ok=true`).
+
 ## 2026-06-10 First Duel Map Item Catalog Baseline
 
 - Scenario: `scenes/core/FirstDuelMap.tscn`
