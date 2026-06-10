@@ -13,6 +13,25 @@ This document defines validation layers for milestone delivery.
 - Observability:
   - Validate that logs and debug signals provide enough insight for failures.
 
+## M2 Validation Scenario Matrix
+
+| Flow | Purpose | Current Baseline Status | Evidence Source |
+| --- | --- | --- | --- |
+| F-01 | Unit selection baseline | Pass | `docs/tracking/scenario-validation-notes.md` |
+| F-02 | Movement command baseline | Pass | `docs/tracking/scenario-validation-notes.md` |
+| F-03 | Resource gather-return loop | Pass | `docs/tracking/scenario-validation-notes.md` |
+| F-04 | Win/loss HUD state transitions | Pass | `docs/tracking/scenario-validation-notes.md` |
+| F-18 | Keyboard and mouse command coverage | Pass | `docs/tracking/scenario-validation-notes.md` |
+| F-19 | Camera and HUD usability baseline | Pass | `docs/tracking/scenario-validation-notes.md` |
+| F-20 | Resource discovery and security loop baseline | Pass | `docs/tracking/scenario-validation-notes.md` |
+| F-21 | Opening clarity and parity gate | Pass | `docs/tracking/scenario-validation-notes.md` |
+| F-22 | Tether and build chain integrity | Pass | `docs/tracking/scenario-validation-notes.md` |
+| F-23 | Startup splash and menu gate | Pass | `docs/tracking/scenario-validation-notes.md` |
+| F-24 | Unit readability and animation baseline | Pass | `docs/tracking/scenario-validation-notes.md` |
+| F-25 | Campaign order and skirmish availability gate | Pass | `docs/tracking/scenario-validation-notes.md` |
+| F-26 | Environment readability and spawn consistency | Pass | `docs/tracking/scenario-validation-notes.md` |
+| F-28 | Day-night and biome readability contract | Planning pass | `docs/tracking/visual-validation-notes.md` |
+
 ## M2 Core Gameplay Validation Flows
 
 ## Flow F-01 Unit Selection
@@ -258,6 +277,20 @@ This document defines validation layers for milestone delivery.
 
 - Setup: MVP duel scenario starts with opening resource set and advanced civilization systems gated.
 - Steps:
+
+## Flow F-28 Structure Readability Under Day-Night and Biome Variants
+
+- Setup: Use declared biome archetype parameters, shared MVP building classes, and day-night cycle contract from planning/world-systems-baseline.md.
+- Steps:
+  - Validate material-zone visibility for all shared MVP structures in day and night phases.
+  - Validate faction accent readability and damage-state readability during dusk-night and night-dawn transitions.
+  - Validate plant-life and terrain vocabulary overlays in one desolate and one fertile biome configuration.
+  - Validate world-source resource markers remain readable while preserving lane and objective clarity.
+- Expected:
+  - Structures remain role-identifiable and faction-distinguishable across all day-night phases.
+  - Damage states are readable without relying on UI-only indicators.
+  - Biome and plant-life variation affects tactical decisions without obscuring small 3D actor readability.
+  - Resource-source presentation aligns with world-economy mapping and does not contradict global stockpile rules.
   - Play first 10 to 15 minutes with both factions from both spawns.
   - Verify players can execute expansion, scouting, harassment, and first factory scaling without interacting with advanced instability systems.
   - Trigger one phase transition and confirm newly unlocked complexity is announced and readable.

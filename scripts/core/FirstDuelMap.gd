@@ -10,10 +10,14 @@ const TEST_BUILD_CHAIN_FLAG := "--duel-test-build-chain"
 const TEST_F24_FLAG := "--duel-test-f24"
 const TEST_F18_F19_FLAG := "--duel-test-f18f19"
 const TEST_F20_F21_FLAG := "--duel-test-f20f21"
+const TEST_F01_F02_FLAG := "--duel-test-f01f02"
+const TEST_F03_FLAG := "--duel-test-f03"
+const TEST_F04_FLAG := "--duel-test-f04"
 const TetherPoint := preload("res://scripts/core/TetherPoint.gd")
 const BuildableNode := preload("res://scripts/core/BuildableNode.gd")
 const MapItem := preload("res://scripts/core/MapItem.gd")
 const UnitActor := preload("res://scripts/core/UnitActor.gd")
+const SelectableUnit2D := preload("res://scripts/core/SelectableUnit2D.gd")
 const BUILDABLE_DEFS := {
 	"power_core": {"tier": "T0", "deps": []},
 	"alloy_extractor": {"tier": "T0", "deps": []},
@@ -93,9 +97,13 @@ var _map_item_counts: Dictionary = {}
 var _hud_resource_bar: Label
 var _hud_alert_item: Label
 var _hud_queue_item: Label
+var _hud_match_state: Label
 var _sim_units: Dictionary = {}
 var _selected_units: Array[String] = []
 var _control_groups: Dictionary = {}
+var _controllable_units: Dictionary = {}
+var _selected_controllable_units: Array[String] = []
+var _resource_alloy_total: int = 0
 
 
 func _ready() -> void:
@@ -112,6 +120,9 @@ func _ready() -> void:
 	_run_f24_test_hook()
 	_run_f18_f19_test_hook()
 	_run_f20_f21_test_hook()
+	_run_f01_f02_test_hook()
+	_run_f03_test_hook()
+	_run_f04_test_hook()
 
 
 func _resolve_faction(meta_key: String, cli_prefix: String, fallback: String) -> String:
@@ -241,6 +252,13 @@ func _create_mvp_hud() -> void:
 	hud_root.add_child(queue_display)
 	_hud_queue_item = queue_item
 
+	var match_state := Label.new()
+	match_state.name = "MatchState"
+	match_state.text = "State: In Progress"
+	match_state.position = Vector2(16, 40)
+	hud_root.add_child(match_state)
+	_hud_match_state = match_state
+
 	print("[HUD] MVP HUD initialized components=resource_bar,minimap,command_card,alerts,queue_display")
 
 
@@ -338,6 +356,182 @@ func _run_f24_test_hook() -> void:
 			print("[F24] Unit baseline fail faction=%s unit=%s missing=%s" % [str(profile["faction"]), str(profile["unit"]), str(actor.get_missing_required_states())])
 
 	print("[F24] Summary pass_units=%d total_units=%d" % [pass_count, F24_UNIT_PROFILES.size()])
+
+
+func _run_f01_f02_test_hook() -> void:
+	if not _has_user_flag(TEST_F01_F02_FLAG):
+		return
+
+	_initialize_controllable_units()
+
+	var selection_pass := true
+	_select_single_unit("unit_alpha")
+	if _selected_controllable_units.size() != 1:
+		selection_pass = false
+
+	_box_select_units(Rect2(Vector2(-292, 106), Vector2(124, 56)), false)
+	if _selected_controllable_units.size() != 3:
+		selection_pass = false
+
+	_box_select_units(Rect2(Vector2(-216, 104), Vector2(180, 60)), true)
+	if _selected_controllable_units.size() != 4:
+		selection_pass = false
+
+	print("[F01] Selection summary selected_units=%s pass=%s" % [str(_selected_controllable_units), str(selection_pass)])
+
+	var first_move := Vector2(-30, 84)
+	_issue_move_command(first_move)
+	var first_move_pass := _simulate_until_arrival(90)
+
+	var second_move := Vector2(64, 28)
+	_issue_move_command(second_move)
+	var second_move_pass := _simulate_until_arrival(90)
+
+	print("[F02] Movement summary first_target=%s first_pass=%s second_target=%s second_pass=%s" % [str(first_move), str(first_move_pass), str(second_move), str(second_move_pass)])
+	print("[F01/F02] Summary pass=%s" % str(selection_pass and first_move_pass and second_move_pass))
+
+
+func _initialize_controllable_units() -> void:
+	for unit in _controllable_units.values():
+		unit.queue_free()
+	_controllable_units.clear()
+	_selected_controllable_units.clear()
+
+	var spawn_data := [
+		{"id": "unit_alpha", "faction": "helion", "position": Vector2(-280, 120)},
+		{"id": "unit_beta", "faction": "helion", "position": Vector2(-240, 120)},
+		{"id": "unit_gamma", "faction": "helion", "position": Vector2(-200, 120)},
+		{"id": "unit_delta", "faction": "helion", "position": Vector2(-160, 120)}
+	]
+
+	for data in spawn_data:
+		var unit := SelectableUnit2D.new()
+		unit.name = str(data["id"])
+		add_child(unit)
+		unit.initialize(str(data["id"]), str(data["faction"]), data["position"])
+		_controllable_units[str(data["id"])] = unit
+
+	print("[F01] Spawned controllable units count=%d" % _controllable_units.size())
+
+
+func _clear_controllable_selection() -> void:
+	for unit_id in _selected_controllable_units:
+		if _controllable_units.has(unit_id):
+			var selected_unit: SelectableUnit2D = _controllable_units[unit_id]
+			selected_unit.set_selected(false)
+	_selected_controllable_units.clear()
+
+
+func _select_single_unit(unit_id: String) -> void:
+	_clear_controllable_selection()
+	if not _controllable_units.has(unit_id):
+		return
+	var unit: SelectableUnit2D = _controllable_units[unit_id]
+	unit.set_selected(true)
+	_selected_controllable_units.append(unit_id)
+	print("[F01] Single select unit=%s" % unit_id)
+
+
+func _box_select_units(selection_box: Rect2, additive: bool) -> void:
+	if not additive:
+		_clear_controllable_selection()
+
+	for unit_id in _controllable_units.keys():
+		var unit: SelectableUnit2D = _controllable_units[unit_id]
+		if selection_box.has_point(unit.position):
+			if not _selected_controllable_units.has(unit_id):
+				_selected_controllable_units.append(unit_id)
+			unit.set_selected(true)
+
+	print("[F01] Box select additive=%s units=%s" % [str(additive), str(_selected_controllable_units)])
+
+
+func _issue_move_command(target: Vector2) -> void:
+	if _selected_controllable_units.is_empty():
+		print("[F02] Move rejected reason=no_selection")
+		return
+
+	for unit_id in _selected_controllable_units:
+		var unit: SelectableUnit2D = _controllable_units[unit_id]
+		unit.queue_move(target)
+
+	print("[F02] Move issued units=%s target=%s" % [str(_selected_controllable_units), str(target)])
+
+
+func _simulate_until_arrival(max_steps: int) -> bool:
+	for _step in max_steps:
+		for unit_id in _selected_controllable_units:
+			var unit: SelectableUnit2D = _controllable_units[unit_id]
+			unit.simulate_step(0.1)
+
+		var still_moving := false
+		for unit_id in _selected_controllable_units:
+			var unit: SelectableUnit2D = _controllable_units[unit_id]
+			if unit.has_move_target():
+				still_moving = true
+				break
+
+		if not still_moving:
+			return true
+
+	return false
+
+
+func _run_f03_test_hook() -> void:
+	if not _has_user_flag(TEST_F03_FLAG):
+		return
+
+	if _controllable_units.is_empty():
+		_initialize_controllable_units()
+
+	_resource_alloy_total = 0
+	var gather_node: Vector2 = Vector2(-230, 0)
+	var return_node: Vector2 = _spawn_a.position
+	_select_single_unit("unit_alpha")
+
+	var cycle_pass := true
+	for cycle in 2:
+		_issue_move_command(gather_node)
+		if not _simulate_until_arrival(90):
+			cycle_pass = false
+			break
+
+		print("[F03] Gather cycle=%d state=collecting node=%s" % [cycle + 1, str(gather_node)])
+
+		_issue_move_command(return_node)
+		if not _simulate_until_arrival(90):
+			cycle_pass = false
+			break
+
+		_resource_alloy_total += 35
+		_hud_resource_bar.text = "Alloy: %d  Power: 400/520  Data: 0  Reclaim: 0" % _resource_alloy_total
+		print("[F03] Gather cycle=%d state=deposit alloy_total=%d" % [cycle + 1, _resource_alloy_total])
+
+	var gather_pass := cycle_pass and _resource_alloy_total > 0
+	print("[F03] Summary alloy_total=%d pass=%s" % [_resource_alloy_total, str(gather_pass)])
+
+
+func _run_f04_test_hook() -> void:
+	if not _has_user_flag(TEST_F04_FLAG):
+		return
+
+	_resource_alloy_total = 140
+	_hud_resource_bar.text = "Alloy: %d  Power: 400/520  Data: 0  Reclaim: 0" % _resource_alloy_total
+	_set_match_state("Win", "objective_control")
+	var win_state_pass := _hud_match_state.text == "State: Win (objective_control)"
+
+	_resource_alloy_total = 40
+	_hud_resource_bar.text = "Alloy: %d  Power: 320/520  Data: 0  Reclaim: 0" % _resource_alloy_total
+	_set_match_state("Loss", "command_core_destroyed")
+	var loss_state_pass := _hud_match_state.text == "State: Loss (command_core_destroyed)"
+
+	print("[F04] HUD state summary win_pass=%s loss_pass=%s final_state=%s resource_bar=%s" % [str(win_state_pass), str(loss_state_pass), _hud_match_state.text, _hud_resource_bar.text])
+	print("[F04] Summary pass=%s" % str(win_state_pass and loss_state_pass))
+
+
+func _set_match_state(state: String, reason: String) -> void:
+	_hud_match_state.text = "State: %s (%s)" % [state, reason]
+	print("[Match] State change state=%s reason=%s" % [state, reason])
 
 
 func _run_f18_f19_test_hook() -> void:

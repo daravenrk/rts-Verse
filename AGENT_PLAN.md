@@ -20,7 +20,7 @@
   validation:
     - type: manual
       method: review against docs/planning/game-vision.md visual policy and docs/planning/testing-strategy.md F-24
-  status: todo
+  status: done
 
 - story_id: S-1002
   title: Create Helion primitive recipes
@@ -33,7 +33,7 @@
   validation:
     - type: manual
       method: compare recipes to Helion roster roles and F-24 readability pass requirements
-  status: todo
+  status: done
 
 - story_id: S-1003
   title: Create Veyari primitive recipes
@@ -46,7 +46,7 @@
   validation:
     - type: manual
       method: compare recipes to Veyari roster roles and F-24 readability pass requirements
-  status: todo
+  status: done
 
 - story_id: S-1004
   title: Create MVP building primitive recipes
@@ -59,7 +59,7 @@
   validation:
     - type: manual
       method: compare recipes to docs/planning/unit-list.md buildable structure baseline and F-24 expectations
-  status: todo
+  status: done
 
 - story_id: S-1005
   title: Lock angle-readability acceptance gate
@@ -72,7 +72,7 @@
   validation:
     - type: manual
       method: reviewer can run the checklist without additional undocumented criteria
-  status: todo
+  status: done
 ```
 
 ## Execution Sequence
@@ -180,7 +180,7 @@ steps:
   validation:
     - type: manual
       method: review material zone maps against docs/planning/unit-list.md building classes and F-24 readability criteria
-  status: todo
+  status: done
 
 - story_id: S-2002
   title: Define lighting model and day-night cycle system contract
@@ -194,7 +194,7 @@ steps:
   validation:
     - type: manual
       method: review lighting spec against F-24 readability floor and game-vision readability-first principle
-  status: todo
+  status: done
 
 - story_id: S-2003
   title: Define world resource system and monetary layer
@@ -208,7 +208,7 @@ steps:
   validation:
     - type: integration
       method: compare resource world-source map against economy-standards.md global stockpile rules and verify no contradictions
-  status: todo
+  status: done
 
 - story_id: S-2004
   title: Define planet biome archetypes and map parameterization rules
@@ -222,7 +222,7 @@ steps:
   validation:
     - type: manual
       method: verify biome table covers the full desolate-to-fertile spectrum with distinct resource and colonization rules per row
-  status: todo
+  status: done
 
 - story_id: S-2005
   title: Define plant life and terrain design vocabulary
@@ -236,7 +236,7 @@ steps:
   validation:
     - type: manual
       method: review terrain vocabulary and plant-life rules against map-standards.md environment types and game-vision readability policy
-  status: todo
+  status: done
 
 - story_id: S-2006
   title: Integrate structure shading with day-night cycle
@@ -249,7 +249,7 @@ steps:
   validation:
     - type: manual
       method: simulate dark phase against building material zones and confirm emissive and contrast floor is met
-  status: todo
+  status: done
 ```
 
 ### Execution Sequence
@@ -324,12 +324,12 @@ steps:
 
 ### Unresolved Assumptions for Objective 2
 
-- Monetary or credit layer mechanics are not yet defined in economy-standards.md.
+- Monetary or credit layer mechanics are now defined in economy-standards.md (Credits secondary conversion model).
   - owner: Project owner
-  - next action: decide whether credits are a world-visible resource or an abstract conversion layer and document in economy-standards.md.
-- Day-night cycle speed is unspecified.
+  - resolution: completed on 2026-06-10 in S-2003 closure.
+- Day-night cycle speed is now specified in world-systems-baseline.md.
   - owner: Tech lead
-  - next action: propose default cycle length and phase count before lighting spec is locked.
-- Plant-life density rules for biomes are new scope not yet referenced in map-standards.md.
+  - resolution: completed on 2026-06-10 in S-2002 closure.
+- Plant-life density rules are now defined in map-standards.md terrain and plant-life vocabulary.
   - owner: Tech lead
-  - next action: confirm plant life as a map parameter in map-standards.md before terrain vocabulary is finalized.
+  - resolution: completed on 2026-06-10 in S-2005 closure.

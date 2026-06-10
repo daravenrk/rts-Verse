@@ -21,7 +21,7 @@
   validation:
     - type: manual
       method: Review the visual baseline against game-vision visual policy and F-24 readability expectations.
-  status: todo
+  status: done
 
 - story_id: S-1002
   title: Plan Helion MVP unit primitive kits
@@ -34,7 +34,7 @@
   validation:
     - type: manual
       method: Cross-check recipes against Helion MVP roster and F-24 readability criteria.
-  status: todo
+  status: done
 
 - story_id: S-1003
   title: Plan Veyari MVP unit primitive kits
@@ -47,7 +47,7 @@
   validation:
     - type: manual
       method: Cross-check recipes against Veyari MVP roster and F-24 readability criteria.
-  status: todo
+  status: done
 
 - story_id: S-1004
   title: Plan MVP building primitive kits
@@ -60,7 +60,7 @@
   validation:
     - type: manual
       method: Verify building plan covers shared MVP buildable structure baseline and faction mappings.
-  status: todo
+  status: done
 
 - story_id: S-1005
   title: Define angle-readability review and completion gate
@@ -73,7 +73,7 @@
   validation:
     - type: manual
       method: Review plan against F-24 and implementation-plan visual acceptance criteria.
-  status: todo
+  status: done
 ```
 
 ## Unresolved Assumptions
@@ -103,7 +103,7 @@
     - Every shared MVP building class has a material zone map covering primary body, faction accent, emissive indicator, and damage overlay.
     - Shading rules cover ambient occlusion handling, specular limits, and faction-tint constraints.
     - Damaged and destroyed state visual rules are documented.
-  status: todo
+  status: done
 
 - story_id: S-2002
   title: Define lighting model and day-night cycle contract
@@ -114,7 +114,7 @@
     - Day-night cycle speed and phase count defined as game parameters.
     - Minimum contrast and emissive brightness specified for darkest night phase.
     - Night does not hide unit or building silhouettes below readability thresholds.
-  status: todo
+  status: done
 
 - story_id: S-2003
   title: Define world resource system and monetary layer
@@ -125,7 +125,7 @@
     - Monetary or credit layer defined for trade and colony economy conversion.
     - Biome effect on base resource density is stated.
     - Consistent with global stockpile model in economy-standards.md.
-  status: todo
+  status: done
 
 - story_id: S-2004
   title: Define planet biome archetypes and map parameterization
@@ -136,7 +136,7 @@
     - Each biome specifies resource density, colonization potential, terrain density, and plant life presence.
     - Desolate has lower yield and sparse flora; fertile has higher yield and dense growth.
     - Map parameterization rules distinguish gameplay-driving variables from cosmetic-only variables.
-  status: todo
+  status: done
 
 - story_id: S-2005
   title: Define plant life and terrain design vocabulary
@@ -147,7 +147,7 @@
     - Plant life classified as cosmetic-only, partial cover, or LOS blocker with explicit rules per class.
     - Fertile biomes have denser cover and LOS effects; desolate biomes have minimal or none.
     - Plant life must not obscure unit silhouettes below the readability floor.
-  status: todo
+  status: done
 
 - story_id: S-2006
   title: Integrate structure shading with day-night cycle
@@ -157,17 +157,17 @@
     - Emissive rules ensure faction color and damage state visible at minimum night lighting.
     - Ambient occlusion depth constrained to avoid swallowing small building footprints at night.
     - Lighting phase transitions prevent visual pop or readability loss.
-  status: todo
+  status: done
 ```
 
 ### Unresolved Assumptions for Objective 2
 
-- Monetary or credit layer mechanics not yet defined in economy-standards.md.
+- Monetary or credit layer mechanics now defined in economy-standards.md.
   - Owner: Project owner
-  - Next action: decide whether credits are world-visible or an abstract conversion layer and document in economy-standards.md.
-- Day-night cycle speed unspecified.
+  - Resolution: completed on 2026-06-10 during S-2003 closure.
+- Day-night cycle speed now specified in world-systems-baseline.md.
   - Owner: Tech lead
-  - Next action: propose default cycle length and phase count before lighting spec is locked.
-- Plant-life density rules are new scope not yet in map-standards.md.
+  - Resolution: completed on 2026-06-10 during S-2002 closure.
+- Plant-life density rules now defined in map-standards.md.
   - Owner: Tech lead
-  - Next action: confirm plant life as a map parameter in map-standards.md before terrain vocabulary is finalized.
+  - Resolution: completed on 2026-06-10 during S-2005 closure.

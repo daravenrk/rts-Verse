@@ -133,6 +133,8 @@ Define and deliver the first playable RTS vertical slice expressing daravenrk's 
 - Map standards: planning/map-standards.md
 - UI and controls standards: planning/controls-standards.md
 - Economy standards: planning/economy-standards.md
+- Primitive visual baseline: planning/primitive-visual-baseline.md
+- World systems baseline: planning/world-systems-baseline.md
 - Task backlog: planning/task-backlog.md
 - Testing strategy: planning/testing-strategy.md
 - Definition of done: planning/definition-of-done.md

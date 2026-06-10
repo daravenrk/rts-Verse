@@ -15,6 +15,8 @@ This folder contains architecture, planning, research, and delivery tracking art
 - UI and controls standards: docs/planning/controls-standards.md
 - Map standards: docs/planning/map-standards.md
 - Economy and pricing standards: docs/planning/economy-standards.md
+- Primitive visual baseline: docs/planning/primitive-visual-baseline.md
+- World systems baseline: docs/planning/world-systems-baseline.md
 - itch.io launch and feedback plan: docs/planning/itch-io-launch-and-feedback-plan.md
 - Task backlog: docs/planning/task-backlog.md
 - Testing strategy: docs/planning/testing-strategy.md
@@ -25,6 +27,7 @@ This folder contains architecture, planning, research, and delivery tracking art
 - Risk register: docs/tracking/risk-register.md
 - Assumptions register: docs/tracking/assumptions.md
 - Change log: docs/tracking/change-log.md
+- Visual validation notes: docs/tracking/visual-validation-notes.md
 - Meeting notes: docs/tracking/meeting-notes.md
 
 ## Update Rhythm

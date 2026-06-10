@@ -8,8 +8,10 @@ Keep this list short, actionable, and current.
 - [x] Define coding conventions for scenes, scripts, and assets.
 - [x] Define initial vertical slice requirements and acceptance criteria.
 - [x] Create first gameplay task breakdown for M2.
-- [ ] Assign owners and estimates for M2 seed backlog tasks.
-- [ ] Execute first pass of M2 validation flows F-01 and F-02.
+- [x] Assign owners and estimates for M2 seed backlog tasks.
+- [x] Execute first pass of M2 validation flows F-01 and F-02.
+- [x] Execute first pass of M2 validation flow F-03.
+- [x] Execute first pass of M2 validation flow F-04.
 - [x] Add faction asymmetry acceptance checks to M2 validation flows.
 - [x] Create default startup scene at scenes/core/Main.tscn with single-responsibility bootstrap flow.
 - [x] Configure project.godot run/main_scene to scenes/core/Main.tscn after scene creation.
@@ -140,6 +142,13 @@ Keep this list short, actionable, and current.
 - 2026-06-10: F-20 resource-discovery and security-dominance baseline executed with deterministic objective timing and resource-loop telemetry in duel-map runtime hook.
 - 2026-06-10: F-21 opening parity and clarity gate executed with advanced-system lock verification and faction timing delta checks within parity threshold.
 - 2026-06-10: Helion and Veyari opening stabilization model guardrails documented in economy standards and aligned to F-21 telemetry thresholds.
+- 2026-06-10: Primitive-first visual baseline completed for Helion and Veyari MVP units plus shared MVP building classes with angle-readability acceptance gate and failure-mode checklist.
+- 2026-06-10: World systems and environment baseline completed with structure material-zone mapping, day-night readability contract, biome archetypes, terrain or plant vocabulary, and world resource-source plus credit-layer rules.
+- 2026-06-10: M2 seed backlog ownership assigned by system domain across gameplay, faction, level, UI, input, telemetry, and validation lanes.
+- 2026-06-10: F-01 and F-02 first-pass baseline executed in duel-map hook with passing single and multi-select checks plus two-step movement command arrival validation.
+- 2026-06-10: F-03 gather-return loop baseline executed with deterministic two-cycle deposit simulation and positive resource total validation.
+- 2026-06-10: F-04 temporary HUD state baseline executed with win/loss transition labels and resource-bar state updates.
+- 2026-06-10: M2 validation scenario matrix documented in testing strategy with current flow baseline status and evidence links.
 
 ## Owner Map
 

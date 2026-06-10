@@ -103,3 +103,39 @@ Track scenario-level evidence for map and flow validation runs.
   - Opening gate check reported advanced systems remain disabled during opening window for both factions.
   - Parity deltas reported within threshold: expansion `4`, factory `3`, objective `5` (all pass).
   - Combined summary emitted `pass=true` for F-20/F-21 baseline flow.
+
+## 2026-06-10 F-01/F-02 Selection and Movement Baseline
+
+- Flow: `F-01 Unit Selection` + `F-02 Movement Command`
+- Scenario: `scenes/core/FirstDuelMap.tscn`
+- Validation command:
+  - `/Applications/Godot.app/Contents/MacOS/godot --headless --path . res://scenes/core/FirstDuelMap.tscn --quit-after 1 -- --duel-test-f01f02`
+- Result: Pass
+- Notes:
+  - Selection hook validated single-select, box-select multi-select, and additive box-select expansion.
+  - Movement hook validated two sequential move commands to distinct targets with deterministic arrival checks.
+  - Summary emitted `pass=true` for combined F-01/F-02 flow.
+
+## 2026-06-10 F-03 Resource Gather Loop Baseline
+
+- Flow: `F-03 Resource Gather Loop`
+- Scenario: `scenes/core/FirstDuelMap.tscn`
+- Validation command:
+  - `/Applications/Godot.app/Contents/MacOS/godot --headless --path . res://scenes/core/FirstDuelMap.tscn --quit-after 1 -- --duel-test-f03`
+- Result: Pass
+- Notes:
+  - Gather loop used `unit_alpha` for two deterministic gather-return cycles between safe node and home return point.
+  - Each deposit cycle increased alloy total by `35`, resulting in final `alloy_total=70`.
+  - Summary emitted `pass=true` for F-03 baseline.
+
+## 2026-06-10 F-04 Temporary HUD Win and Loss Baseline
+
+- Flow: `F-04 Win and Loss Trigger`
+- Scenario: `scenes/core/FirstDuelMap.tscn`
+- Validation command:
+  - `/Applications/Godot.app/Contents/MacOS/godot --headless --path . res://scenes/core/FirstDuelMap.tscn --quit-after 1 -- --duel-test-f04`
+- Result: Pass
+- Notes:
+  - HUD resource bar update validated through staged resource snapshots (`Alloy: 140` then `Alloy: 40`).
+  - Match-state label transitions validated for `Win (objective_control)` and `Loss (command_core_destroyed)`.
+  - Summary emitted `pass=true` for F-04 baseline.

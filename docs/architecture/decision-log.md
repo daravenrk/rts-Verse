@@ -258,6 +258,32 @@ Status values: Proposed, Accepted, Deprecated, Superseded
   - Connects economy, faction ideology, and escalation pacing into one coherent identity.
   - Creates a stronger differentiator through maintenance pressure and infrastructure warfare.
 - Tradeoffs:
+
+## ADR-0012 World Systems and Environment Baseline Contracts
+
+- Date: 2026-06-10
+- Status: Accepted
+- Context: Visual readability baselines existed for units, but world-system contracts for structure material zones, lighting cycle behavior, biome parameterization, plant-life effects, and world resource presentation were not explicitly defined.
+- Decision: Establish planning/world-systems-baseline.md as the source-of-truth for structure shading zones and day-night readability rules; extend planning/map-standards.md with biome archetypes and terrain or plant vocabulary; extend planning/economy-standards.md with world resource source mapping and credit-layer constraints.
+- Rationale:
+  - Keeps environment variety compatible with competitive readability.
+  - Prevents biome and lighting features from introducing hidden balance or clarity regressions.
+  - Aligns world presentation with resource-security-first gameplay goals.
+- Tradeoffs:
+  - Adds additional planning constraints that must be maintained as maps expand.
+  - Requires dedicated validation flow for readability under day-night and biome variation.
+- Alternatives considered:
+  - Keep environment contracts implicit and tune per map ad hoc.
+  - Delay biome and lighting standards until after full art pass.
+- Validation approach:
+  - Functional: Shared MVP structures have complete material-zone and damage-state readability rules.
+  - Integration: Biome and terrain parameterization aligns with map fairness and global stockpile economy rules.
+  - Smoke: Day-night readability checklist executes end-to-end without undefined criteria.
+  - Observability: Validation notes include checklist outcomes and any readability-floor failures.
+- Related plan items:
+  - M3 Content and Balance Pass
+- Related research:
+  - Entry-0012 in research/research-log.md
   - Adds narrative and systems complexity across economy, tech, and UX.
   - Requires careful readability to avoid overwhelming players during era transitions.
 - Alternatives considered:

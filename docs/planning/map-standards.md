@@ -66,6 +66,65 @@ Use these environment types when building battlefields intended to produce stron
 - Environment geometry should create choices, not hidden pathing traps or unreadable clutter.
 - Decorative biome dressing is allowed, but it must not obscure lane readability or silhouette clarity for small 3D actors.
 
+## Planet Biome Archetypes and Parameterization (S-2004)
+
+Use these archetypes to create map identity variation without breaking readability and competitive fairness.
+
+| Archetype | Resource Density | Colonization Potential | Terrain Feature Density | Plant Life Presence | Gameplay Identity |
+| --- | --- | --- | --- | --- | --- |
+| Ash Wasteland (Desolate) | low | low | medium to high hard blockers | minimal | high exposure fights with sparse sustain |
+| Frozen Riftlands | low to medium | low to medium | high ramp and ridge fragmentation | sparse | route control through narrow safe paths |
+| Temperate Frontier | medium | medium | medium mixed terrain | moderate | balanced expansion and contest tempo |
+| Verdant Canopy (Fertile) | medium to high | high | medium soft cover clusters | dense | rich economy with scouting and LOS pressure |
+
+### Parameterization Rules
+
+Gameplay-driving parameters:
+
+- Node density bands for Alloy, Data, and reclaim opportunities.
+- Traversability profile (ramp count, hard blockers, flank-link frequency).
+- Cover and LOS blocker density by lane type.
+- Colonization throughput modifiers and trade-route exposure.
+
+Cosmetic-only parameters:
+
+- Palette shifts and skybox presets.
+- Weather particles that do not alter collision or line-of-sight.
+- Decorative prop swaps with no gameplay collider.
+
+Authoring rule:
+
+- Any parameter that changes pathing, line-of-sight, extraction rate, capture tempo, or build footprint is gameplay-driving and must be documented in scenario notes.
+
+## Terrain and Plant Life Vocabulary (S-2005)
+
+### Terrain Vocabulary
+
+| Terrain Class | Rule | Tactical Effect |
+| --- | --- | --- |
+| Solid Blocker | Impassable to ground movement and blocks line-of-sight | creates route division and ambush pockets |
+| Soft Cover | Traversable area with ranged mitigation bonus | rewards infantry staging and skirmish timing |
+| Traversable Ramp | Height transition path with no hard stop | enables multi-angle pressure and retreat paths |
+| Destructible Terrain | Temporary blocker removable through damage threshold | creates dynamic route denial and comeback openings |
+
+### Plant Life Classification
+
+| Plant Class | Collisions | LOS Effect | Use Cases |
+| --- | --- | --- | --- |
+| Cosmetic Flora | none | none | atmosphere only |
+| Partial Cover Flora | light movement penalty or soft cover modifier | partial sight interference | contested lane edges and flank concealment |
+| LOS Blocker Flora | solid line-of-sight interruption zones | full sight block in bounded cluster | jungle pockets and objective approach screening |
+
+Biome density rule:
+
+- Fertile biomes should use higher partial-cover and LOS-blocker flora density.
+- Desolate biomes should use cosmetic or sparse partial-cover flora only.
+
+Readability protection rule:
+
+- Plant-life placement must preserve small 3D unit silhouette readability at default camera.
+- Any flora cluster that hides baseline unit silhouettes from normal combat distance fails acceptance and must be reduced.
+
 ### Skirmish and Campaign Variant Packs
 
 Use the following variant packs when expanding beyond the first duel map. Each map must use exactly one primary type and optionally one secondary type.

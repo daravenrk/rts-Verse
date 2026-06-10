@@ -45,6 +45,20 @@ Track high-level project changes with links to decisions and plans.
 - Added duel-map opening-loop simulation baseline for resource accrual, objective contest cadence, and opening-phase advanced-system gate checks.
 - Executed F-20 and F-21 baseline validation flow in headless mode with parity-delta telemetry and passing summary gate.
 - Added Helion and Veyari opening stabilization model guardrails to economy standards with explicit F-21 parity telemetry mapping.
+- Added planning/primitive-visual-baseline.md with shared primitive grammar, shader rules, unit recipes, building recipes, and explicit angle-readability completion checklist.
+- Closed AGENT_PLAN and DEV_NEXT_STEPS story queue S-1001 through S-1005 with linked validation evidence and acceptance-gate criteria.
+- Added planning/world-systems-baseline.md with structure material-zone maps, day-night contract parameters, readability floor thresholds, and dark-phase checklist.
+- Added biome archetype parameterization and terrain or plant vocabulary to map standards for desolate-to-fertile map authoring.
+- Added world resource source mapping and a constrained credits conversion layer to economy standards with stockpile-consistency rules.
+- Closed AGENT_PLAN and DEV_NEXT_STEPS story queue S-2001 through S-2006 with validation flow linkage (F-28).
+- Assigned owners for all M2 seed backlog tasks and closed the related next-steps planning action.
+- Added selectable unit baseline actor and duel-map F-01/F-02 test hook for single or multi-select plus right-click movement simulation.
+- Executed headless F-01/F-02 baseline run with pass evidence and promoted T-0001 and T-0002 to Done.
+- Added duel-map F-03 gather-return simulation hook with deterministic deposit increments and HUD alloy updates.
+- Executed headless F-03 validation with `alloy_total=70` pass evidence and promoted T-0003 to Done.
+- Added duel-map F-04 temporary HUD match-state baseline with explicit win or loss transition labels.
+- Executed headless F-04 validation and promoted T-0004 to Done.
+- Added explicit M2 validation scenario matrix to testing strategy and promoted T-0005 to Done.
 
 ## 2026-05-17
 

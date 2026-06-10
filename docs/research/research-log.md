@@ -258,6 +258,33 @@ Use this file to capture evidence-backed findings before changing architecture o
 - Follow-up tasks:
   - Define era transition triggers and player-facing cues.
   - Define One Box core loss penalties and distributed recovery paths.
+
+## Entry-0012 World Systems and Environment Baseline Contracts
+
+- Date: 2026-06-10
+- Query: Define contracts for structure shading zones, day-night readability, biome parameterization, terrain and plant-life vocabulary, and world resource source mapping.
+- Files reviewed:
+  - docs/planning/world-systems-baseline.md
+  - docs/planning/map-standards.md
+  - docs/planning/economy-standards.md
+  - docs/planning/testing-strategy.md
+  - docs/architecture/decision-log.md
+- Evidence:
+  - Structure readability requirements existed but lacked complete material-zone maps for shared MVP buildings.
+  - Day-night cycle speed, phase definitions, and readability floor constraints were unspecified.
+  - Biome and plant-life rules were not formalized in map standards.
+  - Economy standards lacked explicit world-source mapping and credit conversion constraints.
+- Interpretation:
+  - A unified world-systems contract is required to prevent readability regressions and map-authoring drift.
+  - Biome, lighting, and economy presentation must remain coupled to gameplay-driving fairness rules.
+- Risks or unknowns:
+  - Overly aggressive lighting or flora density may reduce combat clarity at RTS zoom.
+  - Credits conversion could distort opening parity if unconstrained.
+- Recommended decision:
+  - Accept ADR-0012 and maintain world-systems contracts as source-of-truth for future map and visual implementation.
+- Follow-up tasks:
+  - Implement runtime validation hooks for F-28 once lighting and biome simulation systems are active.
+  - Record first dark-phase runtime pass against LS checklist once scene implementation is available.
   - Add validation flows for era progression and infrastructure collapse outcomes.
 
 ## Entry-0012 Three-Way Collision and Descent Event Architecture

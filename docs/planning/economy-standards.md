@@ -89,6 +89,40 @@ Shared design rule:
 - Event effects must be bounded so volatility shifts strategy without making match outcomes purely random.
 - Event impacts should be surfaced clearly to all players through shared notifications.
 
+## World Resource Sources and Monetary Layer (S-2003)
+
+### World Source Mapping
+
+| Resource | World Source Types | Primary Contest Pattern | Biome Sensitivity |
+| --- | --- | --- | --- |
+| Alloy | crust deposits, salvage seams, wrecked industrial fields | lane anchors and natural expansions | high: harsh biomes lower node yield; fertile biomes increase sustained extraction windows |
+| Power | thermal vents, reactor ruins, geomagnetic ridges | chokepoints and upland control | medium: cold and storm biomes reduce vent uptime; temperate biomes stabilize output |
+| Data | relay spires, orbital shard caches, signal vaults | central and flank objective races | low to medium: weather clutter affects capture safety more than raw value |
+| Reclaim | debris fields, ruined convoys, collapsed fortifications | post-fight cleanup and denial loops | medium: dense flora and rubble raise reclaim time variance |
+
+### Monetary Layer: Credits
+
+- Credits are a secondary conversion layer for colony and trade systems.
+- Credits are generated from civilian throughput, trade hubs, and mission contracts.
+- Credits can convert into strategic boosts but cannot replace core military resource loops.
+- Conversion rules:
+  - Credits to Alloy conversion is rate-limited and suffers diminishing returns under heavy conversion use.
+  - Credits cannot directly generate Data.
+  - Credits can offset selected upkeep penalties during temporary infrastructure disruption.
+
+### Biome Impact Rule
+
+- Desolate biomes:
+  - Lower baseline Alloy and Reclaim density.
+  - Lower colony credit generation ceiling.
+- Fertile biomes:
+  - Higher baseline Alloy and Reclaim density.
+  - Higher colony credit generation ceiling with increased raid exposure through dense terrain.
+
+Consistency rule:
+
+- World-source mappings and credit conversion must never violate global stockpile floors.
+
 ## Pricing Framework
 
 Use category bands first. Exact numbers can be assigned later inside these relationships.
