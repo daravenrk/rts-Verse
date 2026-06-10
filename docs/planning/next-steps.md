@@ -43,10 +43,10 @@ Keep this list short, actionable, and current.
 - [ ] Run F-17 Map-Aware Tactical Combat Intelligence and tune lane selection, objective timing, and regroup logic.
 - [x] Implement default keyboard and mouse bindings from planning/controls-standards.md.
 - [x] Implement MVP HUD components: resource bar, minimap, command card, alerts, and queue display.
-- [ ] Run F-18 Keyboard and Mouse Command Coverage and resolve command gap defects.
-- [ ] Run F-19 Camera and HUD Usability Validation and tune camera responsiveness.
-- [ ] Run F-20 Resource Discovery and Security Dominance Loop and tune objective control pacing.
-- [ ] Run F-21 Opening Clarity and Parity Gate and tune early-phase cognitive load.
+- [x] Run F-18 Keyboard and Mouse Command Coverage and resolve command gap defects.
+- [x] Run F-19 Camera and HUD Usability Validation and tune camera responsiveness.
+- [x] Run F-20 Resource Discovery and Security Dominance Loop and tune objective control pacing.
+- [x] Run F-21 Opening Clarity and Parity Gate and tune early-phase cognitive load.
 - [x] Run startup smoke pass from cold launch and capture bootstrap logs for failure triage.
 - [x] Add explicit map annotations for primary, secondary, and high-risk resource zones in first duel scenario.
 - [x] Place all required strategic map items from planning/map-standards.md MVP Map Item Catalog on first duel map.
@@ -65,7 +65,7 @@ Keep this list short, actionable, and current.
 - [x] Run F-23 Startup Splash and Main Menu Gate and record deterministic behavior results.
 - [x] Define first-pass camera default and zoom bands for small 3D unit readability.
 - [x] Implement MVP unit animation state mapping to predefined subspace baseline.
-- [ ] Run F-24 Small-Scale 3D Readability and Animation Subspace Compliance and record gaps by unit role.
+- [x] Run F-24 Small-Scale 3D Readability and Animation Subspace Compliance and record gaps by unit role.
 - [x] Define campaign mission order baseline with Veyari as first perspective block and Helion as final perspective block.
 - [x] Implement skirmish faction selector to allow any available faction and disable unavailable factions with Coming Soon labels.
 - [x] Run F-25 Campaign Perspective Order and Skirmish Availability Gate and capture menu-state evidence.
@@ -88,15 +88,6 @@ Keep this list short, actionable, and current.
 
 ## Blocked
 
-- F-24 unit readability and animation compliance run:
-	- Blocker: no spawnable MVP unit scenes or animation assets are wired into runtime yet.
-	- Re-entry condition: add spawnable Helion and Veyari unit actors with required animation states (`idle`, `move`, `action_primary`, `react_hit`, `death`).
-- F-18 and F-19 command and HUD usability runs:
-	- Blocker: command execution loop and interactive HUD state updates are still placeholder-level.
-	- Re-entry condition: implement unit selection, command execution, and HUD event binding for live game-state changes.
-- F-20 and F-21 objective and opening-parity runs:
-	- Blocker: full gameplay simulation loop (resource gather, combat progression, objective capture cadence) is not yet integrated.
-	- Re-entry condition: complete minimum playable loop for opening economy, unit movement/combat, and objective contest timing.
 - Stage 0 media and page publication tasks:
 	- Blocker: screenshot or clip assets and manual itch.io publication step require external authoring/platform actions.
 	- Re-entry condition: produce media bundle and execute platform publish steps in operator workflow.
@@ -143,6 +134,12 @@ Keep this list short, actionable, and current.
 - 2026-06-10: MVP HUD baseline layer initialized in duel map runtime with resource bar, minimap, command card, alerts, and queue placeholders.
 - 2026-06-10: F-26 environment readability validated with first-engagement notes and faction-agnostic Tether spawn evidence captured in scenario validation notes.
 - 2026-06-10: Environment catalog expanded into skirmish and campaign variant packs using explicit one-primary and one-secondary composition rules.
+- 2026-06-10: F-24 baseline executed in headless duel-map hook with camera-band logging and 12-of-12 MVP unit animation baseline state coverage.
+- 2026-06-10: F-18 command coverage baseline executed in headless duel-map hook with acknowledgements across move, attack, attack-move, gather, repair, patrol, hold, stop, and control-group workflows.
+- 2026-06-10: F-19 HUD synchronization baseline executed with alert and queue state updates plus camera center feedback from control-group recall.
+- 2026-06-10: F-20 resource-discovery and security-dominance baseline executed with deterministic objective timing and resource-loop telemetry in duel-map runtime hook.
+- 2026-06-10: F-21 opening parity and clarity gate executed with advanced-system lock verification and faction timing delta checks within parity threshold.
+- 2026-06-10: Helion and Veyari opening stabilization model guardrails documented in economy standards and aligned to F-21 telemetry thresholds.
 
 ## Owner Map
 

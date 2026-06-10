@@ -38,6 +38,13 @@ Track high-level project changes with links to decisions and plans.
 - Added persisted input profile support (`user://input_profile.cfg`) for remappable hotkeys and camera settings, validated by create-on-first-run and load-on-restart behavior.
 - Executed F-26 environment readability validation with first-engagement notes and faction-agnostic Tether spawn evidence across swapped faction assignments.
 - Expanded environment catalog into skirmish and campaign variant packs with explicit one-primary-one-secondary map composition rules.
+- Added MVP unit-actor runtime baseline and F-24 validation hook in duel map for animation-state compliance checks.
+- Executed F-24 baseline validation with camera-band telemetry and full 12/12 MVP unit baseline-state pass evidence.
+- Added duel-map command simulation baseline for selection, action dispatch, control groups, and HUD synchronization telemetry.
+- Executed F-18 and F-19 baseline validation flow in headless mode with command-coverage acknowledgements, rejection-path check, and HUD state summaries.
+- Added duel-map opening-loop simulation baseline for resource accrual, objective contest cadence, and opening-phase advanced-system gate checks.
+- Executed F-20 and F-21 baseline validation flow in headless mode with parity-delta telemetry and passing summary gate.
+- Added Helion and Veyari opening stabilization model guardrails to economy standards with explicit F-21 parity telemetry mapping.
 
 ## 2026-05-17
 

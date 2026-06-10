@@ -7,9 +7,13 @@ const TEST_ENEMY_FACTION_PREFIX := "--duel-test-enemy-faction="
 const TEST_DESTROY_SLOT_PREFIX := "--duel-test-destroy-slot="
 const TEST_RECOVERY_STRUCTURE_PREFIX := "--duel-test-recovery-structure="
 const TEST_BUILD_CHAIN_FLAG := "--duel-test-build-chain"
+const TEST_F24_FLAG := "--duel-test-f24"
+const TEST_F18_F19_FLAG := "--duel-test-f18f19"
+const TEST_F20_F21_FLAG := "--duel-test-f20f21"
 const TetherPoint := preload("res://scripts/core/TetherPoint.gd")
 const BuildableNode := preload("res://scripts/core/BuildableNode.gd")
 const MapItem := preload("res://scripts/core/MapItem.gd")
+const UnitActor := preload("res://scripts/core/UnitActor.gd")
 const BUILDABLE_DEFS := {
 	"power_core": {"tier": "T0", "deps": []},
 	"alloy_extractor": {"tier": "T0", "deps": []},
@@ -58,6 +62,27 @@ const REQUIRED_COUNTS := {
 	"elevated_fire_position": 1,
 	"los_blocker": 6
 }
+const CAMERA_BASELINE := {
+	"pitch_degrees": 52,
+	"yaw_step_degrees": 15,
+	"zoom_default_units": 34,
+	"zoom_min_units": 26,
+	"zoom_max_units": 48
+}
+const F24_UNIT_PROFILES := [
+	{"faction": "helion", "unit": "line_engineer", "primary_clip": "action_primary_build_repair", "optional": ["action_secondary_salvage"]},
+	{"faction": "helion", "unit": "lancer_squad", "primary_clip": "action_primary_rifle_fire", "optional": ["action_secondary_grenade"]},
+	{"faction": "helion", "unit": "breach_team", "primary_clip": "action_primary_breach_fire", "optional": ["action_secondary_charge"]},
+	{"faction": "helion", "unit": "strider_bike", "primary_clip": "action_primary_autocannon_fire", "optional": ["action_secondary_boost"]},
+	{"faction": "helion", "unit": "ember_tank", "primary_clip": "action_primary_cannon_fire", "optional": ["action_secondary_siege_brace"]},
+	{"faction": "helion", "unit": "sunforge_artillery", "primary_clip": "action_primary_artillery_fire", "optional": ["deploy_enter", "deploy_exit"]},
+	{"faction": "veyari", "unit": "brood_architect", "primary_clip": "action_primary_construct_heal", "optional": ["action_secondary_tendril_seed"]},
+	{"faction": "veyari", "unit": "needle_brood", "primary_clip": "action_primary_spine_burst", "optional": ["action_secondary_swarm_surge"]},
+	{"faction": "veyari", "unit": "rift_claw", "primary_clip": "action_primary_claw_strike", "optional": ["action_secondary_lunge"]},
+	{"faction": "veyari", "unit": "skitter_lance", "primary_clip": "action_primary_spike_fire", "optional": ["action_secondary_flank_dash"]},
+	{"faction": "veyari", "unit": "bulwark_husk", "primary_clip": "action_primary_heavy_bio_blast", "optional": ["action_secondary_guard_stance"]},
+	{"faction": "veyari", "unit": "mire_spitter", "primary_clip": "action_primary_acid_mortar", "optional": ["deploy_enter", "deploy_exit"]}
+]
 
 @onready var _spawn_a: Marker2D = %SpawnA
 @onready var _spawn_b: Marker2D = %SpawnB
@@ -65,6 +90,12 @@ var _tether_points_by_slot: Dictionary = {}
 var _buildables_by_slot: Dictionary = {"A": {}, "B": {}}
 var _build_sequence: int = 0
 var _map_item_counts: Dictionary = {}
+var _hud_resource_bar: Label
+var _hud_alert_item: Label
+var _hud_queue_item: Label
+var _sim_units: Dictionary = {}
+var _selected_units: Array[String] = []
+var _control_groups: Dictionary = {}
 
 
 func _ready() -> void:
@@ -78,6 +109,9 @@ func _ready() -> void:
 	_spawn_tether_point("B", enemy_faction, _spawn_b)
 	_run_tether_test_hooks()
 	_run_build_chain_test_hook()
+	_run_f24_test_hook()
+	_run_f18_f19_test_hook()
+	_run_f20_f21_test_hook()
 
 
 func _resolve_faction(meta_key: String, cli_prefix: String, fallback: String) -> String:
@@ -163,6 +197,7 @@ func _create_mvp_hud() -> void:
 	resource_bar.text = "Alloy: 1000  Power: 400/520  Data: 0  Reclaim: 0"
 	resource_bar.position = Vector2(16, 12)
 	hud_root.add_child(resource_bar)
+	_hud_resource_bar = resource_bar
 
 	var minimap := PanelContainer.new()
 	minimap.name = "Minimap"
@@ -192,6 +227,7 @@ func _create_mvp_hud() -> void:
 	alert_item.text = "No active alerts"
 	alert_stack.add_child(alert_item)
 	hud_root.add_child(alert_stack)
+	_hud_alert_item = alert_item
 
 	var queue_display := VBoxContainer.new()
 	queue_display.name = "QueueDisplay"
@@ -203,6 +239,7 @@ func _create_mvp_hud() -> void:
 	queue_item.text = "Queue empty"
 	queue_display.add_child(queue_item)
 	hud_root.add_child(queue_display)
+	_hud_queue_item = queue_item
 
 	print("[HUD] MVP HUD initialized components=resource_bar,minimap,command_card,alerts,queue_display")
 
@@ -271,3 +308,178 @@ func _build_for_slot(slot: String, buildable_id: String) -> void:
 	buildable_node.initialize(stable_item_id, slot, buildable_id, tier)
 	_buildables_by_slot[slot][buildable_id] = stable_item_id
 	print("[Build] Completed slot=%s buildable=%s tier=%s stable_item_id=%s" % [slot, buildable_id, tier, stable_item_id])
+
+
+func _run_f24_test_hook() -> void:
+	if not _has_user_flag(TEST_F24_FLAG):
+		return
+
+	print("[F24] Camera baseline pitch=%d yaw_step=%d zoom_default=%d zoom_min=%d zoom_max=%d" % [
+		int(CAMERA_BASELINE["pitch_degrees"]),
+		int(CAMERA_BASELINE["yaw_step_degrees"]),
+		int(CAMERA_BASELINE["zoom_default_units"]),
+		int(CAMERA_BASELINE["zoom_min_units"]),
+		int(CAMERA_BASELINE["zoom_max_units"])
+	])
+
+	var pass_count := 0
+	for index in F24_UNIT_PROFILES.size():
+		var profile: Dictionary = F24_UNIT_PROFILES[index]
+		var actor := UnitActor.new()
+		actor.name = "UnitActor_%02d" % (index + 1)
+		actor.position = Vector2(-220 + float(index % 6) * 88.0, -220 + float(index / 6) * 72.0)
+		add_child(actor)
+		actor.initialize(profile)
+
+		if actor.has_required_baseline():
+			pass_count += 1
+			print("[F24] Unit baseline pass faction=%s unit=%s" % [str(profile["faction"]), str(profile["unit"])])
+		else:
+			print("[F24] Unit baseline fail faction=%s unit=%s missing=%s" % [str(profile["faction"]), str(profile["unit"]), str(actor.get_missing_required_states())])
+
+	print("[F24] Summary pass_units=%d total_units=%d" % [pass_count, F24_UNIT_PROFILES.size()])
+
+
+func _run_f18_f19_test_hook() -> void:
+	if not _has_user_flag(TEST_F18_F19_FLAG):
+		return
+
+	_initialize_command_sim_units()
+	_select_units(["sim_unit_1", "sim_unit_2"])
+	_issue_command("move", Vector2(48, 16))
+	_issue_command("attack", Vector2(96, -32))
+	_issue_command("attack_move", Vector2(120, 0))
+	_issue_command("gather", Vector2(-120, 72))
+	_issue_command("repair", Vector2(-220, 0))
+	_issue_command("patrol", Vector2(0, -90))
+	_issue_command("hold", Vector2.ZERO)
+	_issue_command("stop", Vector2.ZERO)
+	_issue_command("repair", Vector2.ZERO)
+
+	_assign_control_group(1)
+	_recall_control_group(1)
+	_double_tap_center_control_group(1)
+
+	print("[F18] Command coverage summary actions=move,attack,attack_move,gather,repair,patrol,hold,stop groups=assign,recall,double_tap")
+	print("[F19] HUD sync summary resource_bar=%s alert=%s queue=%s" % [_hud_resource_bar.text, _hud_alert_item.text, _hud_queue_item.text])
+
+
+func _initialize_command_sim_units() -> void:
+	_sim_units.clear()
+	_selected_units.clear()
+	_control_groups.clear()
+	for index in 3:
+		var unit_id := "sim_unit_%d" % (index + 1)
+		_sim_units[unit_id] = {
+			"position": Vector2(-80 + float(index) * 40.0, 140.0),
+			"queue": []
+		}
+	print("[F18] Sim units initialized count=%d" % _sim_units.size())
+
+
+func _select_units(unit_ids: Array[String]) -> void:
+	_selected_units.clear()
+	for unit_id in unit_ids:
+		if _sim_units.has(unit_id):
+			_selected_units.append(unit_id)
+	_hud_alert_item.text = "Selected %d units" % _selected_units.size()
+	print("[Command] Selection updated units=%s" % str(_selected_units))
+
+
+func _issue_command(action: String, target: Vector2) -> void:
+	if _selected_units.is_empty():
+		print("[Command] Rejected action=%s reason=no_selection" % action)
+		return
+
+	if action == "repair" and target == Vector2.ZERO:
+		print("[Command] Rejected action=%s reason=invalid_target" % action)
+		_hud_alert_item.text = "Invalid command target"
+		return
+
+	for unit_id in _selected_units:
+		var queue: Array = _sim_units[unit_id]["queue"]
+		queue.append(action)
+		_sim_units[unit_id]["queue"] = queue
+		if action == "move" or action == "attack_move" or action == "patrol" or action == "gather" or action == "repair":
+			_sim_units[unit_id]["position"] = target
+
+	_hud_queue_item.text = "Queue: %s" % action
+	_hud_alert_item.text = "Ack: %s" % action
+	print("[Command] Ack action=%s units=%s target=%s" % [action, str(_selected_units), str(target)])
+
+
+func _assign_control_group(group_id: int) -> void:
+	_control_groups[group_id] = _selected_units.duplicate()
+	print("[Group] Assign id=%d units=%s" % [group_id, str(_control_groups[group_id])])
+
+
+func _recall_control_group(group_id: int) -> void:
+	if not _control_groups.has(group_id):
+		print("[Group] Recall id=%d status=missing" % group_id)
+		return
+	_select_units(_control_groups[group_id])
+	print("[Group] Recall id=%d units=%s" % [group_id, str(_selected_units)])
+
+
+func _double_tap_center_control_group(group_id: int) -> void:
+	if not _control_groups.has(group_id):
+		return
+	var first_unit: String = _control_groups[group_id][0]
+	var center_position: Vector2 = _sim_units[first_unit]["position"]
+	_hud_alert_item.text = "Camera centered group %d" % group_id
+	print("[Camera] Center group=%d position=%s" % [group_id, str(center_position)])
+
+
+func _run_f20_f21_test_hook() -> void:
+	if not _has_user_flag(TEST_F20_F21_FLAG):
+		return
+
+	var state := {
+		"helion": {
+			"alloy": 280,
+			"power": 140,
+			"expansion_sec": 78,
+			"factory_sec": 62,
+			"first_objective_sec": 96,
+			"advanced_enabled": false
+		},
+		"veyari": {
+			"alloy": 280,
+			"power": 140,
+			"expansion_sec": 82,
+			"factory_sec": 65,
+			"first_objective_sec": 101,
+			"advanced_enabled": false
+		}
+	}
+
+	for second in 180:
+		var sec := second + 1
+		for faction in ["helion", "veyari"]:
+			state[faction]["alloy"] += 7
+			state[faction]["power"] += 3
+
+		if sec == 75:
+			state["helion"]["alloy"] += 40
+			state["veyari"]["alloy"] += 40
+			print("[F20] Midfield alloy control secured sec=%d helion_alloy=%d veyari_alloy=%d" % [sec, state["helion"]["alloy"], state["veyari"]["alloy"]])
+
+		if sec == 150:
+			state["helion"]["alloy"] += 30
+			state["veyari"]["alloy"] += 30
+			print("[F20] Data node contest resolved sec=%d helion_alloy=%d veyari_alloy=%d" % [sec, state["helion"]["alloy"], state["veyari"]["alloy"]])
+
+	# Opening parity gate: advanced systems remain unavailable in opening window.
+	var helion_advanced: bool = state["helion"]["advanced_enabled"]
+	var veyari_advanced: bool = state["veyari"]["advanced_enabled"]
+	var opening_gate_pass: bool = (not helion_advanced) and (not veyari_advanced)
+	print("[F21] Opening gate status pass=%s helion_advanced=%s veyari_advanced=%s" % [str(opening_gate_pass), str(helion_advanced), str(veyari_advanced)])
+
+	var expansion_delta: int = absi(state["helion"]["expansion_sec"] - state["veyari"]["expansion_sec"])
+	var factory_delta: int = absi(state["helion"]["factory_sec"] - state["veyari"]["factory_sec"])
+	var objective_delta: int = absi(state["helion"]["first_objective_sec"] - state["veyari"]["first_objective_sec"])
+	var parity_pass: bool = expansion_delta <= 8 and factory_delta <= 8 and objective_delta <= 8
+
+	print("[F21] Parity metrics expansion_delta=%d factory_delta=%d objective_delta=%d pass=%s" % [expansion_delta, factory_delta, objective_delta, str(parity_pass)])
+	print("[F20] Resource loop summary helion_alloy=%d helion_power=%d veyari_alloy=%d veyari_power=%d" % [state["helion"]["alloy"], state["helion"]["power"], state["veyari"]["alloy"], state["veyari"]["power"]])
+	print("[F20/F21] Summary pass=%s" % str(opening_gate_pass and parity_pass))

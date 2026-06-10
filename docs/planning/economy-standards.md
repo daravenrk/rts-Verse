@@ -197,6 +197,33 @@ Use category bands first. Exact numbers can be assigned later inside these relat
 - More tolerant of drawn-out wars if map denial and salvage are functioning.
 - Must not be allowed to outscale by doing nothing; reclaim and map presence should be required.
 
+## Opening Stabilization Model (Helion and Veyari MVP)
+
+Use this baseline to keep opening outcomes equivalent while preserving faction expression.
+
+### Stabilization Levers
+
+- Helion:
+  - Acceleration bias through faster setup and redeploy cadence.
+  - Stabilization cost is slightly higher exposure if early map control is surrendered.
+- Veyari:
+  - Conversion bias through resilient follow-through after first engagements.
+  - Stabilization cost is slightly later first major timing unless map pressure is won.
+
+### Parity Guardrails (Opening Window)
+
+- Expansion timing delta target: `<= 8s` between Helion and Veyari.
+- First factory timing delta target: `<= 8s` between Helion and Veyari.
+- First contested objective timing delta target: `<= 8s` between Helion and Veyari.
+- Advanced civilization systems remain disabled during opening parity checks.
+
+### F-21 Telemetry Mapping
+
+- `expansion_delta_sec` maps to first natural expansion completion timestamp.
+- `factory_delta_sec` maps to first T1 production structure ready timestamp.
+- `objective_delta_sec` maps to first contested objective secured timestamp.
+- Any parity guardrail breach marks opening stabilization as failed and requires retuning.
+
 ## Pricing Sanity Rules
 
 - No direct upgrade should invalidate an entire lower-tier unit class immediately.
