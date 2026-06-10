@@ -27,7 +27,7 @@ Define and deliver the first playable RTS vertical slice expressing daravenrk's 
 
 ## M2 Core Gameplay Loop
 
-- Status: Not Started
+- Status: In Progress (simulation baseline and headless validation complete; visual scene assembly pending)
 - Outcomes:
   - Default startup scene baseline implemented (Main.tscn) and wired as project main scene.
   - Startup UX flow implemented: splash first, then main menu on first key press or 5-second timeout.
@@ -67,7 +67,7 @@ Define and deliver the first playable RTS vertical slice expressing daravenrk's 
 
 ## M3 Content and Balance Pass
 
-- Status: Not Started
+- Status: In Progress (design and planning baseline complete; gameplay system implementation not started)
 - Outcomes:
   - Starter factions and unit roster.
   - Campaign perspective arc baseline defined with Veyari-first and Helion-last mission order.

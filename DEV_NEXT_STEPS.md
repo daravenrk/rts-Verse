@@ -219,3 +219,82 @@
 - `zsh docs/release/stage0-media/stage0_status_report.sh`
 - `docs/planning/stage0-postpublish-closure-checklist.md`
 - `docs/planning/stage0-operator-closure-worksheet.md`
+
+---
+
+### 4. Visual Scene Assembly and Playable First Build
+
+- Outcome: the project transitions from a simulation-and-headless-validation baseline to a runnable visual game where a player can launch, select factions, enter the duel map, select units, issue move commands, and see the resource bar update.
+- Scope boundary: minimum playable visual slice for M2 completion; does not require full art assets or combat AI — placeholder 3D shapes and live HUD wiring are the gate.
+
+### Ordered Story Queue (Objective 4)
+
+```yaml
+- story_id: S-4001
+  title: Wire Skirmish.tscn scene tree
+  user_value: Players can open the faction selector screen without null node errors.
+  dependencies: [none]
+  acceptance_criteria:
+    - Skirmish.tscn contains a CanvasLayer or Control root with OptionButton nodes named PlayerFactionSelector and EnemyFactionSelector.
+    - A Label node named CampaignOrderLabel and a Label node named StatusLabel are present.
+    - A Button for starting a match is connected to _on_start_match_button_pressed.
+    - Scene loads and populates selectors correctly in in-editor run; no missing-node errors in output.
+  validation:
+    - type: functional
+      method: Run Skirmish.tscn in editor and verify selectors populate with Helion and Veyari enabled and other factions disabled.
+  status: todo
+
+- story_id: S-4002
+  title: Replace 2D unit simulation actors with visible Node3D placeholders
+  user_value: Players see unit shapes on the battlefield at default RTS camera height instead of invisible 2D nodes.
+  dependencies: [S-4001]
+  acceptance_criteria:
+    - FirstDuelMap spawns Node3D units with MeshInstance3D using CSGBox3D or MeshInstance3D BoxMesh placeholders.
+    - Helion units use a distinct color material; Veyari units use a distinct contrasting color.
+    - Units are visible and distinguishable at the default Camera3D zoom documented in camera baseline.
+    - SelectableUnit2D selection and movement logic remains intact; visual representation is additive.
+  validation:
+    - type: functional
+      method: Launch duel map in editor, verify unit shapes are visible and faction-distinguishable at default zoom.
+  status: todo
+
+- story_id: S-4003
+  title: Add Camera3D with RTS baseline orbit and zoom
+  user_value: Players can pan, rotate, and zoom the camera using documented key bindings.
+  dependencies: [S-4002]
+  acceptance_criteria:
+    - FirstDuelMap.tscn includes a Camera3D node positioned at documented pitch and zoom defaults.
+    - Pan, rotate, and zoom input actions respond to bindings from controls-standards.md.
+    - All unit and map-item Node3D objects remain visible within the default zoom envelope.
+  validation:
+    - type: functional
+      method: Run duel map in editor, verify pan, rotate, and zoom actions work and units remain in frame.
+  status: todo
+
+- story_id: S-4004
+  title: Wire HUD labels to live game state
+  user_value: Players see alloy counts update during gather cycles and alerts fire on Tether penalty.
+  dependencies: [S-4003]
+  acceptance_criteria:
+    - Resource bar label reflects alloy value from active simulation state, not a static placeholder string.
+    - Alert label updates when Tether Point command penalty is triggered.
+    - Match-state label transitions from active to win or loss when condition is met.
+  validation:
+    - type: integration
+      method: Run gather cycle in editor, confirm resource bar increments; trigger Tether destruction and confirm alert fires.
+  status: todo
+
+- story_id: S-4005
+  title: Execute manual cold-launch visual smoke playthrough
+  user_value: The full loop from cold launch to controllable units in duel map is confirmed playable with no blocking failures.
+  dependencies: [S-4001, S-4002, S-4003, S-4004]
+  acceptance_criteria:
+    - Cold launch reaches splash, transitions to main menu, loads Skirmish, starts duel map without crash or blocking error.
+    - Player can click to select at least one unit and right-click to issue a move command.
+    - Resource bar updates at least once during session.
+    - No null node errors or assert failures appear in the Godot output panel during the session.
+  validation:
+    - type: smoke
+      method: Manual playthrough from cold launch to move command, recording any output-panel errors.
+  status: todo
+```

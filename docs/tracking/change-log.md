@@ -4,6 +4,11 @@ Track high-level project changes with links to decisions and plans.
 
 ## 2026-06-09
 
+- Corrected M2 milestone status from Not Started to In Progress (simulation baseline and headless validation complete; visual scene assembly pending).
+- Corrected M3 milestone status from Not Started to In Progress (design and planning baseline complete; gameplay system implementation not started).
+- Added Objective 4 to DEV_NEXT_STEPS for visual scene assembly with story queue S-4001 through S-4005.
+- Added M2 backlog tasks T-0051 through T-0055 for Skirmish.tscn wiring, Node3D unit placeholders, Camera3D, live HUD wiring, and manual smoke playthrough.
+- Added visual scene assembly tasks to next-steps sprint queue as the next implementation increment.
 - Refined Stage 0 closure lane into dependency-ordered M4 tasks T-0046 through T-0050 with explicit acceptance and validation gates.
 - Decomposed Stage 0 sprint next steps into operator-ready micro-steps covering media freeze, staging, audit, publish, evidence capture, and tracker synchronization.
 - Updated M4 status to in-progress with a dedicated Stage 0 immediate execution slice and formal entry or exit criteria.
