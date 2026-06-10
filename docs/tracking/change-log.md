@@ -22,6 +22,15 @@ Track high-level project changes with links to decisions and plans.
 - Added concrete advanced-system unlock thresholds in tech-tree planning for maintenance load, instability pressure, and civilization stress events.
 - Added Stage 0 itch.io page copy draft in launch plan, including hero tagline, about copy, feature bullets, trust section, and feedback instructions.
 - Added player-facing feedback template fields and publish-ready submission instructions for itch page feedback collection.
+- Added first duel map scene with explicit SpawnA and SpawnB markers and map-defined Tether spawn logic.
+- Validated faction-agnostic Tether spawn positions in headless runs by swapping Helion and Veyari assignments while keeping slot coordinates and stable item IDs unchanged.
+- Added shared TetherPoint runtime behavior with faction-specific command-structure mapping for Helion, Obsidian, and Veyari.
+- Added controlled Tether destruction and recovery telemetry hooks logging command-penalty activation and recovery-state transitions.
+- Added T0 and T1 Tether-linked MVP buildable chain placeholders with dependency validation and stable build-item telemetry IDs.
+- Executed F-22 headless matrix across Helion, Obsidian, and Veyari on both spawn slots with command-penalty and recovery evidence captured.
+- Added weekly feedback triage cadence kickoff parameters and a first feedback-response devlog summary draft template.
+- Added first-pass camera defaults and zoom-band standards for small 3D unit readability in controls standards.
+- Confirmed MVP per-unit animation subspace mapping baseline in unit-list as F-24 source-of-truth input.
 
 ## 2026-05-17
 

@@ -53,31 +53,31 @@ Keep this list short, actionable, and current.
 - [ ] Place all required tactical terrain items from planning/map-standards.md MVP Map Item Catalog on first duel map.
 - [ ] Assign stable item IDs to all interactive map items and add them to scenario validation notes.
 - [ ] Prototype exactly one optional MVP extension item after required map items pass checklist validation.
-- [ ] Implement shared Tether Point primary base behavior for Helion, Obsidian, and Veyari command structures.
-- [ ] Implement MVP T0 buildables from Tether Point unlock chain: Power Core, Alloy Extractor, and Barracks-equivalent.
-- [ ] Implement MVP T1 buildables: Vehicle Structure, Sensor/Uplink Structure, and Expansion Hub or Radius Extender.
-- [ ] Add command-penalty and recovery-state telemetry for controlled Tether Point destruction tests.
-- [ ] Run F-22 Tether Point and Buildable Chain Integrity across both spawns for all MVP factions.
+- [x] Implement shared Tether Point primary base behavior for Helion, Obsidian, and Veyari command structures.
+- [x] Implement MVP T0 buildables from Tether Point unlock chain: Power Core, Alloy Extractor, and Barracks-equivalent.
+- [x] Implement MVP T1 buildables: Vehicle Structure, Sensor/Uplink Structure, and Expansion Hub or Radius Extender.
+- [x] Add command-penalty and recovery-state telemetry for controlled Tether Point destruction tests.
+- [x] Run F-22 Tether Point and Buildable Chain Integrity across both spawns for all MVP factions.
 - [x] Implement splash scene as first visual state before any menu interaction.
 - [x] Implement startup gate: transition to main menu on first key press or auto-transition at 5 seconds.
 - [x] Implement main menu options with Skirmish enabled and Campaign disabled labeled Coming Soon.
 - [x] Add startup telemetry fields for transition reason (keypress or timeout) and timestamp.
 - [x] Run F-23 Startup Splash and Main Menu Gate and record deterministic behavior results.
-- [ ] Define first-pass camera default and zoom bands for small 3D unit readability.
-- [ ] Implement MVP unit animation state mapping to predefined subspace baseline.
+- [x] Define first-pass camera default and zoom bands for small 3D unit readability.
+- [x] Implement MVP unit animation state mapping to predefined subspace baseline.
 - [ ] Run F-24 Small-Scale 3D Readability and Animation Subspace Compliance and record gaps by unit role.
 - [x] Define campaign mission order baseline with Veyari as first perspective block and Helion as final perspective block.
 - [x] Implement skirmish faction selector to allow any available faction and disable unavailable factions with Coming Soon labels.
 - [x] Run F-25 Campaign Perspective Order and Skirmish Availability Gate and capture menu-state evidence.
 - [x] Select primary environment type for first duel map and document why it fits MVP combat goals.
-- [ ] Confirm Tether Point spawn positions are map-defined and work correctly for both Helion and Veyari at all valid spawn locations.
+- [x] Confirm Tether Point spawn positions are map-defined and work correctly for both Helion and Veyari at all valid spawn locations.
 - [ ] Run F-26 Environment Type Readability and capture first-engagement notes.
 - [x] Define concrete unlock thresholds for advanced systems (maintenance, instability, civilization stress).
 - [x] Draft itch.io page copy using planning/itch-io-launch-and-feedback-plan.md blueprint sections.
 - [ ] Prepare Stage 0 media bundle (screenshots or clips) with gameplay-first captions.
 - [ ] Publish itch.io Stage 0 Coming Soon page with transparent Pre-Alpha status.
 - [x] Define structured feedback template fields and publish feedback instructions on itch page.
-- [ ] Start weekly feedback triage cadence and publish first feedback-response devlog summary.
+- [x] Start weekly feedback triage cadence and publish first feedback-response devlog summary.
 
 ## Ready Queue
 
@@ -120,6 +120,13 @@ Keep this list short, actionable, and current.
 - 2026-06-10: Concrete MVP unlock thresholds defined for maintenance load, instability pressure, and civilization stress events, including earliest windows and telemetry requirements.
 - 2026-06-10: Stage 0 itch.io page copy draft completed from blueprint sections, including hero, about, feature bullets, trust block, and feedback CTA.
 - 2026-06-10: Structured player-facing feedback template and publish-ready submission instructions added for itch page rollout.
+- 2026-06-10: First duel map scene added with map-defined Tether spawn markers and headless validation logs confirming slot-stable positions for both Helion and Veyari assignments.
+- 2026-06-10: Shared Tether Point role behavior implemented with Helion, Obsidian, and Veyari command-structure mapping plus controlled command-penalty and recovery-state telemetry hooks.
+- 2026-06-10: MVP T0 and T1 Tether-linked buildable chain implemented with dependency checks and stable build-item telemetry across both slots.
+- 2026-06-10: F-22 matrix executed in headless runs across Helion, Obsidian, and Veyari for both spawn slots with destruction and recovery logging evidence.
+- 2026-06-10: Weekly feedback triage cadence kickoff and first feedback-response devlog summary draft added to launch workflow.
+- 2026-06-10: First-pass camera defaults and zoom bands for small 3D readability added to controls standards for F-24 baseline.
+- 2026-06-10: MVP animation subspace per-unit mapping baseline confirmed in unit-list and linked as F-24 source-of-truth.
 
 ## Owner Map
 

@@ -120,3 +120,21 @@ This document defines baseline player controls, input bindings, and RTS HUD beha
 - Groups: assign, recall, camera-center recall.
 - UI: resource HUD, minimap, command card, queue visibility.
 - Alerts: objective contest, resource shortage, Descent event warning.
+
+## First-Pass Camera Baseline for Small 3D Readability
+
+Use this baseline until F-24 tuning data requires changes.
+
+| Parameter | Default | Min | Max | Notes |
+| --- | --- | --- | --- | --- |
+| Camera pitch | 52 deg | 48 deg | 58 deg | Keeps infantry silhouettes readable while preserving lane visibility. |
+| Camera yaw step (Q or E) | 15 deg | 10 deg | 20 deg | Rotation increments should preserve orientation confidence in combat. |
+| Zoom distance | 34 units | 26 units | 48 units | Default favors unit readability; max supports macro scan. |
+| Pan speed | 30 units per second | 22 | 40 | Must allow fast lane transitions without overshoot. |
+| Zoom speed | 18 percent per wheel step | 12 | 24 | Stable zoom cadence for repeated readability checks. |
+
+### Zoom Bands
+
+- Close-read band: 26 to 31 units, used for tactical micro and animation-intent confirmation.
+- Default-read band: 32 to 38 units, used as primary F-24 validation distance.
+- Macro-read band: 39 to 48 units, used for lane and objective overview checks.

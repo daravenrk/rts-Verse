@@ -135,6 +135,43 @@ Every feedback item should be recorded with:
   - Top 3 suggestions to investigate.
   - One public devlog update summarizing what changed from player feedback.
 
+### Cadence Kickoff (Week 1)
+
+- Cadence owner: Project owner.
+- Cadence day: Friday.
+- Triage window: 45 minutes.
+- Public summary target: same day after triage.
+
+### First Feedback-Response Devlog Summary Draft
+
+Use this as the first published weekly summary format.
+
+```
+Week 1 Feedback Response Summary
+
+Build tested:
+Total reports reviewed:
+
+Top validated issues addressed next:
+1.
+2.
+3.
+
+Top suggestions under investigation:
+1.
+2.
+3.
+
+Changes shipped from feedback this week:
+-
+
+Known gaps still open:
+-
+
+Next feedback focus request:
+-
+```
+
 ## Success Metrics
 
 ## Interest Metrics

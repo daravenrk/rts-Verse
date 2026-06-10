@@ -1,6 +1,7 @@
 extends Control
 
 const MAIN_SCENE_PATH := "res://scenes/core/Main.tscn"
+const FIRST_DUEL_MAP_SCENE_PATH := "res://scenes/core/FirstDuelMap.tscn"
 const CampaignData := preload("res://scripts/core/CampaignData.gd")
 
 const FACTIONS := [
@@ -68,8 +69,14 @@ func _on_enemy_faction_selector_item_selected(_index: int) -> void:
 func _on_start_match_button_pressed() -> void:
 	var player_faction_id := _get_selected_faction_id(_player_selector)
 	var enemy_faction_id := _get_selected_faction_id(_enemy_selector)
-	_status_label.text = "Match setup ready: %s vs %s" % [player_faction_id, enemy_faction_id]
+	_status_label.text = "Loading duel map: %s vs %s" % [player_faction_id, enemy_faction_id]
+	get_tree().root.set_meta("duel_player_faction", player_faction_id)
+	get_tree().root.set_meta("duel_enemy_faction", enemy_faction_id)
 	print("[Skirmish] Start pressed: player=%s enemy=%s" % [player_faction_id, enemy_faction_id])
+
+	var result := get_tree().change_scene_to_file(FIRST_DUEL_MAP_SCENE_PATH)
+	if result != OK:
+		push_error("[Skirmish] Failed to load duel map (%s)" % str(result))
 
 
 func _on_back_button_pressed() -> void:
