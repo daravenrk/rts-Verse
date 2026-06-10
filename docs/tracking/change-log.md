@@ -2,6 +2,14 @@
 
 Track high-level project changes with links to decisions and plans.
 
+## 2026-06-09
+
+- Implemented startup bootstrap checklist in startup script for input profile load, core manager init, and gameplay scene transition state tracking.
+- Ran cold-launch startup smoke pass in headless mode and captured bootstrap checklist logs for failure triage baseline.
+- Updated sprint tracker to mark startup bootstrap checklist task complete.
+- Implemented skirmish faction selector UI gate with explicit availability states and disabled Coming Soon entries for unavailable factions.
+- Ran headless skirmish scene smoke check and captured faction availability logs for selector initialization.
+
 ## 2026-05-17
 
 - Added project documentation baseline under docs.

@@ -155,3 +155,181 @@ steps:
 - R-005
   - owner: Project owner
   - next action: keep plan locked to MVP Helion, Veyari, and shared building classes before expanding to Obsidian or future factions.
+
+---
+
+## Objective 2: World Systems and Environment Design Baseline
+
+### Objective Summary
+
+- Active objective name: World systems and environment design baseline
+- Intended gameplay outcome: the battlefield feels like a living, readable world whose biome, lighting, time of day, terrain, and economy all reinforce strategic decisions and vary meaningfully across planets.
+- Scope boundary: define system contracts and planet archetypes first; defer final art assets and numeric tuning to later passes.
+
+### Story Breakdown
+
+```yaml
+- story_id: S-2001
+  title: Define structure shading and material zones baseline
+  user_value: Buildings are readable from all camera angles and communicate faction identity and damage state clearly.
+  dependencies: [S-1001]
+  acceptance_criteria:
+    - Every shared MVP building class has a defined material zone map covering primary body, faction accent, emissive indicator, and damage overlay.
+    - Shading rules cover ambient occlusion handling, specular limits, and faction-tint layer constraints.
+    - Damaged and destroyed state visual rules are documented alongside healthy-state rules.
+  validation:
+    - type: manual
+      method: review material zone maps against docs/planning/unit-list.md building classes and F-24 readability criteria
+  status: todo
+
+- story_id: S-2002
+  title: Define lighting model and day-night cycle system contract
+  user_value: Time of day creates atmospheric variety and mild tactical scouting tradeoffs without hurting gameplay readability.
+  dependencies: [S-2001]
+  acceptance_criteria:
+    - A lighting model is defined covering ambient, directional, and fill-light roles for each day phase.
+    - Day-night cycle speed and phase count are specified as game parameters.
+    - Readability floor rule is defined covering minimum contrast and emissive brightness at darkest night phase.
+    - Night does not hide unit or building silhouettes below readability thresholds from game-vision visual policy.
+  validation:
+    - type: manual
+      method: review lighting spec against F-24 readability floor and game-vision readability-first principle
+  status: todo
+
+- story_id: S-2003
+  title: Define world resource system and monetary layer
+  user_value: Resource extraction and spending feel grounded in the world rather than abstract counters, and colony economies have a conversion mechanism.
+  dependencies: [none]
+  acceptance_criteria:
+    - Alloy, Power, Data, and Reclaim are each mapped to a visible world source type (deposits, relay nodes, wreck fields, planetary vents).
+    - A monetary or credit layer is defined as a secondary conversion mechanism for trade and colony economy.
+    - Rules for how planetary biome affects base resource density are stated.
+    - World resource system is consistent with the global stockpile model in docs/planning/economy-standards.md.
+  validation:
+    - type: integration
+      method: compare resource world-source map against economy-standards.md global stockpile rules and verify no contradictions
+  status: todo
+
+- story_id: S-2004
+  title: Define planet biome archetypes and map parameterization rules
+  user_value: Maps feel distinct across campaigns and skirmish without requiring full art rebuilds per map.
+  dependencies: [S-2003]
+  acceptance_criteria:
+    - At least four biome archetypes are defined spanning desolate wasteland through lush jungle world.
+    - Each biome specifies default resource density, colonization potential, terrain feature density, and plant life presence.
+    - Map parameterization rules distinguish gameplay-driving variables from cosmetic-only variables.
+    - Desolate planets have lower colonization yield and sparser plant life; fertile planets have higher yield and denser growth.
+  validation:
+    - type: manual
+      method: verify biome table covers the full desolate-to-fertile spectrum with distinct resource and colonization rules per row
+  status: todo
+
+- story_id: S-2005
+  title: Define plant life and terrain design vocabulary
+  user_value: Terrain and flora are purposeful game elements that affect pathing, cover, and scouting rather than being pure cosmetic dressing.
+  dependencies: [S-2004]
+  acceptance_criteria:
+    - A terrain feature vocabulary is defined covering solid blockers, soft cover, traversable ramps, and destructible terrain.
+    - Plant life types are classified as cosmetic-only, partial cover, or LOS blocker with explicit rules per class.
+    - Fertile biomes have denser plant-life cover and LOS effects; desolate biomes have minimal or no plant-life effect.
+    - Plant life must not obscure small 3D unit silhouettes below the readability floor from game-vision visual policy.
+  validation:
+    - type: manual
+      method: review terrain vocabulary and plant-life rules against map-standards.md environment types and game-vision readability policy
+  status: todo
+
+- story_id: S-2006
+  title: Integrate structure shading with day-night cycle
+  user_value: Buildings remain readable and faction-distinguishable at all times of day without requiring per-map lighting tuning.
+  dependencies: [S-2001, S-2002]
+  acceptance_criteria:
+    - Emissive indicator rules ensure faction color and damage state are visible at minimum night lighting.
+    - Ambient occlusion depth is constrained to avoid swallowing small building footprints at night.
+    - Lighting phase transition rules prevent visual pop or readability loss during cycle changes.
+  validation:
+    - type: manual
+      method: simulate dark phase against building material zones and confirm emissive and contrast floor is met
+  status: todo
+```
+
+### Execution Sequence
+
+```yaml
+objective: World systems and environment design baseline
+steps:
+  - order: 1
+    action: implement
+    detail: Write structure shading and material zone baseline for MVP building classes (S-2001).
+  - order: 2
+    action: validate
+    detail: Review material zones against F-24 and game-vision readability policy.
+  - order: 3
+    action: document
+    detail: Update planning docs with structure visual and material rules.
+  - order: 4
+    action: implement
+    detail: Write lighting model and day-night cycle system contract (S-2002).
+  - order: 5
+    action: validate
+    detail: Check lighting model against readability floor and minimum contrast requirements.
+  - order: 6
+    action: document
+    detail: Record lighting spec in planning docs and update testing-strategy with readability-under-lighting flow.
+  - order: 7
+    action: implement
+    detail: Write world resource system and monetary layer definitions (S-2003).
+  - order: 8
+    action: validate
+    detail: Cross-check against economy-standards.md global stockpile model for consistency.
+  - order: 9
+    action: document
+    detail: Update economy-standards.md with resource world-source map and monetary layer rules.
+  - order: 10
+    action: implement
+    detail: Write planet biome archetypes table and map parameterization rules (S-2004).
+  - order: 11
+    action: validate
+    detail: Verify biome table covers desolate-to-fertile spectrum and maps cleanly to resource and colonization rules.
+  - order: 12
+    action: document
+    detail: Add biome archetypes section to map-standards.md and record decision as ADR.
+  - order: 13
+    action: implement
+    detail: Write terrain and plant life vocabulary (S-2005).
+  - order: 14
+    action: validate
+    detail: Verify vocabulary against map-standards.md environment types and game-vision readability policy.
+  - order: 15
+    action: document
+    detail: Update map-standards.md terrain vocabulary section.
+  - order: 16
+    action: implement
+    detail: Write day-night and structure-shading integration rules (S-2006).
+  - order: 17
+    action: validate
+    detail: Simulate dark phase against material zones and confirm emissive and contrast floor passes.
+  - order: 18
+    action: document
+    detail: Finalize visual and lighting integration notes in planning docs.
+```
+
+### Validation Plan
+
+- S-2001: manual review of material zone maps against building classes and F-24 readability criteria.
+- S-2002: manual review of lighting spec against readability floor rule and game-vision visual policy.
+- S-2003: integration check of resource world-source map against economy-standards.md global stockpile rules.
+- S-2004: manual verification of biome table covering desolate-to-fertile spectrum with distinct rules per row.
+- S-2005: manual review of terrain and plant-life vocabulary against map-standards.md and readability policy.
+- S-2006: dark-phase simulation confirms emissive and contrast floor is met for all building material zones.
+
+### Unresolved Assumptions for Objective 2
+
+- Monetary or credit layer mechanics are not yet defined in economy-standards.md.
+  - owner: Project owner
+  - next action: decide whether credits are a world-visible resource or an abstract conversion layer and document in economy-standards.md.
+- Day-night cycle speed is unspecified.
+  - owner: Tech lead
+  - next action: propose default cycle length and phase count before lighting spec is locked.
+- Plant-life density rules for biomes are new scope not yet referenced in map-standards.md.
+  - owner: Tech lead
+  - next action: confirm plant life as a map parameter in map-standards.md before terrain vocabulary is finalized.

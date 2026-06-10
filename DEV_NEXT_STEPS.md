@@ -84,3 +84,90 @@
 - A-005: Locked vertical-slice roster is sufficient to communicate faction identity before full roster implementation.
   - Owner: Tech lead
   - Next action: ensure primitive recipes preserve strong Helion versus Veyari silhouette differences during F-24 review.
+
+---
+
+### 2. World Systems and Environment Design Baseline
+
+- Outcome: battlefield feels like a living world whose biome, lighting, time of day, terrain, economy, and plant life reinforce strategic decisions and vary meaningfully across planets.
+- Scope boundary: define system contracts and planet archetypes first; defer final art and numeric balance to later passes.
+
+### Ordered Story Queue
+
+```yaml
+- story_id: S-2001
+  title: Define structure shading and material zones
+  user_value: Buildings are readable from all camera angles and communicate faction identity and damage state clearly.
+  dependencies: [S-1001]
+  acceptance_criteria:
+    - Every shared MVP building class has a material zone map covering primary body, faction accent, emissive indicator, and damage overlay.
+    - Shading rules cover ambient occlusion handling, specular limits, and faction-tint constraints.
+    - Damaged and destroyed state visual rules are documented.
+  status: todo
+
+- story_id: S-2002
+  title: Define lighting model and day-night cycle contract
+  user_value: Time of day creates atmospheric variety and mild tactical tradeoffs without hurting gameplay readability.
+  dependencies: [S-2001]
+  acceptance_criteria:
+    - Lighting model covers ambient, directional, and fill-light roles per day phase.
+    - Day-night cycle speed and phase count defined as game parameters.
+    - Minimum contrast and emissive brightness specified for darkest night phase.
+    - Night does not hide unit or building silhouettes below readability thresholds.
+  status: todo
+
+- story_id: S-2003
+  title: Define world resource system and monetary layer
+  user_value: Resources feel grounded in the world and colony economies have a visible conversion mechanism.
+  dependencies: [none]
+  acceptance_criteria:
+    - Alloy, Power, Data, and Reclaim each mapped to a visible world source type.
+    - Monetary or credit layer defined for trade and colony economy conversion.
+    - Biome effect on base resource density is stated.
+    - Consistent with global stockpile model in economy-standards.md.
+  status: todo
+
+- story_id: S-2004
+  title: Define planet biome archetypes and map parameterization
+  user_value: Maps feel distinct across campaigns and skirmish without full art rebuilds per map.
+  dependencies: [S-2003]
+  acceptance_criteria:
+    - At least four biome archetypes spanning desolate wasteland through lush jungle world.
+    - Each biome specifies resource density, colonization potential, terrain density, and plant life presence.
+    - Desolate has lower yield and sparse flora; fertile has higher yield and dense growth.
+    - Map parameterization rules distinguish gameplay-driving variables from cosmetic-only variables.
+  status: todo
+
+- story_id: S-2005
+  title: Define plant life and terrain design vocabulary
+  user_value: Terrain and flora affect pathing, cover, and scouting as purposeful game elements.
+  dependencies: [S-2004]
+  acceptance_criteria:
+    - Terrain vocabulary covers solid blockers, soft cover, traversable ramps, and destructible terrain.
+    - Plant life classified as cosmetic-only, partial cover, or LOS blocker with explicit rules per class.
+    - Fertile biomes have denser cover and LOS effects; desolate biomes have minimal or none.
+    - Plant life must not obscure unit silhouettes below the readability floor.
+  status: todo
+
+- story_id: S-2006
+  title: Integrate structure shading with day-night cycle
+  user_value: Buildings remain readable and faction-distinguishable at all times of day.
+  dependencies: [S-2001, S-2002]
+  acceptance_criteria:
+    - Emissive rules ensure faction color and damage state visible at minimum night lighting.
+    - Ambient occlusion depth constrained to avoid swallowing small building footprints at night.
+    - Lighting phase transitions prevent visual pop or readability loss.
+  status: todo
+```
+
+### Unresolved Assumptions for Objective 2
+
+- Monetary or credit layer mechanics not yet defined in economy-standards.md.
+  - Owner: Project owner
+  - Next action: decide whether credits are world-visible or an abstract conversion layer and document in economy-standards.md.
+- Day-night cycle speed unspecified.
+  - Owner: Tech lead
+  - Next action: propose default cycle length and phase count before lighting spec is locked.
+- Plant-life density rules are new scope not yet in map-standards.md.
+  - Owner: Tech lead
+  - Next action: confirm plant life as a map parameter in map-standards.md before terrain vocabulary is finalized.

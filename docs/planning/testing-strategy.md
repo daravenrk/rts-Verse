@@ -328,19 +328,19 @@ This document defines validation layers for milestone delivery.
   - Campaign ordering definition is unambiguous and consistent with Veyari-first, Helion-last direction.
   - Menu and campaign data states remain synchronized with current documented scope.
 
-## Flow F-26 Environment Type and Helion Center-Tether Readability
+## Flow F-26 Environment Type Readability
 
-- Setup: Duel or skirmish scenario has a declared primary environment type from planning/map-standards.md and Helion start location when applicable.
+- Setup: Duel or skirmish scenario has a declared primary environment type from planning/map-standards.md.
 - Steps:
   - Record the selected primary environment type and any secondary type.
   - Validate lane readability, objective pressure pattern, and blocker clarity against the declared environment rules.
-  - If Helion is present, inspect base footprint and confirm Tether Point is centered or near-centered as the primary visual anchor.
+  - Confirm Tether Point for each faction spawns at the map-designated base spawn position regardless of faction.
   - Play first engagement window and confirm environment geometry produces contestable fights rather than one-route collapse.
 - Expected:
   - Environment identity is visible in the first minute of play.
   - Map geometry reinforces intended fight type without obscuring path choices.
-  - Helion center-Tether placement is readable and does not create hidden fairness bias.
-  - Any deviations from center placement are documented with pathing or fairness rationale.
+  - Tether Points spawn at map-defined positions consistently for all factions.
+  - Map layout is reusable across different faction matchups without layout changes.
 
 ## Reporting Template
 

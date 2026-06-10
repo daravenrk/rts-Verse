@@ -13,7 +13,7 @@ Keep this list short, actionable, and current.
 - [x] Add faction asymmetry acceptance checks to M2 validation flows.
 - [x] Create default startup scene at scenes/core/Main.tscn with single-responsibility bootstrap flow.
 - [x] Configure project.godot run/main_scene to scenes/core/Main.tscn after scene creation.
-- [ ] Add startup bootstrap checklist: input profile load, core manager init, gameplay scene transition.
+- [x] Add startup bootstrap checklist: input profile load, core manager init, gameplay scene transition.
 - [ ] Convert tech-tree vertical-slice lock into scene and script implementation checklist.
 - [ ] Build first duel map using map-standards.md.
 - [ ] Define initial numeric price bands for vertical-slice units and structures.
@@ -47,7 +47,7 @@ Keep this list short, actionable, and current.
 - [ ] Run F-19 Camera and HUD Usability Validation and tune camera responsiveness.
 - [ ] Run F-20 Resource Discovery and Security Dominance Loop and tune objective control pacing.
 - [ ] Run F-21 Opening Clarity and Parity Gate and tune early-phase cognitive load.
-- [ ] Run startup smoke pass from cold launch and capture bootstrap logs for failure triage.
+- [x] Run startup smoke pass from cold launch and capture bootstrap logs for failure triage.
 - [ ] Add explicit map annotations for primary, secondary, and high-risk resource zones in first duel scenario.
 - [ ] Place all required strategic map items from planning/map-standards.md MVP Map Item Catalog on first duel map.
 - [ ] Place all required tactical terrain items from planning/map-standards.md MVP Map Item Catalog on first duel map.
@@ -67,11 +67,11 @@ Keep this list short, actionable, and current.
 - [ ] Implement MVP unit animation state mapping to predefined subspace baseline.
 - [ ] Run F-24 Small-Scale 3D Readability and Animation Subspace Compliance and record gaps by unit role.
 - [ ] Define campaign mission order baseline with Veyari as first perspective block and Helion as final perspective block.
-- [ ] Implement skirmish faction selector to allow any available faction and disable unavailable factions with Coming Soon labels.
+- [x] Implement skirmish faction selector to allow any available faction and disable unavailable factions with Coming Soon labels.
 - [ ] Run F-25 Campaign Perspective Order and Skirmish Availability Gate and capture menu-state evidence.
 - [ ] Select primary environment type for first duel map and document why it fits MVP combat goals.
-- [ ] Apply Helion center-Tether placement rule to any Helion-authored start layout and document any near-center exceptions.
-- [ ] Run F-26 Environment Type and Helion Center-Tether Readability and capture first-engagement notes.
+- [ ] Confirm Tether Point spawn positions are map-defined and work correctly for both Helion and Veyari at all valid spawn locations.
+- [ ] Run F-26 Environment Type Readability and capture first-engagement notes.
 - [ ] Define concrete unlock thresholds for advanced systems (maintenance, instability, civilization stress).
 - [ ] Draft itch.io page copy using planning/itch-io-launch-and-feedback-plan.md blueprint sections.
 - [ ] Prepare Stage 0 media bundle (screenshots or clips) with gameplay-first captions.
@@ -108,6 +108,9 @@ Keep this list short, actionable, and current.
 - 2026-05-17: UI and controls baseline documented with keyboard and mouse bindings, HUD standards, and validation flows.
 - 2026-05-17: Resource discovery and resource security documented as the primary gameplay objective across vision and architecture.
 - 2026-05-17: Competitive-clarity-first and phase-gated-complexity model documented for opening parity and escalation pacing.
+- 2026-06-09: Startup bootstrap checklist implemented in Main bootstrap flow for input profile load, core manager initialization, and gameplay scene transition state tracking.
+- 2026-06-09: Startup cold-launch smoke pass executed in headless mode and bootstrap logs captured for triage baseline.
+- 2026-06-09: Skirmish faction selector implemented with availability gating; Helion and Veyari selectable while unavailable factions remain visible and disabled with Coming Soon labels.
 
 ## Owner Map
 

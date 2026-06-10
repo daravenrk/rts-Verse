@@ -99,15 +99,12 @@ Allowed asymmetry:
   - first defensive or utility structure
 - Builders must be able to move cleanly around the initial base without pathing traps.
 
-### Faction Placement Rule: Helion Center Tether
+### Tether Point Spawn Position Rule
 
-- On Helion-authored scenario layouts, the Helion Tether Point should sit at the visual and navigational center of the starting base footprint.
-- Center placement means:
-  - primary production branches radiate outward from the Tether Point,
-  - the initial build radius is readable from all major approach angles,
-  - the base silhouette communicates Helion's organized industrial structure.
-- The center-Tether rule is a faction readability rule, not permission to violate overall spawn fairness.
-- If strict geometric center conflicts with pathing, fairness, or required building footprint rules, use near-center placement while preserving the same visual anchor role.
+- The Tether Point for any faction is spawned at the map's designated base spawn position.
+- Spawn positions are map-defined, not faction-defined.
+- This keeps maps generic and reusable across all faction matchups without requiring faction-specific layout variants.
+- Faction identity is expressed through unit composition, building style, and tech, not through where the Tether Point sits relative to map geometry.
 
 ## Distance Bands
 
@@ -248,9 +245,9 @@ Use this as the source-of-truth list for placeable and interactive items in MVP 
   - Selected environment type produces readable lane and objective fights without pathing ambiguity.
 - Integration:
   - Resource placement, pathing, expansion timing, and combat lanes reinforce faction identity without breaking fairness.
-  - Helion center-Tether placement reinforces faction readability without creating spatial advantage.
+  - Tether Point spawn positions are consistent with map-defined locations across all faction matchups.
 - Smoke:
   - A full match reaches expansion and first Tier 2 transition without layout-caused deadlock.
 - Observability:
   - Scenario notes record spawn, first contact timing, expansion timing, and first contested node capture.
-  - Scenario notes record environment type, center-objective pressure pattern, and any Helion base-anchor readability issues.
+  - Scenario notes record environment type, center-objective pressure pattern, and Tether Point spawn position consistency across faction matchups.

@@ -587,10 +587,10 @@ Use this file to capture evidence-backed findings before changing architecture o
   - Implement skirmish availability gating logic in faction selection UI.
   - Execute F-25 and record enabled or disabled state evidence.
 
-## Entry-0024 Environment Type Vocabulary and Helion Base-Anchor Rule
+## Entry-0024 Environment Type Vocabulary and Faction-Agnostic Tether Spawn Rule
 
 - Date: 2026-06-06
-- Query: Define environment types that create good fights and set Helion Tether placement to center by default.
+- Query: Define environment types that create good fights and establish that Tether Points spawn at map-defined positions for all factions, keeping maps generic and reusable.
 - Files reviewed:
   - docs/planning/game-vision.md
   - docs/planning/map-standards.md
@@ -601,19 +601,19 @@ Use this file to capture evidence-backed findings before changing architecture o
   - docs/architecture/decision-log.md
 - Evidence:
   - Existing map standards already define lanes, chokepoints, contested nodes, and fairness constraints but not a named environment taxonomy.
-  - Tether Point rules define Helion command structure role but not faction-specific base composition placement in map layouts.
+  - Tether Point spawn position was not yet formally decoupled from faction identity in map layout rules.
   - Current combat and readability goals depend on geometry that creates choices without clutter or hidden route ambiguity.
 - Interpretation:
   - Environment types need a reusable vocabulary centered on fight shape, objective pull, and route structure.
-  - Helion can carry a center-Tether readability rule as long as fairness and pathing still override strict geometric symmetry when required.
+  - Tether Points should spawn at map-defined positions so any map works with any faction matchup without layout variants.
 - Risks or unknowns:
   - Environment types may be over-applied too rigidly if maps stop mixing secondary traits.
-  - Helion center-placement may unintentionally bias artillery spacing or build order safety if not reviewed under spawn fairness checks.
+  - Faction visual identity must come from units and buildings, not spawn geometry.
 - Recommended decision:
-  - Accept ADR-0024 and standardize shape-forward environment types plus Helion center-Tether placement rule with near-center fallback.
+  - Accept ADR-0024 and standardize shape-forward environment types plus faction-agnostic map-defined spawn positions for Tether Points.
 - Follow-up tasks:
   - Select first duel-map primary environment type.
-  - Validate Helion start footprint against F-26.
+  - Validate faction-agnostic Tether spawn positions against F-26 for both Helion and Veyari.
   - Expand environment taxonomy into future skirmish and campaign map planning after MVP map proves readable.
 
 ## Research Entry Template

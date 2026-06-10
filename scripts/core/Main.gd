@@ -2,17 +2,68 @@ extends Node
 
 const SPLASH_DURATION_SECONDS := 5.0
 const SKIRMISH_SCENE_PATH := "res://scenes/core/Skirmish.tscn"
+const STARTUP_STEP_INPUT_PROFILE := "input_profile_load"
+const STARTUP_STEP_CORE_MANAGER_INIT := "core_manager_init"
+const STARTUP_STEP_GAMEPLAY_TRANSITION := "gameplay_scene_transition"
 
 var _menu_shown: bool = false
 var _splash_timer: Timer
 var _splash_layer: CanvasLayer
 var _menu_layer: CanvasLayer
+var _startup_checklist: Dictionary = {}
+var _core_manager_root: Node
 
 
 func _ready() -> void:
 	print("[Startup] Bootstrap initialized")
+	_initialize_startup_checklist()
+	_load_input_profile()
+	_initialize_core_managers()
 	set_process_unhandled_input(true)
 	_show_splash()
+	print("[Startup] Checklist summary: %s" % str(_startup_checklist))
+
+
+func _initialize_startup_checklist() -> void:
+	_startup_checklist = {
+		STARTUP_STEP_INPUT_PROFILE: "pending",
+		STARTUP_STEP_CORE_MANAGER_INIT: "pending",
+		STARTUP_STEP_GAMEPLAY_TRANSITION: "pending"
+	}
+
+
+func _mark_startup_step(step_id: String, status: String, detail: String) -> void:
+	_startup_checklist[step_id] = status
+	print("[Startup] Checklist %s=%s (%s)" % [step_id, status, detail])
+
+
+func _load_input_profile() -> void:
+	var required_actions := PackedStringArray(["ui_accept", "ui_cancel", "ui_select", "ui_right_click"])
+	for action in required_actions:
+		if not InputMap.has_action(action):
+			InputMap.add_action(action)
+
+	_mark_startup_step(STARTUP_STEP_INPUT_PROFILE, "done", "input actions prepared")
+
+
+func _initialize_core_managers() -> void:
+	if _core_manager_root and is_instance_valid(_core_manager_root):
+		_mark_startup_step(STARTUP_STEP_CORE_MANAGER_INIT, "done", "core managers already initialized")
+		return
+
+	_core_manager_root = Node.new()
+	_core_manager_root.name = "CoreManagers"
+	add_child(_core_manager_root)
+
+	var input_manager := Node.new()
+	input_manager.name = "InputManager"
+	_core_manager_root.add_child(input_manager)
+
+	var game_state_manager := Node.new()
+	game_state_manager.name = "GameStateManager"
+	_core_manager_root.add_child(game_state_manager)
+
+	_mark_startup_step(STARTUP_STEP_CORE_MANAGER_INIT, "done", "core manager stubs initialized")
 
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -137,14 +188,20 @@ func _show_main_menu(reason: String) -> void:
 	campaign_button.disabled = true
 	vbox.add_child(campaign_button)
 
+	_mark_startup_step(STARTUP_STEP_GAMEPLAY_TRANSITION, "pending", "awaiting skirmish scene transition")
 	print("[Startup] Main menu shown (trigger=%s)" % reason)
 
 
 func _on_skirmish_pressed() -> void:
 	if not ResourceLoader.exists(SKIRMISH_SCENE_PATH):
+		_mark_startup_step(STARTUP_STEP_GAMEPLAY_TRANSITION, "failed", "skirmish scene missing")
 		push_warning("[Menu] Skirmish scene missing: %s" % SKIRMISH_SCENE_PATH)
 		return
 
 	var result: Error = get_tree().change_scene_to_file(SKIRMISH_SCENE_PATH)
 	if result != OK:
+		_mark_startup_step(STARTUP_STEP_GAMEPLAY_TRANSITION, "failed", "scene transition error")
 		push_error("[Menu] Failed to change scene (%s): %s" % [str(result), SKIRMISH_SCENE_PATH])
+		return
+
+	_mark_startup_step(STARTUP_STEP_GAMEPLAY_TRANSITION, "done", "entered skirmish scene")
