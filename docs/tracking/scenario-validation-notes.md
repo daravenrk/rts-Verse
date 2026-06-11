@@ -2,6 +2,30 @@
 
 Track scenario-level evidence for map and flow validation runs.
 
+## 2026-06-10 F-38 Live Production Menu and Unit Spawn Loop
+
+- Flow: `F-38 Live production menu and structure-gated unit spawn loop`
+- Scenario: `scenes/core/FirstDuelMap.tscn`
+- Validation command:
+  - `/Applications/Godot.app/Contents/MacOS/godot --headless --quit --path . res://scenes/core/FirstDuelMap.tscn -- --duel-test-f38-production`
+- Result: Pass
+- Notes:
+  - Production chain prerequisites were satisfied for slot `A`.
+  - Live production spawned infantry `lancer_squad` and vehicle `strider_bike` via runtime production commands.
+  - Summary emitted `infantry_pass=true`, `vehicle_pass=true`, and overall `pass=true`.
+
+## 2026-06-10 F-37 Live Attack Command and Combat Resolution Loop
+
+- Flow: `F-37 Live enemy-target attack and combat resolution loop`
+- Scenario: `scenes/core/FirstDuelMap.tscn`
+- Validation command:
+  - `/Applications/Godot.app/Contents/MacOS/godot --headless --quit --path . res://scenes/core/FirstDuelMap.tscn -- --duel-test-f37-combat`
+- Result: Pass
+- Notes:
+  - Right-click enemy-target attack command was issued by selected player unit `Squad_A_00`.
+  - Deterministic damage ticks reduced target `Squad_B_00` health from `100.0` to `0.0`.
+  - Target destruction completed without script errors and summary emitted `damage_pass=true`.
+
 ## 2026-06-10 F-36 Live Build Menu and Structure Placement Loop
 
 - Flow: `F-36 Live build menu and structure placement loop`

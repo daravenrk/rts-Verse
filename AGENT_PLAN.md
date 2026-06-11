@@ -6,6 +6,14 @@
 - Intended gameplay outcome: deliver a fast, readable 3D battlefield presentation where MVP units and structures are recognizable from all camera angles using primitive forms and controlled shading.
 - Scope boundary for this iteration: plan MVP Helion and Veyari units plus shared MVP buildable structures first; defer non-MVP factions and high-detail polish.
 
+## Closure Delta 2026-06-10
+
+- Runtime Objective 4 progression is now extended through combat engagement enablement.
+- Newly closed runtime story: S-4010 live right-click enemy attack and combat resolution.
+- Deterministic validation evidence added for F-37 with pass status and tracker alignment.
+- Newly closed runtime story: S-4011 live production menu and structure-gated unit spawning.
+- Deterministic validation evidence added for F-38 with pass status and tracker alignment.
+
 ## Story Breakdown
 
 ```yaml
@@ -149,6 +157,7 @@ steps:
 - A-004
   - owner: Tech lead
   - next action: confirm primitive-first presentation still communicates identity pillars in M2 visual review.
+
 - A-005
   - owner: Tech lead
   - next action: verify MVP roster silhouettes alone are sufficient to communicate faction identity before full roster rollout.

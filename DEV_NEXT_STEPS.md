@@ -350,4 +350,32 @@
     - type: integration
       method: Run deterministic F-36 live build placement validation and verify successful Power Core placement plus stable build-state tracking.
   status: done
+
+- story_id: S-4010
+  title: Implement live right-click enemy attack and combat resolution
+  user_value: Player can start active engagements in runtime by issuing direct attack commands instead of only moving or gathering.
+  dependencies: [S-4006, S-4007, S-4008]
+  acceptance_criteria:
+    - Right-click on an enemy unit issues an attack command for selected player units.
+    - Attack orders persist with chase behavior until target enters range or is destroyed.
+    - Combat applies deterministic damage ticks and removes destroyed units cleanly from active runtime state.
+    - Existing movement, gather, and build loops remain functional after combat integration.
+  validation:
+    - type: integration
+      method: Run deterministic F-37 combat validation and verify attack issuance, damage progression, and target destruction evidence.
+  status: done
+
+- story_id: S-4011
+  title: Implement live production menu and structure-gated unit spawning
+  user_value: Player can grow battlefield forces during runtime using production commands rather than static opening squads.
+  dependencies: [S-4009, S-4010]
+  acceptance_criteria:
+    - Pressing P opens a production menu for the selected player slot.
+    - Number hotkeys queue valid production options and reject locked options cleanly.
+    - Produced units spawn as live controllable actors and integrate with existing movement and combat systems.
+    - Production respects structure-gated requirements from the documented production chain.
+  validation:
+    - type: integration
+      method: Run deterministic F-38 production validation and verify infantry plus vehicle creation with live spawn evidence.
+  status: done
 ```

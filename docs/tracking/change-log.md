@@ -39,6 +39,12 @@ Track high-level project changes with links to decisions and plans.
 - Added live build menu flow for builder units with B to open menu, Q/W/E/A/S/D build selection, and left-click placement on valid ground.
 - Added visible tier-colored structure meshes for BuildableNode runtime spawns.
 - Added deterministic F-36 build validation hook (`--duel-test-f36-build`) and executed headless validation with pass evidence (`place_pass=true`, `has_power_core=true`).
+- Added live right-click enemy-target attack dispatch in duel-map runtime with persistent attack orders and chase-to-range behavior.
+- Added deterministic combat resolution state for controllable squads with per-unit hit points, attack cooldowns, damage ticks, and clean destroyed-unit removal.
+- Added deterministic F-37 combat validation hook (`--duel-test-f37-combat`) and executed headless validation with pass evidence (attack issued, repeated damage ticks, target destroyed, `damage_pass=true`).
+- Added live production menu flow with P and numeric hotkeys for structure-gated infantry or vehicle production options.
+- Added live runtime produced-unit spawning so production commands create controllable actors integrated into movement and combat loops.
+- Added deterministic F-38 production validation hook (`--duel-test-f38-production`) and executed headless validation with pass evidence (infantry and vehicle produced with `pass=true`).
 - Decomposed Stage 0 sprint next steps into operator-ready micro-steps covering media freeze, staging, audit, publish, evidence capture, and tracker synchronization.
 - Updated M4 status to in-progress with a dedicated Stage 0 immediate execution slice and formal entry or exit criteria.
 - Added ADR-0025 and research Entry-0025 to document deterministic Stage 0 closure decomposition rationale and validation strategy.

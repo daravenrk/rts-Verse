@@ -87,6 +87,10 @@ Keep this list short, actionable, and current.
 - [x] Run cold-launch visual smoke playthrough from splash to move command with no blocking errors.
 - [x] Implement live builder-driven structure placement with build menu, hotkey selection, and ground placement click.
 - [x] Validate runtime structure placement flow with deterministic F-36 pass evidence.
+- [x] Implement live enemy-target attack command and health-based combat resolution in duel-map runtime.
+- [x] Validate runtime combat loop with deterministic F-37 attack and destruction evidence.
+- [x] Implement live production menu and unit spawn flow from built structures in duel-map runtime.
+- [x] Validate runtime production loop with deterministic F-38 infantry and vehicle creation evidence.
 - [ ] Freeze Stage 0 media set: select 3 to 6 screenshots and optional clips, then finalize gameplay-first captions.
 - [ ] Stage finalized media and captions in docs/release/stage0-media/ using required naming and ordering.
 - [ ] Run zsh docs/release/stage0-media/prepublish_audit.sh and clear all unresolved findings.

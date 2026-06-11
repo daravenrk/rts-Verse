@@ -21,6 +21,8 @@ const TEST_F32_INTERACTION_FLAG := "--duel-test-f32-interaction"
 const TEST_F33_BLOCKER_FLAG := "--duel-test-f33-blocker"
 const TEST_F35_GATHER_FLAG := "--duel-test-f35-gather"
 const TEST_F36_BUILD_FLAG := "--duel-test-f36-build"
+const TEST_F37_COMBAT_FLAG := "--duel-test-f37-combat"
+const TEST_F38_PRODUCTION_FLAG := "--duel-test-f38-production"
 const TEST_AUTO_EXIT_FLAG := "--duel-test-auto-exit"
 const TEST_ROSTER_BEHAVIORS_FLAG := "--duel-test-roster-behaviors"
 const TEST_T2_PATHS_FLAG := "--duel-test-t2-paths"
@@ -34,6 +36,11 @@ const BUILD_HOTKEYS := {
 	KEY_A: "vehicle_structure",
 	KEY_S: "sensor_uplink",
 	KEY_D: "expansion_hub",
+}
+const PRODUCTION_HOTKEYS := {
+	KEY_1: 0,
+	KEY_2: 1,
+	KEY_3: 2,
 }
 const BUILDABLE_DEFS := {
 	"power_core": {"tier": "T0", "deps": []},
@@ -187,6 +194,11 @@ const _CAMERA_PAN_SPEED := 200.0
 const _CAMERA_ROTATE_SPEED := 60.0
 const _CAMERA_ZOOM_STEP := 50.0
 const _SELECT_RADIUS_UNITS := 18.0
+const _ATTACK_SELECT_RADIUS_UNITS := 14.0
+const _ATTACK_RANGE_UNITS := 18.0
+const _ATTACK_DAMAGE_PER_HIT := 16.0
+const _ATTACK_COOLDOWN_SECONDS := 0.6
+const _UNIT_BASE_HIT_POINTS := 100.0
 const _BLOCKER_RECTS: Array[Rect2] = [
 	Rect2(Vector2(-30.0, -30.0), Vector2(60.0, 60.0)),
 	Rect2(Vector2(-170.0, 60.0), Vector2(50.0, 50.0)),
@@ -211,8 +223,13 @@ var _resource_alloy_total: int = 0
 var _gather_jobs: Dictionary = {}
 var _build_menu_active: bool = false
 var _pending_buildable_id: String = ""
+var _production_menu_active: bool = false
+var _attack_orders: Dictionary = {}
+var _attack_cooldowns: Dictionary = {}
+var _unit_hit_points: Dictionary = {}
 var _production_sequence: int = 0
 var _produced_units_by_slot: Dictionary = {"A": {}, "B": {}}
+var _live_production_spawn_index_by_slot: Dictionary = {"A": 0, "B": 0}
 var _colony_sequence: int = 0
 var _colony_units_by_slot: Dictionary = {"A": {}, "B": {}}
 
@@ -238,6 +255,8 @@ func _ready() -> void:
 	_run_f33_blocker_test_hook()
 	_run_f35_gather_test_hook()
 	_run_f36_build_test_hook()
+	_run_f37_combat_test_hook()
+	_run_f38_production_test_hook()
 	_run_f03_test_hook()
 	_run_f04_test_hook()
 	_run_production_chain_test_hook()
@@ -279,6 +298,7 @@ func _spawn_opening_squads() -> void:
 			var off: Vector3 = offsets[i]
 			actor.initialize(unit_id, faction, marker.position + Vector3(off.x * mirror, 0.0, off.z))
 			_controllable_units[actor.name] = actor
+			_register_unit_for_combat(actor.name, actor.unit_id)
 		print("[Squad] Spawned slot=%s faction=%s count=%d" % [slot, faction, mini(units_for_slot.size(), offsets.size())])
 
 
@@ -593,6 +613,7 @@ func _initialize_controllable_units() -> void:
 		add_child(unit)
 		unit.initialize(str(data["id"]), str(data["faction"]), data["position"])
 		_controllable_units[str(data["id"])] = unit
+		_register_unit_for_combat(str(data["id"]), unit.unit_id)
 
 	print("[F01] Spawned controllable units count=%d" % _controllable_units.size())
 
@@ -763,6 +784,64 @@ func _run_f36_build_test_hook() -> void:
 	var slot_buildables: Dictionary = _buildables_by_slot.get("A", {})
 	var has_power_core: bool = slot_buildables.has("power_core")
 	print("[F36] Summary place_pass=%s has_power_core=%s builder=%s" % [str(place_pass), str(has_power_core), builder_id])
+
+
+func _run_f37_combat_test_hook() -> void:
+	if not _has_user_flag(TEST_F37_COMBAT_FLAG):
+		return
+
+	var attacker_id := _find_first_unit_for_slot("A")
+	var target_id := _find_first_unit_for_slot("B")
+	if attacker_id == "" or target_id == "":
+		print("[F37] Summary pass=false reason=missing_attacker_or_target attacker=%s target=%s" % [attacker_id, target_id])
+		return
+
+	var target_hp_before: float = float(_unit_hit_points.get(target_id, _UNIT_BASE_HIT_POINTS))
+	_select_single_unit(attacker_id)
+	var target_unit: SelectableUnit2D = _controllable_units[target_id]
+	var target_screen := _rts_camera.unproject_position(target_unit.position)
+	_handle_right_click_command(target_screen)
+
+	for _step in 280:
+		_update_live_units(0.1)
+
+	var target_exists := _controllable_units.has(target_id)
+	var target_hp_after := 0.0
+	if target_exists:
+		target_hp_after = float(_unit_hit_points.get(target_id, target_hp_before))
+	var damage_pass := target_hp_after < target_hp_before or not target_exists
+	print("[F37] Summary attacker=%s target=%s target_exists=%s target_hp_before=%.1f target_hp_after=%.1f damage_pass=%s" % [attacker_id, target_id, str(target_exists), target_hp_before, target_hp_after, str(damage_pass)])
+
+
+func _run_f38_production_test_hook() -> void:
+	if not _has_user_flag(TEST_F38_PRODUCTION_FLAG):
+		return
+
+	_ensure_build_chain_for_slot("A", ["power_core", "barracks_equivalent", "vehicle_structure"])
+	var selector_id := _find_first_unit_for_slot("A")
+	if selector_id == "":
+		print("[F38] Summary pass=false reason=no_selector")
+		return
+
+	_select_single_unit(selector_id)
+	_toggle_production_menu()
+	var infantry_pass := _queue_live_production("lancer_squad")
+	var vehicle_pass := _queue_live_production("strider_bike")
+	var produced_infantry := _find_controllable_unit_by_type("A", "lancer_squad") != ""
+	var produced_vehicle := _find_controllable_unit_by_type("A", "strider_bike") != ""
+	var pass_ok := infantry_pass and vehicle_pass and produced_infantry and produced_vehicle
+	print("[F38] Summary infantry_pass=%s vehicle_pass=%s produced_infantry=%s produced_vehicle=%s pass=%s" % [str(infantry_pass), str(vehicle_pass), str(produced_infantry), str(produced_vehicle), str(pass_ok)])
+
+
+func _find_controllable_unit_by_type(slot: String, unit_type: String) -> String:
+	for unit_id in _controllable_units.keys():
+		var id := str(unit_id)
+		if _get_unit_slot(id) != slot:
+			continue
+		var unit: SelectableUnit2D = _controllable_units[id]
+		if unit.unit_id == unit_type:
+			return id
+	return ""
 
 
 func _run_f03_test_hook() -> void:
@@ -1190,8 +1269,15 @@ func _unhandled_input(event: InputEvent) -> void:
 		if event.keycode == KEY_B:
 			_toggle_build_menu()
 			return
+		if event.keycode == KEY_P:
+			_toggle_production_menu()
+			return
 		if _build_menu_active and BUILD_HOTKEYS.has(event.keycode):
 			_select_buildable(str(BUILD_HOTKEYS[event.keycode]))
+			return
+		if _production_menu_active and PRODUCTION_HOTKEYS.has(event.keycode):
+			var selected_index: int = int(PRODUCTION_HOTKEYS[event.keycode])
+			_queue_live_production_by_index(selected_index)
 			return
 
 
@@ -1207,6 +1293,8 @@ func _handle_left_click_selection(screen_pos: Vector2) -> void:
 	var nearest_id := ""
 	var nearest_distance := INF
 	for unit_id in _controllable_units.keys():
+		if not _is_player_controllable_unit(str(unit_id)):
+			continue
 		var unit: SelectableUnit2D = _controllable_units[unit_id]
 		var distance := Vector2(unit.position.x, unit.position.z).distance_to(Vector2(ground_point.x, ground_point.z))
 		if distance < nearest_distance:
@@ -1227,6 +1315,10 @@ func _handle_right_click_command(screen_pos: Vector2) -> void:
 	if not hit["ok"]:
 		return
 	var target: Vector3 = hit["point"]
+	var enemy_target_id := _find_enemy_unit_at_point(target)
+	if enemy_target_id != "":
+		_issue_attack_command(enemy_target_id)
+		return
 	var resource_id := _find_resource_at_point(target)
 	if resource_id != "":
 		_issue_gather_command(resource_id)
@@ -1311,6 +1403,163 @@ func _spawn_move_ping(world_pos: Vector3, color: Color = Color(0.95, 0.95, 0.2, 
 func _update_live_units(delta: float) -> void:
 	for unit in _controllable_units.values():
 		unit.simulate_step(delta)
+	_update_attack_orders(delta)
+
+
+func _register_unit_for_combat(unit_name: String, unit_type: String) -> void:
+	_unit_hit_points[unit_name] = _get_unit_max_hit_points(unit_type)
+	_attack_cooldowns[unit_name] = 0.0
+
+
+func _get_unit_max_hit_points(unit_type: String) -> float:
+	if unit_type == "ember_tank" or unit_type == "bulwark_husk":
+		return 180.0
+	if unit_type == "strider_bike" or unit_type == "skitter_lance":
+		return 90.0
+	return _UNIT_BASE_HIT_POINTS
+
+
+func _find_first_unit_for_slot(slot: String) -> String:
+	for unit_id in _controllable_units.keys():
+		if _get_unit_slot(str(unit_id)) == slot:
+			return str(unit_id)
+	return ""
+
+
+func _is_player_controllable_unit(unit_id: String) -> bool:
+	var slot := _get_unit_slot(unit_id)
+	if slot == "":
+		return true
+	return slot == "A"
+
+
+func _get_unit_slot(unit_id: String) -> String:
+	if unit_id.begins_with("Squad_A_"):
+		return "A"
+	if unit_id.begins_with("Squad_B_"):
+		return "B"
+	return ""
+
+
+func _find_enemy_unit_at_point(world_pos: Vector3) -> String:
+	if _selected_controllable_units.is_empty():
+		return ""
+	var selected_slot := _get_unit_slot(str(_selected_controllable_units[0]))
+	if selected_slot == "":
+		return ""
+
+	var point := Vector2(world_pos.x, world_pos.z)
+	var nearest_enemy := ""
+	var nearest_distance := INF
+	for unit_id in _controllable_units.keys():
+		var enemy_id := str(unit_id)
+		if _get_unit_slot(enemy_id) == selected_slot:
+			continue
+		var unit: SelectableUnit2D = _controllable_units[enemy_id]
+		var distance := Vector2(unit.position.x, unit.position.z).distance_to(point)
+		if distance < _ATTACK_SELECT_RADIUS_UNITS and distance < nearest_distance:
+			nearest_distance = distance
+			nearest_enemy = enemy_id
+	return nearest_enemy
+
+
+func _issue_attack_command(target_unit_id: String) -> void:
+	if _selected_controllable_units.is_empty():
+		return
+	if not _controllable_units.has(target_unit_id):
+		return
+
+	_clear_gather_jobs_for_selected_units()
+	var accepted: Array[String] = []
+	for unit_id in _selected_controllable_units:
+		var attacker_id := str(unit_id)
+		if not _controllable_units.has(attacker_id):
+			continue
+		if _get_unit_slot(attacker_id) == _get_unit_slot(target_unit_id):
+			continue
+		_attack_orders[attacker_id] = target_unit_id
+		accepted.append(attacker_id)
+
+	if accepted.is_empty():
+		if _hud_alert_item:
+			_hud_alert_item.text = "Attack rejected: invalid target"
+		return
+
+	if _hud_alert_item:
+		_hud_alert_item.text = "Attack order: %s" % target_unit_id
+	_spawn_move_ping(_controllable_units[target_unit_id].position, Color(1.0, 0.35, 0.35, 0.85))
+	print("[F37] Attack issued attackers=%s target=%s" % [str(accepted), target_unit_id])
+
+
+func _update_attack_orders(delta: float) -> void:
+	if _attack_orders.is_empty():
+		return
+
+	for attacker_id in _attack_orders.keys():
+		var id := str(attacker_id)
+		if not _controllable_units.has(id):
+			continue
+		var cooldown := float(_attack_cooldowns.get(id, 0.0))
+		cooldown = maxf(cooldown - delta, 0.0)
+		_attack_cooldowns[id] = cooldown
+
+	var attackers_to_clear: Array[String] = []
+	for attacker_id in _attack_orders.keys():
+		var id := str(attacker_id)
+		if not _controllable_units.has(id):
+			attackers_to_clear.append(id)
+			continue
+
+		var target_id := str(_attack_orders[id])
+		if not _controllable_units.has(target_id):
+			attackers_to_clear.append(id)
+			continue
+
+		var attacker: SelectableUnit2D = _controllable_units[id]
+		var target: SelectableUnit2D = _controllable_units[target_id]
+		var distance := Vector2(attacker.position.x, attacker.position.z).distance_to(Vector2(target.position.x, target.position.z))
+		if distance > _ATTACK_RANGE_UNITS:
+			attacker.queue_move(target.position)
+			continue
+
+		if float(_attack_cooldowns.get(id, 0.0)) > 0.0:
+			continue
+
+		_attack_cooldowns[id] = _ATTACK_COOLDOWN_SECONDS
+		var hp_before := float(_unit_hit_points.get(target_id, _UNIT_BASE_HIT_POINTS))
+		var hp_after := maxf(0.0, hp_before - _ATTACK_DAMAGE_PER_HIT)
+		_unit_hit_points[target_id] = hp_after
+		_spawn_move_ping(target.position, Color(1.0, 0.2, 0.2, 0.85))
+		print("[F37] Damage attacker=%s target=%s hp_before=%.1f hp_after=%.1f" % [id, target_id, hp_before, hp_after])
+
+		if hp_after <= 0.0:
+			_destroy_unit(target_id)
+
+	for attacker_id in attackers_to_clear:
+		_attack_orders.erase(attacker_id)
+
+
+func _destroy_unit(unit_id: String) -> void:
+	if not _controllable_units.has(unit_id):
+		return
+	var unit: SelectableUnit2D = _controllable_units[unit_id]
+	_controllable_units.erase(unit_id)
+	_selected_controllable_units.erase(unit_id)
+	_unit_hit_points.erase(unit_id)
+	_attack_cooldowns.erase(unit_id)
+	_gather_jobs.erase(unit_id)
+	_attack_orders.erase(unit_id)
+
+	var attackers_to_clear: Array[String] = []
+	for attacker_id in _attack_orders.keys():
+		if str(_attack_orders[attacker_id]) == unit_id:
+			attackers_to_clear.append(str(attacker_id))
+	for attacker_id in attackers_to_clear:
+		_attack_orders.erase(attacker_id)
+
+	if is_instance_valid(unit):
+		unit.queue_free()
+	print("[F37] Unit destroyed unit=%s" % unit_id)
 
 
 func _update_gather_jobs() -> void:
@@ -1368,6 +1617,7 @@ func _find_resource_at_point(world_pos: Vector3) -> String:
 
 
 func _toggle_build_menu() -> void:
+	_production_menu_active = false
 	var slot := _get_selected_builder_slot()
 	if slot == "":
 		if _hud_alert_item:
@@ -1383,6 +1633,130 @@ func _toggle_build_menu() -> void:
 			_hud_queue_item.text = "Build mode active"
 	else:
 		_reset_command_card_text()
+
+
+func _toggle_production_menu() -> void:
+	_build_menu_active = false
+	_pending_buildable_id = ""
+	var slot := _get_selected_slot_for_commands()
+	if slot == "":
+		if _hud_alert_item:
+			_hud_alert_item.text = "Production rejected: select a unit"
+		return
+	var tether: TetherPoint = _tether_points_by_slot[slot]
+	var faction: String = tether.faction_id
+	var options: Array[String] = _get_production_options_for_slot(slot, faction)
+	if options.is_empty():
+		if _hud_alert_item:
+			_hud_alert_item.text = "Production unavailable"
+		return
+
+	_production_menu_active = not _production_menu_active
+	if _production_menu_active:
+		if _hud_command_card_label:
+			_hud_command_card_label.text = "Production Menu\n1 %s\n2 %s\n3 %s" % [options[0], options[1], options[2]]
+		if _hud_queue_item:
+			_hud_queue_item.text = "Production mode active"
+	else:
+		_reset_command_card_text()
+
+
+func _queue_live_production_by_index(index: int) -> void:
+	var slot := _get_selected_slot_for_commands()
+	if slot == "":
+		return
+	var tether: TetherPoint = _tether_points_by_slot[slot]
+	var faction: String = tether.faction_id
+	var options: Array[String] = _get_production_options_for_slot(slot, faction)
+	if index < 0 or index >= options.size():
+		if _hud_alert_item:
+			_hud_alert_item.text = "Production rejected: invalid choice"
+		return
+	_queue_live_production(options[index])
+
+
+func _queue_live_production(unit_id: String) -> bool:
+	var slot := _get_selected_slot_for_commands()
+	if slot == "":
+		return false
+	var tether: TetherPoint = _tether_points_by_slot[slot]
+	var faction: String = tether.faction_id
+	if not _can_produce_unit_for_slot(slot, faction, unit_id):
+		if _hud_alert_item:
+			_hud_alert_item.text = "Production locked: %s" % unit_id
+		return false
+
+	if not _queue_unit_for_slot(slot, faction, unit_id):
+		return false
+
+	var spawn_point := _get_live_production_spawn_position(slot)
+	var actor := SelectableUnit2D.new()
+	actor.name = "Produced_%s_%03d" % [slot, _production_sequence]
+	add_child(actor)
+	actor.initialize(unit_id, faction, spawn_point)
+	_controllable_units[actor.name] = actor
+	_register_unit_for_combat(actor.name, actor.unit_id)
+
+	_spawn_move_ping(spawn_point, Color(0.65, 0.9, 1.0, 0.85))
+	if _hud_queue_item:
+		_hud_queue_item.text = "Queued: %s" % unit_id
+	if _hud_alert_item:
+		_hud_alert_item.text = "Produced: %s" % unit_id
+	print("[F38] Production spawn slot=%s faction=%s unit=%s actor=%s" % [slot, faction, unit_id, actor.name])
+	return true
+
+
+func _get_selected_slot_for_commands() -> String:
+	if _selected_controllable_units.is_empty():
+		return ""
+	return _get_unit_slot(str(_selected_controllable_units[0]))
+
+
+func _get_production_options_for_slot(slot: String, faction: String) -> Array[String]:
+	var options: Array[String] = []
+	if not PRODUCTION_BASELINE_UNITS.has(faction):
+		return options
+
+	var baseline: Array = PRODUCTION_BASELINE_UNITS[faction]
+	for i in [1, 2, 3]:
+		if i >= baseline.size():
+			continue
+		var unit_id := str(baseline[i])
+		if _can_produce_unit_for_slot(slot, faction, unit_id):
+			options.append(unit_id)
+
+	if options.size() < 3:
+		while options.size() < 3:
+			options.append("-")
+	return options
+
+
+func _can_produce_unit_for_slot(slot: String, faction: String, unit_id: String) -> bool:
+	if unit_id == "-":
+		return false
+	if not PRODUCTION_CHAINS.has(faction):
+		return false
+	if not PRODUCTION_CHAINS[faction].has(unit_id):
+		return false
+
+	var producer := str(PRODUCTION_CHAINS[faction][unit_id])
+	if producer != "tether_point" and not _buildables_by_slot[slot].has(producer):
+		return false
+
+	var tether: TetherPoint = _tether_points_by_slot[slot]
+	if tether.is_command_penalty_active:
+		return false
+	return true
+
+
+func _get_live_production_spawn_position(slot: String) -> Vector3:
+	var tether: TetherPoint = _tether_points_by_slot[slot]
+	var index: int = int(_live_production_spawn_index_by_slot.get(slot, 0))
+	_live_production_spawn_index_by_slot[slot] = index + 1
+	var side := 1.0 if slot == "A" else -1.0
+	var row := float(index % 3)
+	var col := float(index) / 3.0
+	return tether.position + Vector3(side * (34.0 + col * 16.0), 0.0, -18.0 + row * 18.0)
 
 
 func _select_buildable(buildable_id: String) -> void:
@@ -1480,6 +1854,7 @@ func _clear_gather_jobs_for_selected_units() -> void:
 func _reset_command_card_text() -> void:
 	if _hud_command_card_label:
 		_hud_command_card_label.text = "Command Card Placeholder"
+	_production_menu_active = false
 
 
 func _process_camera(delta: float) -> void:
