@@ -36,6 +36,9 @@ Track high-level project changes with links to decisions and plans.
 - Added live runtime unit-step updates so visible squads move during actual play, not only during validation hooks.
 - Added live gather command dispatch from right-clicked resource nodes for gather-capable units and one-cycle deposit processing to Tether dropoff.
 - Added deterministic F-35 gather validation hook (`--duel-test-f35-gather`) and executed headless validation with pass evidence (`alloy_total=35`, `pass=true`).
+- Added live build menu flow for builder units with B to open menu, Q/W/E/A/S/D build selection, and left-click placement on valid ground.
+- Added visible tier-colored structure meshes for BuildableNode runtime spawns.
+- Added deterministic F-36 build validation hook (`--duel-test-f36-build`) and executed headless validation with pass evidence (`place_pass=true`, `has_power_core=true`).
 - Decomposed Stage 0 sprint next steps into operator-ready micro-steps covering media freeze, staging, audit, publish, evidence capture, and tracker synchronization.
 - Updated M4 status to in-progress with a dedicated Stage 0 immediate execution slice and formal entry or exit criteria.
 - Added ADR-0025 and research Entry-0025 to document deterministic Stage 0 closure decomposition rationale and validation strategy.

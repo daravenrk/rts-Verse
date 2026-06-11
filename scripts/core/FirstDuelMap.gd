@@ -20,11 +20,21 @@ const TEST_F17_FLAG := "--duel-test-f17"
 const TEST_F32_INTERACTION_FLAG := "--duel-test-f32-interaction"
 const TEST_F33_BLOCKER_FLAG := "--duel-test-f33-blocker"
 const TEST_F35_GATHER_FLAG := "--duel-test-f35-gather"
+const TEST_F36_BUILD_FLAG := "--duel-test-f36-build"
 const TEST_AUTO_EXIT_FLAG := "--duel-test-auto-exit"
 const TEST_ROSTER_BEHAVIORS_FLAG := "--duel-test-roster-behaviors"
 const TEST_T2_PATHS_FLAG := "--duel-test-t2-paths"
 const TEST_COLONY_DEFENSE_FLAG := "--duel-test-colony-defense"
 const SelectableUnit2D := preload("res://scripts/core/SelectableUnit2D.gd")
+const BUILD_MENU_ORDER := ["power_core", "alloy_extractor", "barracks_equivalent", "vehicle_structure", "sensor_uplink", "expansion_hub"]
+const BUILD_HOTKEYS := {
+	KEY_Q: "power_core",
+	KEY_W: "alloy_extractor",
+	KEY_E: "barracks_equivalent",
+	KEY_A: "vehicle_structure",
+	KEY_S: "sensor_uplink",
+	KEY_D: "expansion_hub",
+}
 const BUILDABLE_DEFS := {
 	"power_core": {"tier": "T0", "deps": []},
 	"alloy_extractor": {"tier": "T0", "deps": []},
@@ -191,6 +201,7 @@ var _hud_resource_bar: Label
 var _hud_alert_item: Label
 var _hud_queue_item: Label
 var _hud_match_state: Label
+var _hud_command_card_label: Label
 var _sim_units: Dictionary = {}
 var _selected_units: Array[String] = []
 var _control_groups: Dictionary = {}
@@ -198,6 +209,8 @@ var _controllable_units: Dictionary = {}
 var _selected_controllable_units: Array[String] = []
 var _resource_alloy_total: int = 0
 var _gather_jobs: Dictionary = {}
+var _build_menu_active: bool = false
+var _pending_buildable_id: String = ""
 var _production_sequence: int = 0
 var _produced_units_by_slot: Dictionary = {"A": {}, "B": {}}
 var _colony_sequence: int = 0
@@ -224,6 +237,7 @@ func _ready() -> void:
 	_run_f32_interaction_test_hook()
 	_run_f33_blocker_test_hook()
 	_run_f35_gather_test_hook()
+	_run_f36_build_test_hook()
 	_run_f03_test_hook()
 	_run_f04_test_hook()
 	_run_production_chain_test_hook()
@@ -388,6 +402,7 @@ func _create_mvp_hud() -> void:
 	var command_label := Label.new()
 	command_label.text = "Command Card Placeholder"
 	command_card.add_child(command_label)
+	_hud_command_card_label = command_label
 	hud_root.add_child(command_card)
 
 	var alert_stack := VBoxContainer.new()
@@ -457,30 +472,33 @@ func _run_build_chain_test_hook() -> void:
 		_build_for_slot(slot, "expansion_hub")
 
 
-func _build_for_slot(slot: String, buildable_id: String) -> void:
+func _build_for_slot(slot: String, buildable_id: String, placement_position: Variant = null) -> bool:
 	if not BUILDABLE_DEFS.has(buildable_id):
 		print("[Build] Rejected slot=%s buildable=%s reason=unknown_buildable" % [slot, buildable_id])
-		return
+		return false
 
 	if _buildables_by_slot[slot].has(buildable_id):
 		print("[Build] Rejected slot=%s buildable=%s reason=already_built" % [slot, buildable_id])
-		return
+		return false
 
 	var tether: TetherPoint = _tether_points_by_slot[slot]
 	if tether.is_command_penalty_active:
 		print("[Build] Rejected slot=%s buildable=%s reason=command_penalty_active" % [slot, buildable_id])
-		return
+		return false
 
 	var dependencies: Array = BUILDABLE_DEFS[buildable_id]["deps"]
 	for dep in dependencies:
 		if not _buildables_by_slot[slot].has(dep):
 			print("[Build] Rejected slot=%s buildable=%s reason=missing_dependency dependency=%s" % [slot, buildable_id, dep])
-			return
+			return false
 
 	_build_sequence += 1
 	var buildable_node := BuildableNode.new()
 	buildable_node.name = "Buildable%s_%s" % [slot, str(_build_sequence)]
-	buildable_node.position = tether.position + Vector3(24.0 * float(_build_sequence), 0.0, 0.0)
+	if placement_position is Vector3:
+		buildable_node.position = placement_position
+	else:
+		buildable_node.position = tether.position + Vector3(24.0 * float(_build_sequence), 0.0, 0.0)
 	add_child(buildable_node)
 
 	var stable_item_id := "BLD-%s-%03d" % [slot, _build_sequence]
@@ -488,6 +506,9 @@ func _build_for_slot(slot: String, buildable_id: String) -> void:
 	buildable_node.initialize(stable_item_id, slot, buildable_id, tier)
 	_buildables_by_slot[slot][buildable_id] = stable_item_id
 	print("[Build] Completed slot=%s buildable=%s tier=%s stable_item_id=%s" % [slot, buildable_id, tier, stable_item_id])
+	if _hud_queue_item:
+		_hud_queue_item.text = "Built: %s" % buildable_id
+	return true
 
 
 func _run_f24_test_hook() -> void:
@@ -723,6 +744,25 @@ func _run_f35_gather_test_hook() -> void:
 
 	var gather_pass := _resource_alloy_total > 0
 	print("[F35] Summary alloy_total=%d pass=%s gatherer=%s" % [_resource_alloy_total, str(gather_pass), gatherer_id])
+
+
+func _run_f36_build_test_hook() -> void:
+	if not _has_user_flag(TEST_F36_BUILD_FLAG):
+		return
+
+	var builder_id := _find_first_builder_id()
+	if builder_id == "":
+		print("[F36] Summary pass=false reason=no_builder")
+		return
+
+	_select_single_unit(builder_id)
+	_toggle_build_menu()
+	_select_buildable("power_core")
+	var place_target := Vector3(-210.0, 0.0, -10.0)
+	var place_pass := _place_pending_buildable(place_target)
+	var slot_buildables: Dictionary = _buildables_by_slot.get("A", {})
+	var has_power_core: bool = slot_buildables.has("power_core")
+	print("[F36] Summary place_pass=%s has_power_core=%s builder=%s" % [str(place_pass), str(has_power_core), builder_id])
 
 
 func _run_f03_test_hook() -> void:
@@ -1138,9 +1178,21 @@ func _unhandled_input(event: InputEvent) -> void:
 			_camera_arm = clamp(_camera_arm + _CAMERA_ZOOM_STEP, _CAMERA_ARM_MIN, _CAMERA_ARM_MAX)
 			_apply_camera_transform()
 		elif event.button_index == MOUSE_BUTTON_LEFT:
+			if _pending_buildable_id != "":
+				var place_hit := _screen_to_ground_point(event.position)
+				if place_hit["ok"]:
+					_place_pending_buildable(place_hit["point"])
+				return
 			_handle_left_click_selection(event.position)
 		elif event.button_index == MOUSE_BUTTON_RIGHT:
 			_handle_right_click_command(event.position)
+	elif event is InputEventKey and event.pressed and not event.echo:
+		if event.keycode == KEY_B:
+			_toggle_build_menu()
+			return
+		if _build_menu_active and BUILD_HOTKEYS.has(event.keycode):
+			_select_buildable(str(BUILD_HOTKEYS[event.keycode]))
+			return
 
 
 func _handle_left_click_selection(screen_pos: Vector2) -> void:
@@ -1169,6 +1221,8 @@ func _handle_left_click_selection(screen_pos: Vector2) -> void:
 
 
 func _handle_right_click_command(screen_pos: Vector2) -> void:
+	if _pending_buildable_id != "":
+		return
 	var hit := _screen_to_ground_point(screen_pos)
 	if not hit["ok"]:
 		return
@@ -1313,8 +1367,102 @@ func _find_resource_at_point(world_pos: Vector3) -> String:
 	return nearest_id
 
 
+func _toggle_build_menu() -> void:
+	var slot := _get_selected_builder_slot()
+	if slot == "":
+		if _hud_alert_item:
+			_hud_alert_item.text = "Build rejected: select a builder"
+		return
+	_build_menu_active = not _build_menu_active
+	_pending_buildable_id = ""
+	if _build_menu_active:
+		var available: Array[String] = _get_available_buildables_for_slot(slot)
+		if _hud_command_card_label:
+			_hud_command_card_label.text = "Build Menu\nQ Power  W Alloy  E Barracks\nA Vehicle  S Sensor  D Expand\nAvailable: %s" % ", ".join(available)
+		if _hud_queue_item:
+			_hud_queue_item.text = "Build mode active"
+	else:
+		_reset_command_card_text()
+
+
+func _select_buildable(buildable_id: String) -> void:
+	var slot := _get_selected_builder_slot()
+	if slot == "":
+		return
+	var available: Array[String] = _get_available_buildables_for_slot(slot)
+	if not available.has(buildable_id):
+		if _hud_alert_item:
+			_hud_alert_item.text = "Build locked: %s" % buildable_id
+		return
+	_pending_buildable_id = buildable_id
+	if _hud_command_card_label:
+		_hud_command_card_label.text = "Place %s\nLeft-click ground to place" % buildable_id
+	if _hud_queue_item:
+		_hud_queue_item.text = "Pending build: %s" % buildable_id
+
+
+func _place_pending_buildable(world_pos: Vector3) -> bool:
+	if _pending_buildable_id == "":
+		return false
+	if _is_point_blocked(world_pos):
+		_reject_move("build_target_blocked", world_pos)
+		return false
+	var slot := _get_selected_builder_slot()
+	if slot == "":
+		return false
+	var placed := _build_for_slot(slot, _pending_buildable_id, world_pos)
+	if placed:
+		_spawn_move_ping(world_pos, Color(0.4, 0.9, 1.0, 0.85))
+		_build_menu_active = false
+		_pending_buildable_id = ""
+		_reset_command_card_text()
+	return placed
+
+
+func _find_first_builder_id() -> String:
+	for unit_id in _controllable_units.keys():
+		var unit: SelectableUnit2D = _controllable_units[unit_id]
+		if _is_builder_unit(unit.unit_id):
+			return unit_id
+	return ""
+
+
+func _get_selected_builder_slot() -> String:
+	for unit_id in _selected_controllable_units:
+		if not _controllable_units.has(unit_id):
+			continue
+		var unit: SelectableUnit2D = _controllable_units[unit_id]
+		if not _is_builder_unit(unit.unit_id):
+			continue
+		if unit_id.begins_with("Squad_A_"):
+			return "A"
+		if unit_id.begins_with("Squad_B_"):
+			return "B"
+	return ""
+
+
+func _get_available_buildables_for_slot(slot: String) -> Array[String]:
+	var available: Array[String] = []
+	for buildable_id in BUILD_MENU_ORDER:
+		if _buildables_by_slot[slot].has(buildable_id):
+			continue
+		var deps: Array = BUILDABLE_DEFS[buildable_id]["deps"]
+		var deps_ok := true
+		for dep in deps:
+			if not _buildables_by_slot[slot].has(dep):
+				deps_ok = false
+				break
+		if deps_ok:
+			available.append(buildable_id)
+	return available
+
+
 func _is_gather_unit(unit_name: String) -> bool:
 	return unit_name == "line_engineer" or unit_name == "brood_architect" or unit_name == "foundry_engineer"
+
+
+func _is_builder_unit(unit_name: String) -> bool:
+	return _is_gather_unit(unit_name)
 
 
 func _get_dropoff_for_faction(faction_id: String) -> Vector3:
@@ -1327,6 +1475,11 @@ func _get_dropoff_for_faction(faction_id: String) -> Vector3:
 func _clear_gather_jobs_for_selected_units() -> void:
 	for unit_id in _selected_controllable_units:
 		_gather_jobs.erase(unit_id)
+
+
+func _reset_command_card_text() -> void:
+	if _hud_command_card_label:
+		_hud_command_card_label.text = "Command Card Placeholder"
 
 
 func _process_camera(delta: float) -> void:

@@ -38,6 +38,7 @@ This document defines validation layers for milestone delivery.
 | F-33 | Blocker/no-go rejection and invalid move feedback | Pass | `docs/tracking/scenario-validation-notes.md` |
 | F-34 | Startup to skirmish to duel-map end-to-end autoplay smoke | Pass | `docs/tracking/scenario-validation-notes.md` |
 | F-35 | Live gather command and deposit loop | Pass | `docs/tracking/scenario-validation-notes.md` |
+| F-36 | Live build menu and structure placement loop | Pass | `docs/tracking/scenario-validation-notes.md` |
 
 ## M2 Core Gameplay Validation Flows
 

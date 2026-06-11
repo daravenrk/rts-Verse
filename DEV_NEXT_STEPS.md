@@ -336,4 +336,18 @@
     - type: functional
       method: In editor run, confirm every successful move command has visible acknowledgement feedback.
   status: done
+
+- story_id: S-4009
+  title: Implement live builder-driven structure placement
+  user_value: Player can begin base development during live play instead of relying on hidden test hooks.
+  dependencies: [S-4006, S-4007, S-4008]
+  acceptance_criteria:
+    - Selecting a builder and pressing B opens a minimal build menu.
+    - Q, W, E, A, S, and D choose currently available buildable structures.
+    - Left-click on valid ground places the selected structure and spawns a visible buildable node.
+    - Invalid blocked placements are rejected with clear feedback.
+  validation:
+    - type: integration
+      method: Run deterministic F-36 live build placement validation and verify successful Power Core placement plus stable build-state tracking.
+  status: done
 ```

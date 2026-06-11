@@ -85,6 +85,8 @@ Keep this list short, actionable, and current.
 - [x] Add selection and command acknowledgement feedback (selection highlight and move marker ping).
 - [x] Add blocker-collision sanity checks and invalid-move rejection feedback.
 - [x] Run cold-launch visual smoke playthrough from splash to move command with no blocking errors.
+- [x] Implement live builder-driven structure placement with build menu, hotkey selection, and ground placement click.
+- [x] Validate runtime structure placement flow with deterministic F-36 pass evidence.
 - [ ] Freeze Stage 0 media set: select 3 to 6 screenshots and optional clips, then finalize gameplay-first captions.
 - [ ] Stage finalized media and captions in docs/release/stage0-media/ using required naming and ordering.
 - [ ] Run zsh docs/release/stage0-media/prepublish_audit.sh and clear all unresolved findings.

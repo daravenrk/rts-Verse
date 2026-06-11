@@ -2,6 +2,18 @@
 
 Track scenario-level evidence for map and flow validation runs.
 
+## 2026-06-10 F-36 Live Build Menu and Structure Placement Loop
+
+- Flow: `F-36 Live build menu and structure placement loop`
+- Scenario: `scenes/core/FirstDuelMap.tscn`
+- Validation command:
+  - `/Applications/Godot.app/Contents/MacOS/godot --headless --quit --path . res://scenes/core/FirstDuelMap.tscn -- --duel-test-f36-build`
+- Result: Pass
+- Notes:
+  - Selected live builder opened build flow and chose `power_core`.
+  - Placement on valid ground succeeded and spawned buildable node `BLD-A-001`.
+  - Slot build state tracked `power_core` successfully (`has_power_core=true`).
+
 ## 2026-06-10 F-35 Live Gather Command and Deposit Loop
 
 - Flow: `F-35 Live gather command and deposit loop`
