@@ -7,6 +7,7 @@ This document defines a primitive-first visual language for MVP units and struct
 - MVP factions: Helion and Veyari.
 - MVP structures: shared buildable baseline from Tether Point through one T2 path.
 - Goal: role readability at RTS camera distance without close-up detail dependency.
+- Battlefield map items and strategic annotations use the same primitive marker language so objectives remain readable at gameplay zoom.
 
 ## S-1001 Shared Primitive and Shader Language
 
@@ -144,3 +145,10 @@ A unit or building passes only if all AR checks pass at default zoom, zoom-out, 
   - Confirmed shader and material-zone rules align with F-24 readability policy and animation-subspace baseline.
 - Smoke review:
   - Confirmed angle-readability checklist can be applied end-to-end without undocumented criteria.
+
+## Validation Evidence (2026-06-11)
+
+- Functional review:
+  - Confirmed MapItem markers now render as primitive silhouettes for zone annotations, spawn markers, resource nodes, cover, chokepoints, and relay towers.
+- Smoke review:
+  - Confirmed the first duel map still passes F-24 after map-item primitive integration.

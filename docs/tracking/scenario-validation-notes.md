@@ -253,6 +253,17 @@ Track scenario-level evidence for map and flow validation runs.
   - BuildableNode now renders a tiered foundation, crown, and output-facing accent panel from the shared kit.
   - TetherPoint now renders a shared cylinder/tower/cap silhouette with faction-tinted emissive layers.
 
+## 2026-06-11 Map Item Primitive Marker Validation
+
+- Flow: `F-24 Small-Scale 3D Readability and Animation Subspace Compliance` after map-item marker integration
+- Scenario: `scenes/core/FirstDuelMap.tscn`
+- Validation command:
+  - `/Applications/Godot.app/Contents/MacOS/godot --headless --path . res://scenes/core/FirstDuelMap.tscn --quit-after 1 -- --duel-test-f24`
+- Result: Pass
+- Notes:
+  - MapItem now renders lane-colored primitive markers for zone annotations, spawn markers, resource nodes, cover, chokepoints, elevated positions, LOS blockers, and relay towers.
+  - The duel-map readability pass still reports `pass_units=12` and `total_units=12` with no new parser or scene-load regressions.
+
 ## 2026-06-10 F-18/F-19 Command and HUD Baseline
 
 - Flow: `F-18 Keyboard and Mouse Command Coverage` + `F-19 Camera and HUD Usability Validation`
