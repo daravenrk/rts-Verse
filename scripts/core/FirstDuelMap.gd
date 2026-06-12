@@ -48,6 +48,7 @@ const TEST_F48_OBSERVABILITY_FAULT_FLAG := "--duel-test-f48-observability-fault"
 const TEST_F49_OBSERVABILITY_RETENTION_FLAG := "--duel-test-f49-observability-retention"
 const TEST_F50_OBSERVABILITY_RECON_FLAG := "--duel-test-f50-observability-recon"
 const TEST_F51_EVENT_CATALOG_FLAG := "--duel-test-f51-event-catalog"
+const TEST_F52_EVENT_GUARDRAIL_SEQUENCE_FLAG := "--duel-test-f52-event-guardrail-sequence"
 const STOCKPILE_CONFIG := {
 	"alloy": {"cap": 200000, "soft_ratio": 0.3, "hard_ratio": 0.1},
 	"power": {"cap": 160000, "soft_ratio": 0.35, "hard_ratio": 0.12},
@@ -348,6 +349,7 @@ func _ready() -> void:
 	_run_f49_observability_retention_test_hook()
 	_run_f50_observability_reconstruction_test_hook()
 	_run_f51_event_catalog_integrity_test_hook()
+	_run_f52_event_guardrail_sequence_test_hook()
 	if _has_user_flag(TEST_AUTO_EXIT_FLAG):
 		call_deferred("_request_test_exit")
 	_apply_camera_transform()
@@ -2309,6 +2311,69 @@ func _run_f51_event_catalog_integrity_test_hook() -> void:
 	var pass_ok: bool = polarity_ok and bound_ok and duplicate_block_ok and mutation_guard_ok and telemetry_ok
 	print("[F51] Summary polarity_ok=%s bound_ok=%s duplicate_block_ok=%s mutation_guard_ok=%s telemetry_ok=%s pass=%s" % [
 		str(polarity_ok), str(bound_ok), str(duplicate_block_ok), str(mutation_guard_ok), str(telemetry_ok), str(pass_ok)
+	])
+
+
+func _run_f52_event_guardrail_sequence_test_hook() -> void:
+	if not _has_user_flag(TEST_F52_EVENT_GUARDRAIL_SEQUENCE_FLAG):
+		return
+
+	_stockpile_event_log.clear()
+	_stockpile_archive_log.clear()
+	_last_world_event_resource = ""
+	_last_world_event_polarity = ""
+
+	_set_stockpile_reserve("reclaim", int(float(_get_stockpile_cap("reclaim")) * 0.5), "f52_setup")
+	_set_stockpile_reserve("power", int(float(_get_stockpile_cap("power")) * 0.5), "f52_setup")
+
+	var reclaim_before: int = _get_stockpile_reserve("reclaim")
+
+	var salvage_first_ok: bool = _trigger_world_event(WORLD_EVENT_DEFS["E-001"])
+	var salvage_duplicate_ok: bool = _trigger_world_event(WORLD_EVENT_DEFS["E-001"])
+	var reclaim_after_duplicate: int = _get_stockpile_reserve("reclaim")
+	var power_before_blackout: int = _get_stockpile_reserve("power")
+	var blackout_after_salvage_ok: bool = _trigger_world_event(WORLD_EVENT_DEFS["E-007"])
+	var power_after_blackout: int = _get_stockpile_reserve("power")
+	var salvage_after_blackout_ok: bool = _trigger_world_event(WORLD_EVENT_DEFS["E-001"])
+	var grid_after_salvage_ok: bool = _trigger_world_event(WORLD_EVENT_DEFS["E-002"])
+
+	var reclaim_after: int = _get_stockpile_reserve("reclaim")
+	var power_after: int = _get_stockpile_reserve("power")
+
+	var sequence_behavior_ok: bool = salvage_first_ok and (not salvage_duplicate_ok) and blackout_after_salvage_ok and salvage_after_blackout_ok and grid_after_salvage_ok
+	var directionality_ok: bool = reclaim_after > reclaim_before and power_after_blackout < power_before_blackout and power_after > power_after_blackout
+	var salvage_gain: int = int(round(float(_get_stockpile_cap("reclaim")) * float(WORLD_EVENT_DEFS["E-001"].get("magnitude_ratio", 0.0))))
+	var expected_reclaim_after_duplicate: int = reclaim_before + salvage_gain
+	var duplicate_mutation_ok: bool = reclaim_after_duplicate == expected_reclaim_after_duplicate
+
+	var all_lines: Array[String] = []
+	for line in _stockpile_archive_log:
+		all_lines.append(line)
+	for line in _stockpile_event_log:
+		all_lines.append(line)
+
+	var salvage_triggered_count: int = 0
+	var salvage_applied_count: int = 0
+	var salvage_blocked_count: int = 0
+	var blackout_applied_count: int = 0
+	var grid_applied_count: int = 0
+	for line in all_lines:
+		var entry: String = str(line)
+		if entry.find("id=E-001") >= 0 and entry.find("[WorldEvent] triggered") >= 0:
+			salvage_triggered_count += 1
+		if entry.find("id=E-001") >= 0 and entry.find("[WorldEvent] applied") >= 0:
+			salvage_applied_count += 1
+		if entry.find("id=E-001") >= 0 and entry.find("[WorldEvent] blocked") >= 0 and entry.find("reason=guardrail_rejected") >= 0:
+			salvage_blocked_count += 1
+		if entry.find("id=E-007") >= 0 and entry.find("[WorldEvent] applied") >= 0:
+			blackout_applied_count += 1
+		if entry.find("id=E-002") >= 0 and entry.find("[WorldEvent] applied") >= 0:
+			grid_applied_count += 1
+
+	var telemetry_ok: bool = salvage_triggered_count == 2 and salvage_applied_count == 2 and salvage_blocked_count == 1 and blackout_applied_count == 1 and grid_applied_count == 1
+	var pass_ok: bool = sequence_behavior_ok and directionality_ok and duplicate_mutation_ok and telemetry_ok
+	print("[F52] Summary sequence_behavior_ok=%s directionality_ok=%s duplicate_mutation_ok=%s telemetry_ok=%s pass=%s" % [
+		str(sequence_behavior_ok), str(directionality_ok), str(duplicate_mutation_ok), str(telemetry_ok), str(pass_ok)
 	])
 
 

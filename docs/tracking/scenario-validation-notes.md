@@ -2,6 +2,19 @@
 
 Track scenario-level evidence for map and flow validation runs.
 
+## 2026-06-11 F-52 World-Event Guardrail Sequencing Validation
+
+- Flow: `F-52 World-event guardrail sequencing and cross-domain recovery loop`
+- Scenario: `scenes/core/FirstDuelMap.tscn`
+- Validation commands:
+  - `/Applications/Godot.app/Contents/MacOS/godot --headless --quit --path . res://scenes/core/FirstDuelMap.tscn -- --duel-test-f52-event-guardrail-sequence`
+  - `/Applications/Godot.app/Contents/MacOS/godot --headless --quit --path . res://scenes/core/FirstDuelMap.tscn -- --duel-test-map-baseline --duel-test-f50-observability-recon --duel-test-f51-event-catalog --duel-test-f52-event-guardrail-sequence`
+- Result: Pass
+- Notes:
+  - Duplicate immediate re-trigger for the same event id was blocked while preserving reserve state.
+  - Alternating to a different world-event domain progressed normally and re-enabled prior-domain triggering on return.
+  - Focused integrated smoke retained pass summaries for MapBaseline, F-50, F-51, and F-52.
+
 ## 2026-06-11 F-51 World-Event Catalog Integrity Validation
 
 - Flow: `F-51 World-event catalog integrity and guardrail-telemetry coverage loop`

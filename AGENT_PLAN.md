@@ -43,6 +43,8 @@
 - Validated merged archive/live reconstruction consistency, mixed payload survivability, and feed-window integrity in standalone and focused integrated smoke runs.
 - Implemented deterministic F-51 world-event catalog integrity hook in duel map.
 - Validated sign-correct bounded deltas per event, duplicate guardrail blocking with mutation safety, and full per-event telemetry coverage in standalone and focused integrated smoke runs.
+- Implemented deterministic F-52 world-event guardrail sequencing hook in duel map.
+- Validated blocked duplicate handling, cross-domain recovery sequencing, per-step directionality checks, and telemetry coverage in standalone and focused integrated smoke runs.
 
 ## Story Breakdown
 
