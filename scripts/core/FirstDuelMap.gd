@@ -223,6 +223,7 @@ var _map_item_counts: Dictionary = {}
 var _map_items_by_id: Dictionary = {}
 var _hud_resource_bar: Label
 var _hud_alert_item: Label
+var _hud_stockpile_feed_item: Label
 var _hud_queue_item: Label
 var _hud_match_state: Label
 var _hud_command_card_label: Label
@@ -235,6 +236,7 @@ var _resource_alloy_total: int = 0
 var _stockpile_state: Dictionary = {}
 var _stockpile_event_log: Array[String] = []
 var _stockpile_sequence_id: int = 0
+var _stockpile_snapshot_elapsed: float = 0.0
 var _last_world_event_resource: String = ""
 var _last_world_event_polarity: String = ""
 var _gather_jobs: Dictionary = {}
@@ -454,8 +456,12 @@ func _create_mvp_hud() -> void:
 	var alert_item := Label.new()
 	alert_item.text = "No active alerts"
 	alert_stack.add_child(alert_item)
+	var stockpile_feed_item := Label.new()
+	stockpile_feed_item.text = "Stockpile feed empty"
+	alert_stack.add_child(stockpile_feed_item)
 	hud_root.add_child(alert_stack)
 	_hud_alert_item = alert_item
+	_hud_stockpile_feed_item = stockpile_feed_item
 
 	var queue_display := VBoxContainer.new()
 	queue_display.name = "QueueDisplay"
@@ -1248,6 +1254,7 @@ func _produce_colony_unit(slot: String, unit_id: String) -> bool:
 func _process(delta: float) -> void:
 	_update_live_units(delta)
 	_update_gather_jobs()
+	_update_stockpile_telemetry(delta)
 	_update_hud()
 	_process_camera(delta)
 
@@ -1255,6 +1262,45 @@ func _process(delta: float) -> void:
 func _update_hud() -> void:
 	if _hud_resource_bar:
 		_hud_resource_bar.text = _format_stockpile_hud_text()
+
+
+func _update_stockpile_telemetry(delta: float) -> void:
+	_stockpile_snapshot_elapsed += delta
+	if _stockpile_snapshot_elapsed < 1.0:
+		return
+	_stockpile_snapshot_elapsed = 0.0
+	_emit_stockpile_snapshot()
+
+
+func _emit_stockpile_snapshot() -> void:
+	_stockpile_sequence_id += 1
+	var message := "[Stockpile] snapshot seq=%d alloy=%d power=%d data=%d reclaim=%d" % [
+		_stockpile_sequence_id,
+		_get_stockpile_reserve("alloy"),
+		_get_stockpile_reserve("power"),
+		_get_stockpile_reserve("data"),
+		_get_stockpile_reserve("reclaim")
+	]
+	print(message)
+	_record_stockpile_event(message)
+
+
+func _record_stockpile_event(message: String) -> void:
+	_stockpile_event_log.append(message)
+	if _stockpile_event_log.size() > 8:
+		_stockpile_event_log.pop_front()
+	_refresh_stockpile_feed_ui()
+
+
+func _refresh_stockpile_feed_ui() -> void:
+	if not _hud_stockpile_feed_item:
+		return
+	if _stockpile_event_log.is_empty():
+		_hud_stockpile_feed_item.text = "Stockpile feed empty"
+		return
+
+	var recent := _stockpile_event_log.slice(max(0, _stockpile_event_log.size() - 5), _stockpile_event_log.size())
+	_hud_stockpile_feed_item.text = "\n".join(recent)
 
 
 func _initialize_stockpile_state() -> void:
@@ -1275,6 +1321,7 @@ func _initialize_stockpile_state() -> void:
 	_stockpile_event_log.clear()
 	_sync_legacy_alloy_total()
 	print("[Stockpile] Initialized resources=%s" % str(_stockpile_state.keys()))
+	_emit_stockpile_snapshot()
 
 
 func _format_stockpile_hud_text() -> String:
@@ -1311,9 +1358,7 @@ func _set_stockpile_reserve(resource_id: String, new_reserve: int, reason: Strin
 	_stockpile_state[resource_id]["reserve"] = clamped_reserve
 	_evaluate_stockpile_threshold(resource_id)
 	_stockpile_sequence_id += 1
-	_stockpile_event_log.append("%s:%d:%s" % [resource_id, clamped_reserve, reason])
-	if _stockpile_event_log.size() > 8:
-		_stockpile_event_log.pop_front()
+	_record_stockpile_event("[Stockpile] set resource=%s reserve=%d cap=%d reason=%s seq=%d" % [resource_id, clamped_reserve, cap, reason, _stockpile_sequence_id])
 	if resource_id == "alloy":
 		_sync_legacy_alloy_total()
 	_update_hud()
@@ -1354,9 +1399,7 @@ func _emit_stockpile_threshold_crossed(resource_id: String, threshold_type: Stri
 	var cap := _get_stockpile_cap(resource_id)
 	var message := "[Stockpile] threshold resource=%s level=%s reserve=%d cap=%d seq=%d" % [resource_id, threshold_type, reserve, cap, _stockpile_sequence_id]
 	print(message)
-	_stockpile_event_log.append(message)
-	if _stockpile_event_log.size() > 8:
-		_stockpile_event_log.pop_front()
+	_record_stockpile_event(message)
 	if _hud_alert_item:
 		_hud_alert_item.text = "Stockpile alert: %s %s" % [resource_id.capitalize(), threshold_type]
 
@@ -1435,9 +1478,7 @@ func _emit_world_event_triggered(event_def: Dictionary) -> void:
 	_stockpile_sequence_id += 1
 	var message := "[WorldEvent] triggered id=%s polarity=%s resource=%s magnitude=%d seq=%d" % [str(event_def.get("id", "")), str(event_def.get("polarity", "")), str(event_def.get("resource", "")), int(round(float(_get_stockpile_cap(str(event_def.get("resource", "")))) * float(event_def.get("magnitude_ratio", 0.0)))), _stockpile_sequence_id]
 	print(message)
-	_stockpile_event_log.append(message)
-	if _stockpile_event_log.size() > 8:
-		_stockpile_event_log.pop_front()
+	_record_stockpile_event(message)
 
 
 func _emit_world_event_applied(event_def: Dictionary, applied_delta: int) -> void:
@@ -1445,20 +1486,21 @@ func _emit_world_event_applied(event_def: Dictionary, applied_delta: int) -> voi
 	var resource_id := str(event_def.get("resource", ""))
 	var message := "[WorldEvent] applied id=%s resource=%s delta=%d reserve_after=%d seq=%d" % [str(event_def.get("id", "")), resource_id, applied_delta, _get_stockpile_reserve(resource_id), _stockpile_sequence_id]
 	print(message)
-	_stockpile_event_log.append(message)
-	if _stockpile_event_log.size() > 8:
-		_stockpile_event_log.pop_front()
+	_record_stockpile_event(message)
 	if _hud_alert_item:
 		_hud_alert_item.text = "Event: %s %s%d" % [str(event_def.get("name", "Event")), "+" if applied_delta >= 0 else "", applied_delta]
+		_emit_world_event_ui_ack(str(event_def.get("id", "")))
 
 
 func _emit_world_event_blocked(event_def: Dictionary, reason: String) -> void:
 	_stockpile_sequence_id += 1
 	var message := "[WorldEvent] blocked id=%s reason=%s seq=%d" % [str(event_def.get("id", "")), reason, _stockpile_sequence_id]
 	print(message)
-	_stockpile_event_log.append(message)
-	if _stockpile_event_log.size() > 8:
-		_stockpile_event_log.pop_front()
+	_record_stockpile_event(message)
+
+
+func _emit_world_event_ui_ack(event_id: String) -> void:
+	print("[WorldEvent] ui_ack id=%s seq=%d" % [event_id, _stockpile_sequence_id])
 
 
 func _on_tether_penalty(item_id: String, slot: String, faction: String) -> void:

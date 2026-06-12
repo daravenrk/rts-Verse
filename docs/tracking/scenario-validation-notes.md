@@ -49,6 +49,7 @@ Track scenario-level evidence for map and flow validation runs.
   - F-39 confirmed soft threshold, hard threshold, and floor-clamp behavior for Alloy with deterministic state transitions.
   - F-40 confirmed bounded positive and negative world-event application for Salvage Rush and Refinery Chain Disruption.
   - Event telemetry logs emitted triggered, applied, and UI-facing messages with deterministic sequence ids.
+  - Startup now emits an initial stockpile snapshot and HUD feed retains the latest event log entries for observability.
 
 ## 2026-06-11 Stage 0 External Closure Preflight (Objective Pickup)
 

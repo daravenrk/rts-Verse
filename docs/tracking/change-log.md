@@ -15,6 +15,8 @@ Track high-level project changes with links to decisions and plans.
 - Implemented M3 stockpile state container in FirstDuelMap and validated it with F-03/F-04 headless passes after HUD sync fix.
 - Implemented M3 stockpile threshold and bounded world-event runtime in FirstDuelMap and validated it with F-39/F-40 headless passes.
 - Marked T-0067 through T-0071 complete in sprint and backlog trackers after validation evidence passed.
+- Added stockpile telemetry feed and startup snapshot emission to FirstDuelMap HUD observability.
+- Marked the stockpile/world-event observability checklist items complete for reserve/cap display, threshold alerts, event feed, and validation hooks.
 
 ## 2026-06-09
 
