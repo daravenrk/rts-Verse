@@ -2,6 +2,70 @@
 
 Track scenario-level evidence for map and flow validation runs.
 
+## 2026-06-11 M3 Runtime Gap Discovery and Lane Activation
+
+- Flow: `M3 runtime readiness diagnostics for stockpile and world-event systems`
+- Validation commands:
+  - `grep -RIn "stockpile\|world event\|superweapon\|descent\|evolution\|maintenance\|instability\|autonomous\|network warfare\|threshold" scripts scenes | head -n 200`
+  - `grep -RIn "TODO\|FIXME\|TBD" scripts scenes docs | head -n 200`
+- Result: Fail (runtime systems not yet implemented)
+- Notes:
+  - No runtime keyword matches were found under `scripts/` or `scenes/` for stockpile or world-event features.
+  - No source TODO markers were found to indicate partially implemented stockpile or event code paths.
+  - M3 stockpile and world-event runtime work is confirmed as the next unblocked internal development lane.
+
+## 2026-06-11 M3 Runtime Insertion Mapping for T-0067 Through T-0071
+
+- Flow: `code-anchor diagnostics for stockpile runtime implementation`
+- Validation command:
+  - `grep -n "var _resource_alloy_total\|func _update_hud\|func _update_gather_jobs\|func _process(delta\|func _run_f20_f21_test_hook\|_hud_resource_bar.text = \"Alloy" scripts/core/FirstDuelMap.gd`
+- Result: Pass
+- Notes:
+  - Confirmed anchor lines for state replacement and hook insertion in `FirstDuelMap.gd`.
+  - Created planning/m3-stockpile-runtime-spec.md using these anchors to define deterministic implementation order and validation commands.
+
+## 2026-06-11 F-03/F-04 Stockpile Runtime Refactor Validation
+
+- Flow: `F-03 Resource Gather Loop` + `F-04 Win and Loss Trigger`
+- Scenario: `scenes/core/FirstDuelMap.tscn`
+- Validation command:
+  - `/Applications/Godot.app/Contents/MacOS/godot --headless --quit --path . res://scenes/core/FirstDuelMap.tscn -- --duel-test-f03 --duel-test-f04`
+- Result: Pass
+- Notes:
+  - Stockpile state initialized for Alloy, Power, Data, and Reclaim at map startup.
+  - Gather deposits now route through stockpile helper state instead of a standalone alloy counter.
+  - HUD summary now renders reserve and cap values for all four resources.
+  - F-03 still reaches `alloy_total=70` and F-04 still reports passing win/loss state transitions.
+
+## 2026-06-11 F-39/F-40 Stockpile Threshold and World-Event Validation
+
+- Flow: `F-39 Stockpile threshold and clamp validation` + `F-40 Bounded world-event application validation`
+- Scenario: `scenes/core/FirstDuelMap.tscn`
+- Validation commands:
+  - `/Applications/Godot.app/Contents/MacOS/godot --headless --quit --path . res://scenes/core/FirstDuelMap.tscn -- --duel-test-f39-stockpile`
+  - `/Applications/Godot.app/Contents/MacOS/godot --headless --quit --path . res://scenes/core/FirstDuelMap.tscn -- --duel-test-f40-world-events`
+- Result: Pass
+- Notes:
+  - F-39 confirmed soft threshold, hard threshold, and floor-clamp behavior for Alloy with deterministic state transitions.
+  - F-40 confirmed bounded positive and negative world-event application for Salvage Rush and Refinery Chain Disruption.
+  - Event telemetry logs emitted triggered, applied, and UI-facing messages with deterministic sequence ids.
+
+## 2026-06-11 Stage 0 External Closure Preflight (Objective Pickup)
+
+- Flow: `Stage 0 media and publication closure preflight`
+- Validation commands:
+  - `zsh docs/release/stage0-media/stage0_status_report.sh`
+  - `zsh docs/release/stage0-media/prepublish_audit.sh`
+- Result: Fail (expected while external media capture is incomplete)
+- Notes:
+  - Status and audit both returned `NOT READY`.
+  - Screenshot inventory reported `0` with required count policy `3 to 6`.
+  - Missing required screenshot files:
+    - `stage0-shot-01-opening-expansion.png`
+    - `stage0-shot-02-contested-objective.png`
+    - `stage0-shot-03-faction-asymmetry.png`
+  - Re-entry gate remains unchanged: capture required screenshots, stage them in `docs/release/stage0-media/`, then rerun prepublish audit.
+
 ## 2026-06-10 F-38 Live Production Menu and Unit Spawn Loop
 
 - Flow: `F-38 Live production menu and structure-gated unit spawn loop`

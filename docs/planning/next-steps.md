@@ -97,6 +97,11 @@ Keep this list short, actionable, and current.
 - [ ] Publish Stage 0 itch.io Coming Soon page using runbook procedure with visible Pre-Alpha label and no public download.
 - [ ] Run post-publish validation checklist and record public URL, timestamp, media count, and first update-post confirmation.
 - [ ] Update closure trackers in one pass: next-steps, change-log, and scenario-validation-notes with publication evidence.
+- [x] Start M3 runtime Slice A: add global stockpile reserve and cap state container in duel-map runtime.
+- [x] Add deterministic stockpile floor clamp and threshold-crossing detection for Alloy, Power, Data, and Reclaim.
+- [x] Add bounded world-event trigger and apply pipeline for one positive and one negative event class.
+- [x] Wire HUD warning states and event feed baseline to live stockpile and event runtime state.
+- [x] Run first headless M3 stockpile-event validation pass and capture evidence in scenario-validation-notes.
 - [x] Define structured feedback template fields and publish feedback instructions on itch page.
 - [x] Start weekly feedback triage cadence and publish first feedback-response devlog summary.
 

@@ -67,7 +67,7 @@ Define and deliver the first playable RTS vertical slice expressing daravenrk's 
 
 ## M3 Content and Balance Pass
 
-- Status: In Progress (design and planning baseline complete; gameplay system implementation not started)
+- Status: In Progress (design and planning baseline complete; gameplay system implementation activation in progress)
 - Outcomes:
   - Starter factions and unit roster.
   - Campaign perspective arc baseline defined with Veyari-first and Helion-last mission order.
@@ -102,6 +102,29 @@ Define and deliver the first playable RTS vertical slice expressing daravenrk's 
   - Integration: Global stockpile depletion and world event shifts integrate correctly with extraction, tech gates, and production pacing.
   - Integration: Air production, basing, launch, and recovery behave consistently between Carrier and Airfield contexts.
   - Integration: Colony logistics, militia defense, and frontline military systems interact without role collapse.
+
+### M3 Immediate Execution Slice A: Stockpile and World-Event Runtime Activation
+
+- Scope:
+  - Implement runtime global stockpile state with cap tracking, floor clamp behavior, and deterministic update cadence.
+  - Implement bounded world-event trigger and apply pipeline aligned to economy standards.
+  - Implement UI warning and event-feed baseline plus telemetry payloads for trigger, apply, block, and UI acknowledgement.
+- Entry criteria:
+  - Planning artifacts for stockpile and event model are complete.
+  - Stage 0 external closure lane remains parked pending manual operator actions.
+- Exit criteria:
+  - Runtime scripts contain stockpile state updates and bounded event application logic.
+  - Duel-map runtime emits telemetry payloads with deterministic sequence ids.
+  - Headless validation flow passes for clamp behavior, threshold warnings, and event ordering.
+- Validation:
+  - Functional: forced positive and negative events modify reserves within configured bounds.
+  - Integration: HUD warnings and event feed remain synchronized with telemetry payloads.
+  - Observability: sequence ordering and threshold-crossing logs are deterministic and triage-ready.
+
+### M3 Diagnostic Snapshot 2026-06-11
+
+- Runtime keyword scan across `scripts/` and `scenes/` found no evidence of implemented stockpile, world-event, Descent, or dynamic-evolution gameplay logic.
+- Result: M3 runtime implementation lane is confirmed open and unblocked for internal development.
 
 ## M4 Packaging and Readiness
 
@@ -155,6 +178,7 @@ Define and deliver the first playable RTS vertical slice expressing daravenrk's 
 - Economy standards: planning/economy-standards.md
 - Primitive visual baseline: planning/primitive-visual-baseline.md
 - World systems baseline: planning/world-systems-baseline.md
+- M3 stockpile runtime spec: planning/m3-stockpile-runtime-spec.md
 - Task backlog: planning/task-backlog.md
 - Testing strategy: planning/testing-strategy.md
 - Definition of done: planning/definition-of-done.md

@@ -14,6 +14,13 @@
 - Newly closed runtime story: S-4011 live production menu and structure-gated unit spawning.
 - Deterministic validation evidence added for F-38 with pass status and tracker alignment.
 
+## Closure Delta 2026-06-11
+
+- Picked up Stage 0 external closure lane as the next queued objective.
+- Executed `zsh docs/release/stage0-media/stage0_status_report.sh` and `zsh docs/release/stage0-media/prepublish_audit.sh` as closure preflight checks.
+- Both checks returned `NOT READY` with explicit missing-media blockers and screenshot-count policy failure.
+- Objective 3 remains parked with unchanged re-entry gate: capture required screenshots and rerun prepublish audit.
+
 ## Story Breakdown
 
 ```yaml
@@ -352,6 +359,7 @@ steps:
 - Active objective name: Stage 0 media capture and itch.io Coming Soon publication closure.
 - Intended gameplay outcome: present truthful Pre-Alpha visibility with representative gameplay-first media and deterministic evidence capture.
 - Scope boundary: in-repo preparation is complete; remaining execution requires manual external actions.
+- Latest validation snapshot (2026-06-11): preflight audit confirmed blockers are still external and media-capture dependent.
 
 ### Closure State
 

@@ -23,10 +23,22 @@ const TEST_F35_GATHER_FLAG := "--duel-test-f35-gather"
 const TEST_F36_BUILD_FLAG := "--duel-test-f36-build"
 const TEST_F37_COMBAT_FLAG := "--duel-test-f37-combat"
 const TEST_F38_PRODUCTION_FLAG := "--duel-test-f38-production"
+const TEST_F39_STOCKPILE_FLAG := "--duel-test-f39-stockpile"
+const TEST_F40_WORLD_EVENTS_FLAG := "--duel-test-f40-world-events"
 const TEST_AUTO_EXIT_FLAG := "--duel-test-auto-exit"
 const TEST_ROSTER_BEHAVIORS_FLAG := "--duel-test-roster-behaviors"
 const TEST_T2_PATHS_FLAG := "--duel-test-t2-paths"
 const TEST_COLONY_DEFENSE_FLAG := "--duel-test-colony-defense"
+const STOCKPILE_CONFIG := {
+	"alloy": {"cap": 200000, "soft_ratio": 0.3, "hard_ratio": 0.1},
+	"power": {"cap": 160000, "soft_ratio": 0.35, "hard_ratio": 0.12},
+	"data": {"cap": 120000, "soft_ratio": 0.4, "hard_ratio": 0.15},
+	"reclaim": {"cap": 100000, "soft_ratio": 0.25, "hard_ratio": 0.08},
+}
+const WORLD_EVENT_DEFS := {
+	"E-001": {"id": "E-001", "name": "Salvage Rush", "polarity": "positive", "resource": "reclaim", "magnitude_ratio": 0.06},
+	"E-006": {"id": "E-006", "name": "Refinery Chain Disruption", "polarity": "negative", "resource": "alloy", "magnitude_ratio": 0.05},
+}
 const SelectableUnit2D := preload("res://scripts/core/SelectableUnit2D.gd")
 const BUILD_MENU_ORDER := ["power_core", "alloy_extractor", "barracks_equivalent", "vehicle_structure", "sensor_uplink", "expansion_hub"]
 const BUILD_HOTKEYS := {
@@ -220,6 +232,11 @@ var _control_groups: Dictionary = {}
 var _controllable_units: Dictionary = {}
 var _selected_controllable_units: Array[String] = []
 var _resource_alloy_total: int = 0
+var _stockpile_state: Dictionary = {}
+var _stockpile_event_log: Array[String] = []
+var _stockpile_sequence_id: int = 0
+var _last_world_event_resource: String = ""
+var _last_world_event_polarity: String = ""
 var _gather_jobs: Dictionary = {}
 var _build_menu_active: bool = false
 var _pending_buildable_id: String = ""
@@ -239,6 +256,7 @@ func _ready() -> void:
 	var enemy_faction := _resolve_faction("duel_enemy_faction", TEST_ENEMY_FACTION_PREFIX, DEFAULT_ENEMY_FACTION)
 	print("[Map] First duel environment primary=Radial Impact Zone secondary=None")
 	_create_mvp_hud()
+	_initialize_stockpile_state()
 	_spawn_map_items()
 	_spawn_world_blockers()
 	_validate_map_item_catalog()
@@ -257,6 +275,8 @@ func _ready() -> void:
 	_run_f36_build_test_hook()
 	_run_f37_combat_test_hook()
 	_run_f38_production_test_hook()
+	_run_f39_stockpile_test_hook()
+	_run_f40_world_events_test_hook()
 	_run_f03_test_hook()
 	_run_f04_test_hook()
 	_run_production_chain_test_hook()
@@ -756,7 +776,7 @@ func _run_f35_gather_test_hook() -> void:
 		print("[F35] Summary pass=false reason=no_gatherer")
 		return
 
-	_resource_alloy_total = 0
+	_set_stockpile_reserve("alloy", 0, "f35_reset")
 	_select_single_unit(gatherer_id)
 	_issue_gather_command("SAFE-ALLOY-A")
 	for _step in 180:
@@ -851,7 +871,7 @@ func _run_f03_test_hook() -> void:
 	if _controllable_units.is_empty():
 		_initialize_controllable_units()
 
-	_resource_alloy_total = 0
+	_set_stockpile_reserve("alloy", 0, "f03_reset")
 	var gather_node := Vector3(-230.0, 0.0, 0.0)
 	var return_node: Vector3 = _spawn_a.position
 	_select_single_unit("unit_alpha")
@@ -870,8 +890,7 @@ func _run_f03_test_hook() -> void:
 			cycle_pass = false
 			break
 
-		_resource_alloy_total += 35
-		_hud_resource_bar.text = "Alloy: %d  Power: 400/520  Data: 0  Reclaim: 0" % _resource_alloy_total
+		_add_stockpile_reserve("alloy", 35, "f03_deposit")
 		print("[F03] Gather cycle=%d state=deposit alloy_total=%d" % [cycle + 1, _resource_alloy_total])
 
 	var gather_pass := cycle_pass and _resource_alloy_total > 0
@@ -927,13 +946,11 @@ func _run_f04_test_hook() -> void:
 	if not _has_user_flag(TEST_F04_FLAG):
 		return
 
-	_resource_alloy_total = 140
-	_hud_resource_bar.text = "Alloy: %d  Power: 400/520  Data: 0  Reclaim: 0" % _resource_alloy_total
+	_set_stockpile_reserve("alloy", 140, "f04_win_state")
 	_set_match_state("Win", "objective_control")
 	var win_state_pass := _hud_match_state.text == "State: Win (objective_control)"
 
-	_resource_alloy_total = 40
-	_hud_resource_bar.text = "Alloy: %d  Power: 320/520  Data: 0  Reclaim: 0" % _resource_alloy_total
+	_set_stockpile_reserve("alloy", 40, "f04_loss_state")
 	_set_match_state("Loss", "command_core_destroyed")
 	var loss_state_pass := _hud_match_state.text == "State: Loss (command_core_destroyed)"
 
@@ -1237,7 +1254,211 @@ func _process(delta: float) -> void:
 
 func _update_hud() -> void:
 	if _hud_resource_bar:
-		_hud_resource_bar.text = "Alloy: %d  Power: 400/520  Data: 0  Reclaim: 0" % _resource_alloy_total
+		_hud_resource_bar.text = _format_stockpile_hud_text()
+
+
+func _initialize_stockpile_state() -> void:
+	_stockpile_state.clear()
+	for resource_id in STOCKPILE_CONFIG.keys():
+		var config: Dictionary = STOCKPILE_CONFIG[resource_id]
+		var cap := int(config["cap"])
+		var soft_threshold := int(round(float(cap) * float(config["soft_ratio"])))
+		var hard_threshold := int(round(float(cap) * float(config["hard_ratio"])))
+		_stockpile_state[resource_id] = {
+			"reserve": cap,
+			"cap": cap,
+			"soft_threshold": soft_threshold,
+			"hard_threshold": hard_threshold,
+			"last_threshold": "none"
+		}
+	_stockpile_sequence_id = 0
+	_stockpile_event_log.clear()
+	_sync_legacy_alloy_total()
+	print("[Stockpile] Initialized resources=%s" % str(_stockpile_state.keys()))
+
+
+func _format_stockpile_hud_text() -> String:
+	return "Alloy: %d/%d  Power: %d/%d  Data: %d/%d  Reclaim: %d/%d" % [
+		_get_stockpile_reserve("alloy"), _get_stockpile_cap("alloy"),
+		_get_stockpile_reserve("power"), _get_stockpile_cap("power"),
+		_get_stockpile_reserve("data"), _get_stockpile_cap("data"),
+		_get_stockpile_reserve("reclaim"), _get_stockpile_cap("reclaim")
+	]
+
+
+func _get_stockpile_reserve(resource_id: String) -> int:
+	if not _stockpile_state.has(resource_id):
+		return 0
+	return int(_stockpile_state[resource_id]["reserve"])
+
+
+func _get_stockpile_cap(resource_id: String) -> int:
+	if not _stockpile_state.has(resource_id):
+		return 0
+	return int(_stockpile_state[resource_id]["cap"])
+
+
+func _sync_legacy_alloy_total() -> void:
+	_resource_alloy_total = _get_stockpile_reserve("alloy")
+
+
+func _set_stockpile_reserve(resource_id: String, new_reserve: int, reason: String = "manual") -> int:
+	if not _stockpile_state.has(resource_id):
+		return 0
+
+	var cap := _get_stockpile_cap(resource_id)
+	var clamped_reserve := clampi(new_reserve, 0, cap)
+	_stockpile_state[resource_id]["reserve"] = clamped_reserve
+	_evaluate_stockpile_threshold(resource_id)
+	_stockpile_sequence_id += 1
+	_stockpile_event_log.append("%s:%d:%s" % [resource_id, clamped_reserve, reason])
+	if _stockpile_event_log.size() > 8:
+		_stockpile_event_log.pop_front()
+	if resource_id == "alloy":
+		_sync_legacy_alloy_total()
+	_update_hud()
+	print("[Stockpile] Set resource=%s reserve=%d cap=%d reason=%s seq=%d" % [resource_id, clamped_reserve, cap, reason, _stockpile_sequence_id])
+	return clamped_reserve
+
+
+func _add_stockpile_reserve(resource_id: String, delta: int, reason: String = "delta") -> int:
+	return _set_stockpile_reserve(resource_id, _get_stockpile_reserve(resource_id) + delta, reason)
+
+
+func _evaluate_stockpile_threshold(resource_id: String) -> void:
+	if not _stockpile_state.has(resource_id):
+		return
+
+	var state: Dictionary = _stockpile_state[resource_id]
+	var reserve := int(state["reserve"])
+	var soft_threshold := int(state["soft_threshold"])
+	var hard_threshold := int(state["hard_threshold"])
+	var new_threshold := "none"
+	if reserve <= hard_threshold:
+		new_threshold = "hard"
+	elif reserve <= soft_threshold:
+		new_threshold = "soft"
+
+	var previous_threshold := str(state.get("last_threshold", "none"))
+	if new_threshold == previous_threshold:
+		return
+
+	_stockpile_state[resource_id]["last_threshold"] = new_threshold
+	if new_threshold != "none":
+		_emit_stockpile_threshold_crossed(resource_id, new_threshold)
+
+
+func _emit_stockpile_threshold_crossed(resource_id: String, threshold_type: String) -> void:
+	_stockpile_sequence_id += 1
+	var reserve := _get_stockpile_reserve(resource_id)
+	var cap := _get_stockpile_cap(resource_id)
+	var message := "[Stockpile] threshold resource=%s level=%s reserve=%d cap=%d seq=%d" % [resource_id, threshold_type, reserve, cap, _stockpile_sequence_id]
+	print(message)
+	_stockpile_event_log.append(message)
+	if _stockpile_event_log.size() > 8:
+		_stockpile_event_log.pop_front()
+	if _hud_alert_item:
+		_hud_alert_item.text = "Stockpile alert: %s %s" % [resource_id.capitalize(), threshold_type]
+
+
+func _run_f39_stockpile_test_hook() -> void:
+	if not _has_user_flag(TEST_F39_STOCKPILE_FLAG):
+		return
+
+	_set_stockpile_reserve("alloy", 60000, "f39_soft_threshold")
+	var soft_state := str(_stockpile_state["alloy"]["last_threshold"])
+	_set_stockpile_reserve("alloy", 15000, "f39_hard_threshold")
+	var hard_state := str(_stockpile_state["alloy"]["last_threshold"])
+	_set_stockpile_reserve("alloy", -250, "f39_floor_clamp")
+	var floor_ok := _get_stockpile_reserve("alloy") == 0
+	var pass_ok := soft_state == "soft" and hard_state == "hard" and floor_ok
+	print("[F39] Summary soft_state=%s hard_state=%s floor_ok=%s reserve=%d pass=%s" % [soft_state, hard_state, str(floor_ok), _get_stockpile_reserve("alloy"), str(pass_ok)])
+
+
+func _run_f40_world_events_test_hook() -> void:
+	if not _has_user_flag(TEST_F40_WORLD_EVENTS_FLAG):
+		return
+
+	_set_stockpile_reserve("reclaim", 88000, "f40_setup")
+	_set_stockpile_reserve("alloy", 200000, "f40_setup")
+	var reclaim_before := _get_stockpile_reserve("reclaim")
+	var alloy_before := _get_stockpile_reserve("alloy")
+	var positive_ok := _trigger_world_event(WORLD_EVENT_DEFS["E-001"])
+	var negative_ok := _trigger_world_event(WORLD_EVENT_DEFS["E-006"])
+	var reclaim_after := _get_stockpile_reserve("reclaim")
+	var alloy_after := _get_stockpile_reserve("alloy")
+	var pass_ok := positive_ok and negative_ok and reclaim_after > reclaim_before and alloy_after < alloy_before
+	print("[F40] Summary positive_ok=%s negative_ok=%s reclaim_before=%d reclaim_after=%d alloy_before=%d alloy_after=%d pass=%s" % [str(positive_ok), str(negative_ok), reclaim_before, reclaim_after, alloy_before, alloy_after, str(pass_ok)])
+
+
+func _trigger_world_event(event_def: Dictionary) -> bool:
+	if not _can_apply_world_event(event_def):
+		_emit_world_event_blocked(event_def, "guardrail_rejected")
+		return false
+
+	_emit_world_event_triggered(event_def)
+	var applied_delta := _apply_world_event(event_def)
+	_emit_world_event_applied(event_def, applied_delta)
+	return true
+
+
+func _can_apply_world_event(event_def: Dictionary) -> bool:
+	var resource_id := str(event_def.get("resource", ""))
+	var polarity := str(event_def.get("polarity", ""))
+	if resource_id == "" or not _stockpile_state.has(resource_id):
+		return false
+	if _last_world_event_resource == resource_id and _last_world_event_polarity == polarity:
+		return false
+	return true
+
+
+func _apply_world_event(event_def: Dictionary) -> int:
+	var resource_id := str(event_def.get("resource", ""))
+	var polarity := str(event_def.get("polarity", "positive"))
+	var cap := _get_stockpile_cap(resource_id)
+	var magnitude := int(round(float(cap) * float(event_def.get("magnitude_ratio", 0.0))))
+	if polarity == "negative":
+		magnitude = -magnitude
+		var negative_limit := int(round(float(cap) * 0.07))
+		magnitude = max(-negative_limit, magnitude)
+	else:
+		var positive_limit := int(round(float(cap) * 0.10))
+		magnitude = min(positive_limit, magnitude)
+
+	_set_stockpile_reserve(resource_id, _get_stockpile_reserve(resource_id) + magnitude, str(event_def.get("id", "world_event")))
+	_last_world_event_resource = resource_id
+	_last_world_event_polarity = polarity
+	return magnitude
+
+
+func _emit_world_event_triggered(event_def: Dictionary) -> void:
+	_stockpile_sequence_id += 1
+	var message := "[WorldEvent] triggered id=%s polarity=%s resource=%s magnitude=%d seq=%d" % [str(event_def.get("id", "")), str(event_def.get("polarity", "")), str(event_def.get("resource", "")), int(round(float(_get_stockpile_cap(str(event_def.get("resource", "")))) * float(event_def.get("magnitude_ratio", 0.0)))), _stockpile_sequence_id]
+	print(message)
+	_stockpile_event_log.append(message)
+	if _stockpile_event_log.size() > 8:
+		_stockpile_event_log.pop_front()
+
+
+func _emit_world_event_applied(event_def: Dictionary, applied_delta: int) -> void:
+	_stockpile_sequence_id += 1
+	var resource_id := str(event_def.get("resource", ""))
+	var message := "[WorldEvent] applied id=%s resource=%s delta=%d reserve_after=%d seq=%d" % [str(event_def.get("id", "")), resource_id, applied_delta, _get_stockpile_reserve(resource_id), _stockpile_sequence_id]
+	print(message)
+	_stockpile_event_log.append(message)
+	if _stockpile_event_log.size() > 8:
+		_stockpile_event_log.pop_front()
+	if _hud_alert_item:
+		_hud_alert_item.text = "Event: %s %s%d" % [str(event_def.get("name", "Event")), "+" if applied_delta >= 0 else "", applied_delta]
+
+
+func _emit_world_event_blocked(event_def: Dictionary, reason: String) -> void:
+	_stockpile_sequence_id += 1
+	var message := "[WorldEvent] blocked id=%s reason=%s seq=%d" % [str(event_def.get("id", "")), reason, _stockpile_sequence_id]
+	print(message)
+	_stockpile_event_log.append(message)
+	if _stockpile_event_log.size() > 8:
+		_stockpile_event_log.pop_front()
 
 
 func _on_tether_penalty(item_id: String, slot: String, faction: String) -> void:
@@ -1584,7 +1805,7 @@ func _update_gather_jobs() -> void:
 			_gather_jobs[unit_id] = job
 			print("[F03] Live gather state=collecting unit=%s resource=%s" % [unit_id, str(job.get("resource_id", ""))])
 		elif phase == "to_dropoff":
-			_resource_alloy_total += 35
+			_add_stockpile_reserve("alloy", 35, "live_gather_deposit")
 			var cycles := int(job.get("cycles", 0)) + 1
 			print("[F03] Live gather state=deposit unit=%s alloy_total=%d cycles=%d" % [unit_id, _resource_alloy_total, cycles])
 			if cycles >= 1:

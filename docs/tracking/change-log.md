@@ -2,6 +2,20 @@
 
 Track high-level project changes with links to decisions and plans.
 
+## 2026-06-11
+
+- Picked up next queued objective lane (Stage 0 external publication closure) and executed closure preflight validation.
+- Ran `zsh docs/release/stage0-media/stage0_status_report.sh` and captured unresolved blocker evidence.
+- Ran `zsh docs/release/stage0-media/prepublish_audit.sh`; audit returned `NOT READY` due to zero screenshots and missing required files `stage0-shot-01-opening-expansion.png`, `stage0-shot-02-contested-objective.png`, and `stage0-shot-03-faction-asymmetry.png`.
+- Added tracker synchronization updates documenting current parked state and explicit re-entry condition (capture 3 to 6 screenshots, then rerun audit).
+- Ran runtime-gap diagnostics for M3 systems; no stockpile, world-event, Descent, or dynamic-evolution runtime keyword hits were found in `scripts/` and `scenes/`.
+- Activated an unblocked internal development slice for M3 stockpile and world-event runtime implementation with new sprint and backlog tasks T-0067 through T-0071.
+- Added planning/m3-stockpile-runtime-spec.md with file-scoped coding steps, test-hook definitions, and validation command drafts for T-0067 through T-0071.
+- Anchored the spec to current FirstDuelMap runtime insertion points (state variable, process loop, HUD update, gather update, and deterministic test hook region).
+- Implemented M3 stockpile state container in FirstDuelMap and validated it with F-03/F-04 headless passes after HUD sync fix.
+- Implemented M3 stockpile threshold and bounded world-event runtime in FirstDuelMap and validated it with F-39/F-40 headless passes.
+- Marked T-0067 through T-0071 complete in sprint and backlog trackers after validation evidence passed.
+
 ## 2026-06-09
 
 - Converted all simulation node classes from Node2D to Node3D: SelectableUnit2D, TetherPoint, BuildableNode, UnitActor, MapItem, FirstDuelMap.

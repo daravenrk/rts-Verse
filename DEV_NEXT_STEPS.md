@@ -178,6 +178,7 @@
 
 - Outcome: close Stage 0 visibility lane with truthful Pre-Alpha page, representative gameplay media, and evidence-backed tracker updates.
 - Scope boundary: remaining actions are external operator tasks; all in-repo preparation artifacts are complete.
+- Latest validation snapshot (2026-06-11): `stage0_status_report.sh` and `prepublish_audit.sh` both report `NOT READY` due to missing required screenshots and screenshot-count policy failure.
 
 ### Parked Objective Queue
 

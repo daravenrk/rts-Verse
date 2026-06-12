@@ -10,6 +10,20 @@ Use this worksheet during the external Stage 0 execution window to close T-0046 
 - Branch:
 - Goal: Close Stage 0 external publication blockers with complete evidence and tracker updates.
 
+## Latest Preflight Snapshot
+
+- Date: 2026-06-11
+- Objective lane picked up: Stage 0 external publication closure
+- Commands executed:
+  - `zsh docs/release/stage0-media/stage0_status_report.sh`
+  - `zsh docs/release/stage0-media/prepublish_audit.sh`
+- Outcome: `NOT READY`
+- Blocking details:
+  - Required screenshots are missing: `stage0-shot-01-opening-expansion.png`, `stage0-shot-02-contested-objective.png`, `stage0-shot-03-faction-asymmetry.png`.
+  - Screenshot count policy not met (`0`, required `3 to 6`).
+- Re-entry action:
+  - Capture and stage required screenshots in `docs/release/stage0-media/`, then rerun prepublish audit.
+
 ## Execution Sequence
 
 | Order | Task ID | Action | Required Output | Result |
