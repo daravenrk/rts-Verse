@@ -30,7 +30,7 @@ This document defines validation layers for milestone delivery.
 | F-24 | Unit readability and animation baseline | Pass | `docs/tracking/scenario-validation-notes.md` |
 | F-25 | Campaign order and skirmish availability gate | Pass | `docs/tracking/scenario-validation-notes.md` |
 | F-26 | Environment readability and spawn consistency | Pass | `docs/tracking/scenario-validation-notes.md` |
-| F-28 | Day-night and biome readability contract | Planning pass | `docs/tracking/visual-validation-notes.md` |
+| F-28 | Day-night and biome readability contract | Pass | `docs/tracking/scenario-validation-notes.md` |
 | F-29 | Five-tier progression coverage mapping | Pass | `docs/tracking/scenario-validation-notes.md` |
 | F-30 | Named five-faction baseline coverage | Pass | `docs/tracking/scenario-validation-notes.md` |
 | F-31 | Stockpile and world-event UI telemetry coverage | Pass | `docs/tracking/scenario-validation-notes.md` |

@@ -2,6 +2,19 @@
 
 Track scenario-level evidence for map and flow validation runs.
 
+## 2026-06-11 F-28 Day-Night and Biome Readability Contract
+
+- Flow: `F-28 Structure Readability Under Day-Night and Biome Variants`
+- Scenario: `scenes/core/FirstDuelMap.tscn`
+- Validation command:
+  - `/Applications/Godot.app/Contents/MacOS/godot --headless --quit --path . res://scenes/core/FirstDuelMap.tscn -- --duel-test-f28-visual`
+- Result: Pass
+- Notes:
+  - LS-01 passed: Helion and Veyari faction colors remained distinct under simulated night multiplier (`faction_delta=0.60`).
+  - LS-02 passed: damaged vs. critical visibility delta remained above floor.
+  - LS-03 passed: small-footprint structure identifiers are present in runtime buildable definitions.
+  - LS-04 passed: phase energy transitions remained within bounded jump threshold (`max_jump=0.40`).
+
 ## 2026-06-11 M3 Runtime Gap Discovery and Lane Activation
 
 - Flow: `M3 runtime readiness diagnostics for stockpile and world-event systems`

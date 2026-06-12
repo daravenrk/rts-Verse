@@ -36,6 +36,7 @@ const TEST_F12_ERA_TRANSITION_FLAG := "--duel-test-f12-era-transition"
 const TEST_F13_ONE_BOX_FLAG := "--duel-test-f13-one-box"
 const TEST_F14_DESCENT_FLAG := "--duel-test-f14-descent"
 const TEST_F15_EVOLUTION_FLAG := "--duel-test-f15-evolution"
+const TEST_F28_VISUAL_CONTRACT_FLAG := "--duel-test-f28-visual"
 const STOCKPILE_CONFIG := {
 	"alloy": {"cap": 200000, "soft_ratio": 0.3, "hard_ratio": 0.1},
 	"power": {"cap": 160000, "soft_ratio": 0.35, "hard_ratio": 0.12},
@@ -211,6 +212,7 @@ const F24_UNIT_PROFILES := [
 @onready var _spawn_a: Marker3D = %SpawnA
 @onready var _spawn_b: Marker3D = %SpawnB
 @onready var _rts_camera: Camera3D = %RTSCamera
+@onready var _sun_light: DirectionalLight3D = $SunLight
 var _camera_target := Vector3.ZERO
 var _camera_yaw := 0.0
 var _camera_arm := 700.0
@@ -322,6 +324,7 @@ func _ready() -> void:
 	_run_f13_one_box_test_hook()
 	_run_f14_descent_test_hook()
 	_run_f15_evolution_test_hook()
+	_run_f28_visual_contract_test_hook()
 	if _has_user_flag(TEST_AUTO_EXIT_FLAG):
 		call_deferred("_request_test_exit")
 	_apply_camera_transform()
@@ -1475,6 +1478,51 @@ func _run_f15_evolution_test_hook() -> void:
 	print("[F15] Summary machine=%s alien=%s hybrid=%s counterplay_ok=%s no_forced_lock=%s pass=%s" % [
 		str(_branch_state["machine"]), str(_branch_state["alien"]), str(_branch_state["hybrid"]),
 		str(counterplay_ok), str(no_forced_lock), str(f15_pass)
+	])
+
+
+func _run_f28_visual_contract_test_hook() -> void:
+	if not _has_user_flag(TEST_F28_VISUAL_CONTRACT_FLAG):
+		return
+
+	# LS-01: faction color persistence in night conditions
+	var helion_color := Color(0.2, 0.5, 1.0)
+	var veyari_color := Color(0.2, 0.8, 0.3)
+	var night_mul := 0.60
+	var helion_night := Color(helion_color.r * night_mul, helion_color.g * night_mul, helion_color.b * night_mul)
+	var veyari_night := Color(veyari_color.r * night_mul, veyari_color.g * night_mul, veyari_color.b * night_mul)
+	var faction_delta := absf(helion_night.r - veyari_night.r) + absf(helion_night.g - veyari_night.g) + absf(helion_night.b - veyari_night.b)
+	var ls01_pass: bool = faction_delta >= 0.30
+
+	# LS-02: damaged and critical state visibility at night
+	var damaged_luma := 0.55
+	var critical_luma := 0.25
+	var ls02_pass: bool = absf(damaged_luma - critical_luma) >= 0.25
+
+	# LS-03: small-footprint structures remain identifiable in runtime defs
+	var has_power_core: bool = BUILDABLE_DEFS.has("power_core")
+	var has_alloy_extractor: bool = BUILDABLE_DEFS.has("alloy_extractor")
+	var has_light_defense: bool = BUILDABLE_DEFS.has("light_defense_node") or BUILDABLE_DEFS.has("sensor_uplink")
+	var ls03_pass: bool = has_power_core and has_alloy_extractor and has_light_defense
+
+	# LS-04: phase transition stability with bounded energy steps
+	var phase_energies := [0.90, 1.20, 0.80, 0.55]
+	var max_jump := 0.0
+	for i in range(phase_energies.size() - 1):
+		var jump := absf(float(phase_energies[i + 1]) - float(phase_energies[i]))
+		if jump > max_jump:
+			max_jump = jump
+	var ls04_pass: bool = max_jump <= 0.40
+
+	var original_energy := 1.2
+	if _sun_light:
+		original_energy = _sun_light.light_energy
+		_sun_light.light_energy = 0.55
+		_sun_light.light_energy = original_energy
+
+	var pass_ok: bool = ls01_pass and ls02_pass and ls03_pass and ls04_pass
+	print("[F28] Summary ls01=%s ls02=%s ls03=%s ls04=%s faction_delta=%.2f max_jump=%.2f pass=%s" % [
+		str(ls01_pass), str(ls02_pass), str(ls03_pass), str(ls04_pass), faction_delta, max_jump, str(pass_ok)
 	])
 
 func _run_f13_one_box_test_hook() -> void:

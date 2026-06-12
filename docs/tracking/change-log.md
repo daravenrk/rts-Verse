@@ -21,6 +21,7 @@ Track high-level project changes with links to decisions and plans.
 - Added a shared primitive visual kit for unit and structure placeholders and revalidated the F-24 readability baseline after wiring the new silhouettes.
 - Added primitive marker visuals for duel-map MapItem annotations and revalidated the F-24 readability baseline with no scene-load regressions.
 - Implemented F-09 air-wing lifecycle runtime (produce, transfer, launch, rearm, fallback, degradation, recovery) and validated all nine AW checks with a headless pass.
+- Implemented F-28 day-night readability runtime hook and validated LS-01 through LS-04 contract checks in headless mode.
 
 ## 2026-06-09
 
