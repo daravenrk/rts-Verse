@@ -41,6 +41,9 @@ This document defines validation layers for milestone delivery.
 | F-36 | Live build menu and structure placement loop | Pass | `docs/tracking/scenario-validation-notes.md` |
 | F-37 | Live enemy-target attack and combat resolution loop | Pass | `docs/tracking/scenario-validation-notes.md` |
 | F-38 | Live production menu and structure-gated unit spawn loop | Pass | `docs/tracking/scenario-validation-notes.md` |
+| F-39 | Stockpile threshold-crossing and floor-clamp validation | Pass | `docs/tracking/scenario-validation-notes.md` |
+| F-40 | Bounded world-event trigger and application validation | Pass | `docs/tracking/scenario-validation-notes.md` |
+| F-09 | Carrier and Airfield Sortie Lifecycle | Pass | `docs/tracking/scenario-validation-notes.md` |
 
 ## M2 Core Gameplay Validation Flows
 

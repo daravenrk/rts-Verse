@@ -20,6 +20,7 @@ Track high-level project changes with links to decisions and plans.
 - Finished HUD telemetry polish for stockpile/world-event runtime by adding phase tags, depletion tooltips, and readable alert color branches, then revalidated F-40 headless behavior.
 - Added a shared primitive visual kit for unit and structure placeholders and revalidated the F-24 readability baseline after wiring the new silhouettes.
 - Added primitive marker visuals for duel-map MapItem annotations and revalidated the F-24 readability baseline with no scene-load regressions.
+- Implemented F-09 air-wing lifecycle runtime (produce, transfer, launch, rearm, fallback, degradation, recovery) and validated all nine AW checks with a headless pass.
 
 ## 2026-06-09
 

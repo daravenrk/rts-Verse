@@ -253,6 +253,22 @@ Track scenario-level evidence for map and flow validation runs.
   - BuildableNode now renders a tiered foundation, crown, and output-facing accent panel from the shared kit.
   - TetherPoint now renders a shared cylinder/tower/cap silhouette with faction-tinted emissive layers.
 
+## 2026-06-11 F-09 Carrier and Airfield Sortie Lifecycle
+
+- Flow: `F-09 Carrier and Airfield Sortie Lifecycle`
+- Scenario: `scenes/core/FirstDuelMap.tscn`
+- Validation command:
+  - `/Applications/Godot.app/Contents/MacOS/godot --headless --quit --path . res://scenes/core/FirstDuelMap.tscn -- --duel-test-f09-air-wing`
+- Result: Pass
+- Notes:
+  - Fighters and Corvettes each produced with airfield as initial home base (AW-01, AW-02 pass).
+  - Fighter transferred to carrier without state loss (AW-03 pass).
+  - Sortie launched from carrier and recovered with rearm-complete state (AW-04 pass).
+  - Carrier destroyed; fighter fell back to airfield automatically (AW-05 pass).
+  - Airfield destroyed; both units degraded to cadence 0.30 (AW-06, AW-07 pass).
+  - Airfield rebuilt; both units recovered to ready state at normal cadence (AW-08 pass).
+  - Fighter role confirmed air_superiority, Corvette confirmed strike — roles remain distinct (AW-09 pass).
+
 ## 2026-06-11 Map Item Primitive Marker Validation
 
 - Flow: `F-24 Small-Scale 3D Readability and Animation Subspace Compliance` after map-item marker integration

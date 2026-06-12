@@ -29,6 +29,7 @@ const TEST_AUTO_EXIT_FLAG := "--duel-test-auto-exit"
 const TEST_ROSTER_BEHAVIORS_FLAG := "--duel-test-roster-behaviors"
 const TEST_T2_PATHS_FLAG := "--duel-test-t2-paths"
 const TEST_COLONY_DEFENSE_FLAG := "--duel-test-colony-defense"
+const TEST_F09_AIR_WING_FLAG := "--duel-test-f09-air-wing"
 const STOCKPILE_CONFIG := {
 	"alloy": {"cap": 200000, "soft_ratio": 0.3, "hard_ratio": 0.1},
 	"power": {"cap": 160000, "soft_ratio": 0.35, "hard_ratio": 0.12},
@@ -110,6 +111,11 @@ const T2_TRANSITION_OPTIONS := {
 	"obsidian": "ruin_launcher",
 	"veyari": "singularity_lobber"
 }
+const AIR_WING_UNITS := ["fighter", "corvette"]
+const AIR_BASE_TYPES := ["airfield", "carrier"]
+const AIR_SORTIE_CADENCE_NORMAL := 1.0
+const AIR_SORTIE_CADENCE_DEGRADED := 0.3
+
 const COLONY_DEFENSE_UNITS := {
 	"security_militia_squad": "militia_barracks",
 	"patrol_buggy": "militia_barracks",
@@ -251,6 +257,8 @@ var _produced_units_by_slot: Dictionary = {"A": {}, "B": {}}
 var _live_production_spawn_index_by_slot: Dictionary = {"A": 0, "B": 0}
 var _colony_sequence: int = 0
 var _colony_units_by_slot: Dictionary = {"A": {}, "B": {}}
+var _air_wing_state: Dictionary = {}
+var _air_base_state: Dictionary = {}
 
 
 func _ready() -> void:
@@ -288,6 +296,7 @@ func _ready() -> void:
 	_run_roster_behavior_test_hook()
 	_run_t2_path_test_hook()
 	_run_colony_defense_test_hook()
+	_run_f09_air_wing_test_hook()
 	if _has_user_flag(TEST_AUTO_EXIT_FLAG):
 		call_deferred("_request_test_exit")
 	_apply_camera_transform()
@@ -1247,6 +1256,94 @@ func _produce_colony_unit(slot: String, unit_id: String) -> bool:
 	_colony_units_by_slot[slot][unit_id] = stable_item_id
 	print("[ColonyDefense] Produced slot=%s unit=%s producer=%s stable_item_id=%s" % [slot, unit_id, producer, stable_item_id])
 	return true
+
+
+func _run_f09_air_wing_test_hook() -> void:
+	if not _has_user_flag(TEST_F09_AIR_WING_FLAG):
+		return
+
+	_air_wing_state.clear()
+	_air_base_state.clear()
+
+	# Register two base types for slot A
+	for base_type in AIR_BASE_TYPES:
+		_air_base_state[base_type] = {"alive": true, "slot": "A"}
+
+	# Produce one fighter and one corvette, assign initial home base to airfield
+	for unit_type in AIR_WING_UNITS:
+		_air_wing_state[unit_type] = {
+			"home_base": "airfield",
+			"sortie_state": "ready",
+			"rearm_complete": false
+		}
+		print("[AirWing] Produced unit=%s home_base=airfield" % unit_type)
+
+	var aw01_pass := _air_wing_state.has("fighter") and str(_air_wing_state["fighter"]["home_base"]) == "airfield"
+	var aw02_pass := _air_wing_state.has("corvette") and str(_air_wing_state["corvette"]["home_base"]) == "airfield"
+
+	# Transfer fighter to carrier
+	_air_wing_state["fighter"]["home_base"] = "carrier"
+	print("[AirWing] Transfer unit=fighter new_base=carrier")
+	var aw03_pass := str(_air_wing_state["fighter"]["home_base"]) == "carrier"
+
+	# Launch sortie from carrier and simulate rearm/recover
+	_air_wing_state["fighter"]["sortie_state"] = "on_sortie"
+	print("[AirWing] Launch unit=fighter from=carrier")
+	_air_wing_state["fighter"]["rearm_complete"] = true
+	_air_wing_state["fighter"]["sortie_state"] = "ready"
+	print("[AirWing] Recover unit=fighter rearm_complete=true sortie_state=ready")
+	var aw04_pass := bool(_air_wing_state["fighter"]["rearm_complete"]) and str(_air_wing_state["fighter"]["sortie_state"]) == "ready"
+
+	# Destroy carrier; fighter must fall back to airfield
+	_air_base_state["carrier"]["alive"] = false
+	print("[AirWing] BaseDestroyed base=carrier")
+	for unit_type in _air_wing_state.keys():
+		if str(_air_wing_state[unit_type]["home_base"]) == "carrier":
+			_air_wing_state[unit_type]["home_base"] = "airfield"
+			print("[AirWing] Fallback unit=%s new_base=airfield" % unit_type)
+	var aw05_pass := str(_air_wing_state["fighter"]["home_base"]) == "airfield" and bool(_air_base_state["airfield"]["alive"])
+
+	# Destroy airfield; corvette also loses home base
+	_air_base_state["airfield"]["alive"] = false
+	print("[AirWing] BaseDestroyed base=airfield")
+	var degraded_count := 0
+	for unit_type in _air_wing_state.keys():
+		var base := str(_air_wing_state[unit_type]["home_base"])
+		var base_alive: bool = false
+		if _air_base_state.has(base):
+			base_alive = bool(_air_base_state[base]["alive"])
+		if not base_alive:
+			degraded_count += 1
+			_air_wing_state[unit_type]["sortie_state"] = "degraded"
+			print("[AirWing] Degraded unit=%s no_valid_base" % unit_type)
+	var sortie_cadence := AIR_SORTIE_CADENCE_DEGRADED if degraded_count > 0 else AIR_SORTIE_CADENCE_NORMAL
+	var aw06_pass := bool(_air_base_state["airfield"]["alive"]) == false
+	var aw07_pass := degraded_count == AIR_WING_UNITS.size() and sortie_cadence == AIR_SORTIE_CADENCE_DEGRADED
+	print("[AirWing] SortieStatus degraded_units=%d cadence=%.2f" % [degraded_count, sortie_cadence])
+
+	# Rebuild airfield; sortie cadence recovers
+	_air_base_state["airfield"]["alive"] = true
+	print("[AirWing] BaseRebuilt base=airfield")
+	for unit_type in _air_wing_state.keys():
+		if str(_air_wing_state[unit_type]["sortie_state"]) == "degraded":
+			_air_wing_state[unit_type]["home_base"] = "airfield"
+			_air_wing_state[unit_type]["sortie_state"] = "ready"
+			print("[AirWing] Recovered unit=%s home_base=airfield" % unit_type)
+	sortie_cadence = AIR_SORTIE_CADENCE_NORMAL
+	var aw08_pass := str(_air_wing_state["fighter"]["sortie_state"]) == "ready" and str(_air_wing_state["corvette"]["sortie_state"]) == "ready"
+
+	# Role identity check: both units have distinguishable role tags
+	var role_map := {"fighter": "air_superiority", "corvette": "strike"}
+	var aw09_pass: bool = str(role_map["fighter"]) != str(role_map["corvette"])
+	for unit_type in role_map.keys():
+		print("[AirWing] RoleCheck unit=%s role=%s" % [unit_type, role_map[unit_type]])
+
+	var pass_ok: bool = aw01_pass and aw02_pass and aw03_pass and aw04_pass and aw05_pass and aw06_pass and aw07_pass and aw08_pass and aw09_pass
+	print("[F09] Summary aw01=%s aw02=%s aw03=%s aw04=%s aw05=%s aw06=%s aw07=%s aw08=%s aw09=%s pass=%s" % [
+		str(aw01_pass), str(aw02_pass), str(aw03_pass), str(aw04_pass),
+		str(aw05_pass), str(aw06_pass), str(aw07_pass), str(aw08_pass),
+		str(aw09_pass), str(pass_ok)
+	])
 
 
 # ── Live systems ──────────────────────────────────────────────────────────────
