@@ -51,6 +51,8 @@
 - Validated invalid-event rejection safety, no-mutation guarantees on blocked injections, stable valid-event distribution continuity, and focused integrated smoke stability.
 - Implemented deterministic F-55 mixed-event replay and reconstruction hook in duel map.
 - Validated guardrail-profile stability, replay signature parity, telemetry-count parity, feed reconstruction consistency, and focused integrated smoke stability.
+- Implemented deterministic F-56 mixed-event fault-burst tolerance hook in duel map.
+- Validated burst blocking, no-mutation safety, recovery-window continuity, telemetry integrity, sequence monotonicity, and focused integrated smoke stability.
 
 ## Story Breakdown
 

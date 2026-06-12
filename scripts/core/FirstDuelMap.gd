@@ -52,6 +52,7 @@ const TEST_F52_EVENT_GUARDRAIL_SEQUENCE_FLAG := "--duel-test-f52-event-guardrail
 const TEST_F53_EVENT_FAIRNESS_DRIFT_FLAG := "--duel-test-f53-event-fairness-drift"
 const TEST_F54_EVENT_RESILIENCE_MIX_FLAG := "--duel-test-f54-event-resilience-mix"
 const TEST_F55_EVENT_MIX_REPLAY_RECON_FLAG := "--duel-test-f55-event-mix-replay-recon"
+const TEST_F56_EVENT_FAULT_BURST_FLAG := "--duel-test-f56-event-fault-burst"
 const STOCKPILE_CONFIG := {
 	"alloy": {"cap": 200000, "soft_ratio": 0.3, "hard_ratio": 0.1},
 	"power": {"cap": 160000, "soft_ratio": 0.35, "hard_ratio": 0.12},
@@ -356,6 +357,7 @@ func _ready() -> void:
 	_run_f53_event_fairness_drift_test_hook()
 	_run_f54_event_resilience_mix_test_hook()
 	_run_f55_event_mix_replay_reconstruction_test_hook()
+	_run_f56_event_fault_burst_tolerance_test_hook()
 	if _has_user_flag(TEST_AUTO_EXIT_FLAG):
 		call_deferred("_request_test_exit")
 	_apply_camera_transform()
@@ -2659,6 +2661,111 @@ func _run_f55_event_mix_replay_reconstruction_test_hook() -> void:
 	var pass_ok: bool = guardrail_profile_ok and replay_signature_ok and telemetry_count_ok and feed_reconstruction_ok
 	print("[F55] Summary guardrail_profile_ok=%s replay_signature_ok=%s telemetry_count_ok=%s feed_reconstruction_ok=%s pass=%s" % [
 		str(guardrail_profile_ok), str(replay_signature_ok), str(telemetry_count_ok), str(feed_reconstruction_ok), str(pass_ok)
+	])
+
+
+func _run_f56_event_fault_burst_tolerance_test_hook() -> void:
+	if not _has_user_flag(TEST_F56_EVENT_FAULT_BURST_FLAG):
+		return
+
+	_stockpile_event_log.clear()
+	_stockpile_archive_log.clear()
+	_last_world_event_resource = ""
+	_last_world_event_polarity = ""
+
+	for resource_id in ["alloy", "power", "data", "reclaim"]:
+		_set_stockpile_reserve(resource_id, int(float(_get_stockpile_cap(resource_id)) * 0.5), "f56_setup")
+
+	var valid_cycle_ids: Array[String] = ["E-001", "E-006", "E-002", "E-003", "E-007"]
+	var invalid_burst_events: Array[Dictionary] = [
+		{"id": "X-5601", "name": "Fault Burst Unknown", "polarity": "negative", "resource": "fault_resource", "magnitude_ratio": 0.2},
+		{"id": "X-5602", "name": "Fault Burst Empty", "polarity": "positive", "resource": "", "magnitude_ratio": 0.1},
+		{"id": "X-5603", "name": "Fault Burst Void", "polarity": "negative", "resource": "void", "magnitude_ratio": 0.3},
+	]
+	var cycles: int = 3
+
+	var valid_trigger_ok: bool = true
+	var burst_block_ok: bool = true
+	var burst_mutation_ok: bool = true
+	var recovery_window_ok: bool = true
+	var burst_count: int = 0
+	var recovery_success_count: int = 0
+
+	for i in range(cycles):
+		for idx in range(valid_cycle_ids.size()):
+			var event_id: String = valid_cycle_ids[idx]
+			if not _trigger_world_event(WORLD_EVENT_DEFS[event_id]):
+				valid_trigger_ok = false
+
+			if idx == 1 or idx == 3:
+				burst_count += 1
+				for invalid_event in invalid_burst_events:
+					var reserve_sum_before: int = 0
+					for resource_id in ["alloy", "power", "data", "reclaim"]:
+						reserve_sum_before += _get_stockpile_reserve(resource_id)
+
+					var invalid_ok: bool = _trigger_world_event(invalid_event)
+					if invalid_ok:
+						burst_block_ok = false
+
+					var reserve_sum_after: int = 0
+					for resource_id in ["alloy", "power", "data", "reclaim"]:
+						reserve_sum_after += _get_stockpile_reserve(resource_id)
+					if reserve_sum_after != reserve_sum_before:
+						burst_mutation_ok = false
+
+				var recovery_probe_id: String = "E-003"
+				if event_id == "E-003":
+					recovery_probe_id = "E-006"
+				var recovery_ok: bool = _trigger_world_event(WORLD_EVENT_DEFS[recovery_probe_id])
+				if recovery_ok:
+					recovery_success_count += 1
+				else:
+					recovery_window_ok = false
+
+	var all_lines: Array[String] = []
+	for line in _stockpile_archive_log:
+		all_lines.append(line)
+	for line in _stockpile_event_log:
+		all_lines.append(line)
+
+	var invalid_blocked_count: int = 0
+	var valid_blocked_count: int = 0
+	for line in all_lines:
+		var entry: String = str(line)
+		if entry.find("[WorldEvent] blocked") < 0:
+			continue
+		if entry.find("id=X-5601") >= 0 or entry.find("id=X-5602") >= 0 or entry.find("id=X-5603") >= 0:
+			invalid_blocked_count += 1
+		for event_id in valid_cycle_ids:
+			if entry.find("id=%s" % event_id) >= 0:
+				valid_blocked_count += 1
+
+	var expected_invalid_blocked: int = burst_count * invalid_burst_events.size()
+	var telemetry_ok: bool = invalid_blocked_count == expected_invalid_blocked and valid_blocked_count == 0
+	var recovery_count_ok: bool = recovery_success_count == burst_count
+
+	var seq_monotonic_ok: bool = true
+	var last_seq: int = -1
+	for line in all_lines:
+		var seq_id: int = _extract_seq_id_from_line(str(line))
+		if seq_id < 0:
+			continue
+		if last_seq >= 0 and seq_id < last_seq:
+			seq_monotonic_ok = false
+		last_seq = seq_id
+
+	var drift_ok: bool = true
+	for resource_id in ["alloy", "power", "data", "reclaim"]:
+		var cap: int = _get_stockpile_cap(resource_id)
+		var reserve_after: int = _get_stockpile_reserve(resource_id)
+		var ratio_after: float = float(reserve_after) / maxf(1.0, float(cap))
+		if ratio_after < 0.16 or ratio_after > 0.90:
+			drift_ok = false
+
+	var pass_ok: bool = valid_trigger_ok and burst_block_ok and burst_mutation_ok and recovery_window_ok and recovery_count_ok and telemetry_ok and seq_monotonic_ok and drift_ok
+	print("[F56] Summary valid_trigger_ok=%s burst_block_ok=%s burst_mutation_ok=%s recovery_window_ok=%s recovery_count_ok=%s telemetry_ok=%s seq_monotonic_ok=%s drift_ok=%s pass=%s" % [
+		str(valid_trigger_ok), str(burst_block_ok), str(burst_mutation_ok), str(recovery_window_ok), str(recovery_count_ok), str(telemetry_ok), str(seq_monotonic_ok), str(drift_ok), str(pass_ok)
 	])
 
 

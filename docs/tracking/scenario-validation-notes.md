@@ -2,6 +2,20 @@
 
 Track scenario-level evidence for map and flow validation runs.
 
+## 2026-06-11 F-56 Mixed-Event Fault-Burst Tolerance Validation
+
+- Flow: `F-56 Mixed-event fault-burst tolerance and recovery-window consistency loop`
+- Scenario: `scenes/core/FirstDuelMap.tscn`
+- Validation commands:
+  - `/Applications/Godot.app/Contents/MacOS/godot --headless --quit --path . res://scenes/core/FirstDuelMap.tscn -- --duel-test-f56-event-fault-burst`
+  - `/Applications/Godot.app/Contents/MacOS/godot --headless --quit --path . res://scenes/core/FirstDuelMap.tscn -- --duel-test-map-baseline --duel-test-f54-event-resilience-mix --duel-test-f55-event-mix-replay-recon --duel-test-f56-event-fault-burst`
+- Result: Pass
+- Notes:
+  - Invalid burst injections were consistently blocked and preserved reserve totals across all burst windows.
+  - Recovery probes succeeded after each burst window, confirming tolerance without valid-event throughput collapse.
+  - Telemetry profile integrity, sequence monotonicity, and bounded drift checks passed under sustained mixed churn.
+  - Focused integrated smoke retained pass summaries for MapBaseline, F-54, F-55, and F-56.
+
 ## 2026-06-11 F-55 Mixed-Event Replay and Reconstruction Validation
 
 - Flow: `F-55 Mixed-event replay signature and reconstruction consistency loop`
