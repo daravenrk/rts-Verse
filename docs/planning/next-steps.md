@@ -117,6 +117,9 @@ Keep this list short, actionable, and current.
 - [x] Start M3 runtime Slice F: add deterministic failure-triage rule enforcement checks for stockpile and world-event observability.
 - [x] Validate trigger payload presence, magnitude parity, threshold UI state change, and feed archive behavior in runtime.
 - [x] Run headless F-45 failure-triage validation pass and capture evidence in scenario notes.
+- [x] Start M3 runtime Slice G: add consolidated observability stress hook across world-event, infrastructure, and failure-triage surfaces.
+- [x] Validate single-run summary coverage for representative checks from F-40 through F-45.
+- [x] Run headless F-46 standalone and integrated stress smoke validation and capture evidence in scenario notes.
 - [x] Define structured feedback template fields and publish feedback instructions on itch page.
 - [x] Start weekly feedback triage cadence and publish first feedback-response devlog summary.
 

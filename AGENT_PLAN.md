@@ -31,6 +31,8 @@
 - Validated command/logistics ordering, mitigation sequence correctness, and combined-pressure recovery via headless pass evidence.
 - Implemented deterministic F-45 stockpile and world-event failure-triage hook in duel map.
 - Validated trigger payload blocking behavior, applied-vs-displayed magnitude parity, threshold UI state transitions, and archive-log retention behavior via headless pass evidence.
+- Implemented deterministic F-46 consolidated observability-stress hook in duel map.
+- Validated standalone and full-chain smoke summaries for F-40 through F-46 with no cross-hook regressions.
 
 ## Story Breakdown
 

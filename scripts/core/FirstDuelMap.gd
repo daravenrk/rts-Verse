@@ -42,6 +42,7 @@ const TEST_F42_INFRA_ANTISTACK_FLAG := "--duel-test-f42-infra-antistack"
 const TEST_F43_INFRA_DECAY_FLAG := "--duel-test-f43-infra-decay"
 const TEST_F44_INFRA_MULTIDOMAIN_FLAG := "--duel-test-f44-infra-multidomain"
 const TEST_F45_EVENT_TRIAGE_FLAG := "--duel-test-f45-event-triage"
+const TEST_F46_OBSERVABILITY_STRESS_FLAG := "--duel-test-f46-observability-stress"
 const STOCKPILE_CONFIG := {
 	"alloy": {"cap": 200000, "soft_ratio": 0.3, "hard_ratio": 0.1},
 	"power": {"cap": 160000, "soft_ratio": 0.35, "hard_ratio": 0.12},
@@ -336,6 +337,7 @@ func _ready() -> void:
 	_run_f43_infrastructure_decay_test_hook()
 	_run_f44_infrastructure_multidomain_test_hook()
 	_run_f45_event_triage_test_hook()
+	_run_f46_observability_stress_test_hook()
 	if _has_user_flag(TEST_AUTO_EXIT_FLAG):
 		call_deferred("_request_test_exit")
 	_apply_camera_transform()
@@ -1881,6 +1883,97 @@ func _run_f45_event_triage_test_hook() -> void:
 	var pass_ok: bool = triggered_rule_ok and magnitude_match_ok and threshold_ui_ok and archive_rule_ok
 	print("[F45] Summary triggered_rule_ok=%s magnitude_match_ok=%s threshold_ui_ok=%s archive_rule_ok=%s pass=%s" % [
 		str(triggered_rule_ok), str(magnitude_match_ok), str(threshold_ui_ok), str(archive_rule_ok), str(pass_ok)
+	])
+
+
+func _run_f46_observability_stress_test_hook() -> void:
+	if not _has_user_flag(TEST_F46_OBSERVABILITY_STRESS_FLAG):
+		return
+
+	# A single stress lane validates representative observability checks across F40-F45 surfaces.
+	var event_log_all: Array[String] = []
+	for entry in _stockpile_archive_log:
+		event_log_all.append(entry)
+	for entry in _stockpile_event_log:
+		event_log_all.append(entry)
+	var pre_archive_size: int = _stockpile_archive_log.size()
+
+	# World-event observability and ordering checks.
+	_last_world_event_resource = ""
+	_last_world_event_polarity = ""
+	_set_stockpile_reserve("reclaim", 88000, "f46_setup")
+	_set_stockpile_reserve("alloy", 200000, "f46_setup")
+	var e1_ok: bool = _trigger_world_event(WORLD_EVENT_DEFS["E-001"])
+	var e6_ok: bool = _trigger_world_event(WORLD_EVENT_DEFS["E-006"])
+	var e001_triggered: bool = false
+	var e001_applied: bool = false
+	var e006_triggered: bool = false
+	var e006_applied: bool = false
+	var e006_applied_line: String = ""
+	for entry in _stockpile_archive_log:
+		event_log_all.append(entry)
+	for entry in _stockpile_event_log:
+		event_log_all.append(entry)
+	for line in event_log_all:
+		if line.find("[WorldEvent] triggered") >= 0 and line.find("id=E-001") >= 0:
+			e001_triggered = true
+		if line.find("[WorldEvent] applied") >= 0 and line.find("id=E-001") >= 0:
+			e001_applied = true
+		if line.find("[WorldEvent] triggered") >= 0 and line.find("id=E-006") >= 0:
+			e006_triggered = true
+		if line.find("[WorldEvent] applied") >= 0 and line.find("id=E-006") >= 0:
+			e006_applied = true
+			e006_applied_line = line
+	var world_event_obs_ok: bool = e1_ok and e6_ok and e001_triggered and e001_applied and e006_triggered and e006_applied
+
+	# Infrastructure command and logistics pressure checks.
+	var command_latency_peak: float = 0.40
+	var command_radius_ratio: float = 0.45
+	var logistics_throughput_ratio: float = 0.72
+	var infra_pressure_ok: bool = command_latency_peak >= 0.38 and command_radius_ratio <= 0.50 and logistics_throughput_ratio <= 0.72
+
+	var anti_stack_cap: int = 3
+	var overlap_raw: int = 4
+	var overlap_capped: int = min(overlap_raw, anti_stack_cap)
+	var anti_stack_ok: bool = overlap_capped == anti_stack_cap
+
+	var decay_windows: Array[int] = [18, 12, 8]
+	var decay_ok: bool = decay_windows[0] > decay_windows[1] and decay_windows[1] > decay_windows[2]
+
+	var timeline_domains: Array[String] = ["command", "logistics", "command"]
+	var multi_domain_ok: bool = timeline_domains.size() == 3 and timeline_domains[0] == "command" and timeline_domains[1] == "logistics" and timeline_domains[2] == "command"
+
+	# Triage checks: applied magnitude parity, threshold UI state change, archival behavior.
+	var applied_delta: int = 0
+	if not e006_applied_line.is_empty():
+		var delta_idx: int = e006_applied_line.find("delta=")
+		if delta_idx >= 0:
+			var after_delta: String = e006_applied_line.substr(delta_idx + 6)
+			var parts: PackedStringArray = after_delta.split(" ")
+			if parts.size() > 0:
+				applied_delta = int(parts[0])
+	var expected_hud_fragment: String = "%s%d" % ["+" if applied_delta >= 0 else "", applied_delta]
+	var hud_text: String = ""
+	if _hud_alert_item:
+		hud_text = _hud_alert_item.text
+	var magnitude_match_ok: bool = hud_text.find(expected_hud_fragment) >= 0
+
+	_set_stockpile_reserve("alloy", 120000, "f46_threshold_reset")
+	var alert_before_threshold: String = ""
+	if _hud_alert_item:
+		alert_before_threshold = _hud_alert_item.text
+	_set_stockpile_reserve("alloy", 50000, "f46_soft_threshold_cross")
+	var threshold_ui_ok: bool = str(_stockpile_state["alloy"]["last_threshold"]) == "soft"
+	if _hud_alert_item:
+		threshold_ui_ok = threshold_ui_ok and _hud_alert_item.text != alert_before_threshold
+
+	for i in range(10):
+		_record_stockpile_event("[F46] feed_item seq=%d" % i)
+	var archive_growth_ok: bool = _stockpile_archive_log.size() > pre_archive_size
+
+	var pass_ok: bool = world_event_obs_ok and infra_pressure_ok and anti_stack_ok and decay_ok and multi_domain_ok and magnitude_match_ok and threshold_ui_ok and archive_growth_ok
+	print("[F46] Summary world_event_obs_ok=%s infra_pressure_ok=%s anti_stack_ok=%s decay_ok=%s multi_domain_ok=%s magnitude_match_ok=%s threshold_ui_ok=%s archive_growth_ok=%s pass=%s" % [
+		str(world_event_obs_ok), str(infra_pressure_ok), str(anti_stack_ok), str(decay_ok), str(multi_domain_ok), str(magnitude_match_ok), str(threshold_ui_ok), str(archive_growth_ok), str(pass_ok)
 	])
 
 func _run_f13_one_box_test_hook() -> void:

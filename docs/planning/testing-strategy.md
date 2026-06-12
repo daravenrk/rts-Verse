@@ -48,6 +48,7 @@ This document defines validation layers for milestone delivery.
 | F-43 | Infrastructure command decay timing and radius-degradation loop | Pass | `docs/tracking/scenario-validation-notes.md` |
 | F-44 | Infrastructure multi-domain disruption and mitigation ordering loop | Pass | `docs/tracking/scenario-validation-notes.md` |
 | F-45 | Stockpile and world-event failure triage rule enforcement loop | Pass | `docs/tracking/scenario-validation-notes.md` |
+| F-46 | Consolidated observability stress loop across F-40 through F-45 | Pass | `docs/tracking/scenario-validation-notes.md` |
 | F-09 | Carrier and Airfield Sortie Lifecycle | Pass | `docs/tracking/scenario-validation-notes.md` |
 | F-10 | Colony and Civilian Resilience Loop | Pass | `docs/tracking/scenario-validation-notes.md` |
 | F-11 | Unified Stockpile and World Event Volatility | Pass | `docs/tracking/scenario-validation-notes.md` |

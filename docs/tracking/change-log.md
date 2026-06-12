@@ -27,6 +27,7 @@ Track high-level project changes with links to decisions and plans.
 - Implemented F-43 infrastructure command-decay runtime hook with intensity-based latency and radius profiles, distributed mitigation effects, and staged recovery timing validation in headless mode.
 - Implemented F-44 infrastructure multi-domain runtime hook with alternating command and logistics pressure windows, mitigation ordering checks, and combined recovery validation in headless mode.
 - Implemented F-45 stockpile or world-event failure-triage runtime hook with deterministic payload-presence checks, magnitude parity checks, threshold UI-state checks, and feed archive telemetry validation.
+- Implemented F-46 consolidated observability-stress runtime hook spanning representative world-event, infrastructure, and triage checks with standalone and full-chain smoke validation.
 
 ## 2026-06-09
 

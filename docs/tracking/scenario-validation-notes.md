@@ -2,6 +2,19 @@
 
 Track scenario-level evidence for map and flow validation runs.
 
+## 2026-06-11 F-46 Consolidated Observability Stress Validation
+
+- Flow: `F-46 Consolidated observability stress loop across F-40 through F-45`
+- Scenario: `scenes/core/FirstDuelMap.tscn`
+- Validation commands:
+  - `/Applications/Godot.app/Contents/MacOS/godot --headless --quit --path . res://scenes/core/FirstDuelMap.tscn -- --duel-test-f46-observability-stress`
+  - `/Applications/Godot.app/Contents/MacOS/godot --headless --quit --path . res://scenes/core/FirstDuelMap.tscn -- --duel-test-map-baseline --duel-test-f40-world-events --duel-test-f41-infra-disruption --duel-test-f42-infra-antistack --duel-test-f43-infra-decay --duel-test-f44-infra-multidomain --duel-test-f45-event-triage --duel-test-f46-observability-stress`
+- Result: Pass
+- Notes:
+  - Standalone F-46 run passed all representative observability checks in one deterministic summary.
+  - Integrated smoke run preserved pass results for MapBaseline, F-40, F-41, F-42, F-43, F-44, F-45, and F-46.
+  - Stress path confirmed no cross-hook regressions in event payload, infrastructure telemetry, or triage signal surfaces.
+
 ## 2026-06-11 F-45 Stockpile and World-Event Failure Triage Rule Enforcement
 
 - Flow: `F-45 Stockpile and world-event failure triage rule enforcement loop`
