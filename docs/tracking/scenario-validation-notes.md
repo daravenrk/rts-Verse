@@ -2,6 +2,20 @@
 
 Track scenario-level evidence for map and flow validation runs.
 
+## 2026-06-11 F-59 Reinitialization Replay-Isolation and Sequence-Reset Consistency Validation
+
+- Flow: `F-59 Reinitialization replay-isolation and sequence-reset consistency loop`
+- Scenario: `scenes/core/FirstDuelMap.tscn`
+- Validation commands:
+  - `/Applications/Godot.app/Contents/MacOS/godot --headless --quit --path . res://scenes/core/FirstDuelMap.tscn -- --duel-test-f59-event-reinit-replay`
+  - `/Applications/Godot.app/Contents/MacOS/godot --headless --quit --path . res://scenes/core/FirstDuelMap.tscn -- --duel-test-map-baseline --duel-test-f57-event-adaptive-burst --duel-test-f58-event-adaptive-archive --duel-test-f59-event-reinit-replay`
+- Result: Pass
+- Notes:
+  - Each replay-isolated pass reinitialized stockpile sequence baseline and preserved monotonic sequence ordering through mixed valid or invalid churn.
+  - Replay-equivalent runs maintained normalized observability signature parity plus applied or blocked telemetry-count parity.
+  - Archive growth and merged archive-live feed-window reconstruction remained stable after explicit reinitialization boundaries.
+  - Focused integrated smoke retained pass summaries for MapBaseline, F-57, F-58, and F-59.
+
 ## 2026-06-11 F-58 Adaptive-Burst Archive-Saturation Replay Consistency Validation
 
 - Flow: `F-58 Adaptive-burst archive-saturation replay consistency loop`

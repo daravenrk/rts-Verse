@@ -55,6 +55,7 @@ const TEST_F55_EVENT_MIX_REPLAY_RECON_FLAG := "--duel-test-f55-event-mix-replay-
 const TEST_F56_EVENT_FAULT_BURST_FLAG := "--duel-test-f56-event-fault-burst"
 const TEST_F57_EVENT_ADAPTIVE_BURST_FLAG := "--duel-test-f57-event-adaptive-burst"
 const TEST_F58_EVENT_ADAPTIVE_ARCHIVE_FLAG := "--duel-test-f58-event-adaptive-archive"
+const TEST_F59_EVENT_REINIT_REPLAY_FLAG := "--duel-test-f59-event-reinit-replay"
 const STOCKPILE_CONFIG := {
 	"alloy": {"cap": 200000, "soft_ratio": 0.3, "hard_ratio": 0.1},
 	"power": {"cap": 160000, "soft_ratio": 0.35, "hard_ratio": 0.12},
@@ -362,6 +363,7 @@ func _ready() -> void:
 	_run_f56_event_fault_burst_tolerance_test_hook()
 	_run_f57_event_adaptive_burst_stability_test_hook()
 	_run_f58_event_adaptive_archive_replay_test_hook()
+	_run_f59_event_reinit_replay_test_hook()
 	if _has_user_flag(TEST_AUTO_EXIT_FLAG):
 		call_deferred("_request_test_exit")
 	_apply_camera_transform()
@@ -3036,6 +3038,112 @@ func _run_f58_adaptive_archive_pass(setup_reason: String, valid_cycle_ids: Array
 	return {
 		"guardrail_ok": guardrail_ok,
 		"signature": signature,
+		"applied_count": applied_count,
+		"blocked_count": blocked_count,
+		"archive_growth_ok": archive_growth_ok,
+		"feed_reconstruction_ok": feed_reconstruction_ok,
+	}
+
+
+func _run_f59_event_reinit_replay_test_hook() -> void:
+	if not _has_user_flag(TEST_F59_EVENT_REINIT_REPLAY_FLAG):
+		return
+
+	var valid_cycle_ids: Array[String] = ["E-001", "E-006", "E-002", "E-003", "E-007"]
+	var invalid_events: Array[Dictionary] = [
+		{"id": "X-5901", "name": "Reinit Unknown", "polarity": "negative", "resource": "void_lane", "magnitude_ratio": 0.2},
+		{"id": "X-5902", "name": "Reinit Empty", "polarity": "positive", "resource": "", "magnitude_ratio": 0.1},
+	]
+	var cycles: int = 4
+
+	var run_a: Dictionary = _run_f59_reinit_pass("f59_setup", valid_cycle_ids, invalid_events, cycles)
+	var run_b: Dictionary = _run_f59_reinit_pass("f59_setup", valid_cycle_ids, invalid_events, cycles)
+
+	var guardrail_profile_ok: bool = bool(run_a.get("guardrail_ok", false)) and bool(run_b.get("guardrail_ok", false))
+	var replay_signature_ok: bool = int(run_a.get("signature", 0)) == int(run_b.get("signature", -1))
+	var seq_reset_ok: bool = bool(run_a.get("seq_reset_ok", false)) and bool(run_b.get("seq_reset_ok", false))
+	var telemetry_count_ok: bool = int(run_a.get("applied_count", -1)) == int(run_b.get("applied_count", -2)) and int(run_a.get("blocked_count", -1)) == int(run_b.get("blocked_count", -2))
+	var archive_growth_ok: bool = bool(run_b.get("archive_growth_ok", false))
+	var feed_reconstruction_ok: bool = bool(run_b.get("feed_reconstruction_ok", false))
+	var pass_ok: bool = guardrail_profile_ok and replay_signature_ok and seq_reset_ok and telemetry_count_ok and archive_growth_ok and feed_reconstruction_ok
+	print("[F59] Summary guardrail_profile_ok=%s replay_signature_ok=%s seq_reset_ok=%s telemetry_count_ok=%s archive_growth_ok=%s feed_reconstruction_ok=%s pass=%s" % [
+		str(guardrail_profile_ok), str(replay_signature_ok), str(seq_reset_ok), str(telemetry_count_ok), str(archive_growth_ok), str(feed_reconstruction_ok), str(pass_ok)
+	])
+
+
+func _run_f59_reinit_pass(setup_reason: String, valid_cycle_ids: Array[String], invalid_events: Array[Dictionary], cycles: int) -> Dictionary:
+	_stockpile_event_log.clear()
+	_stockpile_archive_log.clear()
+	_last_world_event_resource = ""
+	_last_world_event_polarity = ""
+	_initialize_stockpile_state()
+
+	for resource_id in ["alloy", "power", "data", "reclaim"]:
+		_set_stockpile_reserve(resource_id, int(float(_get_stockpile_cap(resource_id)) * 0.5), setup_reason)
+
+	var valid_trigger_ok: bool = true
+	var invalid_gate_ok: bool = true
+	var invalid_mutation_ok: bool = true
+	for cycle in range(cycles):
+		for event_id in valid_cycle_ids:
+			if not _trigger_world_event(WORLD_EVENT_DEFS[event_id]):
+				valid_trigger_ok = false
+			for invalid_event in invalid_events:
+				var reserve_sum_before: int = 0
+				for resource_id in ["alloy", "power", "data", "reclaim"]:
+					reserve_sum_before += _get_stockpile_reserve(resource_id)
+				if _trigger_world_event(invalid_event):
+					invalid_gate_ok = false
+				var reserve_sum_after: int = 0
+				for resource_id in ["alloy", "power", "data", "reclaim"]:
+					reserve_sum_after += _get_stockpile_reserve(resource_id)
+				if reserve_sum_after != reserve_sum_before:
+					invalid_mutation_ok = false
+			_record_stockpile_event("[F59] pulse cycle=%d event=%s" % [cycle, event_id])
+
+	var all_lines: Array[String] = []
+	for line in _stockpile_archive_log:
+		all_lines.append(line)
+	for line in _stockpile_event_log:
+		all_lines.append(line)
+
+	var first_seq_id: int = -1
+	var seq_monotonic_ok: bool = true
+	var last_seq: int = -1
+	var applied_count: int = 0
+	var blocked_count: int = 0
+	for line in all_lines:
+		var entry: String = str(line)
+		if entry.find("[WorldEvent] applied") >= 0:
+			applied_count += 1
+		if entry.find("[WorldEvent] blocked") >= 0:
+			blocked_count += 1
+		var seq_id: int = _extract_seq_id_from_line(entry)
+		if seq_id >= 0:
+			if first_seq_id < 0:
+				first_seq_id = seq_id
+			if last_seq >= 0 and seq_id < last_seq:
+				seq_monotonic_ok = false
+			last_seq = seq_id
+
+	var seq_reset_ok: bool = first_seq_id == 1
+	var archive_growth_ok: bool = not _stockpile_archive_log.is_empty()
+	var signature: int = _compute_observability_signature(all_lines)
+
+	var expected_recent: Array[String] = []
+	var start_idx: int = max(0, all_lines.size() - 5)
+	for idx in range(start_idx, all_lines.size()):
+		expected_recent.append(str(all_lines[idx]))
+	var expected_feed_text: String = "\n".join(expected_recent)
+	var feed_reconstruction_ok: bool = false
+	if _hud_stockpile_feed_item:
+		feed_reconstruction_ok = _hud_stockpile_feed_item.text == expected_feed_text
+
+	var guardrail_ok: bool = valid_trigger_ok and invalid_gate_ok and invalid_mutation_ok and seq_monotonic_ok and seq_reset_ok and archive_growth_ok and applied_count > 0 and blocked_count > 0
+	return {
+		"guardrail_ok": guardrail_ok,
+		"signature": signature,
+		"seq_reset_ok": seq_reset_ok,
 		"applied_count": applied_count,
 		"blocked_count": blocked_count,
 		"archive_growth_ok": archive_growth_ok,

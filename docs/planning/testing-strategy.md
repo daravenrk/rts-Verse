@@ -61,6 +61,7 @@ This document defines validation layers for milestone delivery.
 | F-56 | Mixed-event fault-burst tolerance and recovery-window consistency loop | Pass | `docs/tracking/scenario-validation-notes.md` |
 | F-57 | Adaptive-burst long-horizon mixed-event replay stability loop | Pass | `docs/tracking/scenario-validation-notes.md` |
 | F-58 | Adaptive-burst archive-saturation replay consistency loop | Pass | `docs/tracking/scenario-validation-notes.md` |
+| F-59 | Reinitialization replay-isolation and sequence-reset consistency loop | Pass | `docs/tracking/scenario-validation-notes.md` |
 | F-09 | Carrier and Airfield Sortie Lifecycle | Pass | `docs/tracking/scenario-validation-notes.md` |
 | F-10 | Colony and Civilian Resilience Loop | Pass | `docs/tracking/scenario-validation-notes.md` |
 | F-11 | Unified Stockpile and World Event Volatility | Pass | `docs/tracking/scenario-validation-notes.md` |

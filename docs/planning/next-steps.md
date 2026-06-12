@@ -156,6 +156,9 @@ Keep this list short, actionable, and current.
 - [x] Start M3 runtime Slice S: add deterministic adaptive-burst archive-saturation replay-consistency hook.
 - [x] Validate guardrail continuity, replay-signature parity, telemetry-count parity, archive growth, and feed-window reconstruction under sustained churn.
 - [x] Run headless F-58 standalone and focused integrated smoke validation and capture evidence in scenario notes.
+- [x] Start M3 runtime Slice T: add deterministic reinitialization replay-isolation consistency hook.
+- [x] Validate sequence-reset continuity, replay-signature parity, telemetry-count parity, archive growth, and feed-window reconstruction under reinit churn.
+- [x] Run headless F-59 standalone and focused integrated smoke validation and capture evidence in scenario notes.
 - [x] Define structured feedback template fields and publish feedback instructions on itch page.
 - [x] Start weekly feedback triage cadence and publish first feedback-response devlog summary.
 

@@ -57,6 +57,8 @@
 - Validated guardrail-profile continuity, replay-signature parity, feed reconstruction consistency, and focused integrated smoke stability.
 - Implemented deterministic F-58 adaptive-burst archive-saturation replay-consistency hook in duel map.
 - Validated guardrail continuity, replay-signature parity, telemetry-count parity, archive growth, feed reconstruction consistency, and focused integrated smoke stability.
+- Implemented deterministic F-59 reinitialization replay-isolation hook in duel map.
+- Validated sequence-reset continuity, replay-signature parity, telemetry-count parity, archive growth, feed reconstruction consistency, and focused integrated smoke stability.
 
 ## Story Breakdown
 
