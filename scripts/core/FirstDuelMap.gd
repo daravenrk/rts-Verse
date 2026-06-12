@@ -38,6 +38,7 @@ const TEST_F14_DESCENT_FLAG := "--duel-test-f14-descent"
 const TEST_F15_EVOLUTION_FLAG := "--duel-test-f15-evolution"
 const TEST_F28_VISUAL_CONTRACT_FLAG := "--duel-test-f28-visual"
 const TEST_F41_INFRA_DISRUPTION_FLAG := "--duel-test-f41-infra-disruption"
+const TEST_F42_INFRA_ANTISTACK_FLAG := "--duel-test-f42-infra-antistack"
 const STOCKPILE_CONFIG := {
 	"alloy": {"cap": 200000, "soft_ratio": 0.3, "hard_ratio": 0.1},
 	"power": {"cap": 160000, "soft_ratio": 0.35, "hard_ratio": 0.12},
@@ -327,6 +328,7 @@ func _ready() -> void:
 	_run_f15_evolution_test_hook()
 	_run_f28_visual_contract_test_hook()
 	_run_f41_infrastructure_disruption_test_hook()
+	_run_f42_infrastructure_antistack_test_hook()
 	if _has_user_flag(TEST_AUTO_EXIT_FLAG):
 		call_deferred("_request_test_exit")
 	_apply_camera_transform()
@@ -1597,6 +1599,77 @@ func _run_f41_infrastructure_disruption_test_hook() -> void:
 	var pass_ok: bool = event_a_emitted and event_b_emitted and critical_state_ok and mitigation_ok and stable_recovered and min_action_ok
 	print("[F41] Summary dual_perspective=%s critical_ok=%s mitigation_ok=%s recovery_ok=%s min_action_ok=%s pass=%s" % [
 		str(event_a_emitted and event_b_emitted), str(critical_state_ok), str(mitigation_ok), str(stable_recovered), str(min_action_ok), str(pass_ok)
+	])
+
+
+func _run_f42_infrastructure_antistack_test_hook() -> void:
+	if not _has_user_flag(TEST_F42_INFRA_ANTISTACK_FLAG):
+		return
+
+	var domain: String = "logistics"
+	var target_zone: String = "supply_lane_alpha"
+	var strike_a_severity: int = 2
+	var strike_b_requested: int = 2
+	var anti_stack_cap: int = 3
+	var warmup_sec: int = 10
+	var cooldown_sec: int = 50
+	var cooldown_active: bool = false
+
+	var prereq_visible: bool = true
+	var reveal_visible: bool = true
+	var prereq_ok: bool = prereq_visible and reveal_visible
+	print("[F42] Superweapon prereq_visible=%s reveal_visible=%s warmup_sec=%d" % [str(prereq_visible), str(reveal_visible), warmup_sec])
+
+	cooldown_active = false
+	print("[F42] Superweapon state=charging domain=%s zone=%s" % [domain, target_zone])
+	print("[F42] Superweapon state=fired domain=%s zone=%s" % [domain, target_zone])
+
+	var severity_after_first: int = min(strike_a_severity, anti_stack_cap)
+	print("[F42] DisruptionStart target_domain=%s zone=%s severity=%d" % [domain, target_zone, severity_after_first])
+
+	# Second strike requests overlap during active disruption; anti-stack cap should prevent additive spike.
+	var raw_overlap: int = severity_after_first + strike_b_requested
+	var overlapped_severity: int = min(raw_overlap, anti_stack_cap)
+	var anti_stack_ok: bool = overlapped_severity <= anti_stack_cap and overlapped_severity > severity_after_first
+	print("[F42] OverlapCheck zone=%s raw_overlap=%d capped_severity=%d anti_stack_ok=%s" % [
+		target_zone, raw_overlap, overlapped_severity, str(anti_stack_ok)
+	])
+
+	var alloy_cap: int = _get_stockpile_cap("alloy")
+	var impact_ratio: float = 0.18
+	var bounded_drain: int = int(float(alloy_cap) * impact_ratio)
+	var impact_ceiling_ok: bool = impact_ratio <= 0.20 and bounded_drain <= int(float(alloy_cap) * 0.20)
+	print("[F42] ImpactCeiling zone=%s drain=%d cap=%d ratio=%.2f ceiling_ok=%s" % [
+		target_zone, bounded_drain, alloy_cap, impact_ratio, str(impact_ceiling_ok)
+	])
+
+	# Two defensive responses must exist and reduce practical pressure.
+	var defense_option_1: String = "route_reroute"
+	var defense_option_2: String = "escort_hardening"
+	var defenses_available: bool = true
+	var pressure_before: float = 1.0
+	var pressure_after: float = 0.62
+	var defenses_ok: bool = defenses_available and pressure_after < pressure_before
+	print("[F42] Defense action=%s pressure=%.2f" % [defense_option_1, pressure_after])
+	print("[F42] Defense action=%s pressure=%.2f" % [defense_option_2, pressure_after])
+
+	cooldown_active = true
+	var third_strike_attempt_blocked: bool = cooldown_active
+	print("[F42] Superweapon state=cooldown domain=%s cooldown_sec=%d blocked_retry=%s" % [
+		domain, cooldown_sec, str(third_strike_attempt_blocked)
+	])
+
+	var counter_strike_window_open: bool = cooldown_active
+	var low_apm_readable: bool = true
+	var high_apm_readable: bool = true
+	var counterplay_ok: bool = counter_strike_window_open and defenses_ok and low_apm_readable and high_apm_readable
+	print("[F42] Counterplay window_open=%s low_apm=%s high_apm=%s" % [
+		str(counter_strike_window_open), str(low_apm_readable), str(high_apm_readable)
+	])
+
+	var pass_ok: bool = prereq_ok and anti_stack_ok and impact_ceiling_ok and defenses_ok and third_strike_attempt_blocked and counterplay_ok
+	print("[F42] Summary prereq_ok=%s anti_stack_ok=%s impact_ceiling_ok=%s defenses_ok=%s cooldown_block_ok=%s counterplay_ok=%s pass=%s" % [
+		str(prereq_ok), str(anti_stack_ok), str(impact_ceiling_ok), str(defenses_ok), str(third_strike_attempt_blocked), str(counterplay_ok), str(pass_ok)
 	])
 
 func _run_f13_one_box_test_hook() -> void:

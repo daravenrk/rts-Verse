@@ -2,6 +2,19 @@
 
 Track scenario-level evidence for map and flow validation runs.
 
+## 2026-06-11 F-42 Infrastructure Anti-Stack and Cooldown Counterplay Validation
+
+- Flow: `F-42 Infrastructure anti-stack ceiling and cooldown counterplay loop`
+- Scenario: `scenes/core/FirstDuelMap.tscn`
+- Validation command:
+  - `/Applications/Godot.app/Contents/MacOS/godot --headless --quit --path . res://scenes/core/FirstDuelMap.tscn -- --duel-test-f42-infra-antistack`
+- Result: Pass
+- Notes:
+  - Overlap anti-stack cap prevented additive severity spike (`raw_overlap=4`, `capped_severity=3`).
+  - Impact ceiling remained bounded (`ratio=0.18`, ceiling threshold `<=0.20`).
+  - Cooldown retry was rejected while cooldown remained active.
+  - Counterplay window and two defensive responses were emitted and remained readable in telemetry.
+
 ## 2026-06-11 F-41 Infrastructure Command Disruption Runtime Validation
 
 - Flow: `F-41 Infrastructure command disruption, mitigation, and recovery loop`

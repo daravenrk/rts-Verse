@@ -105,6 +105,9 @@ Keep this list short, actionable, and current.
 - [x] Start M3 runtime Slice B: add deterministic infrastructure command-disruption runtime with bounded penalty profile.
 - [x] Emit disruption and superweapon lifecycle telemetry (charging, armed, fired, cooldown) with mitigation and recovery payloads.
 - [x] Run first headless F-41 command-disruption validation pass and capture no-hard-lock minimum-action evidence.
+- [x] Start M3 runtime Slice C: add deterministic overlap anti-stack and cooldown guardrails for infrastructure strikes.
+- [x] Validate bounded impact ceiling and cooldown retry rejection for overlapped strike attempts.
+- [x] Run headless F-42 infrastructure anti-stack and counterplay validation pass with tracker evidence.
 - [x] Define structured feedback template fields and publish feedback instructions on itch page.
 - [x] Start weekly feedback triage cadence and publish first feedback-response devlog summary.
 

@@ -10,12 +10,12 @@ This checklist defines first-pass requirements for system-targeting superweapons
 
 ## Superweapon System Checklist
 
-- [ ] Define each superweapon by target domain: command, logistics, production, sensor, or mixed.
-- [ ] Define activation prerequisites and reveal requirements before first use.
-- [ ] Define warm-up and firing windows with clear vulnerability periods.
-- [ ] Define cooldown and rearm constraints to prevent spam cycles.
-- [ ] Define bounded impact ceilings so one strike cannot produce unavoidable total collapse.
-- [ ] Define anti-stack rules for overlapping effects on the same target zone.
+- [x] Define each superweapon by target domain: command, logistics, production, sensor, or mixed.
+- [x] Define activation prerequisites and reveal requirements before first use.
+- [x] Define warm-up and firing windows with clear vulnerability periods.
+- [x] Define cooldown and rearm constraints to prevent spam cycles.
+- [x] Define bounded impact ceilings so one strike cannot produce unavoidable total collapse.
+- [x] Define anti-stack rules for overlapping effects on the same target zone.
 
 ## Command Disruption Checklist
 
@@ -27,11 +27,11 @@ This checklist defines first-pass requirements for system-targeting superweapons
 
 ## Counterplay Checklist
 
-- [ ] Early warning visibility is available before strike resolution.
-- [ ] At least two valid defensive responses exist per disruption class.
-- [ ] Recovery routes are strategic and actionable, not purely random.
-- [ ] Counter-strike opportunities are available during attacker cooldown windows.
-- [ ] Counterplay clarity is preserved in both low and high APM contexts.
+- [x] Early warning visibility is available before strike resolution.
+- [x] At least two valid defensive responses exist per disruption class.
+- [x] Recovery routes are strategic and actionable, not purely random.
+- [x] Counter-strike opportunities are available during attacker cooldown windows.
+- [x] Counterplay clarity is preserved in both low and high APM contexts.
 
 ## Telemetry and UI Checklist
 

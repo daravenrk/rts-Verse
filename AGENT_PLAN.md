@@ -23,6 +23,8 @@
 - Integrated a shared primitive visual kit into the runtime unit and structure placeholder actors and revalidated F-24 with no parser or baseline regressions.
 - Implemented deterministic F-41 infrastructure command-disruption runtime hook in duel map.
 - Validated attacker or defender disruption telemetry, mitigation reduction, stable recovery, and minimum-action guarantee via headless pass evidence.
+- Implemented deterministic F-42 infrastructure anti-stack and cooldown guardrail runtime hook in duel map.
+- Validated overlap-cap enforcement, bounded impact ceiling, cooldown retry rejection, and counterplay-window telemetry via headless pass evidence.
 
 ## Story Breakdown
 

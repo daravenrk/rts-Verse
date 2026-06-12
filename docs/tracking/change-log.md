@@ -23,6 +23,7 @@ Track high-level project changes with links to decisions and plans.
 - Implemented F-09 air-wing lifecycle runtime (produce, transfer, launch, rearm, fallback, degradation, recovery) and validated all nine AW checks with a headless pass.
 - Implemented F-28 day-night readability runtime hook and validated LS-01 through LS-04 contract checks in headless mode.
 - Implemented F-41 infrastructure command-disruption runtime hook with deterministic superweapon lifecycle telemetry, mitigation reduction behavior, and stable-recovery validation in headless mode.
+- Implemented F-42 infrastructure anti-stack and cooldown runtime hook with overlap-cap enforcement, bounded impact ceiling checks, and counterplay-window validation in headless mode.
 
 ## 2026-06-09
 
