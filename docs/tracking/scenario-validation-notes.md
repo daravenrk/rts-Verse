@@ -2,6 +2,20 @@
 
 Track scenario-level evidence for map and flow validation runs.
 
+## 2026-06-11 F-49 Observability Retention-Rotation and Sequence-Index Consistency Validation
+
+- Flow: `F-49 Observability retention-rotation and sequence-index consistency loop`
+- Scenario: `scenes/core/FirstDuelMap.tscn`
+- Validation commands:
+  - `/Applications/Godot.app/Contents/MacOS/godot --headless --quit --path . res://scenes/core/FirstDuelMap.tscn -- --duel-test-f49-observability-retention`
+  - `/Applications/Godot.app/Contents/MacOS/godot --headless --quit --path . res://scenes/core/FirstDuelMap.tscn -- --duel-test-map-baseline --duel-test-f47-observability-replay --duel-test-f48-observability-fault --duel-test-f49-observability-retention`
+- Result: Pass
+- Notes:
+  - Retention churn preserved live feed cap and produced expected archive growth.
+  - Sequence-index parsing across archive plus live logs remained monotonic for authoritative telemetry entries.
+  - Mixed payload retention checks confirmed world-event trigger and apply telemetry survived overflow rotation.
+  - Focused integrated smoke retained pass summaries for MapBaseline, F-47, F-48, and F-49.
+
 ## 2026-06-11 F-48 Observability Fault-Injection Guardrail Validation
 
 - Flow: `F-48 Observability fault-injection guardrail and blocked-event telemetry loop`

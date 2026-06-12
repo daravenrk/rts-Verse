@@ -126,6 +126,9 @@ Keep this list short, actionable, and current.
 - [x] Start M3 runtime Slice I: add deterministic observability fault-injection hook for invalid and duplicate world-event paths.
 - [x] Validate blocked-event telemetry, guardrail rejection behavior, and no unintended reserve mutation under fault injection.
 - [x] Run headless F-48 standalone and focused integrated smoke validation and capture evidence in scenario notes.
+- [x] Start M3 runtime Slice J: add deterministic observability retention-rotation hook under sustained telemetry churn.
+- [x] Validate live-window cap, archive growth, sequence-index monotonicity, and mixed payload retention integrity.
+- [x] Run headless F-49 standalone and focused integrated smoke validation and capture evidence in scenario notes.
 - [x] Define structured feedback template fields and publish feedback instructions on itch page.
 - [x] Start weekly feedback triage cadence and publish first feedback-response devlog summary.
 

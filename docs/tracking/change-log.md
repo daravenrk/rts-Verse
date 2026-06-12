@@ -30,6 +30,7 @@ Track high-level project changes with links to decisions and plans.
 - Implemented F-46 consolidated observability-stress runtime hook spanning representative world-event, infrastructure, and triage checks with standalone and full-chain smoke validation.
 - Implemented F-47 observability replay-consistency runtime hook with normalized signature comparison across replay-equivalent telemetry sequences and integrated smoke validation.
 - Implemented F-48 observability fault-injection runtime hook validating invalid-event guardrail rejection, duplicate-event block telemetry, and reserve-mutation safety in standalone and integrated smoke runs.
+- Implemented F-49 observability retention-rotation runtime hook validating live-window cap, archive growth, sequence-index monotonicity, and mixed payload retention under sustained telemetry churn.
 
 ## 2026-06-09
 

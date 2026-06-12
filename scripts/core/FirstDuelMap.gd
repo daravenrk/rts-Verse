@@ -45,6 +45,7 @@ const TEST_F45_EVENT_TRIAGE_FLAG := "--duel-test-f45-event-triage"
 const TEST_F46_OBSERVABILITY_STRESS_FLAG := "--duel-test-f46-observability-stress"
 const TEST_F47_OBSERVABILITY_REPLAY_FLAG := "--duel-test-f47-observability-replay"
 const TEST_F48_OBSERVABILITY_FAULT_FLAG := "--duel-test-f48-observability-fault"
+const TEST_F49_OBSERVABILITY_RETENTION_FLAG := "--duel-test-f49-observability-retention"
 const STOCKPILE_CONFIG := {
 	"alloy": {"cap": 200000, "soft_ratio": 0.3, "hard_ratio": 0.1},
 	"power": {"cap": 160000, "soft_ratio": 0.35, "hard_ratio": 0.12},
@@ -342,6 +343,7 @@ func _ready() -> void:
 	_run_f46_observability_stress_test_hook()
 	_run_f47_observability_replay_test_hook()
 	_run_f48_observability_fault_injection_test_hook()
+	_run_f49_observability_retention_test_hook()
 	if _has_user_flag(TEST_AUTO_EXIT_FLAG):
 		call_deferred("_request_test_exit")
 	_apply_camera_transform()
@@ -2091,6 +2093,65 @@ func _run_f48_observability_fault_injection_test_hook() -> void:
 	])
 
 
+func _run_f49_observability_retention_test_hook() -> void:
+	if not _has_user_flag(TEST_F49_OBSERVABILITY_RETENTION_FLAG):
+		return
+
+	_stockpile_event_log.clear()
+	_stockpile_archive_log.clear()
+	_last_world_event_resource = ""
+	_last_world_event_polarity = ""
+
+	_set_stockpile_reserve("alloy", 190000, "f49_setup")
+	_set_stockpile_reserve("power", 120000, "f49_setup")
+	_set_stockpile_reserve("reclaim", 88000, "f49_setup")
+
+	# Generate sustained telemetry churn to force archive/live rotation.
+	for i in range(22):
+		_record_stockpile_event("[F49] churn idx=%d" % i)
+
+	# Add real world-event telemetry to ensure mixed payload retention survives overflow.
+	var e1_ok: bool = _trigger_world_event(WORLD_EVENT_DEFS["E-001"])
+	var e6_ok: bool = _trigger_world_event(WORLD_EVENT_DEFS["E-006"])
+
+	var live_cap_ok: bool = _stockpile_event_log.size() <= 8
+	var archive_growth_ok: bool = _stockpile_archive_log.size() > 0
+
+	var all_lines: Array[String] = []
+	for line in _stockpile_archive_log:
+		all_lines.append(line)
+	for line in _stockpile_event_log:
+		all_lines.append(line)
+
+	var seq_monotonic_ok: bool = true
+	var last_seq: int = -1
+	for line in all_lines:
+		var seq_id: int = _extract_seq_id_from_line(str(line))
+		if seq_id < 0:
+			continue
+		if last_seq >= 0 and seq_id < last_seq:
+			seq_monotonic_ok = false
+		last_seq = seq_id
+
+	var event_retention_ok: bool = false
+	var event_apply_retention_ok: bool = false
+	for line in all_lines:
+		if str(line).find("[WorldEvent] triggered") >= 0 and str(line).find("id=E-001") >= 0:
+			event_retention_ok = true
+		if str(line).find("[WorldEvent] applied") >= 0 and str(line).find("id=E-006") >= 0:
+			event_apply_retention_ok = true
+
+	var feed_window_ok: bool = false
+	if _hud_stockpile_feed_item and not _stockpile_event_log.is_empty():
+		var latest_live: String = _stockpile_event_log[_stockpile_event_log.size() - 1]
+		feed_window_ok = _hud_stockpile_feed_item.text.find(latest_live) >= 0
+
+	var pass_ok: bool = e1_ok and e6_ok and live_cap_ok and archive_growth_ok and seq_monotonic_ok and event_retention_ok and event_apply_retention_ok and feed_window_ok
+	print("[F49] Summary live_cap_ok=%s archive_growth_ok=%s seq_monotonic_ok=%s event_retention_ok=%s event_apply_retention_ok=%s feed_window_ok=%s pass=%s" % [
+		str(live_cap_ok), str(archive_growth_ok), str(seq_monotonic_ok), str(event_retention_ok), str(event_apply_retention_ok), str(feed_window_ok), str(pass_ok)
+	])
+
+
 func _compute_observability_signature(lines: Array[String]) -> int:
 	var signature: int = 17
 	for raw_line in lines:
@@ -2112,6 +2173,18 @@ func _lines_contain_pattern(lines: Array[String], pattern: String) -> bool:
 		if str(raw_line).find(pattern) >= 0:
 			return true
 	return false
+
+
+func _extract_seq_id_from_line(line: String) -> int:
+	var marker: String = " seq="
+	var idx: int = line.find(marker)
+	if idx < 0:
+		return -1
+	var after: String = line.substr(idx + marker.length())
+	var parts: PackedStringArray = after.split(" ")
+	if parts.is_empty():
+		return -1
+	return int(parts[0])
 
 func _run_f13_one_box_test_hook() -> void:
 	if not _has_user_flag(TEST_F13_ONE_BOX_FLAG):
