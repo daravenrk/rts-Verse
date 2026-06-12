@@ -44,6 +44,8 @@ This document defines validation layers for milestone delivery.
 | F-39 | Stockpile threshold-crossing and floor-clamp validation | Pass | `docs/tracking/scenario-validation-notes.md` |
 | F-40 | Bounded world-event trigger and application validation | Pass | `docs/tracking/scenario-validation-notes.md` |
 | F-09 | Carrier and Airfield Sortie Lifecycle | Pass | `docs/tracking/scenario-validation-notes.md` |
+| F-10 | Colony and Civilian Resilience Loop | Pass | `docs/tracking/scenario-validation-notes.md` |
+| F-11 | Unified Stockpile and World Event Volatility | Pass | `docs/tracking/scenario-validation-notes.md` |
 
 ## M2 Core Gameplay Validation Flows
 

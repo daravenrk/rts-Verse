@@ -3,7 +3,7 @@
 [ext_resource type="Script" path="res://scripts/core/FirstDuelMap.gd" id="1_uxht5"]
 
 [sub_resource type="PlaneMesh" id="PlaneMesh_ground"]
-size = Vector2(900, 700)
+size = Vector2(1800, 1400)
 
 [sub_resource type="StandardMaterial3D" id="Mat_ground"]
 albedo_color = Color(0.15, 0.20, 0.15, 1)
@@ -14,15 +14,15 @@ script = ExtResource("1_uxht5")
 
 [node name="SpawnA" type="Marker3D" parent="."]
 unique_name_in_owner = true
-position = Vector3(-280, 0, 0)
+position = Vector3(-560, 0, 0)
 
 [node name="SpawnB" type="Marker3D" parent="."]
 unique_name_in_owner = true
-position = Vector3(280, 0, 0)
+position = Vector3(560, 0, 0)
 
 [node name="RTSCamera" type="Camera3D" parent="."]
 unique_name_in_owner = true
-position = Vector3(0, 300, 280)
+position = Vector3(0, 500, 460)
 rotation_degrees = Vector3(-52, 0, 0)
 
 [node name="SunLight" type="DirectionalLight3D" parent="."]

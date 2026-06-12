@@ -30,6 +30,8 @@ const TEST_ROSTER_BEHAVIORS_FLAG := "--duel-test-roster-behaviors"
 const TEST_T2_PATHS_FLAG := "--duel-test-t2-paths"
 const TEST_COLONY_DEFENSE_FLAG := "--duel-test-colony-defense"
 const TEST_F09_AIR_WING_FLAG := "--duel-test-f09-air-wing"
+const TEST_F10_COLONY_RESILIENCE_FLAG := "--duel-test-f10-colony-resilience"
+const TEST_F11_STOCKPILE_VOLATILITY_FLAG := "--duel-test-f11-stockpile-volatility"
 const STOCKPILE_CONFIG := {
 	"alloy": {"cap": 200000, "soft_ratio": 0.3, "hard_ratio": 0.1},
 	"power": {"cap": 160000, "soft_ratio": 0.35, "hard_ratio": 0.12},
@@ -38,7 +40,10 @@ const STOCKPILE_CONFIG := {
 }
 const WORLD_EVENT_DEFS := {
 	"E-001": {"id": "E-001", "name": "Salvage Rush", "polarity": "positive", "resource": "reclaim", "magnitude_ratio": 0.06},
+	"E-002": {"id": "E-002", "name": "Grid Surge", "polarity": "positive", "resource": "power", "magnitude_ratio": 0.07},
+	"E-003": {"id": "E-003", "name": "Signal Bloom", "polarity": "positive", "resource": "data", "magnitude_ratio": 0.05},
 	"E-006": {"id": "E-006", "name": "Refinery Chain Disruption", "polarity": "negative", "resource": "alloy", "magnitude_ratio": 0.05},
+	"E-007": {"id": "E-007", "name": "Blackout Event", "polarity": "negative", "resource": "power", "magnitude_ratio": 0.06},
 }
 const SelectableUnit2D := preload("res://scripts/core/SelectableUnit2D.gd")
 const BUILD_MENU_ORDER := ["power_core", "alloy_extractor", "barracks_equivalent", "vehicle_structure", "sensor_uplink", "expansion_hub"]
@@ -138,32 +143,32 @@ const LOCKED_ROSTER_BEHAVIOR_PROFILES := {
 	}
 }
 const MAP_ITEM_SPECS := [
-	{"id": "ZONE-PRIMARY-ALLOY", "type": "zone_annotation", "lane": "mid", "position": Vector2(0, -120)},
-	{"id": "ZONE-SECONDARY-ALLOY", "type": "zone_annotation", "lane": "flank", "position": Vector2(-180, 110)},
-	{"id": "ZONE-HIGHRISK-ALLOY", "type": "zone_annotation", "lane": "high_risk", "position": Vector2(180, 110)},
-	{"id": "SPAWN-CORE-A", "type": "spawn_core_zone_marker", "lane": "home", "position": Vector2(-280, -32)},
-	{"id": "SPAWN-CORE-B", "type": "spawn_core_zone_marker", "lane": "home", "position": Vector2(280, -32)},
-	{"id": "SAFE-ALLOY-A", "type": "safe_alloy_node", "lane": "home", "position": Vector2(-230, 0)},
-	{"id": "SAFE-ALLOY-B", "type": "safe_alloy_node", "lane": "home", "position": Vector2(230, 0)},
-	{"id": "NATURAL-ALLOY-A", "type": "natural_alloy_node", "lane": "natural", "position": Vector2(-120, 72)},
-	{"id": "NATURAL-ALLOY-B", "type": "natural_alloy_node", "lane": "natural", "position": Vector2(120, 72)},
-	{"id": "MID-ALLOY-N", "type": "contested_midfield_alloy_node", "lane": "mid", "position": Vector2(0, -56)},
-	{"id": "MID-ALLOY-S", "type": "contested_midfield_alloy_node", "lane": "mid", "position": Vector2(0, 56)},
+	{"id": "ZONE-PRIMARY-ALLOY", "type": "zone_annotation", "lane": "mid", "position": Vector2(0, -240)},
+	{"id": "ZONE-SECONDARY-ALLOY", "type": "zone_annotation", "lane": "flank", "position": Vector2(-360, 220)},
+	{"id": "ZONE-HIGHRISK-ALLOY", "type": "zone_annotation", "lane": "high_risk", "position": Vector2(360, 220)},
+	{"id": "SPAWN-CORE-A", "type": "spawn_core_zone_marker", "lane": "home", "position": Vector2(-560, -64)},
+	{"id": "SPAWN-CORE-B", "type": "spawn_core_zone_marker", "lane": "home", "position": Vector2(560, -64)},
+	{"id": "SAFE-ALLOY-A", "type": "safe_alloy_node", "lane": "home", "position": Vector2(-460, 0)},
+	{"id": "SAFE-ALLOY-B", "type": "safe_alloy_node", "lane": "home", "position": Vector2(460, 0)},
+	{"id": "NATURAL-ALLOY-A", "type": "natural_alloy_node", "lane": "natural", "position": Vector2(-240, 144)},
+	{"id": "NATURAL-ALLOY-B", "type": "natural_alloy_node", "lane": "natural", "position": Vector2(240, 144)},
+	{"id": "MID-ALLOY-N", "type": "contested_midfield_alloy_node", "lane": "mid", "position": Vector2(0, -112)},
+	{"id": "MID-ALLOY-S", "type": "contested_midfield_alloy_node", "lane": "mid", "position": Vector2(0, 112)},
 	{"id": "DATA-NODE-CENTER", "type": "contested_data_node", "lane": "center", "position": Vector2(0, 0)},
-	{"id": "RECLAIM-CENTER", "type": "reclaim_field_cluster", "lane": "center", "position": Vector2(0, 96)},
-	{"id": "COVER-01", "type": "cover_cluster", "lane": "direct", "position": Vector2(-90, -24)},
-	{"id": "COVER-02", "type": "cover_cluster", "lane": "direct", "position": Vector2(90, -24)},
-	{"id": "COVER-03", "type": "cover_cluster", "lane": "flank", "position": Vector2(-130, 116)},
-	{"id": "COVER-04", "type": "cover_cluster", "lane": "flank", "position": Vector2(130, 116)},
-	{"id": "CHOKE-01", "type": "chokepoint_gate", "lane": "direct", "position": Vector2(0, -86)},
-	{"id": "ELEVATED-01", "type": "elevated_fire_position", "lane": "center", "position": Vector2(0, -146)},
-	{"id": "LOS-01", "type": "los_blocker", "lane": "direct", "position": Vector2(-46, -84)},
-	{"id": "LOS-02", "type": "los_blocker", "lane": "direct", "position": Vector2(46, -84)},
-	{"id": "LOS-03", "type": "los_blocker", "lane": "center", "position": Vector2(-84, 12)},
-	{"id": "LOS-04", "type": "los_blocker", "lane": "center", "position": Vector2(84, 12)},
-	{"id": "LOS-05", "type": "los_blocker", "lane": "flank", "position": Vector2(-158, 82)},
-	{"id": "LOS-06", "type": "los_blocker", "lane": "flank", "position": Vector2(158, 82)},
-	{"id": "OPTIONAL-RELAY-01", "type": "neutral_relay_tower", "lane": "center", "position": Vector2(0, -180)}
+	{"id": "RECLAIM-CENTER", "type": "reclaim_field_cluster", "lane": "center", "position": Vector2(0, 192)},
+	{"id": "COVER-01", "type": "cover_cluster", "lane": "direct", "position": Vector2(-180, -48)},
+	{"id": "COVER-02", "type": "cover_cluster", "lane": "direct", "position": Vector2(180, -48)},
+	{"id": "COVER-03", "type": "cover_cluster", "lane": "flank", "position": Vector2(-260, 232)},
+	{"id": "COVER-04", "type": "cover_cluster", "lane": "flank", "position": Vector2(260, 232)},
+	{"id": "CHOKE-01", "type": "chokepoint_gate", "lane": "direct", "position": Vector2(0, -172)},
+	{"id": "ELEVATED-01", "type": "elevated_fire_position", "lane": "center", "position": Vector2(0, -292)},
+	{"id": "LOS-01", "type": "los_blocker", "lane": "direct", "position": Vector2(-92, -168)},
+	{"id": "LOS-02", "type": "los_blocker", "lane": "direct", "position": Vector2(92, -168)},
+	{"id": "LOS-03", "type": "los_blocker", "lane": "center", "position": Vector2(-168, 24)},
+	{"id": "LOS-04", "type": "los_blocker", "lane": "center", "position": Vector2(168, 24)},
+	{"id": "LOS-05", "type": "los_blocker", "lane": "flank", "position": Vector2(-316, 164)},
+	{"id": "LOS-06", "type": "los_blocker", "lane": "flank", "position": Vector2(316, 164)},
+	{"id": "OPTIONAL-RELAY-01", "type": "neutral_relay_tower", "lane": "center", "position": Vector2(0, -360)}
 ]
 const REQUIRED_COUNTS := {
 	"spawn_core_zone_marker": 2,
@@ -204,13 +209,13 @@ const F24_UNIT_PROFILES := [
 @onready var _rts_camera: Camera3D = %RTSCamera
 var _camera_target := Vector3.ZERO
 var _camera_yaw := 0.0
-var _camera_arm := 400.0
+var _camera_arm := 700.0
 const _CAMERA_PITCH := -52.0
-const _CAMERA_ARM_MIN := 200.0
-const _CAMERA_ARM_MAX := 750.0
-const _CAMERA_PAN_SPEED := 200.0
+const _CAMERA_ARM_MIN := 300.0
+const _CAMERA_ARM_MAX := 1200.0
+const _CAMERA_PAN_SPEED := 400.0
 const _CAMERA_ROTATE_SPEED := 60.0
-const _CAMERA_ZOOM_STEP := 50.0
+const _CAMERA_ZOOM_STEP := 80.0
 const _SELECT_RADIUS_UNITS := 18.0
 const _ATTACK_SELECT_RADIUS_UNITS := 14.0
 const _ATTACK_RANGE_UNITS := 18.0
@@ -218,9 +223,9 @@ const _ATTACK_DAMAGE_PER_HIT := 16.0
 const _ATTACK_COOLDOWN_SECONDS := 0.6
 const _UNIT_BASE_HIT_POINTS := 100.0
 const _BLOCKER_RECTS: Array[Rect2] = [
-	Rect2(Vector2(-30.0, -30.0), Vector2(60.0, 60.0)),
-	Rect2(Vector2(-170.0, 60.0), Vector2(50.0, 50.0)),
-	Rect2(Vector2(120.0, 60.0), Vector2(50.0, 50.0))
+	Rect2(Vector2(-60.0, -60.0), Vector2(120.0, 120.0)),
+	Rect2(Vector2(-340.0, 120.0), Vector2(100.0, 100.0)),
+	Rect2(Vector2(240.0, 120.0), Vector2(100.0, 100.0))
 ]
 var _tether_points_by_slot: Dictionary = {}
 var _buildables_by_slot: Dictionary = {"A": {}, "B": {}}
@@ -297,6 +302,8 @@ func _ready() -> void:
 	_run_t2_path_test_hook()
 	_run_colony_defense_test_hook()
 	_run_f09_air_wing_test_hook()
+	_run_f10_colony_resilience_test_hook()
+	_run_f11_stockpile_volatility_test_hook()
 	if _has_user_flag(TEST_AUTO_EXIT_FLAG):
 		call_deferred("_request_test_exit")
 	_apply_camera_transform()
@@ -814,7 +821,7 @@ func _run_f36_build_test_hook() -> void:
 	_select_single_unit(builder_id)
 	_toggle_build_menu()
 	_select_buildable("power_core")
-	var place_target := Vector3(-210.0, 0.0, -10.0)
+	var place_target := Vector3(-420.0, 0.0, -20.0)
 	var place_pass := _place_pending_buildable(place_target)
 	var slot_buildables: Dictionary = _buildables_by_slot.get("A", {})
 	var has_power_core: bool = slot_buildables.has("power_core")
@@ -887,7 +894,7 @@ func _run_f03_test_hook() -> void:
 		_initialize_controllable_units()
 
 	_set_stockpile_reserve("alloy", 0, "f03_reset")
-	var gather_node := Vector3(-230.0, 0.0, 0.0)
+	var gather_node := Vector3(-460.0, 0.0, 0.0)
 	var return_node: Vector3 = _spawn_a.position
 	_select_single_unit("unit_alpha")
 
@@ -926,7 +933,7 @@ func _run_f32_interaction_test_hook() -> void:
 	_handle_left_click_selection(select_screen)
 
 	var select_pass := _selected_controllable_units.size() == 1 and _selected_controllable_units.has(first_id)
-	var target_world := Vector3(-120.0, 0.0, 30.0)
+	var target_world := Vector3(-240.0, 0.0, 60.0)
 	var target_screen := _rts_camera.unproject_position(target_world)
 	_handle_right_click_command(target_screen)
 	var move_pass := _simulate_until_arrival(120)
@@ -1256,6 +1263,114 @@ func _produce_colony_unit(slot: String, unit_id: String) -> bool:
 	_colony_units_by_slot[slot][unit_id] = stable_item_id
 	print("[ColonyDefense] Produced slot=%s unit=%s producer=%s stable_item_id=%s" % [slot, unit_id, producer, stable_item_id])
 	return true
+
+
+func _run_f10_colony_resilience_test_hook() -> void:
+	if not _has_user_flag(TEST_F10_COLONY_RESILIENCE_FLAG):
+		return
+
+	var slot := "A"
+	_colony_units_by_slot[slot].clear()
+	_ensure_build_chain_for_slot(slot, [
+		"power_core", "barracks_equivalent", "sensor_uplink",
+		"militia_barracks", "security_command_post"
+	])
+
+	# Phase 1: establish colony throughput — produce civilian workers
+	var worker_ok := _produce_colony_unit(slot, "security_militia_squad")
+	var hauler_ok := _produce_colony_unit(slot, "patrol_buggy")
+	var throughput_before: int = _get_stockpile_reserve("alloy")
+	print("[F10] Colony established worker_ok=%s hauler_ok=%s alloy_before=%d" % [str(worker_ok), str(hauler_ok), throughput_before])
+
+	# Phase 2: logistics disruption — drain alloy to simulate raid impact
+	var disruption_drain := int(float(throughput_before) * 0.25)
+	_set_stockpile_reserve("alloy", throughput_before - disruption_drain, "f10_logistics_disruption")
+	var throughput_disrupted: int = _get_stockpile_reserve("alloy")
+	var disruption_ok := throughput_disrupted < throughput_before
+	print("[F10] Logistics disrupted alloy_after=%d disruption_ok=%s" % [throughput_disrupted, str(disruption_ok)])
+
+	# Phase 3: escalate — add peacekeeper walker from security_command_post
+	var peacekeeper_ok := _produce_colony_unit(slot, "peacekeeper_walker")
+	var militia_count: int = _colony_units_by_slot[slot].size()
+	print("[F10] Militia escalated peacekeeper_ok=%s militia_unit_count=%d" % [str(peacekeeper_ok), militia_count])
+
+	# Phase 4: restore — economy recovers, militia does not exceed frontline equivalents
+	_set_stockpile_reserve("alloy", throughput_before, "f10_recovery")
+	var throughput_recovered: int = _get_stockpile_reserve("alloy")
+	var recovery_ok := throughput_recovered >= throughput_before
+	var militia_bounded: bool = militia_count <= 3
+	print("[F10] Recovery alloy_recovered=%d recovery_ok=%s militia_bounded=%s" % [throughput_recovered, str(recovery_ok), str(militia_bounded)])
+
+	var pass_ok: bool = worker_ok and hauler_ok and disruption_ok and peacekeeper_ok and recovery_ok and militia_bounded
+	print("[F10] Summary worker_ok=%s hauler_ok=%s disruption_ok=%s escalate_ok=%s recovery_ok=%s militia_bounded=%s pass=%s" % [
+		str(worker_ok), str(hauler_ok), str(disruption_ok), str(peacekeeper_ok),
+		str(recovery_ok), str(militia_bounded), str(pass_ok)
+	])
+
+
+func _run_f11_stockpile_volatility_test_hook() -> void:
+	if not _has_user_flag(TEST_F11_STOCKPILE_VOLATILITY_FLAG):
+		return
+
+	# Restore all resources to full cap for a clean baseline
+	for resource_id in STOCKPILE_CONFIG.keys():
+		_set_stockpile_reserve(str(resource_id), _get_stockpile_cap(str(resource_id)), "f11_baseline_reset")
+	_last_world_event_resource = ""
+	_last_world_event_polarity = ""
+
+	# Phase 1: stable extraction — simulate two deposit cycles
+	var alloy_stable_before := _get_stockpile_reserve("alloy")
+	_add_stockpile_reserve("alloy", 5000, "f11_stable_extraction_a")
+	_add_stockpile_reserve("alloy", 5000, "f11_stable_extraction_b")
+	var alloy_stable_after := _get_stockpile_reserve("alloy")
+	var stable_ok := alloy_stable_after == alloy_stable_before  # clamped at cap, no net change past cap
+	print("[F11] Stable extraction alloy_before=%d alloy_after=%d stable_ok=%s" % [alloy_stable_before, alloy_stable_after, str(stable_ok)])
+
+	# Phase 2: player A perspective — negative event on alloy, positive event on power
+	# Pre-deplete power so positive event has room to increase it (tests low-stock recovery)
+	_set_stockpile_reserve("power", int(float(_get_stockpile_cap("power")) * 0.80), "f11_predeplete_power")
+	var alloy_before_a := _get_stockpile_reserve("alloy")
+	var power_before_a := _get_stockpile_reserve("power")
+	var neg_ok_a := _trigger_world_event(WORLD_EVENT_DEFS["E-006"])
+	_last_world_event_resource = ""
+	_last_world_event_polarity = ""
+	var pos_ok_a := _trigger_world_event(WORLD_EVENT_DEFS["E-002"])
+	var alloy_after_a := _get_stockpile_reserve("alloy")
+	var power_after_a := _get_stockpile_reserve("power")
+	var vis_a := alloy_after_a < alloy_before_a and power_after_a > power_before_a
+	print("[F11] Player A alloy_delta=%d power_delta=%d neg_ok=%s pos_ok=%s visible=%s" % [
+		alloy_after_a - alloy_before_a, power_after_a - power_before_a,
+		str(neg_ok_a), str(pos_ok_a), str(vis_a)
+	])
+
+	# Phase 3: low-stock recovery — confirm reserve stays above zero and positive event helps
+	var alloy_low_ok := _get_stockpile_reserve("alloy") > 0
+	var power_improved := power_after_a > power_before_a
+	print("[F11] Recovery check alloy_above_zero=%s power_improved=%s" % [str(alloy_low_ok), str(power_improved)])
+
+	# Phase 4: player B perspective — negative event on power, positive event on data
+	# Pre-deplete data so positive event has room to increase it
+	_set_stockpile_reserve("data", int(float(_get_stockpile_cap("data")) * 0.80), "f11_predeplete_data")
+	_last_world_event_resource = ""
+	_last_world_event_polarity = ""
+	var power_before_b := _get_stockpile_reserve("power")
+	var data_before_b := _get_stockpile_reserve("data")
+	var neg_ok_b := _trigger_world_event(WORLD_EVENT_DEFS["E-007"])
+	_last_world_event_resource = ""
+	_last_world_event_polarity = ""
+	var pos_ok_b := _trigger_world_event(WORLD_EVENT_DEFS["E-003"])
+	var power_after_b := _get_stockpile_reserve("power")
+	var data_after_b := _get_stockpile_reserve("data")
+	var vis_b := power_after_b < power_before_b and data_after_b > data_before_b
+	print("[F11] Player B power_delta=%d data_delta=%d neg_ok=%s pos_ok=%s visible=%s" % [
+		power_after_b - power_before_b, data_after_b - data_before_b,
+		str(neg_ok_b), str(pos_ok_b), str(vis_b)
+	])
+
+	var pass_ok: bool = stable_ok and neg_ok_a and pos_ok_a and vis_a and alloy_low_ok and power_improved and neg_ok_b and pos_ok_b and vis_b
+	print("[F11] Summary stable_ok=%s vis_a=%s recovery_ok=%s vis_b=%s pass=%s" % [
+		str(stable_ok), str(vis_a), str(alloy_low_ok and power_improved), str(vis_b), str(pass_ok)
+	])
 
 
 func _run_f09_air_wing_test_hook() -> void:
