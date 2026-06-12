@@ -241,6 +241,18 @@ Track scenario-level evidence for map and flow validation runs.
   - MVP unit actor spawn and baseline-state validation covered 12 units across Helion and Veyari.
   - Summary reported `pass_units=12` and `total_units=12`.
 
+## 2026-06-11 Primitive Visual Kit Integration Validation
+
+- Flow: `F-24 Small-Scale 3D Readability and Animation Subspace Compliance` after shared primitive kit wiring
+- Scenario: `scenes/core/FirstDuelMap.tscn`
+- Validation command:
+  - `/Applications/Godot.app/Contents/MacOS/godot --headless --path . res://scenes/core/FirstDuelMap.tscn --quit-after 1 -- --duel-test-f24`
+- Result: Pass
+- Notes:
+  - SelectableUnit2D now renders a multi-part primitive silhouette with shared faction materials.
+  - BuildableNode now renders a tiered foundation, crown, and output-facing accent panel from the shared kit.
+  - TetherPoint now renders a shared cylinder/tower/cap silhouette with faction-tinted emissive layers.
+
 ## 2026-06-10 F-18/F-19 Command and HUD Baseline
 
 - Flow: `F-18 Keyboard and Mouse Command Coverage` + `F-19 Camera and HUD Usability Validation`

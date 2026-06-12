@@ -18,6 +18,7 @@ Track high-level project changes with links to decisions and plans.
 - Added stockpile telemetry feed and startup snapshot emission to FirstDuelMap HUD observability.
 - Marked the stockpile/world-event observability checklist items complete for reserve/cap display, threshold alerts, event feed, and validation hooks.
 - Finished HUD telemetry polish for stockpile/world-event runtime by adding phase tags, depletion tooltips, and readable alert color branches, then revalidated F-40 headless behavior.
+- Added a shared primitive visual kit for unit and structure placeholders and revalidated the F-24 readability baseline after wiring the new silhouettes.
 
 ## 2026-06-09
 

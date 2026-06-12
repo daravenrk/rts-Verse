@@ -1,6 +1,8 @@
 extends Node3D
 class_name TetherPoint
 
+const PrimitiveVisualKit = preload("res://scripts/core/PrimitiveVisualKit.gd")
+
 signal command_penalty_activated(item_id: String, slot: String, faction: String)
 
 const MAX_HEALTH := 1000.0
@@ -10,11 +12,7 @@ const COMMAND_STRUCTURE_NAMES := {
 	"obsidian": "Forge Nexus",
 	"veyari": "Descent Spire"
 }
-const FACTION_COLORS := {
-	"helion": Color(0.2, 0.5, 1.0),
-	"veyari": Color(0.2, 0.8, 0.3),
-	"obsidian": Color(0.8, 0.35, 0.1),
-}
+
 
 var stable_item_id: String = ""
 var spawn_slot: String = ""
@@ -36,30 +34,19 @@ func initialize(item_id: String, slot: String, faction: String) -> void:
 
 
 func _create_visual() -> void:
-	var base := MeshInstance3D.new()
-	var cyl := CylinderMesh.new()
-	cyl.height = 24.0
-	cyl.top_radius = 14.0
-	cyl.bottom_radius = 14.0
-	base.mesh = cyl
-	var mat := StandardMaterial3D.new()
-	mat.albedo_color = FACTION_COLORS.get(faction_id, Color(0.6, 0.6, 0.6))
-	mat.roughness = 0.6
-	base.material_override = mat
-	base.position = Vector3(0.0, 12.0, 0.0)
+	var faction_color: Color = PrimitiveVisualKit.get_faction_color(faction_id)
+	var base_material: StandardMaterial3D = PrimitiveVisualKit.make_material(faction_color.darkened(0.16), Color.BLACK, false, 0.62, 0.04)
+	var tower_material: StandardMaterial3D = PrimitiveVisualKit.make_material(faction_color, faction_color * 0.45, true, 0.56, 0.02)
+	var cap_material: StandardMaterial3D = PrimitiveVisualKit.make_material(faction_color.lightened(0.22), faction_color * 0.55, true, 0.48, 0.02)
+
+	var base: MeshInstance3D = PrimitiveVisualKit.make_cylinder_mesh_instance(24.0, 14.0, base_material, Vector3(0.0, 12.0, 0.0))
 	add_child(base)
 
-	var top := MeshInstance3D.new()
-	var box := BoxMesh.new()
-	box.size = Vector3(10.0, 10.0, 10.0)
-	top.mesh = box
-	var top_mat := StandardMaterial3D.new()
-	top_mat.albedo_color = FACTION_COLORS.get(faction_id, Color(0.6, 0.6, 0.6)).lightened(0.3)
-	top_mat.emission_enabled = true
-	top_mat.emission = FACTION_COLORS.get(faction_id, Color(0.6, 0.6, 0.6)) * 0.5
-	top.material_override = top_mat
-	top.position = Vector3(0.0, 29.0, 0.0)
-	add_child(top)
+	var tower: MeshInstance3D = PrimitiveVisualKit.make_box_mesh_instance(Vector3(12.0, 16.0, 12.0), tower_material, Vector3(0.0, 28.0, 0.0))
+	add_child(tower)
+
+	var cap: MeshInstance3D = PrimitiveVisualKit.make_box_mesh_instance(Vector3(10.0, 10.0, 10.0), cap_material, Vector3(0.0, 38.0, 0.0))
+	add_child(cap)
 
 
 func get_structure_name() -> String:

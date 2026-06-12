@@ -1,12 +1,14 @@
 extends Node3D
 
-const FACTION_COLORS := {
-	"helion": Color(0.2, 0.5, 1.0),
-	"veyari": Color(0.2, 0.8, 0.3),
-	"obsidian": Color(0.8, 0.35, 0.1),
-}
-const UNIT_BOX_SIZE := Vector3(8.0, 6.0, 8.0)
-const UNIT_MESH_Y_OFFSET := 3.0
+const PrimitiveVisualKit = preload("res://scripts/core/PrimitiveVisualKit.gd")
+
+const UNIT_TORSO_SIZE := Vector3(8.0, 4.8, 8.0)
+const UNIT_TORSO_Y := 2.4
+const UNIT_CREST_SIZE := Vector3(3.2, 2.1, 3.2)
+const UNIT_CREST_Y := 5.7
+const UNIT_FORWARD_MARKER_SIZE := Vector3(5.8, 1.2, 1.8)
+const UNIT_FORWARD_MARKER_Y := 1.4
+const UNIT_FORWARD_MARKER_Z := 3.55
 
 var unit_id: String = ""
 var faction_id: String = ""
@@ -14,8 +16,7 @@ var move_speed: float = 96.0
 var is_selected: bool = false
 var _move_target: Vector3 = Vector3.ZERO
 var _has_move_target: bool = false
-var _mesh_instance: MeshInstance3D
-var _mat: StandardMaterial3D
+var _materials: Array[StandardMaterial3D] = []
 
 
 func initialize(new_unit_id: String, new_faction_id: String, start_position: Vector3) -> void:
@@ -26,22 +27,27 @@ func initialize(new_unit_id: String, new_faction_id: String, start_position: Vec
 
 
 func _create_placeholder_mesh() -> void:
-	_mesh_instance = MeshInstance3D.new()
-	var box := BoxMesh.new()
-	box.size = UNIT_BOX_SIZE
-	_mesh_instance.mesh = box
-	_mat = StandardMaterial3D.new()
-	_mat.albedo_color = FACTION_COLORS.get(faction_id, Color(0.7, 0.7, 0.7))
-	_mesh_instance.material_override = _mat
-	_mesh_instance.position = Vector3(0.0, UNIT_MESH_Y_OFFSET, 0.0)
-	add_child(_mesh_instance)
+	var faction_color: Color = PrimitiveVisualKit.get_faction_color(faction_id)
+	var body_material: StandardMaterial3D = PrimitiveVisualKit.make_material(faction_color.darkened(0.18), Color.BLACK, false, 0.78, 0.03)
+	var crest_material: StandardMaterial3D = PrimitiveVisualKit.make_material(faction_color.lightened(0.18), faction_color * 0.35, true, 0.62, 0.02)
+	var forward_material: StandardMaterial3D = PrimitiveVisualKit.make_material(faction_color.darkened(0.05), Color.BLACK, false, 0.66, 0.02)
+	_materials = [body_material, crest_material, forward_material]
+
+	var torso: MeshInstance3D = PrimitiveVisualKit.make_box_mesh_instance(UNIT_TORSO_SIZE, body_material, Vector3(0.0, UNIT_TORSO_Y, 0.0))
+	add_child(torso)
+
+	var crest: MeshInstance3D = PrimitiveVisualKit.make_box_mesh_instance(UNIT_CREST_SIZE, crest_material, Vector3(0.0, UNIT_CREST_Y, 0.0))
+	add_child(crest)
+
+	var forward_marker: MeshInstance3D = PrimitiveVisualKit.make_box_mesh_instance(UNIT_FORWARD_MARKER_SIZE, forward_material, Vector3(0.0, UNIT_FORWARD_MARKER_Y, UNIT_FORWARD_MARKER_Z))
+	add_child(forward_marker)
 
 
 func set_selected(selected: bool) -> void:
 	is_selected = selected
-	if _mat:
-		_mat.emission_enabled = selected
-		_mat.emission = Color(1.0, 0.9, 0.2) if selected else Color.BLACK
+	for material in _materials:
+		material.emission_enabled = selected
+		material.emission = Color(1.0, 0.9, 0.2) if selected else Color.BLACK
 
 
 func queue_move(target: Vector3) -> void:

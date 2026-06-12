@@ -20,6 +20,7 @@
 - Executed `zsh docs/release/stage0-media/stage0_status_report.sh` and `zsh docs/release/stage0-media/prepublish_audit.sh` as closure preflight checks.
 - Both checks returned `NOT READY` with explicit missing-media blockers and screenshot-count policy failure.
 - Objective 3 remains parked with unchanged re-entry gate: capture required screenshots and rerun prepublish audit.
+- Integrated a shared primitive visual kit into the runtime unit and structure placeholder actors and revalidated F-24 with no parser or baseline regressions.
 
 ## Story Breakdown
 
