@@ -327,7 +327,7 @@ func _spawn_opening_squads() -> void:
 func _spawn_world_blockers() -> void:
 	for index in _BLOCKER_RECTS.size():
 		var rect: Rect2 = _BLOCKER_RECTS[index]
-		var blocker := MeshInstance3D.new()
+		var blocker: MeshInstance3D = MeshInstance3D.new()
 		var box := BoxMesh.new()
 		box.size = Vector3(rect.size.x, 16.0, rect.size.y)
 		blocker.mesh = box
@@ -1262,6 +1262,7 @@ func _process(delta: float) -> void:
 func _update_hud() -> void:
 	if _hud_resource_bar:
 		_hud_resource_bar.text = _format_stockpile_hud_text()
+		_hud_resource_bar.tooltip_text = _format_stockpile_tooltip_text()
 
 
 func _update_stockpile_telemetry(delta: float) -> void:
@@ -1274,8 +1275,10 @@ func _update_stockpile_telemetry(delta: float) -> void:
 
 func _emit_stockpile_snapshot() -> void:
 	_stockpile_sequence_id += 1
-	var message := "[Stockpile] snapshot seq=%d alloy=%d power=%d data=%d reclaim=%d" % [
+	var phase_tag := _get_stockpile_phase_tag()
+	var message := "[Stockpile] snapshot seq=%d phase=%s alloy=%d power=%d data=%d reclaim=%d" % [
 		_stockpile_sequence_id,
+		phase_tag,
 		_get_stockpile_reserve("alloy"),
 		_get_stockpile_reserve("power"),
 		_get_stockpile_reserve("data"),
@@ -1303,6 +1306,52 @@ func _refresh_stockpile_feed_ui() -> void:
 	_hud_stockpile_feed_item.text = "\n".join(recent)
 
 
+func _get_stockpile_phase_tag() -> String:
+	var total_reserve := 0
+	var total_cap := 0
+	for resource_id in _stockpile_state.keys():
+		total_reserve += _get_stockpile_reserve(str(resource_id))
+		total_cap += _get_stockpile_cap(str(resource_id))
+	if total_cap <= 0:
+		return "opening"
+
+	var reserve_ratio := float(total_reserve) / float(total_cap)
+	if reserve_ratio >= 0.66:
+		return "opening"
+	if reserve_ratio >= 0.33:
+		return "midgame"
+	return "late-game"
+
+
+func _get_stockpile_depletion_multiplier(resource_id: String) -> float:
+	if not _stockpile_state.has(resource_id):
+		return 1.0
+
+	var reserve := _get_stockpile_reserve(resource_id)
+	var soft_threshold := int(_stockpile_state[resource_id]["soft_threshold"])
+	var hard_threshold := int(_stockpile_state[resource_id]["hard_threshold"])
+	if reserve <= hard_threshold:
+		return 1.5
+	if reserve <= soft_threshold:
+		return 1.25
+	return 1.0
+
+
+func _format_stockpile_tooltip_text() -> String:
+	return "Phase: %s\nAlloy multiplier x%.2f\nPower multiplier x%.2f\nData multiplier x%.2f\nReclaim multiplier x%.2f" % [
+		_get_stockpile_phase_tag(),
+		_get_stockpile_depletion_multiplier("alloy"),
+		_get_stockpile_depletion_multiplier("power"),
+		_get_stockpile_depletion_multiplier("data"),
+		_get_stockpile_depletion_multiplier("reclaim")
+	]
+
+
+func _set_alert_color(color: Color) -> void:
+	if _hud_alert_item:
+		_hud_alert_item.add_theme_color_override("font_color", color)
+
+
 func _initialize_stockpile_state() -> void:
 	_stockpile_state.clear()
 	for resource_id in STOCKPILE_CONFIG.keys():
@@ -1318,11 +1367,9 @@ func _initialize_stockpile_state() -> void:
 			"last_threshold": "none"
 		}
 	_stockpile_sequence_id = 0
-	_stockpile_event_log.clear()
 	_sync_legacy_alloy_total()
 	print("[Stockpile] Initialized resources=%s" % str(_stockpile_state.keys()))
 	_emit_stockpile_snapshot()
-
 
 func _format_stockpile_hud_text() -> String:
 	return "Alloy: %d/%d  Power: %d/%d  Data: %d/%d  Reclaim: %d/%d" % [
@@ -1397,11 +1444,16 @@ func _emit_stockpile_threshold_crossed(resource_id: String, threshold_type: Stri
 	_stockpile_sequence_id += 1
 	var reserve := _get_stockpile_reserve(resource_id)
 	var cap := _get_stockpile_cap(resource_id)
-	var message := "[Stockpile] threshold resource=%s level=%s reserve=%d cap=%d seq=%d" % [resource_id, threshold_type, reserve, cap, _stockpile_sequence_id]
+	var phase_tag := _get_stockpile_phase_tag()
+	var message := "[Stockpile] threshold resource=%s level=%s phase=%s reserve=%d cap=%d seq=%d" % [resource_id, threshold_type, phase_tag, reserve, cap, _stockpile_sequence_id]
 	print(message)
 	_record_stockpile_event(message)
 	if _hud_alert_item:
 		_hud_alert_item.text = "Stockpile alert: %s %s" % [resource_id.capitalize(), threshold_type]
+		if threshold_type == "soft":
+			_set_alert_color(Color(1.0, 0.72, 0.2))
+		else:
+			_set_alert_color(Color(1.0, 0.25, 0.2))
 
 
 func _run_f39_stockpile_test_hook() -> void:
@@ -1415,7 +1467,7 @@ func _run_f39_stockpile_test_hook() -> void:
 	_set_stockpile_reserve("alloy", -250, "f39_floor_clamp")
 	var floor_ok := _get_stockpile_reserve("alloy") == 0
 	var pass_ok := soft_state == "soft" and hard_state == "hard" and floor_ok
-	print("[F39] Summary soft_state=%s hard_state=%s floor_ok=%s reserve=%d pass=%s" % [soft_state, hard_state, str(floor_ok), _get_stockpile_reserve("alloy"), str(pass_ok)])
+	print("[F39] Summary soft_state=%s hard_state=%s floor_ok=%s reserve=%d phase=%s pass=%s" % [soft_state, hard_state, str(floor_ok), _get_stockpile_reserve("alloy"), _get_stockpile_phase_tag(), str(pass_ok)])
 
 
 func _run_f40_world_events_test_hook() -> void:
@@ -1476,7 +1528,8 @@ func _apply_world_event(event_def: Dictionary) -> int:
 
 func _emit_world_event_triggered(event_def: Dictionary) -> void:
 	_stockpile_sequence_id += 1
-	var message := "[WorldEvent] triggered id=%s polarity=%s resource=%s magnitude=%d seq=%d" % [str(event_def.get("id", "")), str(event_def.get("polarity", "")), str(event_def.get("resource", "")), int(round(float(_get_stockpile_cap(str(event_def.get("resource", "")))) * float(event_def.get("magnitude_ratio", 0.0)))), _stockpile_sequence_id]
+	var phase_tag := _get_stockpile_phase_tag()
+	var message := "[WorldEvent] triggered id=%s polarity=%s resource=%s magnitude=%d phase=%s seq=%d" % [str(event_def.get("id", "")), str(event_def.get("polarity", "")), str(event_def.get("resource", "")), int(round(float(_get_stockpile_cap(str(event_def.get("resource", "")))) * float(event_def.get("magnitude_ratio", 0.0)))), phase_tag, _stockpile_sequence_id]
 	print(message)
 	_record_stockpile_event(message)
 
@@ -1484,23 +1537,30 @@ func _emit_world_event_triggered(event_def: Dictionary) -> void:
 func _emit_world_event_applied(event_def: Dictionary, applied_delta: int) -> void:
 	_stockpile_sequence_id += 1
 	var resource_id := str(event_def.get("resource", ""))
-	var message := "[WorldEvent] applied id=%s resource=%s delta=%d reserve_after=%d seq=%d" % [str(event_def.get("id", "")), resource_id, applied_delta, _get_stockpile_reserve(resource_id), _stockpile_sequence_id]
+	var phase_tag := _get_stockpile_phase_tag()
+	var message := "[WorldEvent] applied id=%s resource=%s delta=%d reserve_after=%d phase=%s seq=%d" % [str(event_def.get("id", "")), resource_id, applied_delta, _get_stockpile_reserve(resource_id), phase_tag, _stockpile_sequence_id]
 	print(message)
 	_record_stockpile_event(message)
 	if _hud_alert_item:
 		_hud_alert_item.text = "Event: %s %s%d" % [str(event_def.get("name", "Event")), "+" if applied_delta >= 0 else "", applied_delta]
+		if applied_delta >= 0:
+			_set_alert_color(Color(0.35, 1.0, 0.35))
+		else:
+			_set_alert_color(Color(1.0, 0.35, 0.35))
 		_emit_world_event_ui_ack(str(event_def.get("id", "")))
 
 
 func _emit_world_event_blocked(event_def: Dictionary, reason: String) -> void:
 	_stockpile_sequence_id += 1
-	var message := "[WorldEvent] blocked id=%s reason=%s seq=%d" % [str(event_def.get("id", "")), reason, _stockpile_sequence_id]
+	var phase_tag := _get_stockpile_phase_tag()
+	var message := "[WorldEvent] blocked id=%s reason=%s phase=%s seq=%d" % [str(event_def.get("id", "")), reason, phase_tag, _stockpile_sequence_id]
 	print(message)
 	_record_stockpile_event(message)
+	_set_alert_color(Color(0.8, 0.8, 0.8))
 
 
 func _emit_world_event_ui_ack(event_id: String) -> void:
-	print("[WorldEvent] ui_ack id=%s seq=%d" % [event_id, _stockpile_sequence_id])
+	print("[WorldEvent] ui_ack id=%s phase=%s seq=%d" % [event_id, _get_stockpile_phase_tag(), _stockpile_sequence_id])
 
 
 func _on_tether_penalty(item_id: String, slot: String, faction: String) -> void:

@@ -51,6 +51,18 @@ Track scenario-level evidence for map and flow validation runs.
   - Event telemetry logs emitted triggered, applied, and UI-facing messages with deterministic sequence ids.
   - Startup now emits an initial stockpile snapshot and HUD feed retains the latest event log entries for observability.
 
+## 2026-06-11 F-40 Telemetry Polish Validation
+
+- Flow: `F-40 Bounded world-event application validation with HUD polish`
+- Scenario: `scenes/core/FirstDuelMap.tscn`
+- Validation command:
+  - `/Applications/Godot.app/Contents/MacOS/godot --headless --quit --path . res://scenes/core/FirstDuelMap.tscn -- --duel-test-f40-world-events`
+- Result: Pass
+- Notes:
+  - Stockpile HUD tooltip now reports depletion multipliers and current phase.
+  - Alert coloring uses readable contrast branches for soft/hard threshold states and positive/negative world-event acknowledgements.
+  - Telemetry payloads continue to include deterministic phase tags and sequence ids.
+
 ## 2026-06-11 Stage 0 External Closure Preflight (Objective Pickup)
 
 - Flow: `Stage 0 media and publication closure preflight`

@@ -17,6 +17,7 @@ Track high-level project changes with links to decisions and plans.
 - Marked T-0067 through T-0071 complete in sprint and backlog trackers after validation evidence passed.
 - Added stockpile telemetry feed and startup snapshot emission to FirstDuelMap HUD observability.
 - Marked the stockpile/world-event observability checklist items complete for reserve/cap display, threshold alerts, event feed, and validation hooks.
+- Finished HUD telemetry polish for stockpile/world-event runtime by adding phase tags, depletion tooltips, and readable alert color branches, then revalidated F-40 headless behavior.
 
 ## 2026-06-09
 

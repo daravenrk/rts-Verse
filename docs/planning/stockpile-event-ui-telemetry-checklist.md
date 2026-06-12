@@ -13,11 +13,11 @@ This checklist defines first-pass UI and telemetry requirements for global stock
 - [x] Resource bar displays current world reserve and cap for Alloy, Power, Data, and Reclaim.
 - [x] Soft depletion threshold crossing displays warning state for the affected resource.
 - [x] Hard depletion threshold crossing displays escalated warning state without blocking controls.
-- [ ] Resource tooltips show current depletion multiplier impact.
+- [x] Resource tooltips show current depletion multiplier impact.
 - [x] Event banner displays event name, polarity, targeted resource, and magnitude.
 - [x] Event feed retains at least the last five world events.
 - [x] Minimap or HUD alert indicator highlights active world-event window.
-- [ ] Color usage for positive and negative events meets readability-first contrast rules.
+- [x] Color usage for positive and negative events meets readability-first contrast rules.
 
 ## Telemetry Payload Checklist
 
@@ -28,7 +28,7 @@ This checklist defines first-pass UI and telemetry requirements for global stock
 - [x] Emit `world_event_blocked` payload when guardrails reject an event.
 - [x] Emit `world_event_ui_ack` payload when announcement is rendered in HUD.
 - [x] Include deterministic sequence id for event ordering.
-- [ ] Include simulation phase tag (opening, midgame, late-game equivalent) in every event payload.
+- [x] Include simulation phase tag (opening, midgame, late-game equivalent) in every event payload.
 
 ## Validation Hooks
 
