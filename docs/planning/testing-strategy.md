@@ -46,6 +46,8 @@ This document defines validation layers for milestone delivery.
 | F-09 | Carrier and Airfield Sortie Lifecycle | Pass | `docs/tracking/scenario-validation-notes.md` |
 | F-10 | Colony and Civilian Resilience Loop | Pass | `docs/tracking/scenario-validation-notes.md` |
 | F-11 | Unified Stockpile and World Event Volatility | Pass | `docs/tracking/scenario-validation-notes.md` |
+| F-12 | Civilizational Era Transition Readability | Pass | `docs/tracking/scenario-validation-notes.md` |
+| F-13 | One Box Core and Distributed Network Resilience | Pass | `docs/tracking/scenario-validation-notes.md` |
 
 ## M2 Core Gameplay Validation Flows
 

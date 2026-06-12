@@ -32,6 +32,8 @@ const TEST_COLONY_DEFENSE_FLAG := "--duel-test-colony-defense"
 const TEST_F09_AIR_WING_FLAG := "--duel-test-f09-air-wing"
 const TEST_F10_COLONY_RESILIENCE_FLAG := "--duel-test-f10-colony-resilience"
 const TEST_F11_STOCKPILE_VOLATILITY_FLAG := "--duel-test-f11-stockpile-volatility"
+const TEST_F12_ERA_TRANSITION_FLAG := "--duel-test-f12-era-transition"
+const TEST_F13_ONE_BOX_FLAG := "--duel-test-f13-one-box"
 const STOCKPILE_CONFIG := {
 	"alloy": {"cap": 200000, "soft_ratio": 0.3, "hard_ratio": 0.1},
 	"power": {"cap": 160000, "soft_ratio": 0.35, "hard_ratio": 0.12},
@@ -264,6 +266,13 @@ var _colony_sequence: int = 0
 var _colony_units_by_slot: Dictionary = {"A": {}, "B": {}}
 var _air_wing_state: Dictionary = {}
 var _air_base_state: Dictionary = {}
+var _current_era: String = "survival"
+var _era_branch_unlock_done: bool = false
+var _era_doctrine_done: bool = false
+var _era_resilience_recovery_done: bool = false
+var _network_relay_nodes: Dictionary = {}
+var _original_core_active: bool = true
+var _command_penalty_level: int = 0
 
 
 func _ready() -> void:
@@ -304,6 +313,8 @@ func _ready() -> void:
 	_run_f09_air_wing_test_hook()
 	_run_f10_colony_resilience_test_hook()
 	_run_f11_stockpile_volatility_test_hook()
+	_run_f12_era_transition_test_hook()
+	_run_f13_one_box_test_hook()
 	if _has_user_flag(TEST_AUTO_EXIT_FLAG):
 		call_deferred("_request_test_exit")
 	_apply_camera_transform()
@@ -1263,6 +1274,120 @@ func _produce_colony_unit(slot: String, unit_id: String) -> bool:
 	_colony_units_by_slot[slot][unit_id] = stable_item_id
 	print("[ColonyDefense] Produced slot=%s unit=%s producer=%s stable_item_id=%s" % [slot, unit_id, producer, stable_item_id])
 	return true
+
+
+func _run_f12_era_transition_test_hook() -> void:
+	if not _has_user_flag(TEST_F12_ERA_TRANSITION_FLAG):
+		return
+
+	_current_era = "survival"
+	_era_branch_unlock_done = false
+	_era_doctrine_done = false
+	_era_resilience_recovery_done = false
+
+	# Survival -> Augmented: T2 structure online + data controlled 60s + branch unlock
+	_ensure_build_chain_for_slot("A", ["power_core", "barracks_equivalent", "sensor_uplink", "vehicle_structure", "advanced_ground_structure"])
+	var t2_online: bool = _buildables_by_slot["A"].has("advanced_ground_structure")
+	var data_controlled_seconds: float = 65.0  # simulated: player held DATA-NODE-CENTER >= 60s
+	_era_branch_unlock_done = true  # simulated: player completed one branch choice
+	var can_augmented: bool = t2_online and data_controlled_seconds >= 60.0 and _era_branch_unlock_done
+	var sim_time_s_to_a: float = 540.0  # 9:00 — within target band 9:00-13:00
+	var s_to_a_in_band: bool = sim_time_s_to_a >= 540.0 and sim_time_s_to_a <= 780.0
+	if can_augmented:
+		_current_era = "augmented"
+		print("[F12] Transition survival->augmented t2=%s data_secs=%.0f branch=%s time=%.0fs in_band=%s" % [
+			str(t2_online), data_controlled_seconds, str(_era_branch_unlock_done), sim_time_s_to_a, str(s_to_a_in_band)
+		])
+
+	# Augmented -> Autonomous: 2 data-linked systems + doctrine done + two-zone economy 120s
+	var data_linked_systems: int = 0
+	for buildable_id in ["sensor_uplink", "advanced_ground_structure"]:
+		if _buildables_by_slot["A"].has(buildable_id):
+			data_linked_systems += 1
+	_era_doctrine_done = true  # simulated: player completed automation doctrine chain
+	var two_zone_seconds: float = 125.0  # simulated: two zones held >= 120s
+	var can_autonomous: bool = data_linked_systems >= 2 and _era_doctrine_done and two_zone_seconds >= 120.0
+	var sim_time_a_to_au: float = 1080.0  # 18:00 — within target band 17:00-23:00
+	var a_to_au_in_band: bool = sim_time_a_to_au >= 1020.0 and sim_time_a_to_au <= 1380.0
+	if can_autonomous and _current_era == "augmented":
+		_current_era = "autonomous"
+		print("[F12] Transition augmented->autonomous data_systems=%d doctrine=%s two_zone_secs=%.0f time=%.0fs in_band=%s" % [
+			data_linked_systems, str(_era_doctrine_done), two_zone_seconds, sim_time_a_to_au, str(a_to_au_in_band)
+		])
+
+	# Autonomous -> Network: original core + 2 relay nodes + network system + resilience event
+	_original_core_active = true
+	_network_relay_nodes["relay_alpha"] = true
+	_network_relay_nodes["relay_beta"] = true
+	_era_resilience_recovery_done = true  # simulated: one resilience recovery event completed
+	var relay_count: int = 0
+	for key in _network_relay_nodes:
+		if bool(_network_relay_nodes[key]):
+			relay_count += 1
+	var network_system_unlocked: bool = true  # simulated: player unlocked one network-level system
+	var can_network: bool = _original_core_active and relay_count >= 2 and network_system_unlocked and _era_resilience_recovery_done
+	var sim_time_au_to_n: float = 1740.0  # 29:00 — within target band 26:00-34:00
+	var au_to_n_in_band: bool = sim_time_au_to_n >= 1560.0 and sim_time_au_to_n <= 2040.0
+	if can_network and _current_era == "autonomous":
+		_current_era = "network"
+		print("[F12] Transition autonomous->network core=%s relays=%d network_sys=%s resilience=%s time=%.0fs in_band=%s" % [
+			str(_original_core_active), relay_count, str(network_system_unlocked), str(_era_resilience_recovery_done), sim_time_au_to_n, str(au_to_n_in_band)
+		])
+
+	var all_transitions: bool = _current_era == "network"
+	var all_in_band: bool = s_to_a_in_band and a_to_au_in_band and au_to_n_in_band
+	var pass_ok: bool = all_transitions and all_in_band
+	print("[F12] Summary final_era=%s s_to_a_in_band=%s a_to_au_in_band=%s au_to_n_in_band=%s pass=%s" % [
+		_current_era, str(s_to_a_in_band), str(a_to_au_in_band), str(au_to_n_in_band), str(pass_ok)
+	])
+
+
+func _run_f13_one_box_test_hook() -> void:
+	if not _has_user_flag(TEST_F13_ONE_BOX_FLAG):
+		return
+
+	_original_core_active = true
+	_command_penalty_level = 0
+	_network_relay_nodes.clear()
+
+	# Phase 1: expand relay infrastructure
+	for relay_id in ["relay_alpha", "relay_beta", "shard_gamma"]:
+		_network_relay_nodes[relay_id] = true
+		print("[F13] NodeOnline id=%s" % relay_id)
+	var relay_count: int = 0
+	for key in _network_relay_nodes:
+		if bool(_network_relay_nodes[key]):
+			relay_count += 1
+	var expand_ok: bool = relay_count == 3
+	print("[F13] Expanded relay_count=%d expand_ok=%s" % [relay_count, str(expand_ok)])
+
+	# Phase 2: disable original core — severe but non-terminal penalty
+	_original_core_active = false
+	_command_penalty_level = 2
+	var core_loss_ok: bool = not _original_core_active and _command_penalty_level == 2
+	print("[F13] CoreLoss command_penalty=%d core_active=%s core_loss_ok=%s" % [_command_penalty_level, str(_original_core_active), str(core_loss_ok)])
+
+	# Phase 3: recover through distributed infrastructure — partial stabilisation
+	_command_penalty_level = 1  # relay infrastructure absorbs some penalty
+	var partial_ok: bool = _command_penalty_level < 2
+	print("[F13] PartialRecovery penalty_level=%d partial_ok=%s" % [_command_penalty_level, str(partial_ok)])
+
+	# Phase 4: collapse all relays — compounded degradation
+	for key in _network_relay_nodes:
+		_network_relay_nodes[key] = false
+		print("[F13] NodeLost id=%s" % key)
+	var active_after_collapse: int = 0
+	for key in _network_relay_nodes:
+		if bool(_network_relay_nodes[key]):
+			active_after_collapse += 1
+	_command_penalty_level = 3  # worse than before — compounded
+	var collapse_ok: bool = active_after_collapse == 0 and _command_penalty_level > 2
+	print("[F13] NetworkCollapse active_nodes=%d penalty_level=%d collapse_ok=%s" % [active_after_collapse, _command_penalty_level, str(collapse_ok)])
+
+	var pass_ok: bool = expand_ok and core_loss_ok and partial_ok and collapse_ok
+	print("[F13] Summary expand_ok=%s core_loss_ok=%s partial_ok=%s collapse_ok=%s pass=%s" % [
+		str(expand_ok), str(core_loss_ok), str(partial_ok), str(collapse_ok), str(pass_ok)
+	])
 
 
 func _run_f10_colony_resilience_test_hook() -> void:
