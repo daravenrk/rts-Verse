@@ -35,6 +35,8 @@
 - Validated standalone and full-chain smoke summaries for F-40 through F-46 with no cross-hook regressions.
 - Implemented deterministic F-47 observability replay-consistency hook in duel map.
 - Validated normalized signature stability across replay-equivalent telemetry sequences and focused integrated smoke coverage.
+- Implemented deterministic F-48 observability fault-injection hook in duel map.
+- Validated invalid-input guardrail blocking, duplicate-event rejection telemetry, and no unintended reserve mutation via standalone and focused integrated smoke evidence.
 
 ## Story Breakdown
 

@@ -2,6 +2,19 @@
 
 Track scenario-level evidence for map and flow validation runs.
 
+## 2026-06-11 F-48 Observability Fault-Injection Guardrail Validation
+
+- Flow: `F-48 Observability fault-injection guardrail and blocked-event telemetry loop`
+- Scenario: `scenes/core/FirstDuelMap.tscn`
+- Validation commands:
+  - `/Applications/Godot.app/Contents/MacOS/godot --headless --quit --path . res://scenes/core/FirstDuelMap.tscn -- --duel-test-f48-observability-fault`
+  - `/Applications/Godot.app/Contents/MacOS/godot --headless --quit --path . res://scenes/core/FirstDuelMap.tscn -- --duel-test-map-baseline --duel-test-f46-observability-stress --duel-test-f47-observability-replay --duel-test-f48-observability-fault`
+- Result: Pass
+- Notes:
+  - Invalid injected event (`id=X-999`, unknown resource) was rejected and emitted blocked-event telemetry with guardrail reason.
+  - Duplicate same-domain event rejection preserved reserve state and emitted blocked-event telemetry for the second attempt.
+  - Focused integrated smoke retained pass summaries for MapBaseline, F-46, F-47, and F-48.
+
 ## 2026-06-11 F-47 Observability Replay Consistency Validation
 
 - Flow: `F-47 Observability replay consistency and signature stability loop`

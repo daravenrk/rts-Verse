@@ -44,6 +44,7 @@ const TEST_F44_INFRA_MULTIDOMAIN_FLAG := "--duel-test-f44-infra-multidomain"
 const TEST_F45_EVENT_TRIAGE_FLAG := "--duel-test-f45-event-triage"
 const TEST_F46_OBSERVABILITY_STRESS_FLAG := "--duel-test-f46-observability-stress"
 const TEST_F47_OBSERVABILITY_REPLAY_FLAG := "--duel-test-f47-observability-replay"
+const TEST_F48_OBSERVABILITY_FAULT_FLAG := "--duel-test-f48-observability-fault"
 const STOCKPILE_CONFIG := {
 	"alloy": {"cap": 200000, "soft_ratio": 0.3, "hard_ratio": 0.1},
 	"power": {"cap": 160000, "soft_ratio": 0.35, "hard_ratio": 0.12},
@@ -340,6 +341,7 @@ func _ready() -> void:
 	_run_f45_event_triage_test_hook()
 	_run_f46_observability_stress_test_hook()
 	_run_f47_observability_replay_test_hook()
+	_run_f48_observability_fault_injection_test_hook()
 	if _has_user_flag(TEST_AUTO_EXIT_FLAG):
 		call_deferred("_request_test_exit")
 	_apply_camera_transform()
@@ -2037,6 +2039,55 @@ func _run_f47_observability_replay_test_hook() -> void:
 	var pass_ok: bool = payload_presence_ok and archive_presence_ok and signature_match_ok
 	print("[F47] Summary payload_presence_ok=%s archive_presence_ok=%s signature_match_ok=%s sig_a=%d sig_b=%d pass=%s" % [
 		str(payload_presence_ok), str(archive_presence_ok), str(signature_match_ok), run_a_signature, run_b_signature, str(pass_ok)
+	])
+
+
+func _run_f48_observability_fault_injection_test_hook() -> void:
+	if not _has_user_flag(TEST_F48_OBSERVABILITY_FAULT_FLAG):
+		return
+
+	var start_archive_size: int = _stockpile_archive_log.size()
+	var invalid_event := {
+		"id": "X-999",
+		"name": "Invalid Resource Probe",
+		"polarity": "negative",
+		"resource": "voidium",
+		"magnitude_ratio": 0.50,
+	}
+	var invalid_ok: bool = _trigger_world_event(invalid_event)
+
+	var invalid_blocked_logged: bool = false
+	for line in _stockpile_archive_log:
+		if line.find("[WorldEvent] blocked") >= 0 and line.find("id=X-999") >= 0 and line.find("reason=guardrail_rejected") >= 0:
+			invalid_blocked_logged = true
+	for line in _stockpile_event_log:
+		if line.find("[WorldEvent] blocked") >= 0 and line.find("id=X-999") >= 0 and line.find("reason=guardrail_rejected") >= 0:
+			invalid_blocked_logged = true
+
+	_set_stockpile_reserve("alloy", 180000, "f48_setup")
+	_last_world_event_resource = ""
+	_last_world_event_polarity = ""
+	var first_ok: bool = _trigger_world_event(WORLD_EVENT_DEFS["E-006"])
+	var alloy_after_first: int = _get_stockpile_reserve("alloy")
+	var second_ok: bool = _trigger_world_event(WORLD_EVENT_DEFS["E-006"])
+	var alloy_after_second: int = _get_stockpile_reserve("alloy")
+
+	var duplicate_blocked_logged: bool = false
+	for line in _stockpile_archive_log:
+		if line.find("[WorldEvent] blocked") >= 0 and line.find("id=E-006") >= 0 and line.find("reason=guardrail_rejected") >= 0:
+			duplicate_blocked_logged = true
+	for line in _stockpile_event_log:
+		if line.find("[WorldEvent] blocked") >= 0 and line.find("id=E-006") >= 0 and line.find("reason=guardrail_rejected") >= 0:
+			duplicate_blocked_logged = true
+
+	var first_applied_ok: bool = first_ok and alloy_after_first < 180000
+	var duplicate_no_mutation_ok: bool = not second_ok and alloy_after_second == alloy_after_first
+	var invalid_guardrail_ok: bool = not invalid_ok and invalid_blocked_logged
+	var archive_growth_ok: bool = _stockpile_archive_log.size() >= start_archive_size
+
+	var pass_ok: bool = invalid_guardrail_ok and first_applied_ok and duplicate_no_mutation_ok and duplicate_blocked_logged and archive_growth_ok
+	print("[F48] Summary invalid_guardrail_ok=%s first_applied_ok=%s duplicate_no_mutation_ok=%s duplicate_blocked_logged=%s archive_growth_ok=%s pass=%s" % [
+		str(invalid_guardrail_ok), str(first_applied_ok), str(duplicate_no_mutation_ok), str(duplicate_blocked_logged), str(archive_growth_ok), str(pass_ok)
 	])
 
 

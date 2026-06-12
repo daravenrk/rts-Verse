@@ -50,6 +50,7 @@ This document defines validation layers for milestone delivery.
 | F-45 | Stockpile and world-event failure triage rule enforcement loop | Pass | `docs/tracking/scenario-validation-notes.md` |
 | F-46 | Consolidated observability stress loop across F-40 through F-45 | Pass | `docs/tracking/scenario-validation-notes.md` |
 | F-47 | Observability replay consistency and signature stability loop | Pass | `docs/tracking/scenario-validation-notes.md` |
+| F-48 | Observability fault-injection guardrail and blocked-event telemetry loop | Pass | `docs/tracking/scenario-validation-notes.md` |
 | F-09 | Carrier and Airfield Sortie Lifecycle | Pass | `docs/tracking/scenario-validation-notes.md` |
 | F-10 | Colony and Civilian Resilience Loop | Pass | `docs/tracking/scenario-validation-notes.md` |
 | F-11 | Unified Stockpile and World Event Volatility | Pass | `docs/tracking/scenario-validation-notes.md` |
