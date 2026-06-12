@@ -45,6 +45,8 @@
 - Validated sign-correct bounded deltas per event, duplicate guardrail blocking with mutation safety, and full per-event telemetry coverage in standalone and focused integrated smoke runs.
 - Implemented deterministic F-52 world-event guardrail sequencing hook in duel map.
 - Validated blocked duplicate handling, cross-domain recovery sequencing, per-step directionality checks, and telemetry coverage in standalone and focused integrated smoke runs.
+- Implemented deterministic F-53 world-event fairness-distribution hook in duel map.
+- Validated multi-cycle trigger continuity, expected applied-count distribution, aggregate sign integrity, bounded reserve drift, and focused integrated smoke stability.
 
 ## Story Breakdown
 

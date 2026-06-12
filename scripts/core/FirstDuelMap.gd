@@ -49,6 +49,7 @@ const TEST_F49_OBSERVABILITY_RETENTION_FLAG := "--duel-test-f49-observability-re
 const TEST_F50_OBSERVABILITY_RECON_FLAG := "--duel-test-f50-observability-recon"
 const TEST_F51_EVENT_CATALOG_FLAG := "--duel-test-f51-event-catalog"
 const TEST_F52_EVENT_GUARDRAIL_SEQUENCE_FLAG := "--duel-test-f52-event-guardrail-sequence"
+const TEST_F53_EVENT_FAIRNESS_DRIFT_FLAG := "--duel-test-f53-event-fairness-drift"
 const STOCKPILE_CONFIG := {
 	"alloy": {"cap": 200000, "soft_ratio": 0.3, "hard_ratio": 0.1},
 	"power": {"cap": 160000, "soft_ratio": 0.35, "hard_ratio": 0.12},
@@ -350,6 +351,7 @@ func _ready() -> void:
 	_run_f50_observability_reconstruction_test_hook()
 	_run_f51_event_catalog_integrity_test_hook()
 	_run_f52_event_guardrail_sequence_test_hook()
+	_run_f53_event_fairness_drift_test_hook()
 	if _has_user_flag(TEST_AUTO_EXIT_FLAG):
 		call_deferred("_request_test_exit")
 	_apply_camera_transform()
@@ -2374,6 +2376,94 @@ func _run_f52_event_guardrail_sequence_test_hook() -> void:
 	var pass_ok: bool = sequence_behavior_ok and directionality_ok and duplicate_mutation_ok and telemetry_ok
 	print("[F52] Summary sequence_behavior_ok=%s directionality_ok=%s duplicate_mutation_ok=%s telemetry_ok=%s pass=%s" % [
 		str(sequence_behavior_ok), str(directionality_ok), str(duplicate_mutation_ok), str(telemetry_ok), str(pass_ok)
+	])
+
+
+func _run_f53_event_fairness_drift_test_hook() -> void:
+	if not _has_user_flag(TEST_F53_EVENT_FAIRNESS_DRIFT_FLAG):
+		return
+
+	_stockpile_event_log.clear()
+	_stockpile_archive_log.clear()
+	_last_world_event_resource = ""
+	_last_world_event_polarity = ""
+
+	for resource_id in ["alloy", "power", "data", "reclaim"]:
+		_set_stockpile_reserve(resource_id, int(float(_get_stockpile_cap(resource_id)) * 0.5), "f53_setup")
+
+	var cycle_event_ids: Array[String] = ["E-001", "E-006", "E-002", "E-007", "E-003"]
+	var cycles: int = 4
+	var expected_applied_counts: Dictionary = {}
+	for event_id in cycle_event_ids:
+		expected_applied_counts[event_id] = cycles
+
+	var trigger_chain_ok: bool = true
+	for i in range(cycles):
+		for event_id in cycle_event_ids:
+			if not _trigger_world_event(WORLD_EVENT_DEFS[event_id]):
+				trigger_chain_ok = false
+
+	var all_lines: Array[String] = []
+	for line in _stockpile_archive_log:
+		all_lines.append(line)
+	for line in _stockpile_event_log:
+		all_lines.append(line)
+
+	var applied_counts: Dictionary = {}
+	var applied_delta_sum_by_id: Dictionary = {}
+	for event_id in cycle_event_ids:
+		applied_counts[event_id] = 0
+		applied_delta_sum_by_id[event_id] = 0
+
+	for line in all_lines:
+		var entry: String = str(line)
+		if entry.find("[WorldEvent] applied") < 0:
+			continue
+		for event_id in cycle_event_ids:
+			if entry.find("id=%s" % event_id) >= 0:
+				applied_counts[event_id] = int(applied_counts[event_id]) + 1
+				var delta_marker: String = "delta="
+				var delta_idx: int = entry.find(delta_marker)
+				if delta_idx >= 0:
+					var after_delta: String = entry.substr(delta_idx + delta_marker.length())
+					var delta_parts: PackedStringArray = after_delta.split(" ")
+					if not delta_parts.is_empty():
+						applied_delta_sum_by_id[event_id] = int(applied_delta_sum_by_id[event_id]) + int(delta_parts[0])
+
+	var distribution_ok: bool = true
+	for event_id in cycle_event_ids:
+		if int(applied_counts[event_id]) != int(expected_applied_counts[event_id]):
+			distribution_ok = false
+
+	var sign_integrity_ok: bool = true
+	if int(applied_delta_sum_by_id["E-001"]) <= 0:
+		sign_integrity_ok = false
+	if int(applied_delta_sum_by_id["E-002"]) <= 0:
+		sign_integrity_ok = false
+	if int(applied_delta_sum_by_id["E-003"]) <= 0:
+		sign_integrity_ok = false
+	if int(applied_delta_sum_by_id["E-006"]) >= 0:
+		sign_integrity_ok = false
+	if int(applied_delta_sum_by_id["E-007"]) >= 0:
+		sign_integrity_ok = false
+
+	var drift_ok: bool = true
+	for resource_id in ["alloy", "power", "data", "reclaim"]:
+		var cap: int = _get_stockpile_cap(resource_id)
+		var reserve_after: int = _get_stockpile_reserve(resource_id)
+		var ratio_after: float = float(reserve_after) / maxf(1.0, float(cap))
+		if ratio_after < 0.20 or ratio_after > 0.85:
+			drift_ok = false
+
+	var blocked_count: int = 0
+	for line in all_lines:
+		if str(line).find("[WorldEvent] blocked") >= 0:
+			blocked_count += 1
+	var guardrail_stability_ok: bool = blocked_count == 0
+
+	var pass_ok: bool = trigger_chain_ok and distribution_ok and sign_integrity_ok and drift_ok and guardrail_stability_ok
+	print("[F53] Summary trigger_chain_ok=%s distribution_ok=%s sign_integrity_ok=%s drift_ok=%s guardrail_stability_ok=%s pass=%s" % [
+		str(trigger_chain_ok), str(distribution_ok), str(sign_integrity_ok), str(drift_ok), str(guardrail_stability_ok), str(pass_ok)
 	])
 
 

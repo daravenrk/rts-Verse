@@ -2,6 +2,19 @@
 
 Track scenario-level evidence for map and flow validation runs.
 
+## 2026-06-11 F-53 World-Event Fairness Distribution and Drift Stability Validation
+
+- Flow: `F-53 World-event fairness distribution and long-run drift stability loop`
+- Scenario: `scenes/core/FirstDuelMap.tscn`
+- Validation commands:
+  - `/Applications/Godot.app/Contents/MacOS/godot --headless --quit --path . res://scenes/core/FirstDuelMap.tscn -- --duel-test-f53-event-fairness-drift`
+  - `/Applications/Godot.app/Contents/MacOS/godot --headless --quit --path . res://scenes/core/FirstDuelMap.tscn -- --duel-test-map-baseline --duel-test-f51-event-catalog --duel-test-f52-event-guardrail-sequence --duel-test-f53-event-fairness-drift`
+- Result: Pass
+- Notes:
+  - Multi-cycle deterministic churn preserved continuous event application without guardrail-instability block spikes.
+  - Applied-event distribution matched expected per-event cycle coverage, and aggregate applied deltas preserved polarity sign integrity.
+  - Post-cycle reserves remained within bounded drift ratios, and focused integrated smoke retained pass summaries for MapBaseline, F-51, F-52, and F-53.
+
 ## 2026-06-11 F-52 World-Event Guardrail Sequencing Validation
 
 - Flow: `F-52 World-event guardrail sequencing and cross-domain recovery loop`
