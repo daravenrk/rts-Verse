@@ -120,6 +120,9 @@ Keep this list short, actionable, and current.
 - [x] Start M3 runtime Slice G: add consolidated observability stress hook across world-event, infrastructure, and failure-triage surfaces.
 - [x] Validate single-run summary coverage for representative checks from F-40 through F-45.
 - [x] Run headless F-46 standalone and integrated stress smoke validation and capture evidence in scenario notes.
+- [x] Start M3 runtime Slice H: add deterministic observability replay-consistency hook with normalized signature comparison.
+- [x] Validate replayed signal stability across equivalent telemetry sequences without depending on volatile sequence ids.
+- [x] Run headless F-47 standalone and focused integrated smoke validation and capture evidence in scenario notes.
 - [x] Define structured feedback template fields and publish feedback instructions on itch page.
 - [x] Start weekly feedback triage cadence and publish first feedback-response devlog summary.
 

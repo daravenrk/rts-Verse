@@ -2,6 +2,19 @@
 
 Track scenario-level evidence for map and flow validation runs.
 
+## 2026-06-11 F-47 Observability Replay Consistency Validation
+
+- Flow: `F-47 Observability replay consistency and signature stability loop`
+- Scenario: `scenes/core/FirstDuelMap.tscn`
+- Validation commands:
+  - `/Applications/Godot.app/Contents/MacOS/godot --headless --quit --path . res://scenes/core/FirstDuelMap.tscn -- --duel-test-f47-observability-replay`
+  - `/Applications/Godot.app/Contents/MacOS/godot --headless --quit --path . res://scenes/core/FirstDuelMap.tscn -- --duel-test-map-baseline --duel-test-f45-event-triage --duel-test-f46-observability-stress --duel-test-f47-observability-replay`
+- Result: Pass
+- Notes:
+  - Two equivalent replay sequences produced matching normalized observability signatures.
+  - Signature comparison ignored volatile fields (sequence numbers and replay-specific setup tags) while preserving signal semantics.
+  - Focused integrated smoke retained pass summaries for MapBaseline, F-45, F-46, and F-47.
+
 ## 2026-06-11 F-46 Consolidated Observability Stress Validation
 
 - Flow: `F-46 Consolidated observability stress loop across F-40 through F-45`

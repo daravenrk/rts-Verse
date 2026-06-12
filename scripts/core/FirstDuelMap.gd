@@ -43,6 +43,7 @@ const TEST_F43_INFRA_DECAY_FLAG := "--duel-test-f43-infra-decay"
 const TEST_F44_INFRA_MULTIDOMAIN_FLAG := "--duel-test-f44-infra-multidomain"
 const TEST_F45_EVENT_TRIAGE_FLAG := "--duel-test-f45-event-triage"
 const TEST_F46_OBSERVABILITY_STRESS_FLAG := "--duel-test-f46-observability-stress"
+const TEST_F47_OBSERVABILITY_REPLAY_FLAG := "--duel-test-f47-observability-replay"
 const STOCKPILE_CONFIG := {
 	"alloy": {"cap": 200000, "soft_ratio": 0.3, "hard_ratio": 0.1},
 	"power": {"cap": 160000, "soft_ratio": 0.35, "hard_ratio": 0.12},
@@ -338,6 +339,7 @@ func _ready() -> void:
 	_run_f44_infrastructure_multidomain_test_hook()
 	_run_f45_event_triage_test_hook()
 	_run_f46_observability_stress_test_hook()
+	_run_f47_observability_replay_test_hook()
 	if _has_user_flag(TEST_AUTO_EXIT_FLAG):
 		call_deferred("_request_test_exit")
 	_apply_camera_transform()
@@ -1975,6 +1977,90 @@ func _run_f46_observability_stress_test_hook() -> void:
 	print("[F46] Summary world_event_obs_ok=%s infra_pressure_ok=%s anti_stack_ok=%s decay_ok=%s multi_domain_ok=%s magnitude_match_ok=%s threshold_ui_ok=%s archive_growth_ok=%s pass=%s" % [
 		str(world_event_obs_ok), str(infra_pressure_ok), str(anti_stack_ok), str(decay_ok), str(multi_domain_ok), str(magnitude_match_ok), str(threshold_ui_ok), str(archive_growth_ok), str(pass_ok)
 	])
+
+
+func _run_f47_observability_replay_test_hook() -> void:
+	if not _has_user_flag(TEST_F47_OBSERVABILITY_REPLAY_FLAG):
+		return
+
+	# Replay run A
+	_stockpile_event_log.clear()
+	_stockpile_archive_log.clear()
+	_last_world_event_resource = ""
+	_last_world_event_polarity = ""
+	_set_stockpile_reserve("reclaim", 88000, "f47_a_setup")
+	_set_stockpile_reserve("alloy", 200000, "f47_a_setup")
+	_set_stockpile_reserve("power", 120000, "f47_a_setup")
+	_trigger_world_event(WORLD_EVENT_DEFS["E-001"])
+	_trigger_world_event(WORLD_EVENT_DEFS["E-006"])
+	_trigger_world_event(WORLD_EVENT_DEFS["E-007"])
+	_set_stockpile_reserve("alloy", 50000, "f47_a_soft_threshold")
+	for i in range(10):
+		_record_stockpile_event("[F47] replay_a seq=%d" % i)
+	var run_a_lines: Array[String] = []
+	for line in _stockpile_archive_log:
+		run_a_lines.append(line)
+	for line in _stockpile_event_log:
+		run_a_lines.append(line)
+	var run_a_signature: int = _compute_observability_signature(run_a_lines)
+	var run_a_has_triggered: bool = _lines_contain_pattern(run_a_lines, "[WorldEvent] triggered")
+	var run_a_has_applied: bool = _lines_contain_pattern(run_a_lines, "[WorldEvent] applied")
+	var run_a_has_archive: bool = _lines_contain_pattern(run_a_lines, "[F47] replay_a")
+
+	# Replay run B (same sequence, different setup reasons/seq ids should normalize away).
+	_stockpile_event_log.clear()
+	_stockpile_archive_log.clear()
+	_last_world_event_resource = ""
+	_last_world_event_polarity = ""
+	_set_stockpile_reserve("reclaim", 88000, "f47_b_setup")
+	_set_stockpile_reserve("alloy", 200000, "f47_b_setup")
+	_set_stockpile_reserve("power", 120000, "f47_b_setup")
+	_trigger_world_event(WORLD_EVENT_DEFS["E-001"])
+	_trigger_world_event(WORLD_EVENT_DEFS["E-006"])
+	_trigger_world_event(WORLD_EVENT_DEFS["E-007"])
+	_set_stockpile_reserve("alloy", 50000, "f47_b_soft_threshold")
+	for i in range(10):
+		_record_stockpile_event("[F47] replay_b seq=%d" % i)
+	var run_b_lines: Array[String] = []
+	for line in _stockpile_archive_log:
+		run_b_lines.append(line)
+	for line in _stockpile_event_log:
+		run_b_lines.append(line)
+	var run_b_signature: int = _compute_observability_signature(run_b_lines)
+	var run_b_has_triggered: bool = _lines_contain_pattern(run_b_lines, "[WorldEvent] triggered")
+	var run_b_has_applied: bool = _lines_contain_pattern(run_b_lines, "[WorldEvent] applied")
+	var run_b_has_archive: bool = _lines_contain_pattern(run_b_lines, "[F47] replay_b")
+
+	var payload_presence_ok: bool = run_a_has_triggered and run_a_has_applied and run_b_has_triggered and run_b_has_applied
+	var archive_presence_ok: bool = run_a_has_archive and run_b_has_archive
+	var signature_match_ok: bool = run_a_signature == run_b_signature
+	var pass_ok: bool = payload_presence_ok and archive_presence_ok and signature_match_ok
+	print("[F47] Summary payload_presence_ok=%s archive_presence_ok=%s signature_match_ok=%s sig_a=%d sig_b=%d pass=%s" % [
+		str(payload_presence_ok), str(archive_presence_ok), str(signature_match_ok), run_a_signature, run_b_signature, str(pass_ok)
+	])
+
+
+func _compute_observability_signature(lines: Array[String]) -> int:
+	var signature: int = 17
+	for raw_line in lines:
+		var line: String = str(raw_line)
+		# Normalise volatile telemetry fields before hashing.
+		var seq_idx: int = line.find(" seq=")
+		if seq_idx >= 0:
+			line = line.substr(0, seq_idx)
+		line = line.replace("f47_a_", "f47_")
+		line = line.replace("f47_b_", "f47_")
+		line = line.replace("[F47] replay_a", "[F47] replay")
+		line = line.replace("[F47] replay_b", "[F47] replay")
+		signature = int(signature * 33 + line.hash())
+	return signature
+
+
+func _lines_contain_pattern(lines: Array[String], pattern: String) -> bool:
+	for raw_line in lines:
+		if str(raw_line).find(pattern) >= 0:
+			return true
+	return false
 
 func _run_f13_one_box_test_hook() -> void:
 	if not _has_user_flag(TEST_F13_ONE_BOX_FLAG):

@@ -33,6 +33,8 @@
 - Validated trigger payload blocking behavior, applied-vs-displayed magnitude parity, threshold UI state transitions, and archive-log retention behavior via headless pass evidence.
 - Implemented deterministic F-46 consolidated observability-stress hook in duel map.
 - Validated standalone and full-chain smoke summaries for F-40 through F-46 with no cross-hook regressions.
+- Implemented deterministic F-47 observability replay-consistency hook in duel map.
+- Validated normalized signature stability across replay-equivalent telemetry sequences and focused integrated smoke coverage.
 
 ## Story Breakdown
 
