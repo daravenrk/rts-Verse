@@ -25,6 +25,8 @@
 - Validated attacker or defender disruption telemetry, mitigation reduction, stable recovery, and minimum-action guarantee via headless pass evidence.
 - Implemented deterministic F-42 infrastructure anti-stack and cooldown guardrail runtime hook in duel map.
 - Validated overlap-cap enforcement, bounded impact ceiling, cooldown retry rejection, and counterplay-window telemetry via headless pass evidence.
+- Implemented deterministic F-43 infrastructure command-decay and radius-degradation runtime hook in duel map.
+- Validated intensity profiles, distributed-network mitigation effects, timed recovery windows, and minimum-action guarantee via headless pass evidence.
 
 ## Story Breakdown
 

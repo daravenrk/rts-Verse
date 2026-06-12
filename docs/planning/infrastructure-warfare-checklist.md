@@ -19,11 +19,11 @@ This checklist defines first-pass requirements for system-targeting superweapons
 
 ## Command Disruption Checklist
 
-- [ ] Define command-latency penalty profile by disruption intensity.
-- [ ] Define command-radius or authority degradation behavior under sustained disruption.
-- [ ] Define disruption decay and recovery timing windows.
-- [ ] Define distributed-network mitigation effects for prepared defenders.
-- [ ] Define minimum-action guarantee so basic defensive control never fully locks out.
+- [x] Define command-latency penalty profile by disruption intensity.
+- [x] Define command-radius or authority degradation behavior under sustained disruption.
+- [x] Define disruption decay and recovery timing windows.
+- [x] Define distributed-network mitigation effects for prepared defenders.
+- [x] Define minimum-action guarantee so basic defensive control never fully locks out.
 
 ## Counterplay Checklist
 

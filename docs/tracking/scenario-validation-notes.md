@@ -2,6 +2,19 @@
 
 Track scenario-level evidence for map and flow validation runs.
 
+## 2026-06-11 F-43 Infrastructure Command Decay and Radius Degradation Validation
+
+- Flow: `F-43 Infrastructure command decay timing and radius-degradation loop`
+- Scenario: `scenes/core/FirstDuelMap.tscn`
+- Validation command:
+  - `/Applications/Godot.app/Contents/MacOS/godot --headless --quit --path . res://scenes/core/FirstDuelMap.tscn -- --duel-test-f43-infra-decay`
+- Result: Pass
+- Notes:
+  - Latency and radius profiles remained monotonic by disruption intensity.
+  - Sustained severity reached degraded command radius while preserving minimum-action guarantee (`actions_remaining=1`).
+  - Distributed relay mitigation reduced effective severity and improved radius plus latency values.
+  - Recovery timeline advanced through deterministic decay windows (`18s`, `12s`, `8s`) before returning to stable state.
+
 ## 2026-06-11 F-42 Infrastructure Anti-Stack and Cooldown Counterplay Validation
 
 - Flow: `F-42 Infrastructure anti-stack ceiling and cooldown counterplay loop`

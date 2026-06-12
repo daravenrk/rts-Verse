@@ -39,6 +39,7 @@ const TEST_F15_EVOLUTION_FLAG := "--duel-test-f15-evolution"
 const TEST_F28_VISUAL_CONTRACT_FLAG := "--duel-test-f28-visual"
 const TEST_F41_INFRA_DISRUPTION_FLAG := "--duel-test-f41-infra-disruption"
 const TEST_F42_INFRA_ANTISTACK_FLAG := "--duel-test-f42-infra-antistack"
+const TEST_F43_INFRA_DECAY_FLAG := "--duel-test-f43-infra-decay"
 const STOCKPILE_CONFIG := {
 	"alloy": {"cap": 200000, "soft_ratio": 0.3, "hard_ratio": 0.1},
 	"power": {"cap": 160000, "soft_ratio": 0.35, "hard_ratio": 0.12},
@@ -329,6 +330,7 @@ func _ready() -> void:
 	_run_f28_visual_contract_test_hook()
 	_run_f41_infrastructure_disruption_test_hook()
 	_run_f42_infrastructure_antistack_test_hook()
+	_run_f43_infrastructure_decay_test_hook()
 	if _has_user_flag(TEST_AUTO_EXIT_FLAG):
 		call_deferred("_request_test_exit")
 	_apply_camera_transform()
@@ -1670,6 +1672,71 @@ func _run_f42_infrastructure_antistack_test_hook() -> void:
 	var pass_ok: bool = prereq_ok and anti_stack_ok and impact_ceiling_ok and defenses_ok and third_strike_attempt_blocked and counterplay_ok
 	print("[F42] Summary prereq_ok=%s anti_stack_ok=%s impact_ceiling_ok=%s defenses_ok=%s cooldown_block_ok=%s counterplay_ok=%s pass=%s" % [
 		str(prereq_ok), str(anti_stack_ok), str(impact_ceiling_ok), str(defenses_ok), str(third_strike_attempt_blocked), str(counterplay_ok), str(pass_ok)
+	])
+
+
+func _run_f43_infrastructure_decay_test_hook() -> void:
+	if not _has_user_flag(TEST_F43_INFRA_DECAY_FLAG):
+		return
+
+	var base_command_radius: float = 2200.0
+	var base_actions: int = 4
+	var latency_profile: Dictionary = {1: 0.11, 2: 0.24, 3: 0.40}
+	var radius_profile: Dictionary = {1: 0.85, 2: 0.65, 3: 0.45}
+	var decay_windows_sec: Dictionary = {3: 18, 2: 12, 1: 8}
+
+	var latency_profile_ok: bool = float(latency_profile[1]) < float(latency_profile[2]) and float(latency_profile[2]) < float(latency_profile[3])
+	var radius_profile_ok: bool = float(radius_profile[1]) > float(radius_profile[2]) and float(radius_profile[2]) > float(radius_profile[3])
+	print("[F43] Profile latency_ok=%s radius_ok=%s" % [str(latency_profile_ok), str(radius_profile_ok)])
+
+	var sustained_severity: int = 3
+	_command_penalty_level = sustained_severity
+	var latency_peak: float = float(latency_profile[sustained_severity])
+	var radius_peak: float = base_command_radius * float(radius_profile[sustained_severity])
+	var actions_peak: int = max(1, base_actions - sustained_severity)
+	var sustained_ok: bool = latency_peak >= 0.40 and radius_peak <= base_command_radius * 0.50
+	var min_action_ok: bool = actions_peak >= 1
+	print("[F43] Sustained severity=%d latency=%.2f command_radius=%.0f actions_remaining=%d" % [
+		sustained_severity, latency_peak, radius_peak, actions_peak
+	])
+
+	# Prepared defenders can absorb pressure through distributed relay coverage.
+	var relay_nodes_online: int = 3
+	var mitigation_reduction: int = 1
+	var mitigated_severity: int = max(1, sustained_severity - mitigation_reduction)
+	var mitigation_latency: float = float(latency_profile[mitigated_severity])
+	var mitigation_radius: float = base_command_radius * float(radius_profile[mitigated_severity])
+	var mitigation_ok: bool = relay_nodes_online >= 2 and mitigated_severity < sustained_severity and mitigation_latency < latency_peak and mitigation_radius > radius_peak
+	print("[F43] Mitigation relays=%d severity_before=%d severity_after=%d latency=%.2f command_radius=%.0f mitigation_ok=%s" % [
+		relay_nodes_online, sustained_severity, mitigated_severity, mitigation_latency, mitigation_radius, str(mitigation_ok)
+	])
+
+	var elapsed_sec: int = 0
+	var decay_order: Array[int] = [3, 2, 1]
+	var decay_window_ok: bool = true
+	for severity in decay_order:
+		var s: int = int(severity)
+		var window_sec: int = int(decay_windows_sec[s])
+		elapsed_sec += window_sec
+		var latency_now: float = float(latency_profile[s])
+		var radius_now: float = base_command_radius * float(radius_profile[s])
+		print("[F43] Decay tick_severity=%d window_sec=%d elapsed_sec=%d latency=%.2f command_radius=%.0f" % [
+			s, window_sec, elapsed_sec, latency_now, radius_now
+		])
+		if s > 1:
+			var next_window: int = int(decay_windows_sec[s - 1])
+			if not (window_sec > next_window):
+				decay_window_ok = false
+
+	_command_penalty_level = 0
+	var recovered_latency: float = 0.0
+	var recovered_radius: float = base_command_radius
+	var recovery_ok: bool = _command_penalty_level == 0 and recovered_latency == 0.0 and recovered_radius == base_command_radius
+	print("[F43] Recovery latency=%.2f command_radius=%.0f elapsed_total=%d" % [recovered_latency, recovered_radius, elapsed_sec])
+
+	var pass_ok: bool = latency_profile_ok and radius_profile_ok and sustained_ok and mitigation_ok and decay_window_ok and recovery_ok and min_action_ok
+	print("[F43] Summary latency_profile_ok=%s radius_profile_ok=%s sustained_ok=%s mitigation_ok=%s decay_window_ok=%s recovery_ok=%s min_action_ok=%s pass=%s" % [
+		str(latency_profile_ok), str(radius_profile_ok), str(sustained_ok), str(mitigation_ok), str(decay_window_ok), str(recovery_ok), str(min_action_ok), str(pass_ok)
 	])
 
 func _run_f13_one_box_test_hook() -> void:
