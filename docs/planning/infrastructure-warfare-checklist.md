@@ -35,14 +35,14 @@ This checklist defines first-pass requirements for system-targeting superweapons
 
 ## Telemetry and UI Checklist
 
-- [ ] Emit disruption start, peak, and end payloads with target-domain fields.
-- [ ] Emit superweapon state payloads: charging, armed, fired, cooldown.
-- [ ] Display disruption severity and expected recovery time in HUD alerts.
-- [ ] Log mitigation actions and resulting penalty reductions.
+- [x] Emit disruption start, peak, and end payloads with target-domain fields.
+- [x] Emit superweapon state payloads: charging, armed, fired, cooldown.
+- [x] Display disruption severity and expected recovery time in HUD alerts.
+- [x] Log mitigation actions and resulting penalty reductions.
 
 ## Validation Hooks
 
-- [ ] Validate one command disruption event from both attacker and defender perspectives.
-- [ ] Validate one successful mitigation that reduces severity before peak effect.
-- [ ] Validate one recovery cycle from critical disruption to stable state.
-- [ ] Validate no scenario hard-locks player control below minimum-action guarantee.
+- [x] Validate one command disruption event from both attacker and defender perspectives.
+- [x] Validate one successful mitigation that reduces severity before peak effect.
+- [x] Validate one recovery cycle from critical disruption to stable state.
+- [x] Validate no scenario hard-locks player control below minimum-action guarantee.

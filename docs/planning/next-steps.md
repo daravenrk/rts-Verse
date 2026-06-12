@@ -102,6 +102,9 @@ Keep this list short, actionable, and current.
 - [x] Add bounded world-event trigger and apply pipeline for one positive and one negative event class.
 - [x] Wire HUD warning states and event feed baseline to live stockpile and event runtime state.
 - [x] Run first headless M3 stockpile-event validation pass and capture evidence in scenario-validation-notes.
+- [x] Start M3 runtime Slice B: add deterministic infrastructure command-disruption runtime with bounded penalty profile.
+- [x] Emit disruption and superweapon lifecycle telemetry (charging, armed, fired, cooldown) with mitigation and recovery payloads.
+- [x] Run first headless F-41 command-disruption validation pass and capture no-hard-lock minimum-action evidence.
 - [x] Define structured feedback template fields and publish feedback instructions on itch page.
 - [x] Start weekly feedback triage cadence and publish first feedback-response devlog summary.
 

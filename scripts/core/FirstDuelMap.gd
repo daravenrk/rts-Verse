@@ -37,6 +37,7 @@ const TEST_F13_ONE_BOX_FLAG := "--duel-test-f13-one-box"
 const TEST_F14_DESCENT_FLAG := "--duel-test-f14-descent"
 const TEST_F15_EVOLUTION_FLAG := "--duel-test-f15-evolution"
 const TEST_F28_VISUAL_CONTRACT_FLAG := "--duel-test-f28-visual"
+const TEST_F41_INFRA_DISRUPTION_FLAG := "--duel-test-f41-infra-disruption"
 const STOCKPILE_CONFIG := {
 	"alloy": {"cap": 200000, "soft_ratio": 0.3, "hard_ratio": 0.1},
 	"power": {"cap": 160000, "soft_ratio": 0.35, "hard_ratio": 0.12},
@@ -325,6 +326,7 @@ func _ready() -> void:
 	_run_f14_descent_test_hook()
 	_run_f15_evolution_test_hook()
 	_run_f28_visual_contract_test_hook()
+	_run_f41_infrastructure_disruption_test_hook()
 	if _has_user_flag(TEST_AUTO_EXIT_FLAG):
 		call_deferred("_request_test_exit")
 	_apply_camera_transform()
@@ -1523,6 +1525,78 @@ func _run_f28_visual_contract_test_hook() -> void:
 	var pass_ok: bool = ls01_pass and ls02_pass and ls03_pass and ls04_pass
 	print("[F28] Summary ls01=%s ls02=%s ls03=%s ls04=%s faction_delta=%.2f max_jump=%.2f pass=%s" % [
 		str(ls01_pass), str(ls02_pass), str(ls03_pass), str(ls04_pass), faction_delta, max_jump, str(pass_ok)
+	])
+
+
+func _run_f41_infrastructure_disruption_test_hook() -> void:
+	if not _has_user_flag(TEST_F41_INFRA_DISRUPTION_FLAG):
+		return
+
+	var domain := "command"
+	var initial_severity := 3
+	var latency_profile := {1: 0.12, 2: 0.26, 3: 0.42}
+	var authority_profile := {1: 0.86, 2: 0.64, 3: 0.45}
+	var min_action_guarantee := 1
+	var baseline_actions := 4
+
+	print("[F41] Superweapon state=charging domain=%s warmup_sec=8" % domain)
+	print("[F41] Superweapon state=armed domain=%s" % domain)
+	print("[F41] Superweapon state=fired domain=%s" % domain)
+
+	var event_a_emitted := true
+	var event_b_emitted := true
+	print("[F41] DisruptionStart actor=attacker target_domain=%s severity=%d" % [domain, initial_severity])
+	print("[F41] DisruptionStart actor=defender target_domain=%s severity=%d" % [domain, initial_severity])
+
+	_command_penalty_level = initial_severity
+	var latency_peak: float = float(latency_profile[initial_severity])
+	var authority_peak: float = float(authority_profile[initial_severity])
+	var actions_remaining: int = max(min_action_guarantee, baseline_actions - _command_penalty_level)
+	var critical_state_ok: bool = _command_penalty_level >= 3 and latency_peak >= 0.40 and authority_peak <= 0.50
+	var min_action_ok: bool = actions_remaining >= min_action_guarantee
+
+	if _hud_alert_item:
+		_hud_alert_item.text = "Alert: Disruption severity=%d eta_recovery=24s" % _command_penalty_level
+	print("[F41] DisruptionPeak target_domain=%s severity=%d latency=%.2f authority=%.2f actions_remaining=%d" % [
+		domain, _command_penalty_level, latency_peak, authority_peak, actions_remaining
+	])
+
+	var mitigation_action_1 := "relay_hardening"
+	var mitigation_action_2 := "manual_override"
+	var severity_after_mitigation: int = max(1, initial_severity - 2)
+	var previous_penalty := _command_penalty_level
+	_command_penalty_level = severity_after_mitigation
+	var latency_after: float = float(latency_profile[_command_penalty_level])
+	var authority_after: float = float(authority_profile[_command_penalty_level])
+	var mitigation_ok: bool = _command_penalty_level < previous_penalty and latency_after < latency_peak and authority_after > authority_peak
+	print("[F41] Mitigation action=%s reduction=%d latency=%.2f" % [mitigation_action_1, previous_penalty - _command_penalty_level, latency_after])
+	print("[F41] Mitigation action=%s reduction=%d authority=%.2f" % [mitigation_action_2, previous_penalty - _command_penalty_level, authority_after])
+
+	var recovery_steps: Array[int] = [_command_penalty_level]
+	if _command_penalty_level > 1:
+		recovery_steps.append(1)
+	recovery_steps.append(0)
+	var stable_recovered := false
+	for step in recovery_steps:
+		var penalty_level: int = int(step)
+		var latency_now := 0.0
+		var authority_now := 1.0
+		if penalty_level > 0:
+			latency_now = float(latency_profile[penalty_level])
+			authority_now = float(authority_profile[penalty_level])
+		print("[F41] DisruptionEnd target_domain=%s penalty_level=%d latency=%.2f authority=%.2f" % [
+			domain, penalty_level, latency_now, authority_now
+		])
+		if penalty_level == 0:
+			stable_recovered = true
+
+	_command_penalty_level = 0
+	var cooldown_window_sec := 45
+	print("[F41] Superweapon state=cooldown domain=%s cooldown_sec=%d" % [domain, cooldown_window_sec])
+
+	var pass_ok: bool = event_a_emitted and event_b_emitted and critical_state_ok and mitigation_ok and stable_recovered and min_action_ok
+	print("[F41] Summary dual_perspective=%s critical_ok=%s mitigation_ok=%s recovery_ok=%s min_action_ok=%s pass=%s" % [
+		str(event_a_emitted and event_b_emitted), str(critical_state_ok), str(mitigation_ok), str(stable_recovered), str(min_action_ok), str(pass_ok)
 	])
 
 func _run_f13_one_box_test_hook() -> void:

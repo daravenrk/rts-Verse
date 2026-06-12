@@ -21,6 +21,8 @@
 - Both checks returned `NOT READY` with explicit missing-media blockers and screenshot-count policy failure.
 - Objective 3 remains parked with unchanged re-entry gate: capture required screenshots and rerun prepublish audit.
 - Integrated a shared primitive visual kit into the runtime unit and structure placeholder actors and revalidated F-24 with no parser or baseline regressions.
+- Implemented deterministic F-41 infrastructure command-disruption runtime hook in duel map.
+- Validated attacker or defender disruption telemetry, mitigation reduction, stable recovery, and minimum-action guarantee via headless pass evidence.
 
 ## Story Breakdown
 

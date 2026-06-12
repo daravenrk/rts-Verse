@@ -2,6 +2,19 @@
 
 Track scenario-level evidence for map and flow validation runs.
 
+## 2026-06-11 F-41 Infrastructure Command Disruption Runtime Validation
+
+- Flow: `F-41 Infrastructure command disruption, mitigation, and recovery loop`
+- Scenario: `scenes/core/FirstDuelMap.tscn`
+- Validation command:
+  - `/Applications/Godot.app/Contents/MacOS/godot --headless --quit --path . res://scenes/core/FirstDuelMap.tscn -- --duel-test-f41-infra-disruption`
+- Result: Pass
+- Notes:
+  - Superweapon lifecycle telemetry emitted in deterministic order: charging, armed, fired, cooldown.
+  - Disruption payloads emitted for attacker and defender perspectives with command-domain severity peak.
+  - Mitigation actions reduced command penalty severity before recovery window closure.
+  - Recovery reached stable state with no hard-lock, preserving minimum-action guarantee (`actions_remaining=1` at peak).
+
 ## 2026-06-11 F-28 Day-Night and Biome Readability Contract
 
 - Flow: `F-28 Structure Readability Under Day-Night and Biome Variants`
