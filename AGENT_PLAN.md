@@ -39,6 +39,8 @@
 - Validated invalid-input guardrail blocking, duplicate-event rejection telemetry, and no unintended reserve mutation via standalone and focused integrated smoke evidence.
 - Implemented deterministic F-49 observability retention-rotation hook in duel map.
 - Validated live-window cap, archive growth, sequence-index consistency, and mixed payload retention in standalone and focused integrated smoke runs.
+- Implemented deterministic F-50 observability reconstruction-integrity hook in duel map.
+- Validated merged archive/live reconstruction consistency, mixed payload survivability, and feed-window integrity in standalone and focused integrated smoke runs.
 
 ## Story Breakdown
 

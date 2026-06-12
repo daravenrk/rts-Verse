@@ -46,6 +46,7 @@ const TEST_F46_OBSERVABILITY_STRESS_FLAG := "--duel-test-f46-observability-stres
 const TEST_F47_OBSERVABILITY_REPLAY_FLAG := "--duel-test-f47-observability-replay"
 const TEST_F48_OBSERVABILITY_FAULT_FLAG := "--duel-test-f48-observability-fault"
 const TEST_F49_OBSERVABILITY_RETENTION_FLAG := "--duel-test-f49-observability-retention"
+const TEST_F50_OBSERVABILITY_RECON_FLAG := "--duel-test-f50-observability-recon"
 const STOCKPILE_CONFIG := {
 	"alloy": {"cap": 200000, "soft_ratio": 0.3, "hard_ratio": 0.1},
 	"power": {"cap": 160000, "soft_ratio": 0.35, "hard_ratio": 0.12},
@@ -344,6 +345,7 @@ func _ready() -> void:
 	_run_f47_observability_replay_test_hook()
 	_run_f48_observability_fault_injection_test_hook()
 	_run_f49_observability_retention_test_hook()
+	_run_f50_observability_reconstruction_test_hook()
 	if _has_user_flag(TEST_AUTO_EXIT_FLAG):
 		call_deferred("_request_test_exit")
 	_apply_camera_transform()
@@ -2149,6 +2151,82 @@ func _run_f49_observability_retention_test_hook() -> void:
 	var pass_ok: bool = e1_ok and e6_ok and live_cap_ok and archive_growth_ok and seq_monotonic_ok and event_retention_ok and event_apply_retention_ok and feed_window_ok
 	print("[F49] Summary live_cap_ok=%s archive_growth_ok=%s seq_monotonic_ok=%s event_retention_ok=%s event_apply_retention_ok=%s feed_window_ok=%s pass=%s" % [
 		str(live_cap_ok), str(archive_growth_ok), str(seq_monotonic_ok), str(event_retention_ok), str(event_apply_retention_ok), str(feed_window_ok), str(pass_ok)
+	])
+
+
+func _run_f50_observability_reconstruction_test_hook() -> void:
+	if not _has_user_flag(TEST_F50_OBSERVABILITY_RECON_FLAG):
+		return
+
+	_stockpile_event_log.clear()
+	_stockpile_archive_log.clear()
+	_last_world_event_resource = ""
+	_last_world_event_polarity = ""
+
+	_set_stockpile_reserve("reclaim", 88000, "f50_setup")
+	_set_stockpile_reserve("alloy", 190000, "f50_setup")
+	_set_stockpile_reserve("power", 120000, "f50_setup")
+
+	var e1_ok: bool = _trigger_world_event(WORLD_EVENT_DEFS["E-001"])
+	var e6_ok: bool = _trigger_world_event(WORLD_EVENT_DEFS["E-006"])
+	var invalid_event := {
+		"id": "X-500",
+		"name": "Recon Invalid Probe",
+		"polarity": "negative",
+		"resource": "null_resource",
+		"magnitude_ratio": 0.2,
+	}
+	var invalid_ok: bool = _trigger_world_event(invalid_event)
+
+	for i in range(14):
+		_record_stockpile_event("[F50] churn idx=%d" % i)
+
+	var all_lines: Array[String] = []
+	for line in _stockpile_archive_log:
+		all_lines.append(line)
+	for line in _stockpile_event_log:
+		all_lines.append(line)
+
+	var seq_monotonic_ok: bool = true
+	var seq_unique_ok: bool = true
+	var seq_seen: Dictionary = {}
+	var last_seq: int = -1
+	for line in all_lines:
+		var seq_id: int = _extract_seq_id_from_line(str(line))
+		if seq_id < 0:
+			continue
+		if last_seq >= 0 and seq_id < last_seq:
+			seq_monotonic_ok = false
+		if seq_seen.has(seq_id):
+			seq_unique_ok = false
+		seq_seen[seq_id] = true
+		last_seq = seq_id
+
+	var triggered_count: int = 0
+	var applied_count: int = 0
+	var blocked_count: int = 0
+	for line in all_lines:
+		var entry: String = str(line)
+		if entry.find("[WorldEvent] triggered") >= 0:
+			triggered_count += 1
+		if entry.find("[WorldEvent] applied") >= 0:
+			applied_count += 1
+		if entry.find("[WorldEvent] blocked") >= 0:
+			blocked_count += 1
+
+	var mixed_payload_ok: bool = triggered_count >= 2 and applied_count >= 2 and blocked_count >= 1
+	var expected_recent: Array[String] = []
+	var start_idx: int = max(0, all_lines.size() - 5)
+	for i in range(start_idx, all_lines.size()):
+		expected_recent.append(str(all_lines[i]))
+	var expected_feed_text: String = "\n".join(expected_recent)
+	var feed_reconstruction_ok: bool = false
+	if _hud_stockpile_feed_item:
+		feed_reconstruction_ok = _hud_stockpile_feed_item.text == expected_feed_text
+
+	var pass_ok: bool = e1_ok and e6_ok and (not invalid_ok) and seq_monotonic_ok and seq_unique_ok and mixed_payload_ok and feed_reconstruction_ok
+	print("[F50] Summary seq_monotonic_ok=%s seq_unique_ok=%s mixed_payload_ok=%s feed_reconstruction_ok=%s pass=%s" % [
+		str(seq_monotonic_ok), str(seq_unique_ok), str(mixed_payload_ok), str(feed_reconstruction_ok), str(pass_ok)
 	])
 
 

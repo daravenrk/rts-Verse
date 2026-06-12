@@ -129,6 +129,9 @@ Keep this list short, actionable, and current.
 - [x] Start M3 runtime Slice J: add deterministic observability retention-rotation hook under sustained telemetry churn.
 - [x] Validate live-window cap, archive growth, sequence-index monotonicity, and mixed payload retention integrity.
 - [x] Run headless F-49 standalone and focused integrated smoke validation and capture evidence in scenario notes.
+- [x] Start M3 runtime Slice K: add deterministic observability reconstruction-integrity hook across archive plus live telemetry windows.
+- [x] Validate sequence uniqueness and monotonicity with mixed payload retention under reconstruction flow.
+- [x] Run headless F-50 standalone and focused integrated smoke validation and capture evidence in scenario notes.
 - [x] Define structured feedback template fields and publish feedback instructions on itch page.
 - [x] Start weekly feedback triage cadence and publish first feedback-response devlog summary.
 

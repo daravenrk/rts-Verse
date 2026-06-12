@@ -2,6 +2,20 @@
 
 Track scenario-level evidence for map and flow validation runs.
 
+## 2026-06-11 F-50 Observability Reconstruction Integrity Validation
+
+- Flow: `F-50 Observability reconstruction integrity from archive plus live telemetry windows`
+- Scenario: `scenes/core/FirstDuelMap.tscn`
+- Validation commands:
+  - `/Applications/Godot.app/Contents/MacOS/godot --headless --quit --path . res://scenes/core/FirstDuelMap.tscn -- --duel-test-f50-observability-recon`
+  - `/Applications/Godot.app/Contents/MacOS/godot --headless --quit --path . res://scenes/core/FirstDuelMap.tscn -- --duel-test-map-baseline --duel-test-f48-observability-fault --duel-test-f49-observability-retention --duel-test-f50-observability-recon`
+- Result: Pass
+- Notes:
+  - Reconstruction over archive plus live telemetry preserved sequence monotonicity and uniqueness for authoritative sequence-bearing entries.
+  - Mixed payload survivability checks passed for triggered, applied, and blocked world-event telemetry under churn.
+  - Reconstructed recent-window text matched the HUD feed rendering exactly.
+  - Focused integrated smoke retained pass summaries for MapBaseline, F-48, F-49, and F-50.
+
 ## 2026-06-11 F-49 Observability Retention-Rotation and Sequence-Index Consistency Validation
 
 - Flow: `F-49 Observability retention-rotation and sequence-index consistency loop`
