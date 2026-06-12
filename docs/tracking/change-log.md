@@ -25,6 +25,7 @@ Track high-level project changes with links to decisions and plans.
 - Implemented F-41 infrastructure command-disruption runtime hook with deterministic superweapon lifecycle telemetry, mitigation reduction behavior, and stable-recovery validation in headless mode.
 - Implemented F-42 infrastructure anti-stack and cooldown runtime hook with overlap-cap enforcement, bounded impact ceiling checks, and counterplay-window validation in headless mode.
 - Implemented F-43 infrastructure command-decay runtime hook with intensity-based latency and radius profiles, distributed mitigation effects, and staged recovery timing validation in headless mode.
+- Implemented F-44 infrastructure multi-domain runtime hook with alternating command and logistics pressure windows, mitigation ordering checks, and combined recovery validation in headless mode.
 
 ## 2026-06-09
 

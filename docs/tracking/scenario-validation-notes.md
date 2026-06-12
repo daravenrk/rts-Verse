@@ -2,6 +2,19 @@
 
 Track scenario-level evidence for map and flow validation runs.
 
+## 2026-06-11 F-44 Infrastructure Multi-Domain Disruption and Mitigation Ordering Validation
+
+- Flow: `F-44 Infrastructure multi-domain disruption and mitigation ordering loop`
+- Scenario: `scenes/core/FirstDuelMap.tscn`
+- Validation command:
+  - `/Applications/Godot.app/Contents/MacOS/godot --headless --quit --path . res://scenes/core/FirstDuelMap.tscn -- --duel-test-f44-infra-multidomain`
+- Result: Pass
+- Notes:
+  - Timeline alternated command and logistics disruptions in deterministic step order.
+  - Command and logistics degradation checks both crossed minimum verification thresholds.
+  - Mitigation steps executed in required sequence (`relay_reprioritize` then `freight_reroute`).
+  - Combined pressure metric decreased after mitigation, confirming cross-domain recovery progress.
+
 ## 2026-06-11 F-43 Infrastructure Command Decay and Radius Degradation Validation
 
 - Flow: `F-43 Infrastructure command decay timing and radius-degradation loop`

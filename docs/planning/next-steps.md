@@ -111,6 +111,9 @@ Keep this list short, actionable, and current.
 - [x] Start M3 runtime Slice D: add deterministic command-decay and radius-degradation runtime profile for sustained disruption.
 - [x] Validate distributed-network mitigation effects and staged decay timing windows in a deterministic headless hook.
 - [x] Run headless F-43 command-decay validation pass and capture minimum-action plus stable-recovery evidence.
+- [x] Start M3 runtime Slice E: add deterministic multi-domain infrastructure disruption timeline across command and logistics pressure.
+- [x] Validate mitigation sequencing order and measurable recovery improvements across both domains.
+- [x] Run headless F-44 multi-domain infrastructure validation pass and capture combined recovery evidence.
 - [x] Define structured feedback template fields and publish feedback instructions on itch page.
 - [x] Start weekly feedback triage cadence and publish first feedback-response devlog summary.
 

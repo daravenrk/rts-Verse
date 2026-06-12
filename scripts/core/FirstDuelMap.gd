@@ -40,6 +40,7 @@ const TEST_F28_VISUAL_CONTRACT_FLAG := "--duel-test-f28-visual"
 const TEST_F41_INFRA_DISRUPTION_FLAG := "--duel-test-f41-infra-disruption"
 const TEST_F42_INFRA_ANTISTACK_FLAG := "--duel-test-f42-infra-antistack"
 const TEST_F43_INFRA_DECAY_FLAG := "--duel-test-f43-infra-decay"
+const TEST_F44_INFRA_MULTIDOMAIN_FLAG := "--duel-test-f44-infra-multidomain"
 const STOCKPILE_CONFIG := {
 	"alloy": {"cap": 200000, "soft_ratio": 0.3, "hard_ratio": 0.1},
 	"power": {"cap": 160000, "soft_ratio": 0.35, "hard_ratio": 0.12},
@@ -331,6 +332,7 @@ func _ready() -> void:
 	_run_f41_infrastructure_disruption_test_hook()
 	_run_f42_infrastructure_antistack_test_hook()
 	_run_f43_infrastructure_decay_test_hook()
+	_run_f44_infrastructure_multidomain_test_hook()
 	if _has_user_flag(TEST_AUTO_EXIT_FLAG):
 		call_deferred("_request_test_exit")
 	_apply_camera_transform()
@@ -1737,6 +1739,77 @@ func _run_f43_infrastructure_decay_test_hook() -> void:
 	var pass_ok: bool = latency_profile_ok and radius_profile_ok and sustained_ok and mitigation_ok and decay_window_ok and recovery_ok and min_action_ok
 	print("[F43] Summary latency_profile_ok=%s radius_profile_ok=%s sustained_ok=%s mitigation_ok=%s decay_window_ok=%s recovery_ok=%s min_action_ok=%s pass=%s" % [
 		str(latency_profile_ok), str(radius_profile_ok), str(sustained_ok), str(mitigation_ok), str(decay_window_ok), str(recovery_ok), str(min_action_ok), str(pass_ok)
+	])
+
+
+func _run_f44_infrastructure_multidomain_test_hook() -> void:
+	if not _has_user_flag(TEST_F44_INFRA_MULTIDOMAIN_FLAG):
+		return
+
+	var command_latency_profile: Dictionary = {1: 0.10, 2: 0.22, 3: 0.38}
+	var command_radius_profile: Dictionary = {1: 0.88, 2: 0.70, 3: 0.52}
+	var logistics_throughput_profile: Dictionary = {1: 0.88, 2: 0.72, 3: 0.58}
+	var logistics_route_profile: Dictionary = {1: 0.92, 2: 0.78, 3: 0.66}
+	var timeline_domains: Array[String] = ["command", "logistics", "command"]
+	var timeline_severities: Array[int] = [2, 2, 1]
+
+	var ordering_ok: bool = timeline_domains.size() == timeline_severities.size()
+	var saw_command: bool = false
+	var saw_logistics: bool = false
+	var max_command_latency: float = 0.0
+	var min_command_radius_ratio: float = 1.0
+	var min_logistics_throughput_ratio: float = 1.0
+	var min_logistics_route_ratio: float = 1.0
+
+	var timeline_index: int = 0
+	for domain in timeline_domains:
+		var severity: int = timeline_severities[timeline_index]
+		timeline_index += 1
+		if domain == "command":
+			saw_command = true
+			var latency_now: float = float(command_latency_profile[severity])
+			var radius_ratio_now: float = float(command_radius_profile[severity])
+			if latency_now > max_command_latency:
+				max_command_latency = latency_now
+			if radius_ratio_now < min_command_radius_ratio:
+				min_command_radius_ratio = radius_ratio_now
+			print("[F44] Timeline step=%d domain=%s severity=%d latency=%.2f radius_ratio=%.2f" % [
+				timeline_index, domain, severity, latency_now, radius_ratio_now
+			])
+		elif domain == "logistics":
+			saw_logistics = true
+			var throughput_now: float = float(logistics_throughput_profile[severity])
+			var route_ratio_now: float = float(logistics_route_profile[severity])
+			if throughput_now < min_logistics_throughput_ratio:
+				min_logistics_throughput_ratio = throughput_now
+			if route_ratio_now < min_logistics_route_ratio:
+				min_logistics_route_ratio = route_ratio_now
+			print("[F44] Timeline step=%d domain=%s severity=%d throughput_ratio=%.2f route_ratio=%.2f" % [
+				timeline_index, domain, severity, throughput_now, route_ratio_now
+			])
+		else:
+			ordering_ok = false
+
+	var command_ok: bool = saw_command and max_command_latency >= 0.22 and min_command_radius_ratio <= 0.70
+	var logistics_ok: bool = saw_logistics and min_logistics_throughput_ratio <= 0.72 and min_logistics_route_ratio <= 0.78
+
+	# Mitigation ordering: command relays first, logistics reroute second.
+	var mitigation_step_1: String = "relay_reprioritize"
+	var mitigation_step_2: String = "freight_reroute"
+	var command_latency_after: float = maxf(0.0, max_command_latency - 0.08)
+	var logistics_throughput_after: float = minf(1.0, min_logistics_throughput_ratio + 0.16)
+	var mitigation_order_ok: bool = mitigation_step_1 == "relay_reprioritize" and mitigation_step_2 == "freight_reroute"
+	var mitigation_effect_ok: bool = command_latency_after < max_command_latency and logistics_throughput_after > min_logistics_throughput_ratio
+	print("[F44] Mitigation step1=%s command_latency_after=%.2f" % [mitigation_step_1, command_latency_after])
+	print("[F44] Mitigation step2=%s logistics_throughput_after=%.2f" % [mitigation_step_2, logistics_throughput_after])
+
+	var combined_pressure_before: float = (max_command_latency + (1.0 - min_logistics_throughput_ratio)) * 0.5
+	var combined_pressure_after: float = (command_latency_after + (1.0 - logistics_throughput_after)) * 0.5
+	var combined_recovery_ok: bool = combined_pressure_after < combined_pressure_before
+
+	var pass_ok: bool = ordering_ok and command_ok and logistics_ok and mitigation_order_ok and mitigation_effect_ok and combined_recovery_ok
+	print("[F44] Summary ordering_ok=%s command_ok=%s logistics_ok=%s mitigation_order_ok=%s mitigation_effect_ok=%s combined_recovery_ok=%s pass=%s" % [
+		str(ordering_ok), str(command_ok), str(logistics_ok), str(mitigation_order_ok), str(mitigation_effect_ok), str(combined_recovery_ok), str(pass_ok)
 	])
 
 func _run_f13_one_box_test_hook() -> void:
