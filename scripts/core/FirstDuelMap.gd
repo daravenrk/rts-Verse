@@ -51,6 +51,7 @@ const TEST_F51_EVENT_CATALOG_FLAG := "--duel-test-f51-event-catalog"
 const TEST_F52_EVENT_GUARDRAIL_SEQUENCE_FLAG := "--duel-test-f52-event-guardrail-sequence"
 const TEST_F53_EVENT_FAIRNESS_DRIFT_FLAG := "--duel-test-f53-event-fairness-drift"
 const TEST_F54_EVENT_RESILIENCE_MIX_FLAG := "--duel-test-f54-event-resilience-mix"
+const TEST_F55_EVENT_MIX_REPLAY_RECON_FLAG := "--duel-test-f55-event-mix-replay-recon"
 const STOCKPILE_CONFIG := {
 	"alloy": {"cap": 200000, "soft_ratio": 0.3, "hard_ratio": 0.1},
 	"power": {"cap": 160000, "soft_ratio": 0.35, "hard_ratio": 0.12},
@@ -354,6 +355,7 @@ func _ready() -> void:
 	_run_f52_event_guardrail_sequence_test_hook()
 	_run_f53_event_fairness_drift_test_hook()
 	_run_f54_event_resilience_mix_test_hook()
+	_run_f55_event_mix_replay_reconstruction_test_hook()
 	if _has_user_flag(TEST_AUTO_EXIT_FLAG):
 		call_deferred("_request_test_exit")
 	_apply_camera_transform()
@@ -2557,6 +2559,106 @@ func _run_f54_event_resilience_mix_test_hook() -> void:
 	var pass_ok: bool = valid_trigger_ok and invalid_gate_ok and invalid_mutation_ok and distribution_ok and invalid_telemetry_ok and valid_block_free_ok and drift_ok
 	print("[F54] Summary valid_trigger_ok=%s invalid_gate_ok=%s invalid_mutation_ok=%s distribution_ok=%s invalid_telemetry_ok=%s valid_block_free_ok=%s drift_ok=%s pass=%s" % [
 		str(valid_trigger_ok), str(invalid_gate_ok), str(invalid_mutation_ok), str(distribution_ok), str(invalid_telemetry_ok), str(valid_block_free_ok), str(drift_ok), str(pass_ok)
+	])
+
+
+func _run_f55_event_mix_replay_reconstruction_test_hook() -> void:
+	if not _has_user_flag(TEST_F55_EVENT_MIX_REPLAY_RECON_FLAG):
+		return
+
+	var valid_cycle_ids: Array[String] = ["E-001", "E-006", "E-002", "E-007", "E-003"]
+	var invalid_events: Array[Dictionary] = [
+		{"id": "X-5501", "name": "Invalid Unknown Resource", "polarity": "negative", "resource": "ghost_resource", "magnitude_ratio": 0.2},
+		{"id": "X-5502", "name": "Invalid Empty Resource", "polarity": "positive", "resource": "", "magnitude_ratio": 0.1},
+	]
+	var cycles: int = 4
+
+	# Run A
+	_stockpile_event_log.clear()
+	_stockpile_archive_log.clear()
+	_last_world_event_resource = ""
+	_last_world_event_polarity = ""
+	for resource_id in ["alloy", "power", "data", "reclaim"]:
+		_set_stockpile_reserve(resource_id, int(float(_get_stockpile_cap(resource_id)) * 0.5), "f55_setup")
+
+	var run_a_valid_ok: bool = true
+	var run_a_invalid_ok: bool = true
+	for i in range(cycles):
+		for event_id in valid_cycle_ids:
+			if not _trigger_world_event(WORLD_EVENT_DEFS[event_id]):
+				run_a_valid_ok = false
+			for invalid_event in invalid_events:
+				if _trigger_world_event(invalid_event):
+					run_a_invalid_ok = false
+			_record_stockpile_event("[F55] churn idx=%d" % (i * valid_cycle_ids.size() + valid_cycle_ids.find(event_id)))
+
+	var all_lines_a: Array[String] = []
+	for line in _stockpile_archive_log:
+		all_lines_a.append(line)
+	for line in _stockpile_event_log:
+		all_lines_a.append(line)
+
+	var signature_a: int = _compute_observability_signature(all_lines_a)
+	var blocked_a: int = 0
+	var applied_a: int = 0
+	for line in all_lines_a:
+		var entry: String = str(line)
+		if entry.find("[WorldEvent] blocked") >= 0:
+			blocked_a += 1
+		if entry.find("[WorldEvent] applied") >= 0:
+			applied_a += 1
+
+	# Run B (replay-equivalent)
+	_stockpile_event_log.clear()
+	_stockpile_archive_log.clear()
+	_last_world_event_resource = ""
+	_last_world_event_polarity = ""
+	for resource_id in ["alloy", "power", "data", "reclaim"]:
+		_set_stockpile_reserve(resource_id, int(float(_get_stockpile_cap(resource_id)) * 0.5), "f55_setup")
+
+	var run_b_valid_ok: bool = true
+	var run_b_invalid_ok: bool = true
+	for i in range(cycles):
+		for event_id in valid_cycle_ids:
+			if not _trigger_world_event(WORLD_EVENT_DEFS[event_id]):
+				run_b_valid_ok = false
+			for invalid_event in invalid_events:
+				if _trigger_world_event(invalid_event):
+					run_b_invalid_ok = false
+			_record_stockpile_event("[F55] churn idx=%d" % (i * valid_cycle_ids.size() + valid_cycle_ids.find(event_id)))
+
+	var all_lines_b: Array[String] = []
+	for line in _stockpile_archive_log:
+		all_lines_b.append(line)
+	for line in _stockpile_event_log:
+		all_lines_b.append(line)
+
+	var signature_b: int = _compute_observability_signature(all_lines_b)
+	var blocked_b: int = 0
+	var applied_b: int = 0
+	for line in all_lines_b:
+		var entry: String = str(line)
+		if entry.find("[WorldEvent] blocked") >= 0:
+			blocked_b += 1
+		if entry.find("[WorldEvent] applied") >= 0:
+			applied_b += 1
+
+	var replay_signature_ok: bool = signature_a == signature_b
+	var telemetry_count_ok: bool = applied_a == applied_b and blocked_a == blocked_b and applied_a > 0 and blocked_a > 0
+
+	var expected_recent: Array[String] = []
+	var start_idx: int = max(0, all_lines_b.size() - 5)
+	for i in range(start_idx, all_lines_b.size()):
+		expected_recent.append(str(all_lines_b[i]))
+	var expected_feed_text: String = "\n".join(expected_recent)
+	var feed_reconstruction_ok: bool = false
+	if _hud_stockpile_feed_item:
+		feed_reconstruction_ok = _hud_stockpile_feed_item.text == expected_feed_text
+
+	var guardrail_profile_ok: bool = run_a_valid_ok and run_a_invalid_ok and run_b_valid_ok and run_b_invalid_ok
+	var pass_ok: bool = guardrail_profile_ok and replay_signature_ok and telemetry_count_ok and feed_reconstruction_ok
+	print("[F55] Summary guardrail_profile_ok=%s replay_signature_ok=%s telemetry_count_ok=%s feed_reconstruction_ok=%s pass=%s" % [
+		str(guardrail_profile_ok), str(replay_signature_ok), str(telemetry_count_ok), str(feed_reconstruction_ok), str(pass_ok)
 	])
 
 

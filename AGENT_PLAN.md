@@ -49,6 +49,8 @@
 - Validated multi-cycle trigger continuity, expected applied-count distribution, aggregate sign integrity, bounded reserve drift, and focused integrated smoke stability.
 - Implemented deterministic F-54 mixed valid-invalid world-event resilience hook in duel map.
 - Validated invalid-event rejection safety, no-mutation guarantees on blocked injections, stable valid-event distribution continuity, and focused integrated smoke stability.
+- Implemented deterministic F-55 mixed-event replay and reconstruction hook in duel map.
+- Validated guardrail-profile stability, replay signature parity, telemetry-count parity, feed reconstruction consistency, and focused integrated smoke stability.
 
 ## Story Breakdown
 

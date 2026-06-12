@@ -144,6 +144,9 @@ Keep this list short, actionable, and current.
 - [x] Start M3 runtime Slice O: add deterministic mixed valid-invalid world-event resilience hook under sustained event churn.
 - [x] Validate invalid rejection safety, zero mutation on blocked injections, valid-event distribution continuity, and bounded drift stability.
 - [x] Run headless F-54 standalone and focused integrated smoke validation and capture evidence in scenario notes.
+- [x] Start M3 runtime Slice P: add deterministic mixed-event replay and reconstruction hook under sustained valid-invalid churn.
+- [x] Validate guardrail-profile stability, replay signature parity, telemetry-count parity, and feed-window reconstruction correctness.
+- [x] Run headless F-55 standalone and focused integrated smoke validation and capture evidence in scenario notes.
 - [x] Define structured feedback template fields and publish feedback instructions on itch page.
 - [x] Start weekly feedback triage cadence and publish first feedback-response devlog summary.
 

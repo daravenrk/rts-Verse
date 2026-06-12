@@ -2,6 +2,20 @@
 
 Track scenario-level evidence for map and flow validation runs.
 
+## 2026-06-11 F-55 Mixed-Event Replay and Reconstruction Validation
+
+- Flow: `F-55 Mixed-event replay signature and reconstruction consistency loop`
+- Scenario: `scenes/core/FirstDuelMap.tscn`
+- Validation commands:
+  - `/Applications/Godot.app/Contents/MacOS/godot --headless --quit --path . res://scenes/core/FirstDuelMap.tscn -- --duel-test-f55-event-mix-replay-recon`
+  - `/Applications/Godot.app/Contents/MacOS/godot --headless --quit --path . res://scenes/core/FirstDuelMap.tscn -- --duel-test-map-baseline --duel-test-f53-event-fairness-drift --duel-test-f54-event-resilience-mix --duel-test-f55-event-mix-replay-recon`
+- Result: Pass
+- Notes:
+  - Replay-equivalent mixed valid-invalid event churn produced stable normalized signatures across two deterministic runs.
+  - Applied and blocked telemetry counts remained equivalent across replay runs while preserving guardrail rejection behavior for invalid events.
+  - Reconstructed feed text from archive plus live windows matched HUD feed output exactly in the replay-validation run.
+  - Focused integrated smoke retained pass summaries for MapBaseline, F-53, F-54, and F-55.
+
 ## 2026-06-11 F-54 Mixed Valid-Invalid World-Event Resilience Validation
 
 - Flow: `F-54 World-event resilience under mixed valid and invalid injection loop`

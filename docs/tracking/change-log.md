@@ -36,6 +36,7 @@ Track high-level project changes with links to decisions and plans.
 - Implemented F-52 world-event guardrail sequencing runtime hook validating blocked duplicate behavior, cross-domain recovery ordering, stepwise directionality, and telemetry completeness.
 - Implemented F-53 world-event fairness-distribution runtime hook validating long-run per-event application coverage, polarity-sign aggregate integrity, and bounded stockpile drift stability.
 - Implemented F-54 mixed valid-invalid world-event resilience runtime hook validating invalid injection rejection safety, no-mutation guardrails, and stable valid-event throughput under churn.
+- Implemented F-55 mixed-event replay and reconstruction runtime hook validating normalized signature parity, telemetry-count parity, and feed-window reconstruction consistency under sustained valid-invalid churn.
 
 ## 2026-06-09
 
