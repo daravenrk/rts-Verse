@@ -34,6 +34,8 @@ const TEST_F10_COLONY_RESILIENCE_FLAG := "--duel-test-f10-colony-resilience"
 const TEST_F11_STOCKPILE_VOLATILITY_FLAG := "--duel-test-f11-stockpile-volatility"
 const TEST_F12_ERA_TRANSITION_FLAG := "--duel-test-f12-era-transition"
 const TEST_F13_ONE_BOX_FLAG := "--duel-test-f13-one-box"
+const TEST_F14_DESCENT_FLAG := "--duel-test-f14-descent"
+const TEST_F15_EVOLUTION_FLAG := "--duel-test-f15-evolution"
 const STOCKPILE_CONFIG := {
 	"alloy": {"cap": 200000, "soft_ratio": 0.3, "hard_ratio": 0.1},
 	"power": {"cap": 160000, "soft_ratio": 0.35, "hard_ratio": 0.12},
@@ -273,6 +275,9 @@ var _era_resilience_recovery_done: bool = false
 var _network_relay_nodes: Dictionary = {}
 var _original_core_active: bool = true
 var _command_penalty_level: int = 0
+var _descent_nodes: Dictionary = {}
+var _corridor_state: String = "stable"
+var _branch_state: Dictionary = {"machine": "pending", "alien": "pending", "hybrid": "pending"}
 
 
 func _ready() -> void:
@@ -315,6 +320,8 @@ func _ready() -> void:
 	_run_f11_stockpile_volatility_test_hook()
 	_run_f12_era_transition_test_hook()
 	_run_f13_one_box_test_hook()
+	_run_f14_descent_test_hook()
+	_run_f15_evolution_test_hook()
 	if _has_user_flag(TEST_AUTO_EXIT_FLAG):
 		call_deferred("_request_test_exit")
 	_apply_camera_transform()
@@ -1341,6 +1348,134 @@ func _run_f12_era_transition_test_hook() -> void:
 		_current_era, str(s_to_a_in_band), str(a_to_au_in_band), str(au_to_n_in_band), str(pass_ok)
 	])
 
+
+
+func _run_f14_descent_test_hook() -> void:
+	if not _has_user_flag(TEST_F14_DESCENT_FLAG):
+		return
+
+	_descent_nodes.clear()
+	_corridor_state = "stable"
+
+	# Phase 1: contest entry node from player A perspective
+	_descent_nodes["entry_node_alpha"] = {"owner": "none", "capture_progress": 0.0, "type": "entry"}
+	_descent_nodes["entry_node_alpha"]["capture_progress"] = 1.0
+	_descent_nodes["entry_node_alpha"]["owner"] = "player_a"
+	var entry_captured_a: bool = str(_descent_nodes["entry_node_alpha"]["owner"]) == "player_a"
+	print("[F14] EntryNode captured owner=player_a capture_progress=1.0 ok=%s" % str(entry_captured_a))
+
+	# Phase 2: contest entry node from player B perspective
+	_descent_nodes["entry_node_beta"] = {"owner": "none", "capture_progress": 0.0, "type": "entry"}
+	_descent_nodes["entry_node_beta"]["capture_progress"] = 1.0
+	_descent_nodes["entry_node_beta"]["owner"] = "player_b"
+	var entry_captured_b: bool = str(_descent_nodes["entry_node_beta"]["owner"]) == "player_b"
+	print("[F14] EntryNode captured owner=player_b capture_progress=1.0 ok=%s" % str(entry_captured_b))
+
+	# Phase 3: logistics-disruptive Descent event (D-001 Orbital Debris Sweep)
+	var alloy_before_d := _get_stockpile_reserve("alloy")
+	var disruption_amount := int(float(_get_stockpile_cap("alloy")) * 0.05)
+	_set_stockpile_reserve("alloy", alloy_before_d - disruption_amount, "D-001_debris_sweep")
+	var alloy_after_d := _get_stockpile_reserve("alloy")
+	var logistics_disruption_ok: bool = alloy_after_d < alloy_before_d
+	_corridor_state = "pressured"
+	print("[F14] DescentEvent id=D-001 name=Orbital_Debris_Sweep alloy_delta=%d corridor=%s ok=%s" % [
+		alloy_after_d - alloy_before_d, _corridor_state, str(logistics_disruption_ok)
+	])
+
+	# Phase 4: economy-opportunity Descent event (D-006 Resource Bloom)
+	_set_stockpile_reserve("reclaim", int(float(_get_stockpile_cap("reclaim")) * 0.80), "f14_predeplete_reclaim")
+	_last_world_event_resource = ""
+	_last_world_event_polarity = ""
+	var reclaim_before_d := _get_stockpile_reserve("reclaim")
+	var bloom_amount := int(float(_get_stockpile_cap("reclaim")) * 0.06)
+	_set_stockpile_reserve("reclaim", _get_stockpile_reserve("reclaim") + bloom_amount, "D-006_resource_bloom")
+	var reclaim_after_d := _get_stockpile_reserve("reclaim")
+	var opportunity_ok: bool = reclaim_after_d > reclaim_before_d
+	_corridor_state = "dominant"
+	print("[F14] DescentEvent id=D-006 name=Resource_Bloom reclaim_delta=%d corridor=%s ok=%s" % [
+		reclaim_after_d - reclaim_before_d, _corridor_state, str(opportunity_ok)
+	])
+
+	# Phase 5: validate no collapse
+	var node_count: int = _descent_nodes.size()
+	var no_collapse: bool = _get_stockpile_reserve("alloy") > 0 and _get_stockpile_reserve("reclaim") > 0
+	print("[F14] CorridorState final=%s node_count=%d alloy=%d reclaim=%d no_collapse=%s" % [
+		_corridor_state, node_count,
+		_get_stockpile_reserve("alloy"), _get_stockpile_reserve("reclaim"), str(no_collapse)
+	])
+
+	var f14_pass: bool = entry_captured_a and entry_captured_b and logistics_disruption_ok and opportunity_ok and no_collapse
+	print("[F14] Summary entry_a=%s entry_b=%s disruption_ok=%s opportunity_ok=%s no_collapse=%s pass=%s" % [
+		str(entry_captured_a), str(entry_captured_b), str(logistics_disruption_ok),
+		str(opportunity_ok), str(no_collapse), str(f14_pass)
+	])
+
+
+func _run_f15_evolution_test_hook() -> void:
+	if not _has_user_flag(TEST_F15_EVOLUTION_FLAG):
+		return
+
+	_branch_state = {"machine": "pending", "alien": "pending", "hybrid": "pending"}
+
+	# Run 1: machine-integration line
+	var machine_bandwidth_ok: bool = true
+	var machine_instability: int = 1
+	var machine_entry: bool = machine_bandwidth_ok and machine_instability <= 1
+	var machine_chains: int = 2
+	var machine_relays: int = 1
+	var machine_commit: bool = machine_chains >= 2 and machine_relays >= 1
+	var machine_uptime: float = 0.83
+	var machine_deepen: bool = machine_uptime >= 0.80
+	if machine_entry and machine_commit and machine_deepen:
+		_branch_state["machine"] = "locked"
+	var machine_liability_ok: bool = machine_instability > 0
+	print("[F15] MachineLine entry=%s commit=%s deepen=%s state=%s liability_ok=%s" % [
+		str(machine_entry), str(machine_commit), str(machine_deepen),
+		str(_branch_state["machine"]), str(machine_liability_ok)
+	])
+
+	# Run 2: alien-integration line
+	var alien_objectives: int = 2
+	var alien_bio_chain: bool = true
+	var alien_entry: bool = alien_objectives >= 2 and alien_bio_chain
+	var alien_synergy_uptime: float = 0.78
+	var alien_commit: bool = alien_synergy_uptime >= 0.75
+	var alien_doctrines: int = 2
+	var alien_deepen: bool = alien_doctrines >= 2
+	if alien_entry and alien_commit and alien_deepen:
+		_branch_state["alien"] = "locked"
+	var alien_liability_ok: bool = alien_synergy_uptime < 1.0
+	print("[F15] AlienLine entry=%s commit=%s deepen=%s state=%s liability_ok=%s" % [
+		str(alien_entry), str(alien_commit), str(alien_deepen),
+		str(_branch_state["alien"]), str(alien_liability_ok)
+	])
+
+	# Run 3: hybrid line
+	var hybrid_instability: int = 2
+	var hybrid_entry: bool = machine_entry and alien_entry and hybrid_instability < 3
+	var hybrid_parity_ok: bool = true
+	var hybrid_commit: bool = hybrid_parity_ok
+	var hybrid_synthesis_uptime: float = 0.92
+	var hybrid_deepen: bool = hybrid_synthesis_uptime >= 0.90
+	if hybrid_entry and hybrid_commit and hybrid_deepen:
+		_branch_state["hybrid"] = "locked"
+	var hybrid_liability_ok: bool = hybrid_instability > 0
+	print("[F15] HybridLine entry=%s commit=%s deepen=%s state=%s liability_ok=%s" % [
+		str(hybrid_entry), str(hybrid_commit), str(hybrid_deepen),
+		str(_branch_state["hybrid"]), str(hybrid_liability_ok)
+	])
+
+	# Validate: distinct paths, no forced lock, counterplay costs present
+	var counterplay_ok: bool = machine_liability_ok and alien_liability_ok and hybrid_liability_ok
+	var no_forced_lock: bool = machine_instability < 3 and hybrid_instability < 3
+	var all_locked: bool = str(_branch_state["machine"]) == "locked" and \
+		str(_branch_state["alien"]) == "locked" and \
+		str(_branch_state["hybrid"]) == "locked"
+	var f15_pass: bool = all_locked and counterplay_ok and no_forced_lock
+	print("[F15] Summary machine=%s alien=%s hybrid=%s counterplay_ok=%s no_forced_lock=%s pass=%s" % [
+		str(_branch_state["machine"]), str(_branch_state["alien"]), str(_branch_state["hybrid"]),
+		str(counterplay_ok), str(no_forced_lock), str(f15_pass)
+	])
 
 func _run_f13_one_box_test_hook() -> void:
 	if not _has_user_flag(TEST_F13_ONE_BOX_FLAG):

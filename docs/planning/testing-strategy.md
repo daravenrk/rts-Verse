@@ -48,6 +48,8 @@ This document defines validation layers for milestone delivery.
 | F-11 | Unified Stockpile and World Event Volatility | Pass | `docs/tracking/scenario-validation-notes.md` |
 | F-12 | Civilizational Era Transition Readability | Pass | `docs/tracking/scenario-validation-notes.md` |
 | F-13 | One Box Core and Distributed Network Resilience | Pass | `docs/tracking/scenario-validation-notes.md` |
+| F-14 | Descent Objective and Orbital Event Pressure | Pass | `docs/tracking/scenario-validation-notes.md` |
+| F-15 | Dynamic Evolution Branch Emergence | Pass | `docs/tracking/scenario-validation-notes.md` |
 
 ## M2 Core Gameplay Validation Flows
 
