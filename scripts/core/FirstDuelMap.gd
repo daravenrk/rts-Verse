@@ -50,6 +50,7 @@ const TEST_F50_OBSERVABILITY_RECON_FLAG := "--duel-test-f50-observability-recon"
 const TEST_F51_EVENT_CATALOG_FLAG := "--duel-test-f51-event-catalog"
 const TEST_F52_EVENT_GUARDRAIL_SEQUENCE_FLAG := "--duel-test-f52-event-guardrail-sequence"
 const TEST_F53_EVENT_FAIRNESS_DRIFT_FLAG := "--duel-test-f53-event-fairness-drift"
+const TEST_F54_EVENT_RESILIENCE_MIX_FLAG := "--duel-test-f54-event-resilience-mix"
 const STOCKPILE_CONFIG := {
 	"alloy": {"cap": 200000, "soft_ratio": 0.3, "hard_ratio": 0.1},
 	"power": {"cap": 160000, "soft_ratio": 0.35, "hard_ratio": 0.12},
@@ -352,6 +353,7 @@ func _ready() -> void:
 	_run_f51_event_catalog_integrity_test_hook()
 	_run_f52_event_guardrail_sequence_test_hook()
 	_run_f53_event_fairness_drift_test_hook()
+	_run_f54_event_resilience_mix_test_hook()
 	if _has_user_flag(TEST_AUTO_EXIT_FLAG):
 		call_deferred("_request_test_exit")
 	_apply_camera_transform()
@@ -2464,6 +2466,97 @@ func _run_f53_event_fairness_drift_test_hook() -> void:
 	var pass_ok: bool = trigger_chain_ok and distribution_ok and sign_integrity_ok and drift_ok and guardrail_stability_ok
 	print("[F53] Summary trigger_chain_ok=%s distribution_ok=%s sign_integrity_ok=%s drift_ok=%s guardrail_stability_ok=%s pass=%s" % [
 		str(trigger_chain_ok), str(distribution_ok), str(sign_integrity_ok), str(drift_ok), str(guardrail_stability_ok), str(pass_ok)
+	])
+
+
+func _run_f54_event_resilience_mix_test_hook() -> void:
+	if not _has_user_flag(TEST_F54_EVENT_RESILIENCE_MIX_FLAG):
+		return
+
+	_stockpile_event_log.clear()
+	_stockpile_archive_log.clear()
+	_last_world_event_resource = ""
+	_last_world_event_polarity = ""
+
+	for resource_id in ["alloy", "power", "data", "reclaim"]:
+		_set_stockpile_reserve(resource_id, int(float(_get_stockpile_cap(resource_id)) * 0.5), "f54_setup")
+
+	var valid_cycle_ids: Array[String] = ["E-001", "E-006", "E-002", "E-007", "E-003"]
+	var invalid_events: Array[Dictionary] = [
+		{"id": "X-5401", "name": "Invalid Unknown Resource", "polarity": "negative", "resource": "void_resource", "magnitude_ratio": 0.2},
+		{"id": "X-5402", "name": "Invalid Empty Resource", "polarity": "positive", "resource": "", "magnitude_ratio": 0.1},
+	]
+	var cycles: int = 3
+
+	var valid_trigger_ok: bool = true
+	var invalid_gate_ok: bool = true
+	var invalid_mutation_ok: bool = true
+
+	for i in range(cycles):
+		for event_id in valid_cycle_ids:
+			if not _trigger_world_event(WORLD_EVENT_DEFS[event_id]):
+				valid_trigger_ok = false
+
+			for invalid_event in invalid_events:
+				var reserve_sum_before: int = 0
+				for resource_id in ["alloy", "power", "data", "reclaim"]:
+					reserve_sum_before += _get_stockpile_reserve(resource_id)
+
+				var invalid_result: bool = _trigger_world_event(invalid_event)
+				if invalid_result:
+					invalid_gate_ok = false
+
+				var reserve_sum_after: int = 0
+				for resource_id in ["alloy", "power", "data", "reclaim"]:
+					reserve_sum_after += _get_stockpile_reserve(resource_id)
+				if reserve_sum_after != reserve_sum_before:
+					invalid_mutation_ok = false
+
+	var all_lines: Array[String] = []
+	for line in _stockpile_archive_log:
+		all_lines.append(line)
+	for line in _stockpile_event_log:
+		all_lines.append(line)
+
+	var valid_applied_counts: Dictionary = {}
+	for event_id in valid_cycle_ids:
+		valid_applied_counts[event_id] = 0
+
+	var invalid_blocked_count: int = 0
+	var valid_blocked_count: int = 0
+	for line in all_lines:
+		var entry: String = str(line)
+		if entry.find("[WorldEvent] applied") >= 0:
+			for event_id in valid_cycle_ids:
+				if entry.find("id=%s" % event_id) >= 0:
+					valid_applied_counts[event_id] = int(valid_applied_counts[event_id]) + 1
+		if entry.find("[WorldEvent] blocked") >= 0:
+			if entry.find("id=X-5401") >= 0 or entry.find("id=X-5402") >= 0:
+				invalid_blocked_count += 1
+			for event_id in valid_cycle_ids:
+				if entry.find("id=%s" % event_id) >= 0:
+					valid_blocked_count += 1
+
+	var distribution_ok: bool = true
+	for event_id in valid_cycle_ids:
+		if int(valid_applied_counts[event_id]) != cycles:
+			distribution_ok = false
+
+	var expected_invalid_blocked: int = cycles * valid_cycle_ids.size() * invalid_events.size()
+	var invalid_telemetry_ok: bool = invalid_blocked_count == expected_invalid_blocked
+	var valid_block_free_ok: bool = valid_blocked_count == 0
+
+	var drift_ok: bool = true
+	for resource_id in ["alloy", "power", "data", "reclaim"]:
+		var cap: int = _get_stockpile_cap(resource_id)
+		var reserve_after: int = _get_stockpile_reserve(resource_id)
+		var ratio_after: float = float(reserve_after) / maxf(1.0, float(cap))
+		if ratio_after < 0.18 or ratio_after > 0.88:
+			drift_ok = false
+
+	var pass_ok: bool = valid_trigger_ok and invalid_gate_ok and invalid_mutation_ok and distribution_ok and invalid_telemetry_ok and valid_block_free_ok and drift_ok
+	print("[F54] Summary valid_trigger_ok=%s invalid_gate_ok=%s invalid_mutation_ok=%s distribution_ok=%s invalid_telemetry_ok=%s valid_block_free_ok=%s drift_ok=%s pass=%s" % [
+		str(valid_trigger_ok), str(invalid_gate_ok), str(invalid_mutation_ok), str(distribution_ok), str(invalid_telemetry_ok), str(valid_block_free_ok), str(drift_ok), str(pass_ok)
 	])
 
 

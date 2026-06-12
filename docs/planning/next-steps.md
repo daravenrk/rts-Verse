@@ -141,6 +141,9 @@ Keep this list short, actionable, and current.
 - [x] Start M3 runtime Slice N: add deterministic world-event fairness-distribution hook under sustained multi-cycle event churn.
 - [x] Validate trigger continuity, per-event applied-count coverage, sign integrity, and bounded reserve drift stability.
 - [x] Run headless F-53 standalone and focused integrated smoke validation and capture evidence in scenario notes.
+- [x] Start M3 runtime Slice O: add deterministic mixed valid-invalid world-event resilience hook under sustained event churn.
+- [x] Validate invalid rejection safety, zero mutation on blocked injections, valid-event distribution continuity, and bounded drift stability.
+- [x] Run headless F-54 standalone and focused integrated smoke validation and capture evidence in scenario notes.
 - [x] Define structured feedback template fields and publish feedback instructions on itch page.
 - [x] Start weekly feedback triage cadence and publish first feedback-response devlog summary.
 

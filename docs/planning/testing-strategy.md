@@ -56,6 +56,7 @@ This document defines validation layers for milestone delivery.
 | F-51 | World-event catalog integrity and guardrail-telemetry coverage loop | Pass | `docs/tracking/scenario-validation-notes.md` |
 | F-52 | World-event guardrail sequencing and cross-domain recovery loop | Pass | `docs/tracking/scenario-validation-notes.md` |
 | F-53 | World-event fairness distribution and long-run drift stability loop | Pass | `docs/tracking/scenario-validation-notes.md` |
+| F-54 | World-event resilience under mixed valid and invalid injection loop | Pass | `docs/tracking/scenario-validation-notes.md` |
 | F-09 | Carrier and Airfield Sortie Lifecycle | Pass | `docs/tracking/scenario-validation-notes.md` |
 | F-10 | Colony and Civilian Resilience Loop | Pass | `docs/tracking/scenario-validation-notes.md` |
 | F-11 | Unified Stockpile and World Event Volatility | Pass | `docs/tracking/scenario-validation-notes.md` |

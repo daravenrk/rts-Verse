@@ -2,6 +2,19 @@
 
 Track scenario-level evidence for map and flow validation runs.
 
+## 2026-06-11 F-54 Mixed Valid-Invalid World-Event Resilience Validation
+
+- Flow: `F-54 World-event resilience under mixed valid and invalid injection loop`
+- Scenario: `scenes/core/FirstDuelMap.tscn`
+- Validation commands:
+  - `/Applications/Godot.app/Contents/MacOS/godot --headless --quit --path . res://scenes/core/FirstDuelMap.tscn -- --duel-test-f54-event-resilience-mix`
+  - `/Applications/Godot.app/Contents/MacOS/godot --headless --quit --path . res://scenes/core/FirstDuelMap.tscn -- --duel-test-map-baseline --duel-test-f52-event-guardrail-sequence --duel-test-f53-event-fairness-drift --duel-test-f54-event-resilience-mix`
+- Result: Pass
+- Notes:
+  - Invalid event injections were consistently guardrail-blocked and produced no aggregate reserve mutation.
+  - Valid event cadence retained expected applied-count coverage with no blocked-valid regressions under mixed churn.
+  - Focused integrated smoke retained pass summaries for MapBaseline, F-52, F-53, and F-54.
+
 ## 2026-06-11 F-53 World-Event Fairness Distribution and Drift Stability Validation
 
 - Flow: `F-53 World-event fairness distribution and long-run drift stability loop`
