@@ -54,6 +54,7 @@ const TEST_F54_EVENT_RESILIENCE_MIX_FLAG := "--duel-test-f54-event-resilience-mi
 const TEST_F55_EVENT_MIX_REPLAY_RECON_FLAG := "--duel-test-f55-event-mix-replay-recon"
 const TEST_F56_EVENT_FAULT_BURST_FLAG := "--duel-test-f56-event-fault-burst"
 const TEST_F57_EVENT_ADAPTIVE_BURST_FLAG := "--duel-test-f57-event-adaptive-burst"
+const TEST_F58_EVENT_ADAPTIVE_ARCHIVE_FLAG := "--duel-test-f58-event-adaptive-archive"
 const STOCKPILE_CONFIG := {
 	"alloy": {"cap": 200000, "soft_ratio": 0.3, "hard_ratio": 0.1},
 	"power": {"cap": 160000, "soft_ratio": 0.35, "hard_ratio": 0.12},
@@ -360,6 +361,7 @@ func _ready() -> void:
 	_run_f55_event_mix_replay_reconstruction_test_hook()
 	_run_f56_event_fault_burst_tolerance_test_hook()
 	_run_f57_event_adaptive_burst_stability_test_hook()
+	_run_f58_event_adaptive_archive_replay_test_hook()
 	if _has_user_flag(TEST_AUTO_EXIT_FLAG):
 		call_deferred("_request_test_exit")
 	_apply_camera_transform()
@@ -2914,6 +2916,130 @@ func _run_f57_adaptive_pass(setup_reason: String, valid_cycle_ids: Array[String]
 		"telemetry_ok": telemetry_ok,
 		"seq_monotonic_ok": seq_monotonic_ok,
 		"drift_ok": drift_ok,
+	}
+
+
+func _run_f58_event_adaptive_archive_replay_test_hook() -> void:
+	if not _has_user_flag(TEST_F58_EVENT_ADAPTIVE_ARCHIVE_FLAG):
+		return
+
+	var valid_cycle_ids: Array[String] = ["E-001", "E-006", "E-002", "E-003", "E-007"]
+	var invalid_burst_events: Array[Dictionary] = [
+		{"id": "X-5801", "name": "Adaptive Archive Unknown", "polarity": "negative", "resource": "archive_void", "magnitude_ratio": 0.2},
+		{"id": "X-5802", "name": "Adaptive Archive Empty", "polarity": "positive", "resource": "", "magnitude_ratio": 0.1},
+	]
+	var adaptive_spacing: Array[int] = [1, 3, 2, 1, 2, 3]
+	var cycles: int = 5
+
+	var run_a: Dictionary = _run_f58_adaptive_archive_pass("f58_setup", valid_cycle_ids, invalid_burst_events, adaptive_spacing, cycles)
+	var run_b: Dictionary = _run_f58_adaptive_archive_pass("f58_setup", valid_cycle_ids, invalid_burst_events, adaptive_spacing, cycles)
+
+	var guardrail_profile_ok: bool = bool(run_a.get("guardrail_ok", false)) and bool(run_b.get("guardrail_ok", false))
+	var replay_signature_ok: bool = int(run_a.get("signature", 0)) == int(run_b.get("signature", -1))
+	var telemetry_count_ok: bool = int(run_a.get("applied_count", -1)) == int(run_b.get("applied_count", -2)) and int(run_a.get("blocked_count", -1)) == int(run_b.get("blocked_count", -2))
+	var archive_growth_ok: bool = bool(run_b.get("archive_growth_ok", false))
+	var feed_reconstruction_ok: bool = bool(run_b.get("feed_reconstruction_ok", false))
+	var pass_ok: bool = guardrail_profile_ok and replay_signature_ok and telemetry_count_ok and archive_growth_ok and feed_reconstruction_ok
+	print("[F58] Summary guardrail_profile_ok=%s replay_signature_ok=%s telemetry_count_ok=%s archive_growth_ok=%s feed_reconstruction_ok=%s pass=%s" % [
+		str(guardrail_profile_ok), str(replay_signature_ok), str(telemetry_count_ok), str(archive_growth_ok), str(feed_reconstruction_ok), str(pass_ok)
+	])
+
+
+func _run_f58_adaptive_archive_pass(setup_reason: String, valid_cycle_ids: Array[String], invalid_burst_events: Array[Dictionary], adaptive_spacing: Array[int], cycles: int) -> Dictionary:
+	_stockpile_event_log.clear()
+	_stockpile_archive_log.clear()
+	_last_world_event_resource = ""
+	_last_world_event_polarity = ""
+	for resource_id in ["alloy", "power", "data", "reclaim"]:
+		_set_stockpile_reserve(resource_id, int(float(_get_stockpile_cap(resource_id)) * 0.5), setup_reason)
+
+	var valid_trigger_ok: bool = true
+	var burst_block_ok: bool = true
+	var burst_mutation_ok: bool = true
+	var recovery_window_ok: bool = true
+	var spacing_idx: int = 0
+	var next_burst_step: int = adaptive_spacing[spacing_idx]
+	var step_counter: int = 0
+
+	for cycle in range(cycles):
+		for event_id in valid_cycle_ids:
+			step_counter += 1
+			if not _trigger_world_event(WORLD_EVENT_DEFS[event_id]):
+				valid_trigger_ok = false
+
+			if step_counter == next_burst_step:
+				for invalid_event in invalid_burst_events:
+					var reserve_sum_before: int = 0
+					for resource_id in ["alloy", "power", "data", "reclaim"]:
+						reserve_sum_before += _get_stockpile_reserve(resource_id)
+
+					if _trigger_world_event(invalid_event):
+						burst_block_ok = false
+
+					var reserve_sum_after: int = 0
+					for resource_id in ["alloy", "power", "data", "reclaim"]:
+						reserve_sum_after += _get_stockpile_reserve(resource_id)
+					if reserve_sum_after != reserve_sum_before:
+						burst_mutation_ok = false
+
+				_last_world_event_resource = ""
+				_last_world_event_polarity = ""
+				var recovery_probe_id: String = "E-003"
+				if event_id == "E-003":
+					recovery_probe_id = "E-006"
+				if not _trigger_world_event(WORLD_EVENT_DEFS[recovery_probe_id]):
+					recovery_window_ok = false
+				_last_world_event_resource = ""
+				_last_world_event_polarity = ""
+
+				spacing_idx = (spacing_idx + 1) % adaptive_spacing.size()
+				next_burst_step += adaptive_spacing[spacing_idx]
+
+			_record_stockpile_event("[F58] pulse step=%d cycle=%d" % [step_counter, cycle])
+
+	var all_lines: Array[String] = []
+	for line in _stockpile_archive_log:
+		all_lines.append(line)
+	for line in _stockpile_event_log:
+		all_lines.append(line)
+
+	var applied_count: int = 0
+	var blocked_count: int = 0
+	var seq_monotonic_ok: bool = true
+	var last_seq: int = -1
+	for line in all_lines:
+		var entry: String = str(line)
+		if entry.find("[WorldEvent] applied") >= 0:
+			applied_count += 1
+		if entry.find("[WorldEvent] blocked") >= 0:
+			blocked_count += 1
+		var seq_id: int = _extract_seq_id_from_line(entry)
+		if seq_id >= 0:
+			if last_seq >= 0 and seq_id < last_seq:
+				seq_monotonic_ok = false
+			last_seq = seq_id
+
+	var archive_growth_ok: bool = not _stockpile_archive_log.is_empty()
+	var live_cap_ok: bool = _stockpile_event_log.size() <= 8
+	var signature: int = _compute_observability_signature(all_lines)
+
+	var expected_recent: Array[String] = []
+	var start_idx: int = max(0, all_lines.size() - 5)
+	for idx in range(start_idx, all_lines.size()):
+		expected_recent.append(str(all_lines[idx]))
+	var expected_feed_text: String = "\n".join(expected_recent)
+	var feed_reconstruction_ok: bool = false
+	if _hud_stockpile_feed_item:
+		feed_reconstruction_ok = _hud_stockpile_feed_item.text == expected_feed_text
+
+	var guardrail_ok: bool = valid_trigger_ok and burst_block_ok and burst_mutation_ok and recovery_window_ok and seq_monotonic_ok and live_cap_ok and archive_growth_ok and applied_count > 0 and blocked_count > 0
+	return {
+		"guardrail_ok": guardrail_ok,
+		"signature": signature,
+		"applied_count": applied_count,
+		"blocked_count": blocked_count,
+		"archive_growth_ok": archive_growth_ok,
+		"feed_reconstruction_ok": feed_reconstruction_ok,
 	}
 
 

@@ -2,6 +2,20 @@
 
 Track scenario-level evidence for map and flow validation runs.
 
+## 2026-06-11 F-58 Adaptive-Burst Archive-Saturation Replay Consistency Validation
+
+- Flow: `F-58 Adaptive-burst archive-saturation replay consistency loop`
+- Scenario: `scenes/core/FirstDuelMap.tscn`
+- Validation commands:
+  - `/Applications/Godot.app/Contents/MacOS/godot --headless --quit --path . res://scenes/core/FirstDuelMap.tscn -- --duel-test-f58-event-adaptive-archive`
+  - `/Applications/Godot.app/Contents/MacOS/godot --headless --quit --path . res://scenes/core/FirstDuelMap.tscn -- --duel-test-map-baseline --duel-test-f56-event-fault-burst --duel-test-f57-event-adaptive-burst --duel-test-f58-event-adaptive-archive`
+- Result: Pass
+- Notes:
+  - Adaptive burst sequencing under sustained churn preserved guardrail continuity while driving archive growth.
+  - Replay-equivalent runs maintained normalized signature parity and telemetry-count parity across applied and blocked paths.
+  - Feed-window reconstruction from archive plus live buffers matched HUD feed output in replay validation.
+  - Focused integrated smoke retained pass summaries for MapBaseline, F-56, F-57, and F-58.
+
 ## 2026-06-11 F-57 Adaptive-Burst Long-Horizon Mixed-Event Replay Stability Validation
 
 - Flow: `F-57 Adaptive-burst long-horizon mixed-event replay stability loop`

@@ -55,6 +55,8 @@
 - Validated burst blocking, no-mutation safety, recovery-window continuity, telemetry integrity, sequence monotonicity, and focused integrated smoke stability.
 - Implemented deterministic F-57 adaptive-burst long-horizon mixed-event replay-stability hook in duel map.
 - Validated guardrail-profile continuity, replay-signature parity, feed reconstruction consistency, and focused integrated smoke stability.
+- Implemented deterministic F-58 adaptive-burst archive-saturation replay-consistency hook in duel map.
+- Validated guardrail continuity, replay-signature parity, telemetry-count parity, archive growth, feed reconstruction consistency, and focused integrated smoke stability.
 
 ## Story Breakdown
 
