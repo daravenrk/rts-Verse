@@ -226,7 +226,7 @@
 ### 4. Visual Scene Assembly and Playable First Build
 
 - Outcome: the project transitions from a simulation-and-headless-validation baseline to a runnable visual game where a player can launch, select factions, enter the duel map, select units, issue move commands, and see the resource bar update.
-- Scope boundary: minimum playable visual slice for M2 completion; does not require full art assets or combat AI — placeholder 3D shapes and live HUD wiring are the gate.
+- Scope boundary: minimum playable visual slice for M2 completion; does not require full art assets or combat AI - placeholder 3D shapes and live HUD wiring are the gate.
 
 ### Ordered Story Queue (Objective 4)
 

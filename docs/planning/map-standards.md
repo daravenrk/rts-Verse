@@ -230,7 +230,7 @@ Placement rules:
 
 - Power is structure-generated, but maps must provide adequate buildable terrain for early and mid-game power scaling.
 - Start areas and natural expansions must each include at least one viable power cluster footprint.
-- Terrain should not excessively punish either dense or spread power layouts unless that is the map’s explicit purpose.
+- Terrain should not excessively punish either dense or spread power layouts unless that is the map's explicit purpose.
 
 ### Data Nodes
 

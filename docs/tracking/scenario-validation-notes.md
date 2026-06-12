@@ -505,7 +505,7 @@ Track scenario-level evidence for map and flow validation runs.
   - Carrier destroyed; fighter fell back to airfield automatically (AW-05 pass).
   - Airfield destroyed; both units degraded to cadence 0.30 (AW-06, AW-07 pass).
   - Airfield rebuilt; both units recovered to ready state at normal cadence (AW-08 pass).
-  - Fighter role confirmed air_superiority, Corvette confirmed strike — roles remain distinct (AW-09 pass).
+  - Fighter role confirmed air_superiority, Corvette confirmed strike - roles remain distinct (AW-09 pass).
 
 ## 2026-06-11 Map Item Primitive Marker Validation
 

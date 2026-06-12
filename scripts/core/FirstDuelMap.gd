@@ -1336,7 +1336,7 @@ func _run_f12_era_transition_test_hook() -> void:
 	var data_controlled_seconds: float = 65.0  # simulated: player held DATA-NODE-CENTER >= 60s
 	_era_branch_unlock_done = true  # simulated: player completed one branch choice
 	var can_augmented: bool = t2_online and data_controlled_seconds >= 60.0 and _era_branch_unlock_done
-	var sim_time_s_to_a: float = 540.0  # 9:00 — within target band 9:00-13:00
+	var sim_time_s_to_a: float = 540.0  # 9:00 - within target band 9:00-13:00
 	var s_to_a_in_band: bool = sim_time_s_to_a >= 540.0 and sim_time_s_to_a <= 780.0
 	if can_augmented:
 		_current_era = "augmented"
@@ -1352,7 +1352,7 @@ func _run_f12_era_transition_test_hook() -> void:
 	_era_doctrine_done = true  # simulated: player completed automation doctrine chain
 	var two_zone_seconds: float = 125.0  # simulated: two zones held >= 120s
 	var can_autonomous: bool = data_linked_systems >= 2 and _era_doctrine_done and two_zone_seconds >= 120.0
-	var sim_time_a_to_au: float = 1080.0  # 18:00 — within target band 17:00-23:00
+	var sim_time_a_to_au: float = 1080.0  # 18:00 - within target band 17:00-23:00
 	var a_to_au_in_band: bool = sim_time_a_to_au >= 1020.0 and sim_time_a_to_au <= 1380.0
 	if can_autonomous and _current_era == "augmented":
 		_current_era = "autonomous"
@@ -1371,7 +1371,7 @@ func _run_f12_era_transition_test_hook() -> void:
 			relay_count += 1
 	var network_system_unlocked: bool = true  # simulated: player unlocked one network-level system
 	var can_network: bool = _original_core_active and relay_count >= 2 and network_system_unlocked and _era_resilience_recovery_done
-	var sim_time_au_to_n: float = 1740.0  # 29:00 — within target band 26:00-34:00
+	var sim_time_au_to_n: float = 1740.0  # 29:00 - within target band 26:00-34:00
 	var au_to_n_in_band: bool = sim_time_au_to_n >= 1560.0 and sim_time_au_to_n <= 2040.0
 	if can_network and _current_era == "autonomous":
 		_current_era = "network"
@@ -2970,18 +2970,18 @@ func _run_f13_one_box_test_hook() -> void:
 	var expand_ok: bool = relay_count == 3
 	print("[F13] Expanded relay_count=%d expand_ok=%s" % [relay_count, str(expand_ok)])
 
-	# Phase 2: disable original core — severe but non-terminal penalty
+	# Phase 2: disable original core - severe but non-terminal penalty
 	_original_core_active = false
 	_command_penalty_level = 2
 	var core_loss_ok: bool = not _original_core_active and _command_penalty_level == 2
 	print("[F13] CoreLoss command_penalty=%d core_active=%s core_loss_ok=%s" % [_command_penalty_level, str(_original_core_active), str(core_loss_ok)])
 
-	# Phase 3: recover through distributed infrastructure — partial stabilisation
+	# Phase 3: recover through distributed infrastructure - partial stabilisation
 	_command_penalty_level = 1  # relay infrastructure absorbs some penalty
 	var partial_ok: bool = _command_penalty_level < 2
 	print("[F13] PartialRecovery penalty_level=%d partial_ok=%s" % [_command_penalty_level, str(partial_ok)])
 
-	# Phase 4: collapse all relays — compounded degradation
+	# Phase 4: collapse all relays - compounded degradation
 	for key in _network_relay_nodes:
 		_network_relay_nodes[key] = false
 		print("[F13] NodeLost id=%s" % key)
@@ -2989,7 +2989,7 @@ func _run_f13_one_box_test_hook() -> void:
 	for key in _network_relay_nodes:
 		if bool(_network_relay_nodes[key]):
 			active_after_collapse += 1
-	_command_penalty_level = 3  # worse than before — compounded
+	_command_penalty_level = 3  # worse than before - compounded
 	var collapse_ok: bool = active_after_collapse == 0 and _command_penalty_level > 2
 	print("[F13] NetworkCollapse active_nodes=%d penalty_level=%d collapse_ok=%s" % [active_after_collapse, _command_penalty_level, str(collapse_ok)])
 
@@ -3010,25 +3010,25 @@ func _run_f10_colony_resilience_test_hook() -> void:
 		"militia_barracks", "security_command_post"
 	])
 
-	# Phase 1: establish colony throughput — produce civilian workers
+	# Phase 1: establish colony throughput - produce civilian workers
 	var worker_ok := _produce_colony_unit(slot, "security_militia_squad")
 	var hauler_ok := _produce_colony_unit(slot, "patrol_buggy")
 	var throughput_before: int = _get_stockpile_reserve("alloy")
 	print("[F10] Colony established worker_ok=%s hauler_ok=%s alloy_before=%d" % [str(worker_ok), str(hauler_ok), throughput_before])
 
-	# Phase 2: logistics disruption — drain alloy to simulate raid impact
+	# Phase 2: logistics disruption - drain alloy to simulate raid impact
 	var disruption_drain := int(float(throughput_before) * 0.25)
 	_set_stockpile_reserve("alloy", throughput_before - disruption_drain, "f10_logistics_disruption")
 	var throughput_disrupted: int = _get_stockpile_reserve("alloy")
 	var disruption_ok := throughput_disrupted < throughput_before
 	print("[F10] Logistics disrupted alloy_after=%d disruption_ok=%s" % [throughput_disrupted, str(disruption_ok)])
 
-	# Phase 3: escalate — add peacekeeper walker from security_command_post
+	# Phase 3: escalate - add peacekeeper walker from security_command_post
 	var peacekeeper_ok := _produce_colony_unit(slot, "peacekeeper_walker")
 	var militia_count: int = _colony_units_by_slot[slot].size()
 	print("[F10] Militia escalated peacekeeper_ok=%s militia_unit_count=%d" % [str(peacekeeper_ok), militia_count])
 
-	# Phase 4: restore — economy recovers, militia does not exceed frontline equivalents
+	# Phase 4: restore - economy recovers, militia does not exceed frontline equivalents
 	_set_stockpile_reserve("alloy", throughput_before, "f10_recovery")
 	var throughput_recovered: int = _get_stockpile_reserve("alloy")
 	var recovery_ok := throughput_recovered >= throughput_before
@@ -3052,7 +3052,7 @@ func _run_f11_stockpile_volatility_test_hook() -> void:
 	_last_world_event_resource = ""
 	_last_world_event_polarity = ""
 
-	# Phase 1: stable extraction — simulate two deposit cycles
+	# Phase 1: stable extraction - simulate two deposit cycles
 	var alloy_stable_before := _get_stockpile_reserve("alloy")
 	_add_stockpile_reserve("alloy", 5000, "f11_stable_extraction_a")
 	_add_stockpile_reserve("alloy", 5000, "f11_stable_extraction_b")
@@ -3060,7 +3060,7 @@ func _run_f11_stockpile_volatility_test_hook() -> void:
 	var stable_ok := alloy_stable_after == alloy_stable_before  # clamped at cap, no net change past cap
 	print("[F11] Stable extraction alloy_before=%d alloy_after=%d stable_ok=%s" % [alloy_stable_before, alloy_stable_after, str(stable_ok)])
 
-	# Phase 2: player A perspective — negative event on alloy, positive event on power
+	# Phase 2: player A perspective - negative event on alloy, positive event on power
 	# Pre-deplete power so positive event has room to increase it (tests low-stock recovery)
 	_set_stockpile_reserve("power", int(float(_get_stockpile_cap("power")) * 0.80), "f11_predeplete_power")
 	var alloy_before_a := _get_stockpile_reserve("alloy")
@@ -3077,12 +3077,12 @@ func _run_f11_stockpile_volatility_test_hook() -> void:
 		str(neg_ok_a), str(pos_ok_a), str(vis_a)
 	])
 
-	# Phase 3: low-stock recovery — confirm reserve stays above zero and positive event helps
+	# Phase 3: low-stock recovery - confirm reserve stays above zero and positive event helps
 	var alloy_low_ok := _get_stockpile_reserve("alloy") > 0
 	var power_improved := power_after_a > power_before_a
 	print("[F11] Recovery check alloy_above_zero=%s power_improved=%s" % [str(alloy_low_ok), str(power_improved)])
 
-	# Phase 4: player B perspective — negative event on power, positive event on data
+	# Phase 4: player B perspective - negative event on power, positive event on data
 	# Pre-deplete data so positive event has room to increase it
 	_set_stockpile_reserve("data", int(float(_get_stockpile_cap("data")) * 0.80), "f11_predeplete_data")
 	_last_world_event_resource = ""
@@ -3195,7 +3195,7 @@ func _run_f09_air_wing_test_hook() -> void:
 	])
 
 
-# ── Live systems ──────────────────────────────────────────────────────────────
+# -- Live systems --------------------------------------------------------------
 
 func _process(delta: float) -> void:
 	_update_live_units(delta)
@@ -3517,7 +3517,7 @@ func _on_tether_penalty(item_id: String, slot: String, faction: String) -> void:
 	print("[HUD] Tether alert id=%s slot=%s faction=%s" % [item_id, slot, faction])
 
 
-# ── Camera ────────────────────────────────────────────────────────────────────
+# -- Camera --------------------------------------------------------------------
 
 func _unhandled_input(event: InputEvent) -> void:
 	if event is InputEventMouseButton and event.pressed:

@@ -27,7 +27,7 @@ Keep this list short, actionable, and current.
 - [x] Update test flows and backlog for five-faction coverage.
 - [x] Add placeholder names and initial flavor notes for third human, alien, and robot factions.
 - [x] Update all planning baselines to specify American, Chinese, Civilian/Colony, Alien, and Robot (robot is fully unique, non-humanoid).
-- [x] Add a dedicated planning section for the robot faction’s unique roster and structures.
+- [x] Add a dedicated planning section for the robot faction's unique roster and structures.
 - [x] Define first-pass global stockpile caps and depletion behavior for Alloy, Power, Data, and Reclaim.
 - [x] Define random world event table with bounded positive and negative resource effects.
 - [x] Add UI and telemetry checklist for global stockpile visibility and world event announcements.
