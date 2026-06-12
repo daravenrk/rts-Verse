@@ -2,6 +2,19 @@
 
 Track scenario-level evidence for map and flow validation runs.
 
+## 2026-06-11 F-57 Adaptive-Burst Long-Horizon Mixed-Event Replay Stability Validation
+
+- Flow: `F-57 Adaptive-burst long-horizon mixed-event replay stability loop`
+- Scenario: `scenes/core/FirstDuelMap.tscn`
+- Validation commands:
+  - `/Applications/Godot.app/Contents/MacOS/godot --headless --quit --path . res://scenes/core/FirstDuelMap.tscn -- --duel-test-f57-event-adaptive-burst`
+  - `/Applications/Godot.app/Contents/MacOS/godot --headless --quit --path . res://scenes/core/FirstDuelMap.tscn -- --duel-test-map-baseline --duel-test-f55-event-mix-replay-recon --duel-test-f56-event-fault-burst --duel-test-f57-event-adaptive-burst`
+- Result: Pass
+- Notes:
+  - Adaptive invalid-burst spacing preserved guardrail-profile continuity and recovery behavior through long-horizon mixed churn.
+  - Replay-equivalent runs maintained normalized signature parity and exact feed-window reconstruction consistency.
+  - Focused integrated smoke retained pass summaries for MapBaseline, F-55, F-56, and F-57.
+
 ## 2026-06-11 F-56 Mixed-Event Fault-Burst Tolerance Validation
 
 - Flow: `F-56 Mixed-event fault-burst tolerance and recovery-window consistency loop`

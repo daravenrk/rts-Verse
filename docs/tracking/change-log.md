@@ -38,6 +38,7 @@ Track high-level project changes with links to decisions and plans.
 - Implemented F-54 mixed valid-invalid world-event resilience runtime hook validating invalid injection rejection safety, no-mutation guardrails, and stable valid-event throughput under churn.
 - Implemented F-55 mixed-event replay and reconstruction runtime hook validating normalized signature parity, telemetry-count parity, and feed-window reconstruction consistency under sustained valid-invalid churn.
 - Implemented F-56 mixed-event fault-burst tolerance runtime hook validating invalid burst blocking, reserve no-mutation safety, recovery-window continuity, telemetry profile integrity, and sequence monotonicity under sustained churn.
+- Implemented F-57 adaptive-burst long-horizon mixed-event replay-stability runtime hook validating guardrail continuity, replay-signature parity, and feed-window reconstruction consistency under adaptive fault spacing.
 
 ## 2026-06-09
 

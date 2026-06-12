@@ -150,6 +150,9 @@ Keep this list short, actionable, and current.
 - [x] Start M3 runtime Slice Q: add deterministic mixed-event fault-burst tolerance hook with explicit recovery-window probes.
 - [x] Validate invalid burst blocking, no-mutation safety, recovery-window continuity, telemetry integrity, and sequence monotonicity.
 - [x] Run headless F-56 standalone and focused integrated smoke validation and capture evidence in scenario notes.
+- [x] Start M3 runtime Slice R: add deterministic adaptive-burst long-horizon mixed-event replay-stability hook.
+- [x] Validate adaptive burst-spacing guardrail continuity, replay-signature parity, and feed-window reconstruction consistency.
+- [x] Run headless F-57 standalone and focused integrated smoke validation and capture evidence in scenario notes.
 - [x] Define structured feedback template fields and publish feedback instructions on itch page.
 - [x] Start weekly feedback triage cadence and publish first feedback-response devlog summary.
 
