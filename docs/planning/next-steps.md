@@ -114,6 +114,9 @@ Keep this list short, actionable, and current.
 - [x] Start M3 runtime Slice E: add deterministic multi-domain infrastructure disruption timeline across command and logistics pressure.
 - [x] Validate mitigation sequencing order and measurable recovery improvements across both domains.
 - [x] Run headless F-44 multi-domain infrastructure validation pass and capture combined recovery evidence.
+- [x] Start M3 runtime Slice F: add deterministic failure-triage rule enforcement checks for stockpile and world-event observability.
+- [x] Validate trigger payload presence, magnitude parity, threshold UI state change, and feed archive behavior in runtime.
+- [x] Run headless F-45 failure-triage validation pass and capture evidence in scenario notes.
 - [x] Define structured feedback template fields and publish feedback instructions on itch page.
 - [x] Start weekly feedback triage cadence and publish first feedback-response devlog summary.
 

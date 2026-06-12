@@ -41,6 +41,7 @@ const TEST_F41_INFRA_DISRUPTION_FLAG := "--duel-test-f41-infra-disruption"
 const TEST_F42_INFRA_ANTISTACK_FLAG := "--duel-test-f42-infra-antistack"
 const TEST_F43_INFRA_DECAY_FLAG := "--duel-test-f43-infra-decay"
 const TEST_F44_INFRA_MULTIDOMAIN_FLAG := "--duel-test-f44-infra-multidomain"
+const TEST_F45_EVENT_TRIAGE_FLAG := "--duel-test-f45-event-triage"
 const STOCKPILE_CONFIG := {
 	"alloy": {"cap": 200000, "soft_ratio": 0.3, "hard_ratio": 0.1},
 	"power": {"cap": 160000, "soft_ratio": 0.35, "hard_ratio": 0.12},
@@ -256,6 +257,7 @@ var _selected_controllable_units: Array[String] = []
 var _resource_alloy_total: int = 0
 var _stockpile_state: Dictionary = {}
 var _stockpile_event_log: Array[String] = []
+var _stockpile_archive_log: Array[String] = []
 var _stockpile_sequence_id: int = 0
 var _stockpile_snapshot_elapsed: float = 0.0
 var _last_world_event_resource: String = ""
@@ -333,6 +335,7 @@ func _ready() -> void:
 	_run_f42_infrastructure_antistack_test_hook()
 	_run_f43_infrastructure_decay_test_hook()
 	_run_f44_infrastructure_multidomain_test_hook()
+	_run_f45_event_triage_test_hook()
 	if _has_user_flag(TEST_AUTO_EXIT_FLAG):
 		call_deferred("_request_test_exit")
 	_apply_camera_transform()
@@ -1812,6 +1815,74 @@ func _run_f44_infrastructure_multidomain_test_hook() -> void:
 		str(ordering_ok), str(command_ok), str(logistics_ok), str(mitigation_order_ok), str(mitigation_effect_ok), str(combined_recovery_ok), str(pass_ok)
 	])
 
+
+func _run_f45_event_triage_test_hook() -> void:
+	if not _has_user_flag(TEST_F45_EVENT_TRIAGE_FLAG):
+		return
+
+	var start_archive_index: int = _stockpile_archive_log.size()
+
+	# Rule 1: missing world_event_triggered payload is blocking.
+	_set_stockpile_reserve("power", 120000, "f45_setup")
+	_last_world_event_resource = ""
+	_last_world_event_polarity = ""
+	var event_ok: bool = _trigger_world_event(WORLD_EVENT_DEFS["E-007"])
+	var new_log_entries: Array[String] = []
+	for entry in _stockpile_archive_log:
+		new_log_entries.append(entry)
+	for entry in _stockpile_event_log:
+		new_log_entries.append(entry)
+	var has_triggered_payload: bool = false
+	var has_applied_payload: bool = false
+	var applied_message: String = ""
+	for entry in new_log_entries:
+		if entry.find("[WorldEvent] triggered") >= 0 and entry.find("id=E-007") >= 0:
+			has_triggered_payload = true
+		if entry.find("[WorldEvent] applied") >= 0 and entry.find("id=E-007") >= 0:
+			has_applied_payload = true
+			applied_message = entry
+	var triggered_rule_ok: bool = event_ok and has_triggered_payload and has_applied_payload
+
+	# Rule 2: mismatch between applied magnitude and displayed magnitude is fail.
+	var applied_delta: int = 0
+	if not applied_message.is_empty():
+		var delta_idx: int = applied_message.find("delta=")
+		if delta_idx >= 0:
+			var after_delta: String = applied_message.substr(delta_idx + 6)
+			var pieces: PackedStringArray = after_delta.split(" ")
+			if pieces.size() > 0:
+				applied_delta = int(pieces[0])
+	var expected_hud_fragment: String = "%s%d" % ["+" if applied_delta >= 0 else "", applied_delta]
+	var hud_text: String = ""
+	if _hud_alert_item:
+		hud_text = _hud_alert_item.text
+	var magnitude_match_ok: bool = hud_text.find(expected_hud_fragment) >= 0
+
+	# Rule 3: silent threshold crossing (no UI state change) is fail.
+	_set_stockpile_reserve("alloy", 120000, "f45_threshold_reset")
+	var alert_before_threshold: String = ""
+	if _hud_alert_item:
+		alert_before_threshold = _hud_alert_item.text
+	_set_stockpile_reserve("alloy", 50000, "f45_soft_threshold_cross")
+	var threshold_ui_ok: bool = str(_stockpile_state["alloy"]["last_threshold"]) == "soft"
+	if _hud_alert_item:
+		threshold_ui_ok = threshold_ui_ok and _hud_alert_item.text != alert_before_threshold
+
+	# Rule 4: old event banners must archive instead of disappearing silently.
+	for i in range(10):
+		_record_stockpile_event("[F45] feed_item seq=%d" % i)
+	var archive_entries_added: int = _stockpile_archive_log.size() - start_archive_index
+	var archive_line_logged: bool = false
+	if archive_entries_added > 0:
+		var last_archived: String = _stockpile_archive_log[_stockpile_archive_log.size() - 1]
+		archive_line_logged = last_archived.find("[F45] feed_item") >= 0 or last_archived.find("[WorldEvent]") >= 0
+	var archive_rule_ok: bool = archive_entries_added > 0 and archive_line_logged
+
+	var pass_ok: bool = triggered_rule_ok and magnitude_match_ok and threshold_ui_ok and archive_rule_ok
+	print("[F45] Summary triggered_rule_ok=%s magnitude_match_ok=%s threshold_ui_ok=%s archive_rule_ok=%s pass=%s" % [
+		str(triggered_rule_ok), str(magnitude_match_ok), str(threshold_ui_ok), str(archive_rule_ok), str(pass_ok)
+	])
+
 func _run_f13_one_box_test_hook() -> void:
 	if not _has_user_flag(TEST_F13_ONE_BOX_FLAG):
 		return
@@ -2098,7 +2169,9 @@ func _emit_stockpile_snapshot() -> void:
 func _record_stockpile_event(message: String) -> void:
 	_stockpile_event_log.append(message)
 	if _stockpile_event_log.size() > 8:
-		_stockpile_event_log.pop_front()
+		var archived_message: String = _stockpile_event_log.pop_front()
+		_stockpile_archive_log.append(archived_message)
+		print("[Stockpile] feed_archive archived=%s" % archived_message)
 	_refresh_stockpile_feed_ui()
 
 

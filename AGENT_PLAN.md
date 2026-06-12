@@ -29,6 +29,8 @@
 - Validated intensity profiles, distributed-network mitigation effects, timed recovery windows, and minimum-action guarantee via headless pass evidence.
 - Implemented deterministic F-44 infrastructure multi-domain timeline hook in duel map.
 - Validated command/logistics ordering, mitigation sequence correctness, and combined-pressure recovery via headless pass evidence.
+- Implemented deterministic F-45 stockpile and world-event failure-triage hook in duel map.
+- Validated trigger payload blocking behavior, applied-vs-displayed magnitude parity, threshold UI state transitions, and archive-log retention behavior via headless pass evidence.
 
 ## Story Breakdown
 

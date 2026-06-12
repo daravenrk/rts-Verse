@@ -2,6 +2,19 @@
 
 Track scenario-level evidence for map and flow validation runs.
 
+## 2026-06-11 F-45 Stockpile and World-Event Failure Triage Rule Enforcement
+
+- Flow: `F-45 Stockpile and world-event failure triage rule enforcement loop`
+- Scenario: `scenes/core/FirstDuelMap.tscn`
+- Validation command:
+  - `/Applications/Godot.app/Contents/MacOS/godot --headless --quit --path . res://scenes/core/FirstDuelMap.tscn -- --duel-test-f45-event-triage`
+- Result: Pass
+- Notes:
+  - `world_event_triggered` and `world_event_applied` payloads were both required and observed during forced event application.
+  - Applied event delta matched the HUD alert magnitude rendering.
+  - Threshold crossing produced both threshold-state transition and alert-state change (no silent crossing).
+  - Feed retention overflow emitted explicit archive telemetry and preserved archived-message traceability.
+
 ## 2026-06-11 F-44 Infrastructure Multi-Domain Disruption and Mitigation Ordering Validation
 
 - Flow: `F-44 Infrastructure multi-domain disruption and mitigation ordering loop`

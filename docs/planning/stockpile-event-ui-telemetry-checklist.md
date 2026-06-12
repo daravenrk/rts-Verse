@@ -40,10 +40,10 @@ This checklist defines first-pass UI and telemetry requirements for global stock
 
 ## Failure Triage Rules
 
-- [ ] Missing `world_event_triggered` payload is treated as blocking for event observability flows.
-- [ ] Any mismatch between applied magnitude and displayed magnitude is a fail.
-- [ ] Silent threshold crossing (no UI state change) is a fail.
-- [ ] Event banners older than retention window should archive, not disappear without log entry.
+- [x] Missing `world_event_triggered` payload is treated as blocking for event observability flows.
+- [x] Any mismatch between applied magnitude and displayed magnitude is a fail.
+- [x] Silent threshold crossing (no UI state change) is a fail.
+- [x] Event banners older than retention window should archive, not disappear without log entry.
 
 ## Related References
 
