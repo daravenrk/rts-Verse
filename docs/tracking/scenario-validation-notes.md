@@ -2,6 +2,19 @@
 
 Track scenario-level evidence for map and flow validation runs.
 
+## 2026-06-11 F-51 World-Event Catalog Integrity Validation
+
+- Flow: `F-51 World-event catalog integrity and guardrail-telemetry coverage loop`
+- Scenario: `scenes/core/FirstDuelMap.tscn`
+- Validation commands:
+  - `/Applications/Godot.app/Contents/MacOS/godot --headless --quit --path . res://scenes/core/FirstDuelMap.tscn -- --duel-test-f51-event-catalog`
+  - `/Applications/Godot.app/Contents/MacOS/godot --headless --quit --path . res://scenes/core/FirstDuelMap.tscn -- --duel-test-map-baseline --duel-test-f49-observability-retention --duel-test-f50-observability-recon --duel-test-f51-event-catalog`
+- Result: Pass
+- Notes:
+  - Every active world-event definition in catalog emitted triggered and applied telemetry with sign-correct bounded deltas.
+  - Immediate duplicate re-trigger attempts for each event were guardrail-blocked with blocked telemetry and no reserve mutation.
+  - Focused integrated smoke retained pass summaries for MapBaseline, F-49, F-50, and F-51.
+
 ## 2026-06-11 F-50 Observability Reconstruction Integrity Validation
 
 - Flow: `F-50 Observability reconstruction integrity from archive plus live telemetry windows`

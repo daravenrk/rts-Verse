@@ -47,6 +47,7 @@ const TEST_F47_OBSERVABILITY_REPLAY_FLAG := "--duel-test-f47-observability-repla
 const TEST_F48_OBSERVABILITY_FAULT_FLAG := "--duel-test-f48-observability-fault"
 const TEST_F49_OBSERVABILITY_RETENTION_FLAG := "--duel-test-f49-observability-retention"
 const TEST_F50_OBSERVABILITY_RECON_FLAG := "--duel-test-f50-observability-recon"
+const TEST_F51_EVENT_CATALOG_FLAG := "--duel-test-f51-event-catalog"
 const STOCKPILE_CONFIG := {
 	"alloy": {"cap": 200000, "soft_ratio": 0.3, "hard_ratio": 0.1},
 	"power": {"cap": 160000, "soft_ratio": 0.35, "hard_ratio": 0.12},
@@ -346,6 +347,7 @@ func _ready() -> void:
 	_run_f48_observability_fault_injection_test_hook()
 	_run_f49_observability_retention_test_hook()
 	_run_f50_observability_reconstruction_test_hook()
+	_run_f51_event_catalog_integrity_test_hook()
 	if _has_user_flag(TEST_AUTO_EXIT_FLAG):
 		call_deferred("_request_test_exit")
 	_apply_camera_transform()
@@ -2227,6 +2229,86 @@ func _run_f50_observability_reconstruction_test_hook() -> void:
 	var pass_ok: bool = e1_ok and e6_ok and (not invalid_ok) and seq_monotonic_ok and seq_unique_ok and mixed_payload_ok and feed_reconstruction_ok
 	print("[F50] Summary seq_monotonic_ok=%s seq_unique_ok=%s mixed_payload_ok=%s feed_reconstruction_ok=%s pass=%s" % [
 		str(seq_monotonic_ok), str(seq_unique_ok), str(mixed_payload_ok), str(feed_reconstruction_ok), str(pass_ok)
+	])
+
+
+func _run_f51_event_catalog_integrity_test_hook() -> void:
+	if not _has_user_flag(TEST_F51_EVENT_CATALOG_FLAG):
+		return
+
+	_stockpile_event_log.clear()
+	_stockpile_archive_log.clear()
+	_last_world_event_resource = ""
+	_last_world_event_polarity = ""
+
+	var event_ids: Array[String] = ["E-001", "E-002", "E-003", "E-006", "E-007"]
+	var polarity_ok: bool = true
+	var bound_ok: bool = true
+	var duplicate_block_ok: bool = true
+	var mutation_guard_ok: bool = true
+
+	for event_id in event_ids:
+		var event_def: Dictionary = WORLD_EVENT_DEFS[event_id]
+		var resource_id: String = str(event_def.get("resource", ""))
+		var polarity: String = str(event_def.get("polarity", "positive"))
+		var cap: int = _get_stockpile_cap(resource_id)
+		_set_stockpile_reserve(resource_id, int(cap * 0.5), "f51_setup_%s" % event_id)
+
+		_last_world_event_resource = ""
+		_last_world_event_polarity = ""
+
+		var before: int = _get_stockpile_reserve(resource_id)
+		var first_ok: bool = _trigger_world_event(event_def)
+		var after_first: int = _get_stockpile_reserve(resource_id)
+		var delta: int = after_first - before
+
+		if polarity == "positive":
+			if not (first_ok and delta > 0):
+				polarity_ok = false
+			var positive_limit: int = int(round(float(cap) * 0.10))
+			if delta > positive_limit:
+				bound_ok = false
+		else:
+			if not (first_ok and delta < 0):
+				polarity_ok = false
+			var negative_limit: int = int(round(float(cap) * 0.07))
+			if abs(delta) > negative_limit:
+				bound_ok = false
+
+		var second_ok: bool = _trigger_world_event(event_def)
+		var after_second: int = _get_stockpile_reserve(resource_id)
+		if second_ok:
+			duplicate_block_ok = false
+		if after_second != after_first:
+			mutation_guard_ok = false
+
+	var all_lines: Array[String] = []
+	for line in _stockpile_archive_log:
+		all_lines.append(line)
+	for line in _stockpile_event_log:
+		all_lines.append(line)
+
+	var telemetry_ok: bool = true
+	for event_id in event_ids:
+		var has_triggered: bool = false
+		var has_applied: bool = false
+		var has_blocked: bool = false
+		for line in all_lines:
+			var entry: String = str(line)
+			if entry.find("id=%s" % event_id) < 0:
+				continue
+			if entry.find("[WorldEvent] triggered") >= 0:
+				has_triggered = true
+			if entry.find("[WorldEvent] applied") >= 0:
+				has_applied = true
+			if entry.find("[WorldEvent] blocked") >= 0 and entry.find("reason=guardrail_rejected") >= 0:
+				has_blocked = true
+		if not (has_triggered and has_applied and has_blocked):
+			telemetry_ok = false
+
+	var pass_ok: bool = polarity_ok and bound_ok and duplicate_block_ok and mutation_guard_ok and telemetry_ok
+	print("[F51] Summary polarity_ok=%s bound_ok=%s duplicate_block_ok=%s mutation_guard_ok=%s telemetry_ok=%s pass=%s" % [
+		str(polarity_ok), str(bound_ok), str(duplicate_block_ok), str(mutation_guard_ok), str(telemetry_ok), str(pass_ok)
 	])
 
 

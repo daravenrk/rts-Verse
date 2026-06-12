@@ -132,6 +132,9 @@ Keep this list short, actionable, and current.
 - [x] Start M3 runtime Slice K: add deterministic observability reconstruction-integrity hook across archive plus live telemetry windows.
 - [x] Validate sequence uniqueness and monotonicity with mixed payload retention under reconstruction flow.
 - [x] Run headless F-50 standalone and focused integrated smoke validation and capture evidence in scenario notes.
+- [x] Start M3 runtime Slice L: add deterministic world-event catalog integrity hook across all active event definitions.
+- [x] Validate polarity, bounded magnitude, duplicate guardrail blocking, mutation safety, and per-event telemetry coverage.
+- [x] Run headless F-51 standalone and focused integrated smoke validation and capture evidence in scenario notes.
 - [x] Define structured feedback template fields and publish feedback instructions on itch page.
 - [x] Start weekly feedback triage cadence and publish first feedback-response devlog summary.
 

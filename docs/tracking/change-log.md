@@ -32,6 +32,7 @@ Track high-level project changes with links to decisions and plans.
 - Implemented F-48 observability fault-injection runtime hook validating invalid-event guardrail rejection, duplicate-event block telemetry, and reserve-mutation safety in standalone and integrated smoke runs.
 - Implemented F-49 observability retention-rotation runtime hook validating live-window cap, archive growth, sequence-index monotonicity, and mixed payload retention under sustained telemetry churn.
 - Implemented F-50 observability reconstruction-integrity runtime hook validating merged archive/live sequence consistency, mixed payload survivability, and exact feed-window reconstruction in standalone and focused integrated smoke runs.
+- Implemented F-51 world-event catalog integrity runtime hook validating per-event polarity and bounds, duplicate guardrail blocking with mutation safety, and complete per-event telemetry coverage.
 
 ## 2026-06-09
 
