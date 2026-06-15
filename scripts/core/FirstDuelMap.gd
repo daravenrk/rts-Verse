@@ -713,6 +713,7 @@ func _spawn_opening_squads() -> void:
 			var unit_id: String = str(units_for_slot[i])
 			var actor := SelectableUnit2D.new()
 			actor.name = "Squad_%s_%02d" % [slot, i]
+			actor.set_meta("slot", slot)
 			add_child(actor)
 			var off: Vector3 = offsets[i]
 			actor.initialize(unit_id, faction, marker.position + Vector3(off.x * mirror, 0.0, off.z))
@@ -1054,6 +1055,7 @@ func _initialize_controllable_units() -> void:
 	for data in spawn_data:
 		var unit := SelectableUnit2D.new()
 		unit.name = str(data["id"])
+		unit.set_meta("slot", "A")
 		add_child(unit)
 		unit.initialize(str(data["id"]), str(data["faction"]), data["position"])
 		_controllable_units[str(data["id"])] = unit
@@ -4549,9 +4551,17 @@ func _is_player_controllable_unit(unit_id: String) -> bool:
 
 
 func _get_unit_slot(unit_id: String) -> String:
+	if _controllable_units.has(unit_id):
+		var unit: SelectableUnit2D = _controllable_units[unit_id]
+		if unit and unit.has_meta("slot"):
+			return str(unit.get_meta("slot"))
 	if unit_id.begins_with("Squad_A_"):
 		return "A"
 	if unit_id.begins_with("Squad_B_"):
+		return "B"
+	if unit_id.begins_with("Produced_A_"):
+		return "A"
+	if unit_id.begins_with("Produced_B_"):
 		return "B"
 	return ""
 
@@ -4846,6 +4856,7 @@ func _queue_live_production(unit_id: String) -> bool:
 	var spawn_point := _get_live_production_spawn_position(slot)
 	var actor := SelectableUnit2D.new()
 	actor.name = "Produced_%s_%03d" % [slot, _production_sequence]
+	actor.set_meta("slot", slot)
 	add_child(actor)
 	actor.initialize(unit_id, faction, spawn_point)
 	_controllable_units[actor.name] = actor
@@ -4962,10 +4973,9 @@ func _get_selected_builder_slot() -> String:
 		var unit: SelectableUnit2D = _controllable_units[unit_id]
 		if not _is_builder_unit(unit.unit_id):
 			continue
-		if unit_id.begins_with("Squad_A_"):
-			return "A"
-		if unit_id.begins_with("Squad_B_"):
-			return "B"
+		var slot := _get_unit_slot(str(unit_id))
+		if slot != "":
+			return slot
 	return ""
 
 

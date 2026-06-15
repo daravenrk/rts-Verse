@@ -4,6 +4,10 @@ Track high-level project changes with links to decisions and plans.
 
 ## 2026-06-14
 
+- Fixed construction-vehicle selection and command ownership routing by tracking controllable unit slot via explicit unit metadata (`slot`) instead of relying only on unit-name prefixes.
+- Applied slot metadata on opening-squad spawn, test-controllable spawn, and live production spawn in `scripts/core/FirstDuelMap.gd` so drag-selection and builder-command ownership remain stable across unit origin paths.
+- Updated builder slot resolution to use `_get_unit_slot(...)` so builder units from any supported spawn path map to the correct command slot.
+- Revalidated with `/Applications/Godot.app/Contents/MacOS/godot --headless --quit --path . res://scenes/core/FirstDuelMap.tscn -- --duel-test-f60-drag-select --duel-test-f36-build --duel-test-f32-interaction --duel-test-f38-production`; all summaries reported pass with no script errors.
 - Added soft unit-collision limiting in `scripts/core/FirstDuelMap.gd` by resolving per-frame overlap between moving units using a bounded separation push.
 - Added collision-tuning constants `_UNIT_COLLISION_RADIUS` and `_UNIT_COLLISION_MAX_PUSH_PER_TICK` to reduce clumping while preserving movement responsiveness.
 - Revalidated core duel hooks with `/Applications/Godot.app/Contents/MacOS/godot --headless --quit --path . res://scenes/core/FirstDuelMap.tscn -- --duel-test-f32-interaction --duel-test-f37-combat --duel-test-f60-drag-select --duel-test-f61-enemy-ai`; all summaries reported pass with no script errors.

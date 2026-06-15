@@ -2,6 +2,18 @@
 
 Track scenario-level evidence for map and flow validation runs.
 
+## 2026-06-14 Construction-Vehicle Selection and Builder Slot Routing Validation
+
+- Flow: `Construction unit drag-selection and build-command ownership stability`
+- Scenario: `scenes/core/FirstDuelMap.tscn`
+- Validation command:
+  - `/Applications/Godot.app/Contents/MacOS/godot --headless --quit --path . res://scenes/core/FirstDuelMap.tscn -- --duel-test-f60-drag-select --duel-test-f36-build --duel-test-f32-interaction --duel-test-f38-production`
+- Result: Pass
+- Notes:
+  - Controllable unit ownership now uses explicit per-unit slot metadata for opening squads and produced units.
+  - Builder slot resolution now uses normalized slot lookup, keeping build commands valid after non-baseline spawn paths.
+  - Drag-selection, interaction loop, build flow, and production flow all retained pass summaries with no script errors.
+
 ## 2026-06-14 Soft Unit-Collision Limiting Validation
 
 - Flow: `Live moving-unit overlap limiting and regression smoke`
