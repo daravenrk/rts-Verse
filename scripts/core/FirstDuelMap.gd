@@ -472,9 +472,12 @@ func _run_f61_enemy_ai_test_hook() -> void:
 	for unit_id in _controllable_units.keys():
 		if _get_unit_slot(str(unit_id)) == "B":
 			_ai_scan_timers[unit_id] = 0.0
+	# Force one immediate build attempt for deterministic validation.
+	_ai_build_timer = 0.0
+	var builds_before: int = int(_buildables_by_slot["B"].size())
 
 	# Run several AI update ticks.
-	for _step in 30:
+	for _step in 36:
 		_update_enemy_ai(0.5)
 		_update_live_units(0.1)
 
@@ -488,8 +491,12 @@ func _run_f61_enemy_ai_test_hook() -> void:
 			ai_active = true
 			break
 
+	var builds_after: int = int(_buildables_by_slot["B"].size())
+	var build_pass: bool = builds_after > builds_before
+
 	print("[F61] Enemy AI active=%s" % str(ai_active))
-	print("[F61] Summary pass=%s" % str(ai_active))
+	print("[F61] Enemy build progression before=%d after=%d pass=%s" % [builds_before, builds_after, str(build_pass)])
+	print("[F61] Summary active_pass=%s build_pass=%s pass=%s" % [str(ai_active), str(build_pass), str(ai_active and build_pass)])
 
 
 func _run_f60_drag_select_test_hook() -> void:
@@ -4460,6 +4467,10 @@ func _resolve_unit_soft_collisions() -> void:
 func _update_enemy_ai(delta: float) -> void:
 	if _match_over:
 		return
+	_ai_build_timer -= delta
+	if _ai_build_timer <= 0.0:
+		_run_enemy_build_step()
+		_ai_build_timer = _AI_BUILD_INTERVAL
 	# Snapshot keys so destruction mid-loop doesn't break iteration.
 	var unit_ids := _controllable_units.keys().duplicate()
 	for unit_id in unit_ids:

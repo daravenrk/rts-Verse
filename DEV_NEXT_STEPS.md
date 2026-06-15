@@ -179,6 +179,7 @@
 - Outcome: close Stage 0 visibility lane with truthful Pre-Alpha page, representative gameplay media, and evidence-backed tracker updates.
 - Scope boundary: remaining actions are external operator tasks; all in-repo preparation artifacts are complete.
 - Latest validation snapshot (2026-06-14): `prepublish_audit.sh` reports `READY` (required screenshots present and policy-compliant); remaining blockers are external publication and post-publish evidence synchronization.
+- Execution policy (2026-06-14): run Stage 1 in-repo readiness work in parallel while keeping O-3003 through O-3005 parked until manual publish evidence is captured.
 
 ### Parked Objective Queue
 

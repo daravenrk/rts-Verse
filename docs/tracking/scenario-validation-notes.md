@@ -2,6 +2,18 @@
 
 Track scenario-level evidence for map and flow validation runs.
 
+## 2026-06-14 Enemy Build-Timer Readiness Slice Validation
+
+- Flow: `Enemy AI aggression plus timed build progression`
+- Scenario: `scenes/core/FirstDuelMap.tscn`
+- Validation command:
+  - `/Applications/Godot.app/Contents/MacOS/godot --headless --quit --path . res://scenes/core/FirstDuelMap.tscn -- --duel-test-f61-enemy-ai --duel-test-f37-combat --duel-test-f32-interaction --duel-test-f60-drag-select`
+- Result: Pass
+- Notes:
+  - Enemy AI now runs periodic build attempts through `_ai_build_timer` and `_run_enemy_build_step`.
+  - F-61 now validates both active aggression behavior and positive enemy build progression.
+  - Regression checks for interaction, combat, and drag selection remained pass with no script errors.
+
 ## 2026-06-14 Construction-Vehicle Selection and Builder Slot Routing Validation
 
 - Flow: `Construction unit drag-selection and build-command ownership stability`

@@ -90,6 +90,12 @@
 - Added bounded separation tuning constants to limit clumping and reduce stack-through behavior without hard-stopping unit movement.
 - Executed `/Applications/Godot.app/Contents/MacOS/godot --headless --quit --path . res://scenes/core/FirstDuelMap.tscn -- --duel-test-f32-interaction --duel-test-f37-combat --duel-test-f60-drag-select --duel-test-f61-enemy-ai` and confirmed pass summaries across interaction, combat, drag selection, and enemy AI.
 
+## Closure Delta 2026-06-14 (Stage 1 Readiness Slice: Enemy Build Continuity)
+
+- Implemented timed enemy build continuity by activating `_ai_build_timer` inside `_update_enemy_ai` and running `_run_enemy_build_step` on interval.
+- Extended F-61 validation to require both enemy aggression activity and positive build progression (`before` and `after` build count).
+- Executed `/Applications/Godot.app/Contents/MacOS/godot --headless --quit --path . res://scenes/core/FirstDuelMap.tscn -- --duel-test-f61-enemy-ai --duel-test-f37-combat --duel-test-f32-interaction --duel-test-f60-drag-select` and verified pass summaries for F-32, F-37, F-60, and F-61 with no script errors.
+
 ## Story Breakdown
 
 ```yaml

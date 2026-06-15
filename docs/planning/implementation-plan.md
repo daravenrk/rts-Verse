@@ -184,6 +184,22 @@ Define and deliver the first playable RTS vertical slice expressing daravenrk's 
   - Smoke: stage0_status_report.sh shows no unresolved Stage 0 closure blockers.
   - Observability: Evidence captures URL, publish timestamp, media inventory, and first update-post confirmation.
 
+### M4 Parallel Continuity Rule (While Stage 0 External Publish Is Pending)
+
+- Policy:
+  - Stage 0 closure state must remain parked until manual publication evidence is captured.
+  - In-repo execution may continue on Stage 1 readiness slices in parallel.
+  - No artifact may claim Stage 0 publication closure without URL and timestamp evidence.
+- Allowed parallel scope:
+  - Runtime interaction and readability hardening.
+  - Deterministic validation flow expansion and reliability improvements.
+  - Tracker or plan hygiene that improves operator closure speed without falsifying closure state.
+- Validation requirements for parallel slices:
+  - Functional: each slice must define concrete behavior deltas.
+  - Integration: each slice must show compatibility with existing F-series flows.
+  - Smoke: at least one focused headless smoke command per slice.
+  - Observability: scenario-validation-notes must capture command and pass criteria.
+
 ## Dependencies and Risks
 
 - See tracking/risk-register.md for active risks.

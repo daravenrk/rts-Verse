@@ -760,6 +760,36 @@ Use this file to capture evidence-backed findings before changing architecture o
   - Replace point-projection test with bounding-rect overlap using a calibrated half-extent constant.
   - Run updated F-60 validation pass and record evidence.
 
+## Entry-0029 Parallel Execution Framing for External Stage 0 Blockers
+
+- Date: 2026-06-14
+- Query: What needed changes can be worked now when the only unchecked Stage 0 tasks require manual external publication?
+- Files reviewed:
+  - docs/planning/next-steps.md
+  - docs/planning/implementation-plan.md
+  - DEV_NEXT_STEPS.md
+  - docs/planning/itch-stage0-publish-runbook.md
+  - docs/planning/stage0-postpublish-closure-checklist.md
+  - docs/tracking/stage0-publication-evidence-template.md
+  - docs/architecture/decision-log.md
+- Evidence:
+  - next-steps still contains three unchecked Stage 0 publication rows (publish, post-publish validation, tracker sync).
+  - implementation-plan M4 already defines Stage 0 closure exit criteria tied to public page state and evidence completion.
+  - DEV_NEXT_STEPS marks O-3003 through O-3005 as parked and externally blocked.
+  - Runbook/checklist/evidence artifacts for publication closure are already complete and ready for operator execution.
+- Interpretation:
+  - The repository is prepared for publication closure but is blocked by external operator actions.
+  - The missing capability is not artifacts; it is explicit guidance to continue in-repo readiness work in parallel without violating Stage 0 truth constraints.
+- Risks or unknowns:
+  - Parallel work can blur closure state unless lanes are explicitly separated in trackers.
+  - Teams may accidentally mark Stage 0 closure complete without external evidence.
+- Recommended decision:
+  - Accept ADR-0029 and run dual-lane execution: keep Stage 0 externally parked while progressing in-repo Stage 1 readiness tasks.
+- Follow-up tasks:
+  - Add dual-lane wording and acceptance checks to implementation-plan.
+  - Add explicit parallel-readiness rows in next-steps for in-repo execution continuity.
+  - Keep postpublish gate as final Stage 0 closure validator once manual publication completes.
+
 ## Research Entry Template
 
 ## Entry-XXXX Title

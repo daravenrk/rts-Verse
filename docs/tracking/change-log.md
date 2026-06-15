@@ -4,6 +4,9 @@ Track high-level project changes with links to decisions and plans.
 
 ## 2026-06-14
 
+- Implemented timed enemy build progression in duel runtime by activating `_ai_build_timer` in `_update_enemy_ai` and executing `_run_enemy_build_step` on interval.
+- Extended F-61 validation hook to assert both enemy combat activity and enemy build progression (`before` vs `after` build count).
+- Revalidated with `/Applications/Godot.app/Contents/MacOS/godot --headless --quit --path . res://scenes/core/FirstDuelMap.tscn -- --duel-test-f61-enemy-ai --duel-test-f37-combat --duel-test-f32-interaction --duel-test-f60-drag-select`; all summaries reported pass with no script errors.
 - Fixed construction-vehicle selection and command ownership routing by tracking controllable unit slot via explicit unit metadata (`slot`) instead of relying only on unit-name prefixes.
 - Applied slot metadata on opening-squad spawn, test-controllable spawn, and live production spawn in `scripts/core/FirstDuelMap.gd` so drag-selection and builder-command ownership remain stable across unit origin paths.
 - Updated builder slot resolution to use `_get_unit_slot(...)` so builder units from any supported spawn path map to the correct command slot.

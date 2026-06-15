@@ -813,6 +813,36 @@ Status values: Proposed, Accepted, Deprecated, Superseded
 - Related research:
   - Entry-0028 in research/research-log.md
 
+## ADR-0029 Parallel Stage 1 Readiness Track While Stage 0 External Publish Is Blocked
+
+- Date: 2026-06-14
+- Status: Accepted
+- Context: Stage 0 media and audit preparation are complete, but remaining closure items require manual external publication and post-publish verification. The current sprint still shows three unchecked Stage 0 rows in next-steps, creating execution stall risk for in-repo work.
+- Decision:
+  - Keep Stage 0 publication closure as an external parked lane with evidence-gated completion.
+  - Add an explicit parallel in-repo Stage 1 readiness track that can progress while waiting on manual publication.
+  - Require all parallel in-repo work to preserve Stage 0 truthfulness constraints (no claims of publication completion until external evidence exists).
+  - Gate closure with the existing postpublish checklist and evidence template once manual publication is done.
+- Rationale:
+  - Prevents idle engineering cycles while respecting real external dependency boundaries.
+  - Keeps planning and delivery momentum without corrupting publication-truth guarantees.
+  - Makes handoff explicit for operator-driven work versus repository-driven work.
+- Tradeoffs:
+  - Increases active planning surface with two concurrent lanes.
+  - Requires tighter tracker discipline to avoid mixing Stage 0 closure status with Stage 1 readiness progress.
+- Alternatives considered:
+  - Pause all in-repo work until manual publication is complete.
+  - Continue ad hoc implementation without documenting lane separation.
+- Validation approach:
+  - Functional: Stage 0 external checklist remains unresolved until real publish metadata is captured.
+  - Integration: next-steps and implementation-plan both show dual-lane execution (external closure plus in-repo readiness).
+  - Smoke: postpublish gate remains the final closure command for Stage 0 lane.
+  - Observability: research and change tracking distinguish external-publish evidence from in-repo readiness updates.
+- Related plan items:
+  - M4 Packaging and Readiness
+- Related research:
+  - Entry-0029 in research/research-log.md
+
 ## ADR-XXXX Title
 
 - Date: YYYY-MM-DD

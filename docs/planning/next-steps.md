@@ -97,6 +97,9 @@ Keep this list short, actionable, and current.
 - [ ] Publish Stage 0 itch.io Coming Soon page using runbook procedure with visible Pre-Alpha label and no public download.
 - [ ] Run post-publish validation checklist and record public URL, timestamp, media count, and first update-post confirmation.
 - [ ] Update closure trackers in one pass: next-steps, change-log, and scenario-validation-notes with publication evidence.
+- [x] Document dual-lane execution rule: keep Stage 0 publication closure externally parked while in-repo Stage 1 readiness work continues.
+- [x] Record architecture and research rationale for dual-lane execution (ADR-0029 and Entry-0029) to prevent tracker ambiguity.
+- [x] Define and execute the next in-repo Stage 1 readiness slice with explicit functional, integration, and smoke validation evidence.
 - [x] Add live left-drag box-selection input state to duel map with click-vs-drag threshold and additive Shift support.
 - [x] Add drag-rectangle screen overlay feedback and connect rectangle bounds to selection projection checks.
 - [x] Run drag-selection validation flow (single, multi, additive, click-threshold preservation) and record evidence in scenario-validation-notes.
@@ -220,6 +223,8 @@ Keep this list short, actionable, and current.
 - 2026-06-14: Live win/loss detection implemented; match ends with green Win or red Loss state when all enemy units and Tether are destroyed or player base is lost. Live minimap implemented showing coloured unit dots and Tether markers. Match-state label colourised green/red/white by outcome.
 - 2026-06-14: Enemy AI implemented: slot B units scan for nearest player unit every 1.2 seconds, move toward it, and issue attack orders when in range; falls back to targeting player Tether when no units remain. F-61 validation pass confirmed AI activates and drives toward player.
 - 2026-06-14: Stage 0 media bundle generated via deterministic capture hook; required screenshots staged and prepublish audit returned READY.
+- 2026-06-14: Added dual-lane execution governance: Stage 0 external publish remains evidence-gated and parked while in-repo Stage 1 readiness work can continue under ADR-0029.
+- 2026-06-14: Executed Stage 1 readiness slice for enemy AI build continuity: activated timed enemy build attempts, expanded F-61 to validate aggression plus build progression, and revalidated F-32/F-37/F-60/F-61 in one smoke command with pass evidence.
 - 2026-06-10: First duel map scene added with map-defined Tether spawn markers and headless validation logs confirming slot-stable positions for both Helion and Veyari assignments.
 - 2026-06-10: Shared Tether Point role behavior implemented with Helion, Obsidian, and Veyari command-structure mapping plus controlled command-penalty and recovery-state telemetry hooks.
 - 2026-06-10: MVP T0 and T1 Tether-linked buildable chain implemented with dependency checks and stable build-item telemetry across both slots.
