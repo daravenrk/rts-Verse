@@ -106,6 +106,8 @@ Keep this list short, actionable, and current.
 - [x] Run expanded readiness smoke validation (F-62/F-61/F-38/F-37/F-32/F-60) and capture guardrail-stability evidence in scenario-validation-notes.
 - [x] Add enemy cap-recovery validation hook to verify production resumes after a capped enemy unit loss and returns to cap deterministically.
 - [x] Run expanded readiness smoke validation (F-63/F-62/F-61/F-38/F-37/F-32/F-60) and capture cap-recovery evidence in scenario-validation-notes.
+- [x] Add repeated enemy recovery stress validation hook to verify multi-cycle loss-recovery stability and cap compliance under sustained production pressure.
+- [x] Run expanded readiness smoke validation (F-64/F-63/F-62/F-61/F-38/F-37/F-32/F-60) and capture recovery-stress evidence in scenario-validation-notes.
 - [x] Add live left-drag box-selection input state to duel map with click-vs-drag threshold and additive Shift support.
 - [x] Add drag-rectangle screen overlay feedback and connect rectangle bounds to selection projection checks.
 - [x] Run drag-selection validation flow (single, multi, additive, click-threshold preservation) and record evidence in scenario-validation-notes.

@@ -121,6 +121,12 @@
 - Validated four explicit conditions in F-63: cap reached at baseline, loss applied correctly, recovery returns to cap, and produced-unit count grows again after loss.
 - Executed `/Applications/Godot.app/Contents/MacOS/godot --headless --quit --path . res://scenes/core/FirstDuelMap.tscn -- --duel-test-f63-enemy-cap-recovery --duel-test-f62-enemy-production-horizon --duel-test-f61-enemy-ai --duel-test-f38-production --duel-test-f37-combat --duel-test-f32-interaction --duel-test-f60-drag-select` and verified pass summaries for F-63, F-62, F-61, F-38, F-37, F-32, and F-60 with no script errors.
 
+## Closure Delta 2026-06-14 (Stage 1 Readiness Slice: Enemy Recovery Stress Stability)
+
+- Added deterministic F-64 enemy recovery-stress hook (`--duel-test-f64-enemy-recovery-stress`) to validate repeated loss-recovery behavior at slot-B cap across multiple cycles.
+- Validated three cycle-level checks in F-64 per recovery cycle (loss applied, recovery to cap, production resumed) and aggregate checks for cap hold plus production diversity.
+- Executed `/Applications/Godot.app/Contents/MacOS/godot --headless --quit --path . res://scenes/core/FirstDuelMap.tscn -- --duel-test-f64-enemy-recovery-stress --duel-test-f63-enemy-cap-recovery --duel-test-f62-enemy-production-horizon --duel-test-f61-enemy-ai --duel-test-f38-production --duel-test-f37-combat --duel-test-f32-interaction --duel-test-f60-drag-select` and verified pass summaries for F-64, F-63, F-62, F-61, F-38, F-37, F-32, and F-60 with no script errors.
+
 ## Story Breakdown
 
 ```yaml

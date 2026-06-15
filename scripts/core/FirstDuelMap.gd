@@ -60,6 +60,7 @@ const TEST_F60_DRAG_SELECT_FLAG := "--duel-test-f60-drag-select"
 const TEST_F61_ENEMY_AI_FLAG := "--duel-test-f61-enemy-ai"
 const TEST_F62_ENEMY_PRODUCTION_HORIZON_FLAG := "--duel-test-f62-enemy-production-horizon"
 const TEST_F63_ENEMY_CAP_RECOVERY_FLAG := "--duel-test-f63-enemy-cap-recovery"
+const TEST_F64_ENEMY_RECOVERY_STRESS_FLAG := "--duel-test-f64-enemy-recovery-stress"
 const STAGE0_CAPTURE_FLAG := "--stage0-capture-media"
 const STAGE0_CAPTURE_DIR_PREFIX := "--stage0-capture-dir="
 const STOCKPILE_CONFIG := {
@@ -462,6 +463,7 @@ func _ready() -> void:
 	_run_f61_enemy_ai_test_hook()
 	_run_f62_enemy_production_horizon_test_hook()
 	_run_f63_enemy_cap_recovery_test_hook()
+	_run_f64_enemy_recovery_stress_test_hook()
 	if _has_user_flag(STAGE0_CAPTURE_FLAG):
 		call_deferred("_run_stage0_media_capture_sequence")
 	elif _has_user_flag(TEST_AUTO_EXIT_FLAG):
@@ -627,6 +629,77 @@ func _run_f63_enemy_cap_recovery_test_hook() -> void:
 	print("[F63] Recovery units_after=%d cap=%d pass=%s" % [units_after_recovery, _AI_MAX_SLOT_B_UNITS, str(recovery_to_cap_pass)])
 	print("[F63] Production resume produced_before=%d produced_after=%d pass=%s" % [produced_before_recovery, produced_after_recovery, str(production_resume_pass)])
 	print("[F63] Summary cap_reached_pass=%s loss_applied_pass=%s recovery_to_cap_pass=%s production_resume_pass=%s pass=%s" % [str(cap_reached_pass), str(loss_applied_pass), str(recovery_to_cap_pass), str(production_resume_pass), str(cap_reached_pass and loss_applied_pass and recovery_to_cap_pass and production_resume_pass)])
+
+
+func _run_f64_enemy_recovery_stress_test_hook() -> void:
+	if not _has_user_flag(TEST_F64_ENEMY_RECOVERY_STRESS_FLAG):
+		return
+	if not _tether_points_by_slot.has("B"):
+		print("[F64] Summary pass=false reason=missing_enemy_tether")
+		return
+
+	for _build_step in 3:
+		_run_enemy_build_step()
+	_ai_production_choice_index = 0
+
+	for _seed_step in (_AI_MAX_SLOT_B_UNITS * 3):
+		_run_enemy_production_step()
+
+	var cycle_count := 3
+	var cycle_passes := 0
+	var diversity_type_set: Dictionary = {}
+
+	for cycle in range(cycle_count):
+		var units_before_loss: int = _get_slot_unit_ids("B").size()
+		var victim_id := ""
+		for unit_name in _controllable_units.keys():
+			var actor_name := str(unit_name)
+			if actor_name.begins_with("Produced_B_"):
+				victim_id = actor_name
+				break
+		if victim_id == "":
+			print("[F64] Cycle=%d pass=false reason=no_produced_enemy_unit" % cycle)
+			continue
+
+		_destroy_unit(victim_id)
+		var units_after_loss: int = _get_slot_unit_ids("B").size()
+		var loss_pass: bool = units_after_loss == units_before_loss - 1
+
+		var produced_before_recovery: int = 0
+		for unit_name in _controllable_units.keys():
+			if str(unit_name).begins_with("Produced_B_"):
+				produced_before_recovery += 1
+
+		for _recover_step in 10:
+			_run_enemy_production_step()
+
+		var units_after_recovery: int = _get_slot_unit_ids("B").size()
+		var recovery_pass: bool = units_after_recovery == _AI_MAX_SLOT_B_UNITS
+
+		var produced_after_recovery: int = 0
+		var newest_unit_id := ""
+		for unit_name in _controllable_units.keys():
+			var actor_name := str(unit_name)
+			if not actor_name.begins_with("Produced_B_"):
+				continue
+			produced_after_recovery += 1
+			var actor: SelectableUnit2D = _controllable_units[actor_name]
+			diversity_type_set[actor.unit_id] = true
+			newest_unit_id = actor.unit_id
+		var resume_pass: bool = produced_after_recovery > produced_before_recovery
+
+		var cycle_pass: bool = loss_pass and recovery_pass and resume_pass
+		if cycle_pass:
+			cycle_passes += 1
+		print("[F64] Cycle=%d loss_pass=%s recovery_pass=%s resume_pass=%s produced_before=%d produced_after=%d newest_unit=%s" % [cycle, str(loss_pass), str(recovery_pass), str(resume_pass), produced_before_recovery, produced_after_recovery, newest_unit_id])
+
+	var diversity_pass: bool = diversity_type_set.size() >= 2
+	var cycles_pass: bool = cycle_passes == cycle_count
+	var final_units: int = _get_slot_unit_ids("B").size()
+	var cap_hold_pass: bool = final_units <= _AI_MAX_SLOT_B_UNITS
+
+	print("[F64] Diversity unique_types=%d pass=%s" % [diversity_type_set.size(), str(diversity_pass)])
+	print("[F64] Summary cycles_pass=%s cap_hold_pass=%s diversity_pass=%s pass=%s" % [str(cycles_pass), str(cap_hold_pass), str(diversity_pass), str(cycles_pass and cap_hold_pass and diversity_pass)])
 
 
 func _run_f60_drag_select_test_hook() -> void:

@@ -2,6 +2,18 @@
 
 Track scenario-level evidence for map and flow validation runs.
 
+## 2026-06-14 Enemy Recovery-Stress Stability Readiness Slice Validation
+
+- Flow: `Repeated enemy cap-loss recovery cycles under sustained production pressure`
+- Scenario: `scenes/core/FirstDuelMap.tscn`
+- Validation command:
+  - `/Applications/Godot.app/Contents/MacOS/godot --headless --quit --path . res://scenes/core/FirstDuelMap.tscn -- --duel-test-f64-enemy-recovery-stress --duel-test-f63-enemy-cap-recovery --duel-test-f62-enemy-production-horizon --duel-test-f61-enemy-ai --duel-test-f38-production --duel-test-f37-combat --duel-test-f32-interaction --duel-test-f60-drag-select`
+- Result: Pass
+- Notes:
+  - F-64 validated three recovery cycles, each with deterministic loss application, production resumption, and return to cap.
+  - F-64 aggregate checks passed for cap hold and production diversity (`unique_types=3`) across stress cycles.
+  - Regression checks for F-63, F-62, F-61, F-38, F-37, F-32, and F-60 remained pass with no script errors.
+
 ## 2026-06-14 Enemy Cap-Recovery Production Readiness Slice Validation
 
 - Flow: `Enemy production resumes after capped-unit loss and recovers to cap`
