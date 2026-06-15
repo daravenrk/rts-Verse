@@ -103,6 +103,12 @@
 - Extended F-61 validation to require positive enemy production progression in addition to aggression and build progression.
 - Executed `/Applications/Godot.app/Contents/MacOS/godot --headless --quit --path . res://scenes/core/FirstDuelMap.tscn -- --duel-test-f61-enemy-ai --duel-test-f38-production --duel-test-f37-combat --duel-test-f32-interaction --duel-test-f60-drag-select` and verified pass summaries for F-32, F-37, F-38, F-60, and F-61 with no script errors.
 
+## Closure Delta 2026-06-14 (Stage 1 Readiness Slice: Enemy Production Guardrails)
+
+- Added production guardrails for enemy slot B with hard unit cap (`_AI_MAX_SLOT_B_UNITS`) and rotating production-choice index for healthier unit composition over time.
+- Extended F-61 validation to include explicit cap-compliance check (`cap_pass`) alongside aggression, build progression, and production progression checks.
+- Executed `/Applications/Godot.app/Contents/MacOS/godot --headless --quit --path . res://scenes/core/FirstDuelMap.tscn -- --duel-test-f61-enemy-ai --duel-test-f38-production --duel-test-f37-combat --duel-test-f32-interaction --duel-test-f60-drag-select` and verified pass summaries across all targeted flows with no script errors.
+
 ## Story Breakdown
 
 ```yaml

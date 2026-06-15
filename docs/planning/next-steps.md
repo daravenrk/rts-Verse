@@ -101,6 +101,7 @@ Keep this list short, actionable, and current.
 - [x] Record architecture and research rationale for dual-lane execution (ADR-0029 and Entry-0029) to prevent tracker ambiguity.
 - [x] Define and execute the next in-repo Stage 1 readiness slice with explicit functional, integration, and smoke validation evidence.
 - [x] Add timed enemy production cadence and validate shared production-path stability across enemy and player production flows.
+- [x] Add enemy production guardrails (cap plus rotation) and validate no-regression behavior across F-32/F-37/F-38/F-60/F-61.
 - [x] Add live left-drag box-selection input state to duel map with click-vs-drag threshold and additive Shift support.
 - [x] Add drag-rectangle screen overlay feedback and connect rectangle bounds to selection projection checks.
 - [x] Run drag-selection validation flow (single, multi, additive, click-threshold preservation) and record evidence in scenario-validation-notes.
@@ -227,6 +228,7 @@ Keep this list short, actionable, and current.
 - 2026-06-14: Added dual-lane execution governance: Stage 0 external publish remains evidence-gated and parked while in-repo Stage 1 readiness work can continue under ADR-0029.
 - 2026-06-14: Executed Stage 1 readiness slice for enemy AI build continuity: activated timed enemy build attempts, expanded F-61 to validate aggression plus build progression, and revalidated F-32/F-37/F-60/F-61 in one smoke command with pass evidence.
 - 2026-06-14: Executed Stage 1 readiness slice for enemy production continuity: added timed enemy production attempts, refactored shared produced-unit spawn path, expanded F-61 to include production progression, and revalidated F-32/F-37/F-38/F-60/F-61 with pass evidence.
+- 2026-06-14: Executed Stage 1 readiness slice for enemy production guardrails: added slot-B unit cap and rotating production choice index, expanded F-61 to include cap compliance, and revalidated F-32/F-37/F-38/F-60/F-61 with pass evidence.
 - 2026-06-10: First duel map scene added with map-defined Tether spawn markers and headless validation logs confirming slot-stable positions for both Helion and Veyari assignments.
 - 2026-06-10: Shared Tether Point role behavior implemented with Helion, Obsidian, and Veyari command-structure mapping plus controlled command-penalty and recovery-state telemetry hooks.
 - 2026-06-10: MVP T0 and T1 Tether-linked buildable chain implemented with dependency checks and stable build-item telemetry across both slots.

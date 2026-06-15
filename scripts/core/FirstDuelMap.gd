@@ -371,12 +371,15 @@ const _AI_SCAN_INTERVAL := 1.2
 const _AI_BUILD_INTERVAL := 18.0
 # How often the enemy attempts to produce one combat unit.
 const _AI_PRODUCTION_INTERVAL := 14.0
+# Hard cap to prevent runaway enemy production.
+const _AI_MAX_SLOT_B_UNITS := 10
 # Passive income rate — alloy units added per second per active Alloy Extractor.
 const _EXTRACTOR_INCOME_RATE := 12
 var _ai_scan_timers: Dictionary = {}   # unit_id -> float time until next scan
 var _ai_target_ids: Dictionary = {}    # unit_id -> target player unit_id or ""
 var _ai_build_timer: float = _AI_BUILD_INTERVAL
 var _ai_production_timer: float = _AI_PRODUCTION_INTERVAL
+var _ai_production_choice_index: int = 0
 var _resource_tick_elapsed: float = 0.0
 
 # -- Drag-box selection state --------------------------------------------------
@@ -503,11 +506,13 @@ func _run_f61_enemy_ai_test_hook() -> void:
 	var build_pass: bool = builds_after > builds_before
 	var enemy_units_after: int = _get_slot_unit_ids("B").size()
 	var production_pass: bool = enemy_units_after > enemy_units_before
+	var cap_pass: bool = enemy_units_after <= _AI_MAX_SLOT_B_UNITS
 
 	print("[F61] Enemy AI active=%s" % str(ai_active))
 	print("[F61] Enemy build progression before=%d after=%d pass=%s" % [builds_before, builds_after, str(build_pass)])
 	print("[F61] Enemy production progression before=%d after=%d pass=%s" % [enemy_units_before, enemy_units_after, str(production_pass)])
-	print("[F61] Summary active_pass=%s build_pass=%s production_pass=%s pass=%s" % [str(ai_active), str(build_pass), str(production_pass), str(ai_active and build_pass and production_pass)])
+	print("[F61] Enemy unit cap max=%d current=%d pass=%s" % [_AI_MAX_SLOT_B_UNITS, enemy_units_after, str(cap_pass)])
+	print("[F61] Summary active_pass=%s build_pass=%s production_pass=%s cap_pass=%s pass=%s" % [str(ai_active), str(build_pass), str(production_pass), str(cap_pass), str(ai_active and build_pass and production_pass and cap_pass)])
 
 
 func _run_f60_drag_select_test_hook() -> void:
@@ -4552,14 +4557,27 @@ func _run_enemy_build_step() -> void:
 func _run_enemy_production_step() -> void:
 	if not _tether_points_by_slot.has("B"):
 		return
+	var current_enemy_units: int = _get_slot_unit_ids("B").size()
+	if current_enemy_units >= _AI_MAX_SLOT_B_UNITS:
+		print("[EnemyAI] Production skipped reason=unit_cap_reached current=%d max=%d" % [current_enemy_units, _AI_MAX_SLOT_B_UNITS])
+		return
 	var tether: TetherPoint = _tether_points_by_slot["B"]
 	var faction: String = tether.faction_id
 	var options: Array[String] = _get_production_options_for_slot("B", faction)
+	var producible_options: Array[String] = []
 	for unit_id in options:
-		if unit_id == "-":
-			continue
+		if unit_id != "-":
+			producible_options.append(unit_id)
+	if producible_options.is_empty():
+		return
+
+	var start_index: int = _ai_production_choice_index % producible_options.size()
+	for offset in range(producible_options.size()):
+		var idx: int = (start_index + offset) % producible_options.size()
+		var unit_id: String = str(producible_options[idx])
 		if _spawn_live_produced_actor("B", faction, unit_id):
-			print("[EnemyAI] Produced slot=B faction=%s unit=%s" % [faction, unit_id])
+			_ai_production_choice_index = (idx + 1) % producible_options.size()
+			print("[EnemyAI] Produced slot=B faction=%s unit=%s next_index=%d" % [faction, unit_id, _ai_production_choice_index])
 			return
 
 

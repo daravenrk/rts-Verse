@@ -2,6 +2,18 @@
 
 Track scenario-level evidence for map and flow validation runs.
 
+## 2026-06-14 Enemy Production Guardrails Readiness Slice Validation
+
+- Flow: `Enemy production cap and rotation stability`
+- Scenario: `scenes/core/FirstDuelMap.tscn`
+- Validation command:
+  - `/Applications/Godot.app/Contents/MacOS/godot --headless --quit --path . res://scenes/core/FirstDuelMap.tscn -- --duel-test-f61-enemy-ai --duel-test-f38-production --duel-test-f37-combat --duel-test-f32-interaction --duel-test-f60-drag-select`
+- Result: Pass
+- Notes:
+  - Enemy production now enforces slot-B unit cap and rotates production choices to avoid repeated single-option spam.
+  - F-61 now validates aggression, build progression, production progression, and cap compliance in one deterministic hook.
+  - Core interaction, combat, drag-selection, and player production flows remained pass with no script errors.
+
 ## 2026-06-14 Enemy Production Cadence Readiness Slice Validation
 
 - Flow: `Enemy AI build plus production continuity with shared spawn path`
