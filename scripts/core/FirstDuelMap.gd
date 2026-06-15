@@ -56,6 +56,7 @@ const TEST_F56_EVENT_FAULT_BURST_FLAG := "--duel-test-f56-event-fault-burst"
 const TEST_F57_EVENT_ADAPTIVE_BURST_FLAG := "--duel-test-f57-event-adaptive-burst"
 const TEST_F58_EVENT_ADAPTIVE_ARCHIVE_FLAG := "--duel-test-f58-event-adaptive-archive"
 const TEST_F59_EVENT_REINIT_REPLAY_FLAG := "--duel-test-f59-event-reinit-replay"
+const TEST_F60_DRAG_SELECT_FLAG := "--duel-test-f60-drag-select"
 const STAGE0_CAPTURE_FLAG := "--stage0-capture-media"
 const STAGE0_CAPTURE_DIR_PREFIX := "--stage0-capture-dir="
 const STOCKPILE_CONFIG := {
@@ -304,6 +305,13 @@ var _descent_nodes: Dictionary = {}
 var _corridor_state: String = "stable"
 var _branch_state: Dictionary = {"machine": "pending", "alien": "pending", "hybrid": "pending"}
 
+# -- Drag-box selection state --------------------------------------------------
+const _DRAG_BOX_THRESHOLD := 6.0
+var _drag_box_active: bool = false
+var _drag_box_start: Vector2 = Vector2.ZERO
+var _drag_box_current: Vector2 = Vector2.ZERO
+var _drag_box_overlay: ColorRect = null
+
 
 func _ready() -> void:
 	var player_faction := _resolve_faction("duel_player_faction", TEST_PLAYER_FACTION_PREFIX, DEFAULT_PLAYER_FACTION)
@@ -367,6 +375,7 @@ func _ready() -> void:
 	_run_f57_event_adaptive_burst_stability_test_hook()
 	_run_f58_event_adaptive_archive_replay_test_hook()
 	_run_f59_event_reinit_replay_test_hook()
+	_run_f60_drag_select_test_hook()
 	if _has_user_flag(STAGE0_CAPTURE_FLAG):
 		call_deferred("_run_stage0_media_capture_sequence")
 	elif _has_user_flag(TEST_AUTO_EXIT_FLAG):
@@ -377,6 +386,54 @@ func _ready() -> void:
 func _request_test_exit() -> void:
 	print("[Map] Test override enabled: auto exit")
 	get_tree().quit()
+
+
+func _run_f60_drag_select_test_hook() -> void:
+	if not _has_user_flag(TEST_F60_DRAG_SELECT_FLAG):
+		return
+
+	if _controllable_units.is_empty() or not _rts_camera:
+		print("[F60] Summary pass=false reason=missing_units_or_camera")
+		return
+
+	# Single-unit drag (rectangle tightly around one unit).
+	var slot_a_ids: Array[String] = _get_slot_unit_ids("A")
+	if slot_a_ids.is_empty():
+		print("[F60] Summary pass=false reason=no_player_units")
+		return
+
+	# Move one unit far from the others so its screen projection is isolated.
+	var first_unit: SelectableUnit2D = _controllable_units[slot_a_ids[0]]
+	var saved_position := first_unit.position
+	first_unit.position = Vector3(-880.0, 0.0, -880.0)
+	var unit_screen := _rts_camera.unproject_position(first_unit.position)
+	var tight_rect := Rect2(unit_screen - Vector2(20.0, 20.0), Vector2(40.0, 40.0))
+	_apply_drag_box_selection(tight_rect, false)
+	var single_pass := _selected_controllable_units.size() == 1
+	print("[F60] Single-unit drag selected=%d pass=%s" % [_selected_controllable_units.size(), str(single_pass)])
+	first_unit.position = saved_position
+
+	# Multi-unit drag (large rectangle covering all slot A units).
+	var multi_rect := Rect2(Vector2(0.0, 0.0), get_viewport().get_visible_rect().size)
+	_apply_drag_box_selection(multi_rect, false)
+	var multi_pass := _selected_controllable_units.size() > 1
+	print("[F60] Multi-unit drag selected=%d pass=%s" % [_selected_controllable_units.size(), str(multi_pass)])
+
+	# Additive drag adds to existing selection.
+	var prev_count := _selected_controllable_units.size()
+	_apply_drag_box_selection(tight_rect, true)
+	var additive_pass := _selected_controllable_units.size() >= prev_count
+	print("[F60] Additive drag prev=%d after=%d pass=%s" % [prev_count, _selected_controllable_units.size(), str(additive_pass)])
+
+	# Click below drag threshold preserves single-click selection.
+	_select_single_unit(slot_a_ids[0])
+	var click_pass := _selected_controllable_units.size() == 1 and _selected_controllable_units[0] == slot_a_ids[0]
+	print("[F60] Click-threshold preservation pass=%s" % str(click_pass))
+
+	var pass_ok := single_pass and multi_pass and additive_pass and click_pass
+	print("[F60] Summary single=%s multi=%s additive=%s click=%s pass=%s" % [
+		str(single_pass), str(multi_pass), str(additive_pass), str(click_pass), str(pass_ok)
+	])
 
 
 func _run_stage0_media_capture_sequence() -> void:
@@ -3912,20 +3969,36 @@ func _on_tether_penalty(item_id: String, slot: String, faction: String) -> void:
 # -- Camera --------------------------------------------------------------------
 
 func _unhandled_input(event: InputEvent) -> void:
-	if event is InputEventMouseButton and event.pressed:
+	if event is InputEventMouseMotion and _drag_box_active:
+		_drag_box_current = event.position
+		_update_drag_box_overlay()
+		return
+
+	if event is InputEventMouseButton:
+		if event.button_index == MOUSE_BUTTON_LEFT and not event.pressed:
+			if _drag_box_active:
+				_finish_drag_box_selection(event.position)
+				return
+
+		if not event.pressed:
+			return
+
 		if event.button_index == MOUSE_BUTTON_WHEEL_UP:
 			_camera_arm = clamp(_camera_arm - _CAMERA_ZOOM_STEP, _CAMERA_ARM_MIN, _CAMERA_ARM_MAX)
 			_apply_camera_transform()
+			return
 		elif event.button_index == MOUSE_BUTTON_WHEEL_DOWN:
 			_camera_arm = clamp(_camera_arm + _CAMERA_ZOOM_STEP, _CAMERA_ARM_MIN, _CAMERA_ARM_MAX)
 			_apply_camera_transform()
+			return
 		elif event.button_index == MOUSE_BUTTON_LEFT:
 			if _pending_buildable_id != "":
 				var place_hit := _screen_to_ground_point(event.position)
 				if place_hit["ok"]:
 					_place_pending_buildable(place_hit["point"])
 				return
-			_handle_left_click_selection(event.position)
+			_begin_drag_or_click(event.position)
+			return
 		elif event.button_index == MOUSE_BUTTON_RIGHT:
 			_handle_right_click_command(event.position)
 	elif event is InputEventKey and event.pressed and not event.echo:
@@ -3948,6 +4021,95 @@ func _unhandled_input(event: InputEvent) -> void:
 			var selected_index: int = int(PRODUCTION_HOTKEYS[event.keycode])
 			_queue_live_production_by_index(selected_index)
 			return
+
+
+func _begin_drag_or_click(screen_pos: Vector2) -> void:
+	_drag_box_start = screen_pos
+	_drag_box_current = screen_pos
+	_drag_box_active = false
+
+
+# Called each frame when mouse moves while button is held; activates drag above threshold.
+func _update_drag_box_overlay() -> void:
+	var delta := _drag_box_current - _drag_box_start
+	if not _drag_box_active and delta.length() >= _DRAG_BOX_THRESHOLD:
+		_drag_box_active = true
+		_create_drag_box_overlay()
+
+	if _drag_box_active and _drag_box_overlay:
+		var rect := _screen_rect_from_two_points(_drag_box_start, _drag_box_current)
+		_drag_box_overlay.position = rect.position
+		_drag_box_overlay.size = rect.size
+
+
+# Finalise: either single click or box select depending on whether drag activated.
+func _finish_drag_box_selection(screen_pos: Vector2) -> void:
+	_drag_box_current = screen_pos
+	_destroy_drag_box_overlay()
+
+	if not _drag_box_active:
+		# Short movement -- treat as single click.
+		_handle_left_click_selection(screen_pos)
+		_drag_box_active = false
+		return
+
+	_drag_box_active = false
+	var additive := InputMap.has_action("rts_queue_modifier") and Input.is_action_pressed("rts_queue_modifier")
+	var screen_rect := _screen_rect_from_two_points(_drag_box_start, screen_pos)
+	_apply_drag_box_selection(screen_rect, additive)
+
+
+# Select all player units whose screen projection falls inside the drag rectangle.
+func _apply_drag_box_selection(screen_rect: Rect2, additive: bool) -> void:
+	if not additive:
+		_clear_controllable_selection()
+
+	var selected_count := 0
+	for unit_id in _controllable_units.keys():
+		if not _is_player_controllable_unit(str(unit_id)):
+			continue
+		var unit: SelectableUnit2D = _controllable_units[unit_id]
+		if not _rts_camera:
+			continue
+		var screen_pos := _rts_camera.unproject_position(unit.position)
+		if screen_rect.has_point(screen_pos):
+			if not _selected_controllable_units.has(unit_id):
+				_selected_controllable_units.append(unit_id)
+			unit.set_selected(true)
+			selected_count += 1
+
+	if _hud_alert_item:
+		if selected_count > 0:
+			_hud_alert_item.text = "Selected %d units" % selected_count
+		else:
+			_hud_alert_item.text = "No units in selection box"
+	print("[DragSelect] rect=%s additive=%s selected=%d" % [str(screen_rect), str(additive), selected_count])
+
+
+# Helpers for drag overlay rect construction and lifecycle.
+func _screen_rect_from_two_points(a: Vector2, b: Vector2) -> Rect2:
+	var top_left := Vector2(min(a.x, b.x), min(a.y, b.y))
+	var size := Vector2(abs(b.x - a.x), abs(b.y - a.y))
+	return Rect2(top_left, size)
+
+
+func _create_drag_box_overlay() -> void:
+	if _drag_box_overlay and is_instance_valid(_drag_box_overlay):
+		return
+	var hud_layer: CanvasLayer = get_node_or_null("MvpHud")
+	if not hud_layer:
+		return
+	_drag_box_overlay = ColorRect.new()
+	_drag_box_overlay.name = "DragBoxOverlay"
+	_drag_box_overlay.color = Color(0.3, 0.7, 1.0, 0.18)
+	_drag_box_overlay.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	hud_layer.add_child(_drag_box_overlay)
+
+
+func _destroy_drag_box_overlay() -> void:
+	if _drag_box_overlay and is_instance_valid(_drag_box_overlay):
+		_drag_box_overlay.queue_free()
+	_drag_box_overlay = null
 
 
 func _handle_left_click_selection(screen_pos: Vector2) -> void:

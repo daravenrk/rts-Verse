@@ -27,6 +27,19 @@ Track scenario-level evidence for map and flow validation runs.
   - Gate correctly detected remaining open Stage 0 publication closure rows in `docs/planning/next-steps.md`.
   - Gate is now the deterministic final validator to run after manual itch.io publication and tracker updates.
 
+## 2026-06-14 F-60 Live Drag-Box Selection Validation
+
+- Flow: `F-60 Live drag-box selection: single, multi, additive, click-threshold`
+- Scenario: `scenes/core/FirstDuelMap.tscn`
+- Validation command:
+  - `/Applications/Godot.app/Contents/MacOS/godot --headless --quit --path . res://scenes/core/FirstDuelMap.tscn -- --duel-test-f60-drag-select`
+- Result: Pass
+- Notes:
+  - Single-unit drag with isolated screen projection: selected=1 pass=true.
+  - Multi-unit drag with full-viewport rectangle: selected=2 pass=true.
+  - Additive drag preserved existing selection: prev=2 after=2 pass=true.
+  - Click-threshold preservation single-select: pass=true.
+
 ## 2026-06-14 Stage 0 Postpublish Sync Utility Interface Validation
 
 - Flow: `Stage 0 postpublish closure synchronization utility`

@@ -215,12 +215,12 @@ func _apply_input_profile(config: ConfigFile) -> void:
 		InputMap.action_erase_events(action_name)
 		for keycode_value in keycodes:
 			var key_event := InputEventKey.new()
-			key_event.keycode = int(keycode_value)
+			key_event.keycode = int(keycode_value) as Key
 			InputMap.action_add_event(action_name, key_event)
 
 		for mouse_button_value in mouse_buttons:
 			var mouse_event := InputEventMouseButton.new()
-			mouse_event.button_index = int(mouse_button_value)
+			mouse_event.button_index = int(mouse_button_value) as MouseButton
 			InputMap.action_add_event(action_name, mouse_event)
 
 
