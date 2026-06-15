@@ -57,6 +57,7 @@ const TEST_F57_EVENT_ADAPTIVE_BURST_FLAG := "--duel-test-f57-event-adaptive-burs
 const TEST_F58_EVENT_ADAPTIVE_ARCHIVE_FLAG := "--duel-test-f58-event-adaptive-archive"
 const TEST_F59_EVENT_REINIT_REPLAY_FLAG := "--duel-test-f59-event-reinit-replay"
 const TEST_F60_DRAG_SELECT_FLAG := "--duel-test-f60-drag-select"
+const TEST_F61_ENEMY_AI_FLAG := "--duel-test-f61-enemy-ai"
 const STAGE0_CAPTURE_FLAG := "--stage0-capture-media"
 const STAGE0_CAPTURE_DIR_PREFIX := "--stage0-capture-dir="
 const STOCKPILE_CONFIG := {
@@ -361,7 +362,11 @@ var _descent_nodes: Dictionary = {}
 var _corridor_state: String = "stable"
 var _branch_state: Dictionary = {"machine": "pending", "alien": "pending", "hybrid": "pending"}
 
-# -- Drag-box selection state --------------------------------------------------
+# -- Enemy AI state -----------------------------------------------------------
+# How often (seconds) each enemy unit re-evaluates its target.
+const _AI_SCAN_INTERVAL := 1.2
+var _ai_scan_timers: Dictionary = {}  # unit_id -> float time until next scan
+var _ai_target_ids: Dictionary = {}    # unit_id -> target player unit_id or "" --------------------------------------------------
 const _DRAG_BOX_THRESHOLD := 6.0
 # Half-extent of a unit in screen space: derived from torso world size ~8 units.
 # Used to test bounding-rect overlap so edge units are not missed.
@@ -436,6 +441,7 @@ func _ready() -> void:
 	_run_f58_event_adaptive_archive_replay_test_hook()
 	_run_f59_event_reinit_replay_test_hook()
 	_run_f60_drag_select_test_hook()
+	_run_f61_enemy_ai_test_hook()
 	if _has_user_flag(STAGE0_CAPTURE_FLAG):
 		call_deferred("_run_stage0_media_capture_sequence")
 	elif _has_user_flag(TEST_AUTO_EXIT_FLAG):
@@ -446,6 +452,34 @@ func _ready() -> void:
 func _request_test_exit() -> void:
 	print("[Map] Test override enabled: auto exit")
 	get_tree().quit()
+
+
+func _run_f61_enemy_ai_test_hook() -> void:
+	if not _has_user_flag(TEST_F61_ENEMY_AI_FLAG):
+		return
+
+	# Seed all enemy scan timers to 0 so they fire immediately on first update.
+	for unit_id in _controllable_units.keys():
+		if _get_unit_slot(str(unit_id)) == "B":
+			_ai_scan_timers[unit_id] = 0.0
+
+	# Run several AI update ticks.
+	for _step in 30:
+		_update_enemy_ai(0.5)
+		_update_live_units(0.1)
+
+	# Check: at least one enemy unit should now have a move target or attack order.
+	var ai_active := false
+	for unit_id in _controllable_units.keys():
+		if _get_unit_slot(str(unit_id)) != "B":
+			continue
+		var unit: SelectableUnit2D = _controllable_units[unit_id]
+		if unit.has_move_target() or _attack_orders.has(unit_id):
+			ai_active = true
+			break
+
+	print("[F61] Enemy AI active=%s" % str(ai_active))
+	print("[F61] Summary pass=%s" % str(ai_active))
 
 
 func _run_f60_drag_select_test_hook() -> void:
@@ -3728,6 +3762,7 @@ func _run_f09_air_wing_test_hook() -> void:
 func _process(delta: float) -> void:
 	_update_live_units(delta)
 	_update_gather_jobs()
+	_update_enemy_ai(delta)
 	_update_stockpile_telemetry(delta)
 	_update_hud()
 	_process_camera(delta)
@@ -4332,6 +4367,51 @@ func _update_live_units(delta: float) -> void:
 	for unit in _controllable_units.values():
 		unit.simulate_step(delta)
 	_update_attack_orders(delta)
+
+
+func _update_enemy_ai(delta: float) -> void:
+	if _match_over:
+		return
+	for unit_id in _controllable_units.keys():
+		if _get_unit_slot(str(unit_id)) != "B":
+			continue
+		# Decrement this unit's scan timer.
+		var timer: float = float(_ai_scan_timers.get(unit_id, 0.0)) - delta
+		_ai_scan_timers[unit_id] = timer
+		if timer > 0.0:
+			continue
+		# Time to re-scan: find the nearest player unit.
+		_ai_scan_timers[unit_id] = _AI_SCAN_INTERVAL
+		var enemy: SelectableUnit2D = _controllable_units[unit_id]
+		var nearest_id := ""
+		var nearest_dist := INF
+		for pid in _controllable_units.keys():
+			if _get_unit_slot(str(pid)) != "A":
+				continue
+			var player_unit: SelectableUnit2D = _controllable_units[pid]
+			var dist := Vector2(enemy.position.x, enemy.position.z).distance_to(
+				Vector2(player_unit.position.x, player_unit.position.z))
+			if dist < nearest_dist:
+				nearest_dist = dist
+				nearest_id = pid
+
+		if nearest_id == "":
+			# No player units left — head toward player Tether instead.
+			if _tether_points_by_slot.has("A"):
+				var tp: TetherPoint = _tether_points_by_slot["A"]
+				enemy.queue_move(tp.position)
+			continue
+
+		_ai_target_ids[unit_id] = nearest_id
+		var target_unit: SelectableUnit2D = _controllable_units[nearest_id]
+		var range_dist := Vector2(enemy.position.x, enemy.position.z).distance_to(
+			Vector2(target_unit.position.x, target_unit.position.z))
+		if range_dist <= _ATTACK_RANGE_UNITS:
+			# In range — issue attack order via the existing combat system.
+			_attack_orders[str(unit_id)] = nearest_id
+		else:
+			# Out of range — move toward target.
+			enemy.queue_move(target_unit.position)
 
 
 func _register_unit_for_combat(unit_name: String, unit_type: String) -> void:
