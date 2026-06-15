@@ -66,6 +66,7 @@ const TEST_F66_ENEMY_TIMER_CYCLE_STRESS_FLAG := "--duel-test-f66-enemy-timer-cyc
 const TEST_F67_ENEMY_TIMER_JITTER_RECOVERY_FLAG := "--duel-test-f67-enemy-timer-jitter-recovery"
 const TEST_F68_ENEMY_TIMER_JITTER_LONG_HORIZON_FLAG := "--duel-test-f68-enemy-timer-jitter-long-horizon"
 const TEST_F69_ENEMY_ADAPTIVE_JITTER_RECOVERY_FLAG := "--duel-test-f69-enemy-adaptive-jitter-recovery"
+const TEST_F70_ENEMY_ADAPTIVE_JITTER_ENDURANCE_FLAG := "--duel-test-f70-enemy-adaptive-jitter-endurance"
 const STAGE0_CAPTURE_FLAG := "--stage0-capture-media"
 const STAGE0_CAPTURE_DIR_PREFIX := "--stage0-capture-dir="
 const STOCKPILE_CONFIG := {
@@ -474,6 +475,7 @@ func _ready() -> void:
 	_run_f67_enemy_timer_jitter_recovery_test_hook()
 	_run_f68_enemy_timer_jitter_long_horizon_test_hook()
 	_run_f69_enemy_adaptive_jitter_recovery_test_hook()
+	_run_f70_enemy_adaptive_jitter_endurance_test_hook()
 	if _has_user_flag(STAGE0_CAPTURE_FLAG):
 		call_deferred("_run_stage0_media_capture_sequence")
 	elif _has_user_flag(TEST_AUTO_EXIT_FLAG):
@@ -1084,6 +1086,96 @@ func _run_f69_enemy_adaptive_jitter_recovery_test_hook() -> void:
 
 	print("[F69] Aggregate cycle_passes=%d profile_passes=%d max_units_seen=%d cap=%d diversity=%d" % [cycle_passes, profile_passes, max_units_seen, _AI_MAX_SLOT_B_UNITS, diversity_type_set.size()])
 	print("[F69] Summary cycles_pass=%s profile_coverage_pass=%s cap_hold_pass=%s diversity_pass=%s pass=%s" % [str(cycles_pass), str(profile_coverage_pass), str(cap_hold_pass), str(diversity_pass), str(cycles_pass and profile_coverage_pass and cap_hold_pass and diversity_pass)])
+
+
+func _run_f70_enemy_adaptive_jitter_endurance_test_hook() -> void:
+	if not _has_user_flag(TEST_F70_ENEMY_ADAPTIVE_JITTER_ENDURANCE_FLAG):
+		return
+	if not _tether_points_by_slot.has("B"):
+		print("[F70] Summary pass=false reason=missing_enemy_tether")
+		return
+
+	for _build_step in 3:
+		_run_enemy_build_step()
+
+	_ai_production_choice_index = 0
+	for _seed_step in (_AI_MAX_SLOT_B_UNITS * 3):
+		_run_enemy_production_step()
+
+	var cycle_count := 8
+	var cycle_passes := 0
+	var profile_passes := 0
+	var max_units_seen: int = _get_slot_unit_ids("B").size()
+	var diversity_type_set: Dictionary = {}
+	var jitter_profiles: Array[Array] = [
+		[0.06, 0.29, 0.11, 0.38, 0.19, 0.33],
+		[0.09, 0.41, 0.14, 0.27, 0.36, 0.12],
+		[0.07, 0.24, 0.44, 0.16, 0.31, 0.13],
+		[0.05, 0.35, 0.21, 0.39, 0.17, 0.28],
+	]
+
+	for cycle in range(cycle_count):
+		var victim_id := ""
+		for unit_name in _controllable_units.keys():
+			var actor_name := str(unit_name)
+			if actor_name.begins_with("Produced_B_"):
+				victim_id = actor_name
+				break
+		if victim_id == "":
+			print("[F70] Cycle=%d pass=false reason=no_produced_enemy_unit" % cycle)
+			continue
+
+		var before_loss: int = _get_slot_unit_ids("B").size()
+		_destroy_unit(victim_id)
+		var after_loss: int = _get_slot_unit_ids("B").size()
+		var loss_pass: bool = after_loss == before_loss - 1
+
+		_ai_production_timer = _AI_PRODUCTION_INTERVAL
+		var before_timer: int = _get_slot_unit_ids("B").size()
+		var recovery_step := -1
+		var used_profile_index: int = cycle % jitter_profiles.size()
+		var jitter_profile: Array = jitter_profiles[used_profile_index]
+		var used_jitter := false
+		for step in range(320):
+			var jitter_delta: float = float(jitter_profile[step % jitter_profile.size()])
+			if not is_equal_approx(jitter_delta, 0.25):
+				used_jitter = true
+			_update_enemy_ai(jitter_delta)
+			_update_live_units(0.05)
+			var live_units: int = _get_slot_unit_ids("B").size()
+			if live_units > max_units_seen:
+				max_units_seen = live_units
+			if live_units >= _AI_MAX_SLOT_B_UNITS:
+				recovery_step = step
+				break
+
+		var after_timer: int = _get_slot_unit_ids("B").size()
+		var timer_growth_pass: bool = after_timer > before_timer
+		var timer_recovery_pass: bool = after_timer == _AI_MAX_SLOT_B_UNITS
+		var timing_bound_pass: bool = recovery_step >= 0 and recovery_step < 260
+		var profile_pass: bool = used_jitter and jitter_profile.size() >= 6
+		if profile_pass:
+			profile_passes += 1
+
+		for unit_name in _controllable_units.keys():
+			var actor_name := str(unit_name)
+			if not actor_name.begins_with("Produced_B_"):
+				continue
+			var produced_actor: SelectableUnit2D = _controllable_units[actor_name]
+			diversity_type_set[produced_actor.unit_id] = true
+
+		var cycle_pass: bool = loss_pass and timer_growth_pass and timer_recovery_pass and timing_bound_pass
+		if cycle_pass:
+			cycle_passes += 1
+		print("[F70] Cycle=%d profile=%d loss_pass=%s timer_growth_pass=%s timer_recovery_pass=%s timing_bound_pass=%s recovery_step=%d profile_pass=%s units_before=%d units_after=%d" % [cycle, used_profile_index, str(loss_pass), str(timer_growth_pass), str(timer_recovery_pass), str(timing_bound_pass), recovery_step, str(profile_pass), before_timer, after_timer])
+
+	var cycles_pass: bool = cycle_passes == cycle_count
+	var profile_coverage_pass: bool = profile_passes == cycle_count
+	var cap_hold_pass: bool = max_units_seen <= _AI_MAX_SLOT_B_UNITS
+	var diversity_pass: bool = diversity_type_set.size() >= 2
+
+	print("[F70] Aggregate cycle_passes=%d profile_passes=%d max_units_seen=%d cap=%d diversity=%d" % [cycle_passes, profile_passes, max_units_seen, _AI_MAX_SLOT_B_UNITS, diversity_type_set.size()])
+	print("[F70] Summary cycles_pass=%s profile_coverage_pass=%s cap_hold_pass=%s diversity_pass=%s pass=%s" % [str(cycles_pass), str(profile_coverage_pass), str(cap_hold_pass), str(diversity_pass), str(cycles_pass and profile_coverage_pass and cap_hold_pass and diversity_pass)])
 
 
 func _run_f60_drag_select_test_hook() -> void:
