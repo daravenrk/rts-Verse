@@ -2,6 +2,19 @@
 
 Track scenario-level evidence for map and flow validation runs.
 
+## 2026-06-14 Enemy Adaptive-Jitter Sept-Loss Readiness Slice Validation
+
+- Flow: `Adaptive-profile jitter recovery cycles with deterministic sept-loss mixed pressure and cap safety`
+- Scenario: `scenes/core/FirstDuelMap.tscn`
+- Validation command:
+  - `/Applications/Godot.app/Contents/MacOS/godot --headless --quit --path . res://scenes/core/FirstDuelMap.tscn -- --duel-test-f76-enemy-adaptive-jitter-sept-loss --duel-test-f75-enemy-adaptive-jitter-sext-loss --duel-test-f74-enemy-adaptive-jitter-quint-loss --duel-test-f73-enemy-adaptive-jitter-quad-loss --duel-test-f72-enemy-adaptive-jitter-triple-loss --duel-test-f71-enemy-adaptive-jitter-dual-loss --duel-test-f70-enemy-adaptive-jitter-endurance --duel-test-f69-enemy-adaptive-jitter-recovery --duel-test-f68-enemy-timer-jitter-long-horizon --duel-test-f67-enemy-timer-jitter-recovery --duel-test-f66-enemy-timer-cycle-stress --duel-test-f65-enemy-timer-recovery --duel-test-f64-enemy-recovery-stress --duel-test-f63-enemy-cap-recovery --duel-test-f62-enemy-production-horizon --duel-test-f61-enemy-ai --duel-test-f38-production --duel-test-f37-combat --duel-test-f32-interaction --duel-test-f60-drag-select`
+- Result: Pass
+- Notes:
+  - F-76 uses deterministic mixed-loss pressure (`5 produced + 2 baseline squads`) and single-cycle coverage because a second cycle is structurally under-provisioned with current finite baseline slot-B squads.
+  - F-76 validated one adaptive-profile cycle under deterministic sept-loss mixed pressure (`before=10`, `after_loss=3`, `after_recovery=10`).
+  - F-76 aggregate checks passed: `cycles_pass=true`, `profile_coverage_pass=true`, `sept_loss_coverage_pass=true`, `cap_recovery_bound_coverage_pass=true`, `cap_hold_pass=true`, `diversity_pass=true`, `max_units_seen=10`, `diversity=3`.
+  - Regression checks for F-75, F-74, F-73, F-72, F-71, F-70, F-69, F-68, F-67, F-66, F-65, F-64, F-63, F-62, F-61, F-38, F-37, F-32, and F-60 remained pass with no script errors.
+
 ## 2026-06-14 Enemy Adaptive-Jitter Sext-Loss Readiness Slice Validation
 
 - Flow: `Adaptive-profile jitter recovery cycles with deterministic sext-loss mixed pressure and cap safety`
