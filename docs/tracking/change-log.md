@@ -4,6 +4,10 @@ Track high-level project changes with links to decisions and plans.
 
 ## 2026-06-14
 
+- Implemented timed enemy production cadence in duel runtime with `_ai_production_timer` and `_run_enemy_production_step`, enabling slot B to spawn live units on interval once production prerequisites are met.
+- Refactored live production spawning into shared helper `_spawn_live_produced_actor(...)` so player and enemy production paths use the same spawn and combat-registration behavior.
+- Extended F-61 validation to include enemy production progression (`enemy_units_before` vs `enemy_units_after`) in addition to aggression and build checks.
+- Revalidated with `/Applications/Godot.app/Contents/MacOS/godot --headless --quit --path . res://scenes/core/FirstDuelMap.tscn -- --duel-test-f61-enemy-ai --duel-test-f38-production --duel-test-f37-combat --duel-test-f32-interaction --duel-test-f60-drag-select`; all summaries reported pass with no script errors.
 - Implemented timed enemy build progression in duel runtime by activating `_ai_build_timer` in `_update_enemy_ai` and executing `_run_enemy_build_step` on interval.
 - Extended F-61 validation hook to assert both enemy combat activity and enemy build progression (`before` vs `after` build count).
 - Revalidated with `/Applications/Godot.app/Contents/MacOS/godot --headless --quit --path . res://scenes/core/FirstDuelMap.tscn -- --duel-test-f61-enemy-ai --duel-test-f37-combat --duel-test-f32-interaction --duel-test-f60-drag-select`; all summaries reported pass with no script errors.

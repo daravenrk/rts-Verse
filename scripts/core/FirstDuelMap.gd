@@ -369,11 +369,14 @@ var _branch_state: Dictionary = {"machine": "pending", "alien": "pending", "hybr
 const _AI_SCAN_INTERVAL := 1.2
 # How often the enemy attempts to expand its base.
 const _AI_BUILD_INTERVAL := 18.0
+# How often the enemy attempts to produce one combat unit.
+const _AI_PRODUCTION_INTERVAL := 14.0
 # Passive income rate — alloy units added per second per active Alloy Extractor.
 const _EXTRACTOR_INCOME_RATE := 12
 var _ai_scan_timers: Dictionary = {}   # unit_id -> float time until next scan
 var _ai_target_ids: Dictionary = {}    # unit_id -> target player unit_id or ""
 var _ai_build_timer: float = _AI_BUILD_INTERVAL
+var _ai_production_timer: float = _AI_PRODUCTION_INTERVAL
 var _resource_tick_elapsed: float = 0.0
 
 # -- Drag-box selection state --------------------------------------------------
@@ -474,7 +477,12 @@ func _run_f61_enemy_ai_test_hook() -> void:
 			_ai_scan_timers[unit_id] = 0.0
 	# Force one immediate build attempt for deterministic validation.
 	_ai_build_timer = 0.0
+	_ai_production_timer = 0.0
+	# Seed enough baseline structures for deterministic production options.
+	for _build_step in 3:
+		_run_enemy_build_step()
 	var builds_before: int = int(_buildables_by_slot["B"].size())
+	var enemy_units_before: int = _get_slot_unit_ids("B").size()
 
 	# Run several AI update ticks.
 	for _step in 36:
@@ -493,10 +501,13 @@ func _run_f61_enemy_ai_test_hook() -> void:
 
 	var builds_after: int = int(_buildables_by_slot["B"].size())
 	var build_pass: bool = builds_after > builds_before
+	var enemy_units_after: int = _get_slot_unit_ids("B").size()
+	var production_pass: bool = enemy_units_after > enemy_units_before
 
 	print("[F61] Enemy AI active=%s" % str(ai_active))
 	print("[F61] Enemy build progression before=%d after=%d pass=%s" % [builds_before, builds_after, str(build_pass)])
-	print("[F61] Summary active_pass=%s build_pass=%s pass=%s" % [str(ai_active), str(build_pass), str(ai_active and build_pass)])
+	print("[F61] Enemy production progression before=%d after=%d pass=%s" % [enemy_units_before, enemy_units_after, str(production_pass)])
+	print("[F61] Summary active_pass=%s build_pass=%s production_pass=%s pass=%s" % [str(ai_active), str(build_pass), str(production_pass), str(ai_active and build_pass and production_pass)])
 
 
 func _run_f60_drag_select_test_hook() -> void:
@@ -4471,6 +4482,10 @@ func _update_enemy_ai(delta: float) -> void:
 	if _ai_build_timer <= 0.0:
 		_run_enemy_build_step()
 		_ai_build_timer = _AI_BUILD_INTERVAL
+	_ai_production_timer -= delta
+	if _ai_production_timer <= 0.0:
+		_run_enemy_production_step()
+		_ai_production_timer = _AI_PRODUCTION_INTERVAL
 	# Snapshot keys so destruction mid-loop doesn't break iteration.
 	var unit_ids := _controllable_units.keys().duplicate()
 	for unit_id in unit_ids:
@@ -4531,6 +4546,20 @@ func _run_enemy_build_step() -> void:
 			var built := _build_for_slot("B", buildable_id)
 			if built:
 				print("[EnemyAI] Build slot=B buildable=%s" % buildable_id)
+			return
+
+
+func _run_enemy_production_step() -> void:
+	if not _tether_points_by_slot.has("B"):
+		return
+	var tether: TetherPoint = _tether_points_by_slot["B"]
+	var faction: String = tether.faction_id
+	var options: Array[String] = _get_production_options_for_slot("B", faction)
+	for unit_id in options:
+		if unit_id == "-":
+			continue
+		if _spawn_live_produced_actor("B", faction, unit_id):
+			print("[EnemyAI] Produced slot=B faction=%s unit=%s" % [faction, unit_id])
 			return
 
 
@@ -4856,11 +4885,28 @@ func _queue_live_production(unit_id: String) -> bool:
 		return false
 	var tether: TetherPoint = _tether_points_by_slot[slot]
 	var faction: String = tether.faction_id
-	if not _can_produce_unit_for_slot(slot, faction, unit_id):
+	if not _spawn_live_produced_actor(slot, faction, unit_id):
 		if _hud_alert_item:
 			_hud_alert_item.text = "Production locked: %s" % unit_id
 		return false
 
+	var produced_actor_name := "Produced_%s_%03d" % [slot, _production_sequence]
+	var spawn_point := Vector3.ZERO
+	if _controllable_units.has(produced_actor_name):
+		var produced_actor: SelectableUnit2D = _controllable_units[produced_actor_name]
+		spawn_point = produced_actor.position
+	_spawn_move_ping(spawn_point, Color(0.65, 0.9, 1.0, 0.85))
+	if _hud_queue_item:
+		_hud_queue_item.text = "Queued: %s" % unit_id
+	if _hud_alert_item:
+		_hud_alert_item.text = "Produced: %s" % unit_id
+	print("[F38] Production spawn slot=%s faction=%s unit=%s actor=%s" % [slot, faction, unit_id, produced_actor_name])
+	return true
+
+
+func _spawn_live_produced_actor(slot: String, faction: String, unit_id: String) -> bool:
+	if not _can_produce_unit_for_slot(slot, faction, unit_id):
+		return false
 	if not _queue_unit_for_slot(slot, faction, unit_id):
 		return false
 
@@ -4872,13 +4918,6 @@ func _queue_live_production(unit_id: String) -> bool:
 	actor.initialize(unit_id, faction, spawn_point)
 	_controllable_units[actor.name] = actor
 	_register_unit_for_combat(actor.name, actor.unit_id)
-
-	_spawn_move_ping(spawn_point, Color(0.65, 0.9, 1.0, 0.85))
-	if _hud_queue_item:
-		_hud_queue_item.text = "Queued: %s" % unit_id
-	if _hud_alert_item:
-		_hud_alert_item.text = "Produced: %s" % unit_id
-	print("[F38] Production spawn slot=%s faction=%s unit=%s actor=%s" % [slot, faction, unit_id, actor.name])
 	return true
 
 

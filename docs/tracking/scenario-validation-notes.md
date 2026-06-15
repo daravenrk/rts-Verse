@@ -2,6 +2,18 @@
 
 Track scenario-level evidence for map and flow validation runs.
 
+## 2026-06-14 Enemy Production Cadence Readiness Slice Validation
+
+- Flow: `Enemy AI build plus production continuity with shared spawn path`
+- Scenario: `scenes/core/FirstDuelMap.tscn`
+- Validation command:
+  - `/Applications/Godot.app/Contents/MacOS/godot --headless --quit --path . res://scenes/core/FirstDuelMap.tscn -- --duel-test-f61-enemy-ai --duel-test-f38-production --duel-test-f37-combat --duel-test-f32-interaction --duel-test-f60-drag-select`
+- Result: Pass
+- Notes:
+  - Enemy AI now runs timed production attempts via `_ai_production_timer` once build prerequisites are satisfied.
+  - F-61 now validates three conditions: aggression active, build progression positive, and enemy production progression positive.
+  - Player production (F-38), combat (F-37), interaction (F-32), and drag-selection (F-60) remained pass with no script errors.
+
 ## 2026-06-14 Enemy Build-Timer Readiness Slice Validation
 
 - Flow: `Enemy AI aggression plus timed build progression`

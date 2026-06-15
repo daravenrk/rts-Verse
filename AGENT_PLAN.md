@@ -96,6 +96,13 @@
 - Extended F-61 validation to require both enemy aggression activity and positive build progression (`before` and `after` build count).
 - Executed `/Applications/Godot.app/Contents/MacOS/godot --headless --quit --path . res://scenes/core/FirstDuelMap.tscn -- --duel-test-f61-enemy-ai --duel-test-f37-combat --duel-test-f32-interaction --duel-test-f60-drag-select` and verified pass summaries for F-32, F-37, F-60, and F-61 with no script errors.
 
+## Closure Delta 2026-06-14 (Stage 1 Readiness Slice: Enemy Production Continuity)
+
+- Implemented timed enemy production cadence by adding `_ai_production_timer` and `_run_enemy_production_step` in the duel runtime AI loop.
+- Refactored produced-unit spawning into shared helper `_spawn_live_produced_actor(...)` so player and enemy production paths reuse one deterministic spawn and combat-registration flow.
+- Extended F-61 validation to require positive enemy production progression in addition to aggression and build progression.
+- Executed `/Applications/Godot.app/Contents/MacOS/godot --headless --quit --path . res://scenes/core/FirstDuelMap.tscn -- --duel-test-f61-enemy-ai --duel-test-f38-production --duel-test-f37-combat --duel-test-f32-interaction --duel-test-f60-drag-select` and verified pass summaries for F-32, F-37, F-38, F-60, and F-61 with no script errors.
+
 ## Story Breakdown
 
 ```yaml
