@@ -77,6 +77,13 @@
 - Re-ran `zsh docs/release/stage0-media/prepublish_audit.sh`; audit returned `READY` (screenshots `3`, clips `0`, captions present, required files present, count policy ok).
 - Closed media-capture preparation objective O-3001 and cleared media-audit prerequisites; Objective 3 remains parked only on manual external publish and post-publish tracker synchronization.
 
+## Closure Delta 2026-06-14 (Drag Selection Regression Resolved)
+
+- Closed live interaction regression where drag-selection box failed to show and select during gameplay.
+- Moved duel runtime event routing from `_unhandled_input` to `_input` in `scripts/core/FirstDuelMap.gd` so drag begin/motion/release events are processed consistently in the presence of HUD controls.
+- Updated non-interactive HUD controls to `MOUSE_FILTER_IGNORE` to prevent overlay UI from intercepting gameplay mouse actions.
+- Executed `/Applications/Godot.app/Contents/MacOS/godot --headless --quit --path . res://scenes/core/FirstDuelMap.tscn -- --duel-test-f60-drag-select --duel-test-f32-interaction --duel-test-f37-combat` and verified pass summaries for drag selection, core interaction loop, and combat flow.
+
 ## Story Breakdown
 
 ```yaml

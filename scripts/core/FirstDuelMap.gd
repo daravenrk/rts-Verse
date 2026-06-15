@@ -365,8 +365,16 @@ var _branch_state: Dictionary = {"machine": "pending", "alien": "pending", "hybr
 # -- Enemy AI state -----------------------------------------------------------
 # How often (seconds) each enemy unit re-evaluates its target.
 const _AI_SCAN_INTERVAL := 1.2
-var _ai_scan_timers: Dictionary = {}  # unit_id -> float time until next scan
-var _ai_target_ids: Dictionary = {}    # unit_id -> target player unit_id or "" --------------------------------------------------
+# How often the enemy attempts to expand its base.
+const _AI_BUILD_INTERVAL := 18.0
+# Passive income rate — alloy units added per second per active Alloy Extractor.
+const _EXTRACTOR_INCOME_RATE := 12
+var _ai_scan_timers: Dictionary = {}   # unit_id -> float time until next scan
+var _ai_target_ids: Dictionary = {}    # unit_id -> target player unit_id or ""
+var _ai_build_timer: float = _AI_BUILD_INTERVAL
+var _resource_tick_elapsed: float = 0.0
+
+# -- Drag-box selection state --------------------------------------------------
 const _DRAG_BOX_THRESHOLD := 6.0
 # Half-extent of a unit in screen space: derived from torso world size ~8 units.
 # Used to test bounding-rect overlap so edge units are not missed.
@@ -806,6 +814,7 @@ func _create_mvp_hud() -> void:
 
 	var hud_root := Control.new()
 	hud_root.set_anchors_preset(Control.PRESET_FULL_RECT)
+	hud_root.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	hud_layer.add_child(hud_root)
 	_hud_root = hud_root
 
@@ -813,6 +822,7 @@ func _create_mvp_hud() -> void:
 	resource_bar.name = "ResourceBar"
 	resource_bar.text = "Alloy: 1000  Power: 400/520  Data: 0  Reclaim: 0"
 	resource_bar.position = Vector2(16, 12)
+	resource_bar.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	hud_root.add_child(resource_bar)
 	_hud_resource_bar = resource_bar
 
@@ -820,6 +830,7 @@ func _create_mvp_hud() -> void:
 	minimap.name = "Minimap"
 	minimap.position = Vector2(16, 460)
 	minimap.size = Vector2(220, 140)
+	minimap.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	hud_root.add_child(minimap)
 
 	var mm_draw := _MinimapDraw.new()
@@ -836,8 +847,10 @@ func _create_mvp_hud() -> void:
 	command_card.name = "CommandCard"
 	command_card.position = Vector2(960, 420)
 	command_card.size = Vector2(300, 180)
+	command_card.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	var command_label := Label.new()
 	command_label.text = "Command Card Placeholder"
+	command_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	command_card.add_child(command_label)
 	_hud_command_card_label = command_label
 	hud_root.add_child(command_card)
@@ -845,14 +858,18 @@ func _create_mvp_hud() -> void:
 	var alert_stack := VBoxContainer.new()
 	alert_stack.name = "Alerts"
 	alert_stack.position = Vector2(480, 12)
+	alert_stack.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	var alert_header := Label.new()
 	alert_header.text = "Alerts"
+	alert_header.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	alert_stack.add_child(alert_header)
 	var alert_item := Label.new()
 	alert_item.text = "No active alerts"
+	alert_item.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	alert_stack.add_child(alert_item)
 	var stockpile_feed_item := Label.new()
 	stockpile_feed_item.text = "Stockpile feed empty"
+	stockpile_feed_item.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	alert_stack.add_child(stockpile_feed_item)
 	hud_root.add_child(alert_stack)
 	_hud_alert_item = alert_item
@@ -861,11 +878,14 @@ func _create_mvp_hud() -> void:
 	var queue_display := VBoxContainer.new()
 	queue_display.name = "QueueDisplay"
 	queue_display.position = Vector2(960, 330)
+	queue_display.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	var queue_header := Label.new()
 	queue_header.text = "Production Queue"
+	queue_header.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	queue_display.add_child(queue_header)
 	var queue_item := Label.new()
 	queue_item.text = "Queue empty"
+	queue_item.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	queue_display.add_child(queue_item)
 	hud_root.add_child(queue_display)
 	_hud_queue_item = queue_item
@@ -874,6 +894,7 @@ func _create_mvp_hud() -> void:
 	match_state.name = "MatchState"
 	match_state.text = "State: In Progress"
 	match_state.position = Vector2(16, 40)
+	match_state.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	hud_root.add_child(match_state)
 	_hud_match_state = match_state
 
@@ -3762,6 +3783,7 @@ func _run_f09_air_wing_test_hook() -> void:
 func _process(delta: float) -> void:
 	_update_live_units(delta)
 	_update_gather_jobs()
+	_update_resource_income(delta)
 	_update_enemy_ai(delta)
 	_update_stockpile_telemetry(delta)
 	_update_hud()
@@ -3776,6 +3798,20 @@ func _update_hud() -> void:
 		_hud_minimap_draw.controllable_units = _controllable_units
 		_hud_minimap_draw.tether_points = _tether_points_by_slot
 		_hud_minimap_draw.queue_redraw()
+
+
+func _update_resource_income(delta: float) -> void:
+	if _match_over:
+		return
+	_resource_tick_elapsed += delta
+	if _resource_tick_elapsed < 1.0:
+		return
+	_resource_tick_elapsed = 0.0
+	# Each built Alloy Extractor on each slot provides passive income.
+	for slot in _buildables_by_slot.keys():
+		var built: Dictionary = _buildables_by_slot[slot]
+		if built.has("alloy_extractor"):
+			_add_stockpile_reserve("alloy", _EXTRACTOR_INCOME_RATE, "extractor_slot_%s" % slot)
 
 
 func _update_stockpile_telemetry(delta: float) -> void:
@@ -4086,7 +4122,7 @@ func _on_tether_penalty(item_id: String, slot: String, faction: String) -> void:
 
 # -- Camera --------------------------------------------------------------------
 
-func _unhandled_input(event: InputEvent) -> void:
+func _input(event: InputEvent) -> void:
 	# Track mouse motion whenever the left button is held so the drag threshold can be crossed.
 	if event is InputEventMouseMotion and _drag_mouse_held:
 		_drag_box_current = event.position
@@ -4372,7 +4408,11 @@ func _update_live_units(delta: float) -> void:
 func _update_enemy_ai(delta: float) -> void:
 	if _match_over:
 		return
-	for unit_id in _controllable_units.keys():
+	# Snapshot keys so destruction mid-loop doesn't break iteration.
+	var unit_ids := _controllable_units.keys().duplicate()
+	for unit_id in unit_ids:
+		if not _controllable_units.has(unit_id):
+			continue
 		if _get_unit_slot(str(unit_id)) != "B":
 			continue
 		# Decrement this unit's scan timer.
@@ -4385,7 +4425,10 @@ func _update_enemy_ai(delta: float) -> void:
 		var enemy: SelectableUnit2D = _controllable_units[unit_id]
 		var nearest_id := ""
 		var nearest_dist := INF
-		for pid in _controllable_units.keys():
+		var player_ids := _controllable_units.keys().duplicate()
+		for pid in player_ids:
+			if not _controllable_units.has(pid):
+				continue
 			if _get_unit_slot(str(pid)) != "A":
 				continue
 			var player_unit: SelectableUnit2D = _controllable_units[pid]
@@ -4403,6 +4446,8 @@ func _update_enemy_ai(delta: float) -> void:
 			continue
 
 		_ai_target_ids[unit_id] = nearest_id
+		if not _controllable_units.has(nearest_id):
+			continue
 		var target_unit: SelectableUnit2D = _controllable_units[nearest_id]
 		var range_dist := Vector2(enemy.position.x, enemy.position.z).distance_to(
 			Vector2(target_unit.position.x, target_unit.position.z))
@@ -4412,6 +4457,18 @@ func _update_enemy_ai(delta: float) -> void:
 		else:
 			# Out of range — move toward target.
 			enemy.queue_move(target_unit.position)
+
+
+func _run_enemy_build_step() -> void:
+	# Build the cheapest missing structure in the T0-T1 chain for slot B.
+	var build_order := ["power_core", "alloy_extractor", "barracks_equivalent",
+		"vehicle_structure", "sensor_uplink", "expansion_hub"]
+	for buildable_id in build_order:
+		if not _buildables_by_slot["B"].has(buildable_id):
+			var built := _build_for_slot("B", buildable_id)
+			if built:
+				print("[EnemyAI] Build slot=B buildable=%s" % buildable_id)
+			return
 
 
 func _register_unit_for_combat(unit_name: String, unit_type: String) -> void:
@@ -4503,7 +4560,8 @@ func _update_attack_orders(delta: float) -> void:
 	if _attack_orders.is_empty():
 		return
 
-	for attacker_id in _attack_orders.keys():
+	var order_ids_cooldown := _attack_orders.keys().duplicate()
+	for attacker_id in order_ids_cooldown:
 		var id := str(attacker_id)
 		if not _controllable_units.has(id):
 			continue
@@ -4512,12 +4570,15 @@ func _update_attack_orders(delta: float) -> void:
 		_attack_cooldowns[id] = cooldown
 
 	var attackers_to_clear: Array[String] = []
-	for attacker_id in _attack_orders.keys():
+	var order_ids := _attack_orders.keys().duplicate()
+	for attacker_id in order_ids:
 		var id := str(attacker_id)
 		if not _controllable_units.has(id):
 			attackers_to_clear.append(id)
 			continue
 
+		if not _attack_orders.has(id):
+			continue
 		var target_id := str(_attack_orders[id])
 		if not _controllable_units.has(target_id):
 			attackers_to_clear.append(id)
@@ -4537,6 +4598,11 @@ func _update_attack_orders(delta: float) -> void:
 		var hp_before := float(_unit_hit_points.get(target_id, _UNIT_BASE_HIT_POINTS))
 		var hp_after := maxf(0.0, hp_before - _ATTACK_DAMAGE_PER_HIT)
 		_unit_hit_points[target_id] = hp_after
+		# Update target's visual HP bar.
+		if _controllable_units.has(target_id):
+			var target_actor: SelectableUnit2D = _controllable_units[target_id]
+			var max_hp := _get_unit_max_hit_points((target_actor as SelectableUnit2D).unit_id)
+			target_actor.set_hp_fraction(hp_after / max_hp)
 		_spawn_move_ping(target.position, Color(1.0, 0.2, 0.2, 0.85))
 		print("[F37] Damage attacker=%s target=%s hp_before=%.1f hp_after=%.1f" % [id, target_id, hp_before, hp_after])
 

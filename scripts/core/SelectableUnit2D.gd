@@ -17,6 +17,12 @@ var is_selected: bool = false
 var _move_target: Vector3 = Vector3.ZERO
 var _has_move_target: bool = false
 var _materials: Array[StandardMaterial3D] = []
+var _hp_bar_fill: MeshInstance3D = null
+var _hp_bar_bg: MeshInstance3D = null
+var _hp_bar_fill_mat: StandardMaterial3D = null
+const _HP_BAR_WIDTH := 9.0
+const _HP_BAR_HEIGHT := 1.2
+const _HP_BAR_Y := 9.8
 
 
 func initialize(new_unit_id: String, new_faction_id: String, start_position: Vector3) -> void:
@@ -42,12 +48,41 @@ func _create_placeholder_mesh() -> void:
 	var forward_marker: MeshInstance3D = PrimitiveVisualKit.make_box_mesh_instance(UNIT_FORWARD_MARKER_SIZE, forward_material, Vector3(0.0, UNIT_FORWARD_MARKER_Y, UNIT_FORWARD_MARKER_Z))
 	add_child(forward_marker)
 
+	# HP bar background (dark grey).
+	var bg_mat := PrimitiveVisualKit.make_material(Color(0.15, 0.15, 0.15), Color.BLACK, false, 1.0, 0.0)
+	_hp_bar_bg = PrimitiveVisualKit.make_box_mesh_instance(
+		Vector3(_HP_BAR_WIDTH, _HP_BAR_HEIGHT, 0.4), bg_mat, Vector3(0.0, _HP_BAR_Y, 0.0))
+	add_child(_hp_bar_bg)
+
+	# HP bar fill (starts green, will update with set_hp_fraction).
+	_hp_bar_fill_mat = PrimitiveVisualKit.make_material(Color(0.2, 0.9, 0.25), Color.BLACK, false, 1.0, 0.0)
+	_hp_bar_fill = PrimitiveVisualKit.make_box_mesh_instance(
+		Vector3(_HP_BAR_WIDTH, _HP_BAR_HEIGHT, 0.5), _hp_bar_fill_mat, Vector3(0.0, _HP_BAR_Y, 0.0))
+	add_child(_hp_bar_fill)
+
 
 func set_selected(selected: bool) -> void:
 	is_selected = selected
 	for material in _materials:
 		material.emission_enabled = selected
 		material.emission = Color(1.0, 0.9, 0.2) if selected else Color.BLACK
+
+
+func set_hp_fraction(fraction: float) -> void:
+	# fraction in 0..1; scales bar and updates colour.
+	var f := clampf(fraction, 0.0, 1.0)
+	if not _hp_bar_fill or not _hp_bar_fill_mat:
+		return
+	# Scale X around left edge by shifting position and scaling mesh.
+	var filled_width := _HP_BAR_WIDTH * f
+	_hp_bar_fill.scale = Vector3(f, 1.0, 1.0)
+	_hp_bar_fill.position = Vector3(-(_HP_BAR_WIDTH - filled_width) * 0.5, _HP_BAR_Y, 0.0)
+	if f > 0.6:
+		_hp_bar_fill_mat.albedo_color = Color(0.2, 0.9, 0.25)
+	elif f > 0.3:
+		_hp_bar_fill_mat.albedo_color = Color(0.95, 0.8, 0.1)
+	else:
+		_hp_bar_fill_mat.albedo_color = Color(0.95, 0.2, 0.15)
 
 
 func queue_move(target: Vector3) -> void:

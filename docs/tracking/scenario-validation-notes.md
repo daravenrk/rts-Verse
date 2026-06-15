@@ -2,6 +2,18 @@
 
 Track scenario-level evidence for map and flow validation runs.
 
+## 2026-06-14 F-60/F-32/F-37 Drag-Input Routing Regression Closure
+
+- Flow: `Live drag-box rendering and selection command-path closure`
+- Scenario: `scenes/core/FirstDuelMap.tscn`
+- Validation command:
+  - `/Applications/Godot.app/Contents/MacOS/godot --headless --quit --path . res://scenes/core/FirstDuelMap.tscn -- --duel-test-f60-drag-select --duel-test-f32-interaction --duel-test-f37-combat`
+- Result: Pass
+- Notes:
+  - Runtime input handling now executes in `_input` so drag motion and release events are processed even when HUD controls exist.
+  - HUD display controls now use `MOUSE_FILTER_IGNORE`, allowing gameplay mouse interactions to pass through visual overlays.
+  - Validation summaries confirmed F-60 drag-select pass, F-32 interaction pass, and F-37 combat pass with no script errors.
+
 ## 2026-06-14 Stage 0 Media Capture and Prepublish Audit Validation
 
 - Flow: `Stage 0 media generation and prepublish readiness`

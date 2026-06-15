@@ -4,6 +4,9 @@ Track high-level project changes with links to decisions and plans.
 
 ## 2026-06-14
 
+- Fixed live drag-selection input routing by moving duel runtime mouse and keyboard handling from `_unhandled_input` to `_input` in `scripts/core/FirstDuelMap.gd`, preventing HUD-layer controls from swallowing drag events before gameplay handlers run.
+- Set MVP HUD display controls to `MOUSE_FILTER_IGNORE` so non-interactive overlays remain visible but do not intercept gameplay mouse interactions.
+- Revalidated live selection and combat hooks with `/Applications/Godot.app/Contents/MacOS/godot --headless --quit --path . res://scenes/core/FirstDuelMap.tscn -- --duel-test-f60-drag-select --duel-test-f32-interaction --duel-test-f37-combat`; all summaries reported pass with no script errors.
 - Added deterministic Stage 0 screenshot capture hook in `scripts/core/FirstDuelMap.gd` (`--stage0-capture-media`) to generate required media from live runtime state.
 - Ran `/Applications/Godot.app/Contents/MacOS/godot --path . res://scenes/core/FirstDuelMap.tscn -- --stage0-capture-media` and generated required screenshots in `docs/release/stage0-media/`.
 - Re-ran Stage 0 media audits with `zsh docs/release/stage0-media/prepublish_audit.sh` and `zsh docs/release/stage0-media/stage0_status_report.sh`; media lane now reports `READY` (screenshots `3`, captions present, count policy ok).
