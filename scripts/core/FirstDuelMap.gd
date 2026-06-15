@@ -56,6 +56,8 @@ const TEST_F56_EVENT_FAULT_BURST_FLAG := "--duel-test-f56-event-fault-burst"
 const TEST_F57_EVENT_ADAPTIVE_BURST_FLAG := "--duel-test-f57-event-adaptive-burst"
 const TEST_F58_EVENT_ADAPTIVE_ARCHIVE_FLAG := "--duel-test-f58-event-adaptive-archive"
 const TEST_F59_EVENT_REINIT_REPLAY_FLAG := "--duel-test-f59-event-reinit-replay"
+const STAGE0_CAPTURE_FLAG := "--stage0-capture-media"
+const STAGE0_CAPTURE_DIR_PREFIX := "--stage0-capture-dir="
 const STOCKPILE_CONFIG := {
 	"alloy": {"cap": 200000, "soft_ratio": 0.3, "hard_ratio": 0.1},
 	"power": {"cap": 160000, "soft_ratio": 0.35, "hard_ratio": 0.12},
@@ -364,7 +366,9 @@ func _ready() -> void:
 	_run_f57_event_adaptive_burst_stability_test_hook()
 	_run_f58_event_adaptive_archive_replay_test_hook()
 	_run_f59_event_reinit_replay_test_hook()
-	if _has_user_flag(TEST_AUTO_EXIT_FLAG):
+	if _has_user_flag(STAGE0_CAPTURE_FLAG):
+		call_deferred("_run_stage0_media_capture_sequence")
+	elif _has_user_flag(TEST_AUTO_EXIT_FLAG):
 		call_deferred("_request_test_exit")
 	_apply_camera_transform()
 
@@ -372,6 +376,159 @@ func _ready() -> void:
 func _request_test_exit() -> void:
 	print("[Map] Test override enabled: auto exit")
 	get_tree().quit()
+
+
+func _run_stage0_media_capture_sequence() -> void:
+	var output_dir := _resolve_stage0_capture_dir()
+	var make_dir_result := DirAccess.make_dir_recursive_absolute(output_dir)
+	if make_dir_result != OK:
+		print("[Stage0Media] Capture aborted reason=mkdir_failed path=%s error=%d" % [output_dir, make_dir_result])
+		get_tree().quit()
+		return
+
+	var first_builder := _find_first_builder_id()
+	if first_builder != "":
+		_select_single_unit(first_builder)
+		_build_for_slot("A", "power_core", _spawn_a.position + Vector3(86.0, 0.0, 24.0))
+		_issue_gather_command("SAFE-ALLOY-A")
+
+	var first_enemy := _find_first_unit_for_slot("B")
+	if first_builder != "" and first_enemy != "":
+		_issue_attack_command(first_enemy)
+
+	for _step in 48:
+		_update_live_units(0.1)
+		_update_gather_jobs()
+
+	var captures: Array[Dictionary] = [
+		{
+			"name": "stage0-shot-01-opening-expansion.png",
+			"target": Vector3(-420.0, 0.0, -32.0),
+			"yaw": -18.0,
+			"arm": 720.0,
+			"state": "opening"
+		},
+		{
+			"name": "stage0-shot-02-contested-objective.png",
+			"target": Vector3(0.0, 0.0, -20.0),
+			"yaw": 4.0,
+			"arm": 640.0,
+			"state": "contested"
+		},
+		{
+			"name": "stage0-shot-03-faction-asymmetry.png",
+			"target": Vector3(120.0, 0.0, 84.0),
+			"yaw": 32.0,
+			"arm": 620.0,
+			"state": "asymmetry"
+		}
+	]
+
+	for capture in captures:
+		_apply_stage0_capture_state(str(capture["state"]))
+		_camera_target = capture["target"]
+		_camera_yaw = float(capture["yaw"])
+		_camera_arm = float(capture["arm"])
+		_apply_camera_transform()
+		await get_tree().process_frame
+		await RenderingServer.frame_post_draw
+		var output_file := output_dir.path_join(str(capture["name"]))
+		var save_ok := _save_stage0_screenshot(output_file)
+		print("[Stage0Media] Capture file=%s ok=%s" % [output_file, str(save_ok)])
+
+	print("[Stage0Media] Capture complete dir=%s" % output_dir)
+	get_tree().quit()
+
+
+func _resolve_stage0_capture_dir() -> String:
+	var cli_dir := _get_user_arg_value(STAGE0_CAPTURE_DIR_PREFIX)
+	if cli_dir.is_empty():
+		return ProjectSettings.globalize_path("res://docs/release/stage0-media")
+	return cli_dir
+
+
+func _save_stage0_screenshot(path: String) -> bool:
+	var viewport_texture := get_viewport().get_texture()
+	if viewport_texture == null:
+		return false
+	var image := viewport_texture.get_image()
+	if image == null:
+		return false
+	if image.is_empty():
+		return false
+	image.flip_y()
+	var save_result := image.save_png(path)
+	return save_result == OK
+
+
+func _apply_stage0_capture_state(state_id: String) -> void:
+	if state_id == "opening":
+		_set_match_state("In Progress", "opening_expansion_pressure")
+		return
+
+	var slot_a_ids := _get_slot_unit_ids("A")
+	var slot_b_ids := _get_slot_unit_ids("B")
+	if slot_a_ids.size() < 3 or slot_b_ids.size() < 3:
+		return
+
+	if state_id == "contested":
+		_set_match_state("In Progress", "contested_objective")
+		_position_units_for_capture(slot_a_ids.slice(0, 3), [
+			Vector3(-48.0, 0.0, -24.0),
+			Vector3(-28.0, 0.0, 4.0),
+			Vector3(-8.0, 0.0, -8.0)
+		])
+		_position_units_for_capture(slot_b_ids.slice(0, 3), [
+			Vector3(16.0, 0.0, 0.0),
+			Vector3(38.0, 0.0, 24.0),
+			Vector3(52.0, 0.0, -18.0)
+		])
+		_select_single_unit(str(slot_a_ids[0]))
+		_issue_attack_command(str(slot_b_ids[0]))
+		for _step in 22:
+			_update_live_units(0.1)
+		return
+
+	if state_id == "asymmetry":
+		_set_match_state("In Progress", "faction_asymmetry")
+		var helion_tank := _find_unit_by_slot_and_type("A", "ember_tank")
+		var veyari_siege := _find_unit_by_slot_and_type("B", "mire_spitter")
+		if helion_tank != "" and veyari_siege != "":
+			_position_units_for_capture([helion_tank], [Vector3(72.0, 0.0, 64.0)])
+			_position_units_for_capture([veyari_siege], [Vector3(152.0, 0.0, 110.0)])
+			_select_single_unit(helion_tank)
+			_issue_attack_command(veyari_siege)
+			for _step in 18:
+				_update_live_units(0.1)
+
+
+func _get_slot_unit_ids(slot: String) -> Array[String]:
+	var result: Array[String] = []
+	for unit_id in _controllable_units.keys():
+		if _get_unit_slot(str(unit_id)) == slot:
+			result.append(str(unit_id))
+	result.sort()
+	return result
+
+
+func _position_units_for_capture(unit_ids: Array, target_positions: Array) -> void:
+	for i in mini(unit_ids.size(), target_positions.size()):
+		var unit_id := str(unit_ids[i])
+		if not _controllable_units.has(unit_id):
+			continue
+		var actor: SelectableUnit2D = _controllable_units[unit_id]
+		actor.position = target_positions[i]
+
+
+func _find_unit_by_slot_and_type(slot: String, unit_type: String) -> String:
+	for unit_id in _controllable_units.keys():
+		var id := str(unit_id)
+		if _get_unit_slot(id) != slot:
+			continue
+		var actor: SelectableUnit2D = _controllable_units[id]
+		if actor.unit_id == unit_type:
+			return id
+	return ""
 
 
 func _spawn_opening_squads() -> void:

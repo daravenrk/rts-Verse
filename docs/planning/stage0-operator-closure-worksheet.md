@@ -15,21 +15,21 @@ Use this worksheet during the external Stage 0 execution window to close T-0046 
 - Date: 2026-06-14
 - Objective lane picked up: Stage 0 external publication closure
 - Commands executed:
+  - `/Applications/Godot.app/Contents/MacOS/godot --path . res://scenes/core/FirstDuelMap.tscn -- --stage0-capture-media`
   - `zsh docs/release/stage0-media/stage0_status_report.sh`
   - `zsh docs/release/stage0-media/prepublish_audit.sh`
-- Outcome: `NOT READY`
+- Outcome: `READY` (media lane)
 - Blocking details:
-  - Required screenshots are missing: `stage0-shot-01-opening-expansion.png`, `stage0-shot-02-contested-objective.png`, `stage0-shot-03-faction-asymmetry.png`.
-  - Screenshot count policy not met (`0`, required `3 to 6`).
+  - Remaining external blockers are publish and post-publish evidence tasks only.
 - Re-entry action:
-  - Capture and stage required screenshots in `docs/release/stage0-media/`, then rerun prepublish audit.
+  - Execute runbook publication and post-publish tracker synchronization.
 
 ## Execution Sequence
 
 | Order | Task ID | Action | Required Output | Result |
 | --- | --- | --- | --- | --- |
-| 1 | T-0046 | Capture 3 to 6 screenshots and optional clips, then finalize gameplay-first captions | Finalized media set and captions-stage0.md | Todo |
-| 2 | T-0047 | Stage media package in docs/release/stage0-media/ and run prepublish audit | prepublish_audit.sh pass with zero unresolved findings | Todo |
+| 1 | T-0046 | Capture 3 to 6 screenshots and optional clips, then finalize gameplay-first captions | Finalized media set and captions-stage0.md | Done (2026-06-14) |
+| 2 | T-0047 | Stage media package in docs/release/stage0-media/ and run prepublish audit | prepublish_audit.sh pass with zero unresolved findings | Done (2026-06-14) |
 | 3 | T-0048 | Publish Stage 0 itch.io Coming Soon page per runbook | Public page live with Pre-Alpha label and no download | Todo |
 | 4 | T-0049 | Complete evidence template and record publish verification notes | stage0-publication-evidence-template.md fully populated | Todo |
 | 5 | T-0050 | Update trackers and close parked objectives | next-steps, change-log, scenario notes updated | Todo |

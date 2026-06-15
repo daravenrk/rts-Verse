@@ -178,22 +178,22 @@
 
 - Outcome: close Stage 0 visibility lane with truthful Pre-Alpha page, representative gameplay media, and evidence-backed tracker updates.
 - Scope boundary: remaining actions are external operator tasks; all in-repo preparation artifacts are complete.
-- Latest validation snapshot (2026-06-14): `stage0_status_report.sh` and `prepublish_audit.sh` both report `NOT READY` due to missing required screenshots and screenshot-count policy failure.
+- Latest validation snapshot (2026-06-14): `prepublish_audit.sh` reports `READY` (required screenshots present and policy-compliant); remaining blockers are external publication and post-publish evidence synchronization.
 
 ### Parked Objective Queue
 
 ```yaml
 - objective_id: O-3001
   title: Capture Stage 0 media set and finalize captions
-  status: parked
-  blocker: manual media capture and export required
-  reentry_condition: select 3 to 6 screenshots plus optional clips and finalize captions from stage0-media-bundle-spec
+  status: closed
+  blocker: none
+  reentry_condition: none
 
 - objective_id: O-3002
   title: Stage media package and pass prepublish audit
-  status: parked
-  blocker: external media assets must be available before audit can run to completion
-  reentry_condition: populate docs/release/stage0-media/ and pass zsh docs/release/stage0-media/prepublish_audit.sh
+  status: closed
+  blocker: none
+  reentry_condition: none
 
 - objective_id: O-3003
   title: Publish itch.io Stage 0 Coming Soon page

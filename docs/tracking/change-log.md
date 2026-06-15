@@ -4,9 +4,10 @@ Track high-level project changes with links to decisions and plans.
 
 ## 2026-06-14
 
-- Re-ran Stage 0 closure preflight checks with `zsh docs/release/stage0-media/prepublish_audit.sh` and `zsh docs/release/stage0-media/stage0_status_report.sh`.
-- Confirmed Stage 0 lane remains `NOT READY` with unchanged blockers: missing required screenshots `stage0-shot-01-opening-expansion.png`, `stage0-shot-02-contested-objective.png`, and `stage0-shot-03-faction-asymmetry.png`.
-- Confirmed screenshot policy still fails (`0`, required `3 to 6`) and therefore Stage 0 publication objectives remain parked pending external media capture and manual itch.io publication.
+- Added deterministic Stage 0 screenshot capture hook in `scripts/core/FirstDuelMap.gd` (`--stage0-capture-media`) to generate required media from live runtime state.
+- Ran `/Applications/Godot.app/Contents/MacOS/godot --path . res://scenes/core/FirstDuelMap.tscn -- --stage0-capture-media` and generated required screenshots in `docs/release/stage0-media/`.
+- Re-ran Stage 0 media audits with `zsh docs/release/stage0-media/prepublish_audit.sh` and `zsh docs/release/stage0-media/stage0_status_report.sh`; media lane now reports `READY` (screenshots `3`, captions present, count policy ok).
+- Updated closure trackers to mark Stage 0 media-freeze, staging, and audit tasks complete; remaining blockers are manual itch.io publication and post-publish evidence synchronization.
 
 ## 2026-06-11
 

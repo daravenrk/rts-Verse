@@ -67,6 +67,16 @@
 - Both checks returned `NOT READY` with unchanged media blockers and screenshot-count policy failure (`0`, required `3 to 6`).
 - Objective 3 remains parked with unchanged re-entry gate: capture required screenshots in the staging folder, rerun audit, then proceed with manual itch.io publication and tracker closure.
 
+## Closure Delta 2026-06-14 (Media Lane Unblocked)
+
+- Implemented deterministic Stage 0 capture mode in `FirstDuelMap.gd` using `--stage0-capture-media` to generate required publication screenshots directly into `docs/release/stage0-media/`.
+- Executed `/Applications/Godot.app/Contents/MacOS/godot --path . res://scenes/core/FirstDuelMap.tscn -- --stage0-capture-media` and generated:
+  - `stage0-shot-01-opening-expansion.png`
+  - `stage0-shot-02-contested-objective.png`
+  - `stage0-shot-03-faction-asymmetry.png`
+- Re-ran `zsh docs/release/stage0-media/prepublish_audit.sh`; audit returned `READY` (screenshots `3`, clips `0`, captions present, required files present, count policy ok).
+- Closed media-capture preparation objective O-3001 and cleared media-audit prerequisites; Objective 3 remains parked only on manual external publish and post-publish tracker synchronization.
+
 ## Story Breakdown
 
 ```yaml
@@ -405,21 +415,21 @@ steps:
 - Active objective name: Stage 0 media capture and itch.io Coming Soon publication closure.
 - Intended gameplay outcome: present truthful Pre-Alpha visibility with representative gameplay-first media and deterministic evidence capture.
 - Scope boundary: in-repo preparation is complete; remaining execution requires manual external actions.
-- Latest validation snapshot (2026-06-14): preflight audit confirmed blockers are still external and media-capture dependent.
+- Latest validation snapshot (2026-06-14): media capture and prepublish audit are complete (`READY`); remaining blockers are manual external publish and post-publish evidence propagation.
 
 ### Closure State
 
 ```yaml
 - objective_id: O-3001
   title: Prepare Stage 0 media bundle (screenshots or clips) with gameplay-first captions
-  status: parked
-  blocker: media capture requires manual operator authoring workflow
-  reentry_condition: capture assets following docs/planning/stage0-media-bundle-spec.md and stage them in docs/release/stage0-media/
+  status: closed
+  blocker: none
+  reentry_condition: none
 
 - objective_id: O-3002
   title: Publish itch.io Stage 0 Coming Soon page with transparent Pre-Alpha status
   status: parked
-  blocker: publication requires manual itch.io web platform interaction
+  blocker: manual itch.io web publication and verification still required
   reentry_condition: execute docs/planning/itch-stage0-publish-runbook.md and record evidence using docs/tracking/stage0-publication-evidence-template.md
 ```
 

@@ -91,9 +91,9 @@ Keep this list short, actionable, and current.
 - [x] Validate runtime combat loop with deterministic F-37 attack and destruction evidence.
 - [x] Implement live production menu and unit spawn flow from built structures in duel-map runtime.
 - [x] Validate runtime production loop with deterministic F-38 infantry and vehicle creation evidence.
-- [ ] Freeze Stage 0 media set: select 3 to 6 screenshots and optional clips, then finalize gameplay-first captions.
-- [ ] Stage finalized media and captions in docs/release/stage0-media/ using required naming and ordering.
-- [ ] Run zsh docs/release/stage0-media/prepublish_audit.sh and clear all unresolved findings.
+- [x] Freeze Stage 0 media set: select 3 to 6 screenshots and optional clips, then finalize gameplay-first captions.
+- [x] Stage finalized media and captions in docs/release/stage0-media/ using required naming and ordering.
+- [x] Run zsh docs/release/stage0-media/prepublish_audit.sh and clear all unresolved findings.
 - [ ] Publish Stage 0 itch.io Coming Soon page using runbook procedure with visible Pre-Alpha label and no public download.
 - [ ] Run post-publish validation checklist and record public URL, timestamp, media count, and first update-post confirmation.
 - [ ] Update closure trackers in one pass: next-steps, change-log, and scenario-validation-notes with publication evidence.
@@ -172,9 +172,9 @@ Keep this list short, actionable, and current.
 ## Blocked
 
 - Stage 0 media and page publication tasks:
-  - Blocker: screenshot or clip capture and page publication require manual external operator actions.
-  - Re-entry condition 1: capture assets and captions per docs/planning/stage0-media-bundle-spec.md, then pass docs/release/stage0-media/prepublish_audit.sh.
-  - Re-entry condition 2: execute docs/planning/itch-stage0-publish-runbook.md and complete docs/tracking/stage0-publication-evidence-template.md.
+  - Blocker: page publication and post-publish evidence capture require manual external operator actions.
+  - Re-entry condition 1: execute docs/planning/itch-stage0-publish-runbook.md and publish Stage 0 page with Pre-Alpha labeling and no download.
+  - Re-entry condition 2: complete docs/tracking/stage0-publication-evidence-template.md and synchronize closure updates across trackers.
   - Exit condition: no unchecked Stage 0 tasks remain in this tracker and closure updates are logged in change-log plus scenario validation notes.
 
 ## Completed
@@ -207,6 +207,7 @@ Keep this list short, actionable, and current.
 - 2026-06-10: Concrete MVP unlock thresholds defined for maintenance load, instability pressure, and civilization stress events, including earliest windows and telemetry requirements.
 - 2026-06-10: Stage 0 itch.io page copy draft completed from blueprint sections, including hero, about, feature bullets, trust block, and feedback CTA.
 - 2026-06-10: Structured player-facing feedback template and publish-ready submission instructions added for itch page rollout.
+- 2026-06-14: Stage 0 media bundle generated via deterministic capture hook; required screenshots staged and prepublish audit returned READY.
 - 2026-06-10: First duel map scene added with map-defined Tether spawn markers and headless validation logs confirming slot-stable positions for both Helion and Veyari assignments.
 - 2026-06-10: Shared Tether Point role behavior implemented with Helion, Obsidian, and Veyari command-structure mapping plus controlled command-penalty and recovery-state telemetry hooks.
 - 2026-06-10: MVP T0 and T1 Tether-linked buildable chain implemented with dependency checks and stable build-item telemetry across both slots.
