@@ -27,7 +27,7 @@ Define and deliver the first playable RTS vertical slice expressing daravenrk's 
 
 ## M2 Core Gameplay Loop
 
-- Status: In Progress (simulation baseline and headless validation complete; visual scene assembly pending)
+- Status: In Progress (visual scene assembly complete; live selection, drag-box, camera-center, and command-card feedback delivered)
 - Outcomes:
   - Default startup scene baseline implemented (Main.tscn) and wired as project main scene.
   - Startup UX flow implemented: splash first, then main menu on first key press or 5-second timeout.

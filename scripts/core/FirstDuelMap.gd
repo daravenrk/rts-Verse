@@ -941,6 +941,7 @@ func _clear_controllable_selection() -> void:
 			var selected_unit: SelectableUnit2D = _controllable_units[unit_id]
 			selected_unit.set_selected(false)
 	_selected_controllable_units.clear()
+	_refresh_selection_card()
 
 
 func _select_single_unit(unit_id: String, additive: bool = false) -> void:
@@ -4083,6 +4084,7 @@ func _apply_drag_box_selection(screen_rect: Rect2, additive: bool) -> void:
 			_hud_alert_item.text = "Selected %d units" % selected_count
 		else:
 			_hud_alert_item.text = "No units in selection box"
+	_refresh_selection_card()
 	print("[DragSelect] rect=%s additive=%s selected=%d" % [str(screen_rect), str(additive), selected_count])
 
 
@@ -4134,6 +4136,7 @@ func _handle_left_click_selection(screen_pos: Vector2) -> void:
 
 	if nearest_id != "" and nearest_distance <= _SELECT_RADIUS_UNITS:
 		_select_single_unit(nearest_id, additive)
+		_refresh_selection_card()
 	else:
 		if not additive:
 			_clear_controllable_selection()
@@ -4683,9 +4686,33 @@ func _clear_gather_jobs_for_selected_units() -> void:
 
 
 func _reset_command_card_text() -> void:
-	if _hud_command_card_label:
-		_hud_command_card_label.text = "Command Card Placeholder"
 	_production_menu_active = false
+	_refresh_selection_card()
+
+
+func _refresh_selection_card() -> void:
+	if not _hud_command_card_label:
+		return
+	if _build_menu_active or _production_menu_active or _pending_buildable_id != "":
+		return
+	if _selected_controllable_units.is_empty():
+		_hud_command_card_label.text = "Nothing selected"
+		return
+
+	var count := _selected_controllable_units.size()
+	var first_id := str(_selected_controllable_units[0])
+	var unit_type := ""
+	var is_builder := false
+	if _controllable_units.has(first_id):
+		var unit: SelectableUnit2D = _controllable_units[first_id]
+		unit_type = unit.unit_id
+		is_builder = _is_builder_unit(unit_type)
+
+	var builder_hint := "  [B] Build" if is_builder else ""
+	if count == 1:
+		_hud_command_card_label.text = "Selected: %s%s" % [unit_type, builder_hint]
+	else:
+		_hud_command_card_label.text = "Selected: %d units (%s ...)%s" % [count, unit_type, builder_hint]
 
 
 func _process_camera(delta: float) -> void:

@@ -212,6 +212,7 @@ Keep this list short, actionable, and current.
 - 2026-06-10: Structured player-facing feedback template and publish-ready submission instructions added for itch page rollout.
 - 2026-06-14: Deterministic duel-runtime user interaction contract documented with explicit input-routing, command-arbitration, rejection, and feedback rules aligned to existing F-18/F-19/F-32/F-33/F-35/F-36/F-37/F-38 validation coverage.
 - 2026-06-14: Live drag-box selection implemented with thresholded click-vs-drag arbitration, screen-space overlay, screen-projection selection pass, and Shift-additive support; F-60 passed single, multi, additive, and click-threshold cases.
+- 2026-06-14: Command card now shows selected unit name, count, and builder hint; clears to Nothing selected when selection is empty. Camera-center-on-base (F1) and keyboard zoom (= and -) implemented and smoke-validated.
 - 2026-06-14: Stage 0 media bundle generated via deterministic capture hook; required screenshots staged and prepublish audit returned READY.
 - 2026-06-10: First duel map scene added with map-defined Tether spawn markers and headless validation logs confirming slot-stable positions for both Helion and Veyari assignments.
 - 2026-06-10: Shared Tether Point role behavior implemented with Helion, Obsidian, and Veyari command-structure mapping plus controlled command-penalty and recovery-state telemetry hooks.
