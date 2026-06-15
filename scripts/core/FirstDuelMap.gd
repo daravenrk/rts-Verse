@@ -243,6 +243,7 @@ const _CAMERA_ARM_MAX := 1200.0
 const _CAMERA_PAN_SPEED := 400.0
 const _CAMERA_ROTATE_SPEED := 60.0
 const _CAMERA_ZOOM_STEP := 80.0
+const _CAMERA_ZOOM_KEY_SPEED := 520.0
 const _SELECT_RADIUS_UNITS := 18.0
 const _ATTACK_SELECT_RADIUS_UNITS := 14.0
 const _ATTACK_RANGE_UNITS := 18.0
@@ -3928,6 +3929,12 @@ func _unhandled_input(event: InputEvent) -> void:
 		elif event.button_index == MOUSE_BUTTON_RIGHT:
 			_handle_right_click_command(event.position)
 	elif event is InputEventKey and event.pressed and not event.echo:
+		if event.is_action_pressed("rts_camera_center_command"):
+			_center_camera_on_player_base()
+			return
+		if event.is_action_pressed("rts_camera_center_selection"):
+			_center_camera_on_selection()
+			return
 		if event.keycode == KEY_B:
 			_toggle_build_menu()
 			return
@@ -4541,8 +4548,52 @@ func _process_camera(delta: float) -> void:
 	if InputMap.has_action("rts_camera_rotate_right") and Input.is_action_pressed("rts_camera_rotate_right"):
 		_camera_yaw += _CAMERA_ROTATE_SPEED * delta
 		changed = true
+	if InputMap.has_action("rts_camera_zoom_in") and Input.is_action_pressed("rts_camera_zoom_in"):
+		_camera_arm = clamp(_camera_arm - _CAMERA_ZOOM_KEY_SPEED * delta, _CAMERA_ARM_MIN, _CAMERA_ARM_MAX)
+		changed = true
+	if InputMap.has_action("rts_camera_zoom_out") and Input.is_action_pressed("rts_camera_zoom_out"):
+		_camera_arm = clamp(_camera_arm + _CAMERA_ZOOM_KEY_SPEED * delta, _CAMERA_ARM_MIN, _CAMERA_ARM_MAX)
+		changed = true
 	if changed:
 		_apply_camera_transform()
+
+
+func _center_camera_on_player_base() -> void:
+	if _tether_points_by_slot.has("A"):
+		var tether: TetherPoint = _tether_points_by_slot["A"]
+		_camera_target = tether.position
+		_apply_camera_transform()
+		if _hud_alert_item:
+			_hud_alert_item.text = "Camera centered on base"
+		print("[Camera] Center base slot=A position=%s" % str(tether.position))
+		return
+
+	var fallback_unit_id := _find_first_unit_for_slot("A")
+	if fallback_unit_id != "" and _controllable_units.has(fallback_unit_id):
+		var unit: SelectableUnit2D = _controllable_units[fallback_unit_id]
+		_camera_target = unit.position
+		_apply_camera_transform()
+		if _hud_alert_item:
+			_hud_alert_item.text = "Camera centered on opening squad"
+		print("[Camera] Center fallback unit=%s position=%s" % [fallback_unit_id, str(unit.position)])
+
+
+func _center_camera_on_selection() -> void:
+	if _selected_controllable_units.is_empty():
+		_center_camera_on_player_base()
+		return
+
+	var unit_id := str(_selected_controllable_units[0])
+	if not _controllable_units.has(unit_id):
+		_center_camera_on_player_base()
+		return
+
+	var unit: SelectableUnit2D = _controllable_units[unit_id]
+	_camera_target = unit.position
+	_apply_camera_transform()
+	if _hud_alert_item:
+		_hud_alert_item.text = "Camera centered on selection"
+	print("[Camera] Center selection unit=%s position=%s" % [unit_id, str(unit.position)])
 
 
 func _apply_camera_transform() -> void:
