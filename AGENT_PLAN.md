@@ -145,6 +145,12 @@
 - Validated aggregate F-67 checks for cycle pass coverage, jitter-path confirmation (`jitter_used=true` each cycle), and cap-hold safety (`max_units_seen <= cap`).
 - Executed `/Applications/Godot.app/Contents/MacOS/godot --headless --quit --path . res://scenes/core/FirstDuelMap.tscn -- --duel-test-f67-enemy-timer-jitter-recovery --duel-test-f66-enemy-timer-cycle-stress --duel-test-f65-enemy-timer-recovery --duel-test-f64-enemy-recovery-stress --duel-test-f63-enemy-cap-recovery --duel-test-f62-enemy-production-horizon --duel-test-f61-enemy-ai --duel-test-f38-production --duel-test-f37-combat --duel-test-f32-interaction --duel-test-f60-drag-select` and verified pass summaries for F-67 through F-60 targeted flows with no script errors.
 
+## Closure Delta 2026-06-14 (Stage 1 Readiness Slice: Enemy Long-Horizon Jitter Recovery)
+
+- Added deterministic F-68 enemy long-horizon timer-jitter hook (`--duel-test-f68-enemy-timer-jitter-long-horizon`) to validate repeated recovery timing bounds, cap-hold safety, and produced-unit diversity over extended cycles.
+- Validated aggregate F-68 checks for cycle pass coverage (`5/5`), jitter-path confirmation (`jitter_used=true` each cycle), cap-hold safety (`max_units_seen <= cap`), and diversity stability (`diversity >= 2`).
+- Executed `/Applications/Godot.app/Contents/MacOS/godot --headless --quit --path . res://scenes/core/FirstDuelMap.tscn -- --duel-test-f68-enemy-timer-jitter-long-horizon --duel-test-f67-enemy-timer-jitter-recovery --duel-test-f66-enemy-timer-cycle-stress --duel-test-f65-enemy-timer-recovery --duel-test-f64-enemy-recovery-stress --duel-test-f63-enemy-cap-recovery --duel-test-f62-enemy-production-horizon --duel-test-f61-enemy-ai --duel-test-f38-production --duel-test-f37-combat --duel-test-f32-interaction --duel-test-f60-drag-select` and verified pass summaries for F-68 through F-60 targeted flows with no script errors.
+
 ## Story Breakdown
 
 ```yaml
