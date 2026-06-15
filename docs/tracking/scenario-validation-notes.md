@@ -2,6 +2,18 @@
 
 Track scenario-level evidence for map and flow validation runs.
 
+## 2026-06-14 Enemy Adaptive-Jitter Recovery Readiness Slice Validation
+
+- Flow: `Profile-rotated jittered timer recovery cycles with timing and cap safety`
+- Scenario: `scenes/core/FirstDuelMap.tscn`
+- Validation command:
+  - `/Applications/Godot.app/Contents/MacOS/godot --headless --quit --path . res://scenes/core/FirstDuelMap.tscn -- --duel-test-f69-enemy-adaptive-jitter-recovery --duel-test-f68-enemy-timer-jitter-long-horizon --duel-test-f67-enemy-timer-jitter-recovery --duel-test-f66-enemy-timer-cycle-stress --duel-test-f65-enemy-timer-recovery --duel-test-f64-enemy-recovery-stress --duel-test-f63-enemy-cap-recovery --duel-test-f62-enemy-production-horizon --duel-test-f61-enemy-ai --duel-test-f38-production --duel-test-f37-combat --duel-test-f32-interaction --duel-test-f60-drag-select`
+- Result: Pass
+- Notes:
+  - F-69 validated six adaptive-profile recovery cycles with bounded recovery timing (`recovery_step=58,65,64` pattern by profile).
+  - F-69 aggregate checks passed: `cycles_pass=true`, `profile_coverage_pass=true`, `cap_hold_pass=true`, `diversity_pass=true`, `max_units_seen=10`, `diversity=3`.
+  - Regression checks for F-68, F-67, F-66, F-65, F-64, F-63, F-62, F-61, F-38, F-37, F-32, and F-60 remained pass with no script errors.
+
 ## 2026-06-14 Enemy Long-Horizon Timer-Jitter Recovery Readiness Slice Validation
 
 - Flow: `Extended jittered timer-driven recovery cycles with timing bounds and diversity safety`
