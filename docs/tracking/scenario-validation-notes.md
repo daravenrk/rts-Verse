@@ -2,6 +2,18 @@
 
 Track scenario-level evidence for map and flow validation runs.
 
+## 2026-06-14 Enemy Production Horizon Stability Readiness Slice Validation
+
+- Flow: `Long-horizon enemy production saturation and guardrail stability`
+- Scenario: `scenes/core/FirstDuelMap.tscn`
+- Validation command:
+  - `/Applications/Godot.app/Contents/MacOS/godot --headless --quit --path . res://scenes/core/FirstDuelMap.tscn -- --duel-test-f62-enemy-production-horizon --duel-test-f61-enemy-ai --duel-test-f38-production --duel-test-f37-combat --duel-test-f32-interaction --duel-test-f60-drag-select`
+- Result: Pass
+- Notes:
+  - F-62 confirmed deterministic growth to cap, cap hold at `10`, and cap-block behavior under repeated extra production attempts.
+  - F-62 confirmed produced-unit delta growth and rotation diversity (`unique_types=3`) for enemy slot-B produced actors.
+  - Regression checks for F-61, F-38, F-37, F-32, and F-60 remained pass with no script errors.
+
 ## 2026-06-14 Enemy Production Guardrails Readiness Slice Validation
 
 - Flow: `Enemy production cap and rotation stability`

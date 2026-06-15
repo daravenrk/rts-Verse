@@ -4,6 +4,9 @@ Track high-level project changes with links to decisions and plans.
 
 ## 2026-06-14
 
+- Added deterministic F-62 enemy production horizon validation hook (`--duel-test-f62-enemy-production-horizon`) to stress repeated enemy production attempts under cap constraints.
+- F-62 now validates cap saturation and stability signals: growth toward cap, hard cap hold, produced-unit delta growth, rotation diversity, and cap-block behavior on extra attempts.
+- Revalidated with `/Applications/Godot.app/Contents/MacOS/godot --headless --quit --path . res://scenes/core/FirstDuelMap.tscn -- --duel-test-f62-enemy-production-horizon --duel-test-f61-enemy-ai --duel-test-f38-production --duel-test-f37-combat --duel-test-f32-interaction --duel-test-f60-drag-select`; all summaries reported pass with no script errors.
 - Added enemy production guardrails in duel runtime: slot-B unit cap (`_AI_MAX_SLOT_B_UNITS`) and rotating production choice index to diversify AI-produced unit mix.
 - Extended F-61 validation with explicit enemy unit-cap compliance check (`cap_pass`) while retaining aggression, build progression, and production progression checks.
 - Revalidated with `/Applications/Godot.app/Contents/MacOS/godot --headless --quit --path . res://scenes/core/FirstDuelMap.tscn -- --duel-test-f61-enemy-ai --duel-test-f38-production --duel-test-f37-combat --duel-test-f32-interaction --duel-test-f60-drag-select`; all summaries reported pass with no script errors.

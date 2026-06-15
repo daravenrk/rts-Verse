@@ -58,6 +58,7 @@ const TEST_F58_EVENT_ADAPTIVE_ARCHIVE_FLAG := "--duel-test-f58-event-adaptive-ar
 const TEST_F59_EVENT_REINIT_REPLAY_FLAG := "--duel-test-f59-event-reinit-replay"
 const TEST_F60_DRAG_SELECT_FLAG := "--duel-test-f60-drag-select"
 const TEST_F61_ENEMY_AI_FLAG := "--duel-test-f61-enemy-ai"
+const TEST_F62_ENEMY_PRODUCTION_HORIZON_FLAG := "--duel-test-f62-enemy-production-horizon"
 const STAGE0_CAPTURE_FLAG := "--stage0-capture-media"
 const STAGE0_CAPTURE_DIR_PREFIX := "--stage0-capture-dir="
 const STOCKPILE_CONFIG := {
@@ -458,6 +459,7 @@ func _ready() -> void:
 	_run_f59_event_reinit_replay_test_hook()
 	_run_f60_drag_select_test_hook()
 	_run_f61_enemy_ai_test_hook()
+	_run_f62_enemy_production_horizon_test_hook()
 	if _has_user_flag(STAGE0_CAPTURE_FLAG):
 		call_deferred("_run_stage0_media_capture_sequence")
 	elif _has_user_flag(TEST_AUTO_EXIT_FLAG):
@@ -513,6 +515,59 @@ func _run_f61_enemy_ai_test_hook() -> void:
 	print("[F61] Enemy production progression before=%d after=%d pass=%s" % [enemy_units_before, enemy_units_after, str(production_pass)])
 	print("[F61] Enemy unit cap max=%d current=%d pass=%s" % [_AI_MAX_SLOT_B_UNITS, enemy_units_after, str(cap_pass)])
 	print("[F61] Summary active_pass=%s build_pass=%s production_pass=%s cap_pass=%s pass=%s" % [str(ai_active), str(build_pass), str(production_pass), str(cap_pass), str(ai_active and build_pass and production_pass and cap_pass)])
+
+
+func _run_f62_enemy_production_horizon_test_hook() -> void:
+	if not _has_user_flag(TEST_F62_ENEMY_PRODUCTION_HORIZON_FLAG):
+		return
+	if not _tether_points_by_slot.has("B"):
+		print("[F62] Summary pass=false reason=missing_enemy_tether")
+		return
+
+	# Prime build state so enemy production options are available deterministically.
+	for _build_step in 3:
+		_run_enemy_build_step()
+	_ai_production_choice_index = 0
+	_ai_production_timer = 0.0
+
+	var baseline_enemy_units: int = _get_slot_unit_ids("B").size()
+	var baseline_produced_count: int = 0
+	for unit_name in _controllable_units.keys():
+		var actor_name := str(unit_name)
+		if actor_name.begins_with("Produced_B_"):
+			baseline_produced_count += 1
+
+	var saturation_steps: int = _AI_MAX_SLOT_B_UNITS * 3
+	for _step in saturation_steps:
+		_run_enemy_production_step()
+
+	var saturated_enemy_units: int = _get_slot_unit_ids("B").size()
+	var cap_hold_pass: bool = saturated_enemy_units <= _AI_MAX_SLOT_B_UNITS
+	var growth_pass: bool = saturated_enemy_units > baseline_enemy_units
+
+	var produced_count: int = 0
+	var produced_type_set: Dictionary = {}
+	for unit_name in _controllable_units.keys():
+		var actor_name := str(unit_name)
+		if not actor_name.begins_with("Produced_B_"):
+			continue
+		var produced_actor: SelectableUnit2D = _controllable_units[actor_name]
+		produced_count += 1
+		produced_type_set[produced_actor.unit_id] = true
+	var production_delta_pass: bool = produced_count > baseline_produced_count
+	var diversity_pass: bool = produced_type_set.size() >= 2
+
+	var units_before_extra: int = _get_slot_unit_ids("B").size()
+	for _extra in 12:
+		_run_enemy_production_step()
+	var units_after_extra: int = _get_slot_unit_ids("B").size()
+	var cap_block_pass: bool = units_after_extra == units_before_extra and units_after_extra <= _AI_MAX_SLOT_B_UNITS
+
+	print("[F62] Enemy saturation baseline=%d saturated=%d cap=%d cap_hold_pass=%s" % [baseline_enemy_units, saturated_enemy_units, _AI_MAX_SLOT_B_UNITS, str(cap_hold_pass)])
+	print("[F62] Enemy production delta baseline_produced=%d produced_now=%d pass=%s" % [baseline_produced_count, produced_count, str(production_delta_pass)])
+	print("[F62] Enemy production diversity unique_types=%d pass=%s" % [produced_type_set.size(), str(diversity_pass)])
+	print("[F62] Enemy cap block units_before_extra=%d units_after_extra=%d pass=%s" % [units_before_extra, units_after_extra, str(cap_block_pass)])
+	print("[F62] Summary growth_pass=%s cap_hold_pass=%s production_delta_pass=%s diversity_pass=%s cap_block_pass=%s pass=%s" % [str(growth_pass), str(cap_hold_pass), str(production_delta_pass), str(diversity_pass), str(cap_block_pass), str(growth_pass and cap_hold_pass and production_delta_pass and diversity_pass and cap_block_pass)])
 
 
 func _run_f60_drag_select_test_hook() -> void:

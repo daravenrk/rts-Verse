@@ -102,6 +102,8 @@ Keep this list short, actionable, and current.
 - [x] Define and execute the next in-repo Stage 1 readiness slice with explicit functional, integration, and smoke validation evidence.
 - [x] Add timed enemy production cadence and validate shared production-path stability across enemy and player production flows.
 - [x] Add enemy production guardrails (cap plus rotation) and validate no-regression behavior across F-32/F-37/F-38/F-60/F-61.
+- [x] Add long-horizon enemy production saturation validation hook with explicit cap-hold and cap-block assertions under repeated production attempts.
+- [x] Run expanded readiness smoke validation (F-62/F-61/F-38/F-37/F-32/F-60) and capture guardrail-stability evidence in scenario-validation-notes.
 - [x] Add live left-drag box-selection input state to duel map with click-vs-drag threshold and additive Shift support.
 - [x] Add drag-rectangle screen overlay feedback and connect rectangle bounds to selection projection checks.
 - [x] Run drag-selection validation flow (single, multi, additive, click-threshold preservation) and record evidence in scenario-validation-notes.
