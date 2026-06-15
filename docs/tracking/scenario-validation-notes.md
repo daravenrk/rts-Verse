@@ -2,6 +2,17 @@
 
 Track scenario-level evidence for map and flow validation runs.
 
+## 2026-06-14 Soft Unit-Collision Limiting Validation
+
+- Flow: `Live moving-unit overlap limiting and regression smoke`
+- Scenario: `scenes/core/FirstDuelMap.tscn`
+- Validation command:
+  - `/Applications/Godot.app/Contents/MacOS/godot --headless --quit --path . res://scenes/core/FirstDuelMap.tscn -- --duel-test-f32-interaction --duel-test-f37-combat --duel-test-f60-drag-select --duel-test-f61-enemy-ai`
+- Result: Pass
+- Notes:
+  - Added bounded soft-separation pass after movement simulation to reduce unit overlap while preserving command responsiveness.
+  - Interaction, combat, drag-selection, and enemy-AI summaries all remained pass with no script errors.
+
 ## 2026-06-14 F-60/F-32/F-37 Drag-Input Routing Regression Closure
 
 - Flow: `Live drag-box rendering and selection command-path closure`

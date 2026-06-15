@@ -252,6 +252,8 @@ const _ATTACK_RANGE_UNITS := 18.0
 const _ATTACK_DAMAGE_PER_HIT := 16.0
 const _ATTACK_COOLDOWN_SECONDS := 0.6
 const _UNIT_BASE_HIT_POINTS := 100.0
+const _UNIT_COLLISION_RADIUS := 8.0
+const _UNIT_COLLISION_MAX_PUSH_PER_TICK := 4.5
 const _BLOCKER_RECTS: Array[Rect2] = [
 	Rect2(Vector2(-60.0, -60.0), Vector2(120.0, 120.0)),
 	Rect2(Vector2(-340.0, 120.0), Vector2(100.0, 100.0)),
@@ -4402,7 +4404,55 @@ func _spawn_move_ping(world_pos: Vector3, color: Color = Color(0.95, 0.95, 0.2, 
 func _update_live_units(delta: float) -> void:
 	for unit in _controllable_units.values():
 		unit.simulate_step(delta)
+	_resolve_unit_soft_collisions()
 	_update_attack_orders(delta)
+
+
+func _resolve_unit_soft_collisions() -> void:
+	if _controllable_units.size() < 2:
+		return
+
+	var min_distance := _UNIT_COLLISION_RADIUS * 2.0
+	var min_distance_sq := min_distance * min_distance
+	var unit_ids := _controllable_units.keys().duplicate()
+
+	for i in range(unit_ids.size()):
+		var a_id: String = str(unit_ids[i])
+		if not _controllable_units.has(a_id):
+			continue
+		var a: SelectableUnit2D = _controllable_units[a_id]
+
+		for j in range(i + 1, unit_ids.size()):
+			var b_id: String = str(unit_ids[j])
+			if not _controllable_units.has(b_id):
+				continue
+			var b: SelectableUnit2D = _controllable_units[b_id]
+
+			if not a.has_move_target() and not b.has_move_target():
+				continue
+
+			var delta_xz := Vector2(a.position.x - b.position.x, a.position.z - b.position.z)
+			var dist_sq := delta_xz.length_squared()
+			if dist_sq >= min_distance_sq:
+				continue
+
+			var distance := sqrt(dist_sq)
+			var normal := Vector2.ZERO
+			if distance <= 0.001:
+				var hash_mix := float(abs(a_id.hash() - b_id.hash()) % 360)
+				normal = Vector2.RIGHT.rotated(deg_to_rad(hash_mix))
+				distance = 0.0
+			else:
+				normal = delta_xz / distance
+
+			var penetration := min_distance - distance
+			var push := minf(penetration * 0.5, _UNIT_COLLISION_MAX_PUSH_PER_TICK)
+			var offset := normal * push
+
+			a.position.x += offset.x
+			a.position.z += offset.y
+			b.position.x -= offset.x
+			b.position.z -= offset.y
 
 
 func _update_enemy_ai(delta: float) -> void:

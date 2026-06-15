@@ -84,6 +84,12 @@
 - Updated non-interactive HUD controls to `MOUSE_FILTER_IGNORE` to prevent overlay UI from intercepting gameplay mouse actions.
 - Executed `/Applications/Godot.app/Contents/MacOS/godot --headless --quit --path . res://scenes/core/FirstDuelMap.tscn -- --duel-test-f60-drag-select --duel-test-f32-interaction --duel-test-f37-combat` and verified pass summaries for drag selection, core interaction loop, and combat flow.
 
+## Closure Delta 2026-06-14 (Unit Collision Limiting)
+
+- Implemented soft unit-collision limiting in `scripts/core/FirstDuelMap.gd` by adding a per-frame overlap resolution pass for moving units.
+- Added bounded separation tuning constants to limit clumping and reduce stack-through behavior without hard-stopping unit movement.
+- Executed `/Applications/Godot.app/Contents/MacOS/godot --headless --quit --path . res://scenes/core/FirstDuelMap.tscn -- --duel-test-f32-interaction --duel-test-f37-combat --duel-test-f60-drag-select --duel-test-f61-enemy-ai` and confirmed pass summaries across interaction, combat, drag selection, and enemy AI.
+
 ## Story Breakdown
 
 ```yaml

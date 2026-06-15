@@ -4,6 +4,9 @@ Track high-level project changes with links to decisions and plans.
 
 ## 2026-06-14
 
+- Added soft unit-collision limiting in `scripts/core/FirstDuelMap.gd` by resolving per-frame overlap between moving units using a bounded separation push.
+- Added collision-tuning constants `_UNIT_COLLISION_RADIUS` and `_UNIT_COLLISION_MAX_PUSH_PER_TICK` to reduce clumping while preserving movement responsiveness.
+- Revalidated core duel hooks with `/Applications/Godot.app/Contents/MacOS/godot --headless --quit --path . res://scenes/core/FirstDuelMap.tscn -- --duel-test-f32-interaction --duel-test-f37-combat --duel-test-f60-drag-select --duel-test-f61-enemy-ai`; all summaries reported pass with no script errors.
 - Fixed live drag-selection input routing by moving duel runtime mouse and keyboard handling from `_unhandled_input` to `_input` in `scripts/core/FirstDuelMap.gd`, preventing HUD-layer controls from swallowing drag events before gameplay handlers run.
 - Set MVP HUD display controls to `MOUSE_FILTER_IGNORE` so non-interactive overlays remain visible but do not intercept gameplay mouse interactions.
 - Revalidated live selection and combat hooks with `/Applications/Godot.app/Contents/MacOS/godot --headless --quit --path . res://scenes/core/FirstDuelMap.tscn -- --duel-test-f60-drag-select --duel-test-f32-interaction --duel-test-f37-combat`; all summaries reported pass with no script errors.
