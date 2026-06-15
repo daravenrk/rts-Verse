@@ -127,6 +127,12 @@
 - Validated three cycle-level checks in F-64 per recovery cycle (loss applied, recovery to cap, production resumed) and aggregate checks for cap hold plus production diversity.
 - Executed `/Applications/Godot.app/Contents/MacOS/godot --headless --quit --path . res://scenes/core/FirstDuelMap.tscn -- --duel-test-f64-enemy-recovery-stress --duel-test-f63-enemy-cap-recovery --duel-test-f62-enemy-production-horizon --duel-test-f61-enemy-ai --duel-test-f38-production --duel-test-f37-combat --duel-test-f32-interaction --duel-test-f60-drag-select` and verified pass summaries for F-64, F-63, F-62, F-61, F-38, F-37, F-32, and F-60 with no script errors.
 
+## Closure Delta 2026-06-14 (Stage 1 Readiness Slice: Enemy Timer Recovery Path)
+
+- Added deterministic F-65 enemy timer-recovery hook (`--duel-test-f65-enemy-timer-recovery`) to validate that recovery after capped-unit loss works via `_update_enemy_ai` timer cadence, not only direct production-step calls.
+- Validated five explicit conditions in F-65: cap-seed baseline, deterministic loss, timer-driven production growth, timer-driven return to cap, and post-recovery cap hold.
+- Executed `/Applications/Godot.app/Contents/MacOS/godot --headless --quit --path . res://scenes/core/FirstDuelMap.tscn -- --duel-test-f65-enemy-timer-recovery --duel-test-f64-enemy-recovery-stress --duel-test-f63-enemy-cap-recovery --duel-test-f62-enemy-production-horizon --duel-test-f61-enemy-ai --duel-test-f38-production --duel-test-f37-combat --duel-test-f32-interaction --duel-test-f60-drag-select` and verified pass summaries for F-65, F-64, F-63, F-62, F-61, F-38, F-37, F-32, and F-60 with no script errors.
+
 ## Story Breakdown
 
 ```yaml

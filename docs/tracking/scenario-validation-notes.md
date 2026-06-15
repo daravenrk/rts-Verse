@@ -2,6 +2,18 @@
 
 Track scenario-level evidence for map and flow validation runs.
 
+## 2026-06-14 Enemy Timer-Recovery Path Readiness Slice Validation
+
+- Flow: `Timer-driven enemy production recovery after capped-unit loss`
+- Scenario: `scenes/core/FirstDuelMap.tscn`
+- Validation command:
+  - `/Applications/Godot.app/Contents/MacOS/godot --headless --quit --path . res://scenes/core/FirstDuelMap.tscn -- --duel-test-f65-enemy-timer-recovery --duel-test-f64-enemy-recovery-stress --duel-test-f63-enemy-cap-recovery --duel-test-f62-enemy-production-horizon --duel-test-f61-enemy-ai --duel-test-f38-production --duel-test-f37-combat --duel-test-f32-interaction --duel-test-f60-drag-select`
+- Result: Pass
+- Notes:
+  - F-65 confirmed timer-loop recovery path after capped-unit loss: `10 -> 9 -> 10` with growth and cap-hold assertions passing.
+  - F-65 confirmed timer-driven production resumed without requiring direct production-step forcing.
+  - Regression checks for F-64, F-63, F-62, F-61, F-38, F-37, F-32, and F-60 remained pass with no script errors.
+
 ## 2026-06-14 Enemy Recovery-Stress Stability Readiness Slice Validation
 
 - Flow: `Repeated enemy cap-loss recovery cycles under sustained production pressure`

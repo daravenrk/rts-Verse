@@ -61,6 +61,7 @@ const TEST_F61_ENEMY_AI_FLAG := "--duel-test-f61-enemy-ai"
 const TEST_F62_ENEMY_PRODUCTION_HORIZON_FLAG := "--duel-test-f62-enemy-production-horizon"
 const TEST_F63_ENEMY_CAP_RECOVERY_FLAG := "--duel-test-f63-enemy-cap-recovery"
 const TEST_F64_ENEMY_RECOVERY_STRESS_FLAG := "--duel-test-f64-enemy-recovery-stress"
+const TEST_F65_ENEMY_TIMER_RECOVERY_FLAG := "--duel-test-f65-enemy-timer-recovery"
 const STAGE0_CAPTURE_FLAG := "--stage0-capture-media"
 const STAGE0_CAPTURE_DIR_PREFIX := "--stage0-capture-dir="
 const STOCKPILE_CONFIG := {
@@ -464,6 +465,7 @@ func _ready() -> void:
 	_run_f62_enemy_production_horizon_test_hook()
 	_run_f63_enemy_cap_recovery_test_hook()
 	_run_f64_enemy_recovery_stress_test_hook()
+	_run_f65_enemy_timer_recovery_test_hook()
 	if _has_user_flag(STAGE0_CAPTURE_FLAG):
 		call_deferred("_run_stage0_media_capture_sequence")
 	elif _has_user_flag(TEST_AUTO_EXIT_FLAG):
@@ -700,6 +702,66 @@ func _run_f64_enemy_recovery_stress_test_hook() -> void:
 
 	print("[F64] Diversity unique_types=%d pass=%s" % [diversity_type_set.size(), str(diversity_pass)])
 	print("[F64] Summary cycles_pass=%s cap_hold_pass=%s diversity_pass=%s pass=%s" % [str(cycles_pass), str(cap_hold_pass), str(diversity_pass), str(cycles_pass and cap_hold_pass and diversity_pass)])
+
+
+func _run_f65_enemy_timer_recovery_test_hook() -> void:
+	if not _has_user_flag(TEST_F65_ENEMY_TIMER_RECOVERY_FLAG):
+		return
+	if not _tether_points_by_slot.has("B"):
+		print("[F65] Summary pass=false reason=missing_enemy_tether")
+		return
+
+	for _build_step in 3:
+		_run_enemy_build_step()
+
+	# Saturate enemy count first to confirm timer path blocks while capped.
+	_ai_production_choice_index = 0
+	for _seed_step in (_AI_MAX_SLOT_B_UNITS * 3):
+		_run_enemy_production_step()
+	var capped_before_loss: int = _get_slot_unit_ids("B").size()
+	var cap_seed_pass: bool = capped_before_loss == _AI_MAX_SLOT_B_UNITS
+
+	# Remove one produced enemy unit to open capacity.
+	var victim_id := ""
+	for unit_name in _controllable_units.keys():
+		var actor_name := str(unit_name)
+		if actor_name.begins_with("Produced_B_"):
+			victim_id = actor_name
+			break
+	if victim_id == "":
+		print("[F65] Summary pass=false reason=no_produced_enemy_unit")
+		return
+
+	_destroy_unit(victim_id)
+	var after_loss_units: int = _get_slot_unit_ids("B").size()
+	var loss_pass: bool = after_loss_units == _AI_MAX_SLOT_B_UNITS - 1
+
+	# Drive only the timer-based AI loop and verify production recovers to cap.
+	_ai_production_timer = _AI_PRODUCTION_INTERVAL
+	_ai_build_timer = _AI_BUILD_INTERVAL
+	var units_before_timer_updates: int = _get_slot_unit_ids("B").size()
+	for _step in 80:
+		_update_enemy_ai(0.5)
+		_update_live_units(0.1)
+		if _get_slot_unit_ids("B").size() >= _AI_MAX_SLOT_B_UNITS:
+			break
+
+	var units_after_timer_updates: int = _get_slot_unit_ids("B").size()
+	var timer_growth_pass: bool = units_after_timer_updates > units_before_timer_updates
+	var timer_recovery_pass: bool = units_after_timer_updates == _AI_MAX_SLOT_B_UNITS
+
+	# Verify timer path still respects cap after recovery.
+	for _extra_step in 24:
+		_update_enemy_ai(0.5)
+	var final_units: int = _get_slot_unit_ids("B").size()
+	var cap_hold_pass: bool = final_units <= _AI_MAX_SLOT_B_UNITS
+
+	print("[F65] Seed cap units=%d cap=%d pass=%s" % [capped_before_loss, _AI_MAX_SLOT_B_UNITS, str(cap_seed_pass)])
+	print("[F65] Loss units_after=%d expected=%d pass=%s" % [after_loss_units, _AI_MAX_SLOT_B_UNITS - 1, str(loss_pass)])
+	print("[F65] Timer growth before=%d after=%d pass=%s" % [units_before_timer_updates, units_after_timer_updates, str(timer_growth_pass)])
+	print("[F65] Timer recovery units=%d cap=%d pass=%s" % [units_after_timer_updates, _AI_MAX_SLOT_B_UNITS, str(timer_recovery_pass)])
+	print("[F65] Cap hold final_units=%d max=%d pass=%s" % [final_units, _AI_MAX_SLOT_B_UNITS, str(cap_hold_pass)])
+	print("[F65] Summary cap_seed_pass=%s loss_pass=%s timer_growth_pass=%s timer_recovery_pass=%s cap_hold_pass=%s pass=%s" % [str(cap_seed_pass), str(loss_pass), str(timer_growth_pass), str(timer_recovery_pass), str(cap_hold_pass), str(cap_seed_pass and loss_pass and timer_growth_pass and timer_recovery_pass and cap_hold_pass)])
 
 
 func _run_f60_drag_select_test_hook() -> void:
