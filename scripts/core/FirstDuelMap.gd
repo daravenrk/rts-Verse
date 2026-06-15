@@ -70,6 +70,7 @@ const TEST_F70_ENEMY_ADAPTIVE_JITTER_ENDURANCE_FLAG := "--duel-test-f70-enemy-ad
 const TEST_F71_ENEMY_ADAPTIVE_JITTER_DUAL_LOSS_FLAG := "--duel-test-f71-enemy-adaptive-jitter-dual-loss"
 const TEST_F72_ENEMY_ADAPTIVE_JITTER_TRIPLE_LOSS_FLAG := "--duel-test-f72-enemy-adaptive-jitter-triple-loss"
 const TEST_F73_ENEMY_ADAPTIVE_JITTER_QUAD_LOSS_FLAG := "--duel-test-f73-enemy-adaptive-jitter-quad-loss"
+const TEST_F74_ENEMY_ADAPTIVE_JITTER_QUINT_LOSS_FLAG := "--duel-test-f74-enemy-adaptive-jitter-quint-loss"
 const STAGE0_CAPTURE_FLAG := "--stage0-capture-media"
 const STAGE0_CAPTURE_DIR_PREFIX := "--stage0-capture-dir="
 const STOCKPILE_CONFIG := {
@@ -482,6 +483,7 @@ func _ready() -> void:
 	_run_f71_enemy_adaptive_jitter_dual_loss_test_hook()
 	_run_f72_enemy_adaptive_jitter_triple_loss_test_hook()
 	_run_f73_enemy_adaptive_jitter_quad_loss_test_hook()
+	_run_f74_enemy_adaptive_jitter_quint_loss_test_hook()
 	if _has_user_flag(STAGE0_CAPTURE_FLAG):
 		call_deferred("_run_stage0_media_capture_sequence")
 	elif _has_user_flag(TEST_AUTO_EXIT_FLAG):
@@ -1515,6 +1517,119 @@ func _run_f73_enemy_adaptive_jitter_quad_loss_test_hook() -> void:
 
 	print("[F73] Aggregate cycle_passes=%d profile_passes=%d quad_loss_passes=%d cap_recovery_bound_passes=%d max_units_seen=%d cap=%d diversity=%d" % [cycle_passes, profile_passes, quad_loss_passes, cap_recovery_bound_passes, max_units_seen, _AI_MAX_SLOT_B_UNITS, diversity_type_set.size()])
 	print("[F73] Summary cycles_pass=%s profile_coverage_pass=%s quad_loss_coverage_pass=%s cap_recovery_bound_coverage_pass=%s cap_hold_pass=%s diversity_pass=%s pass=%s" % [str(cycles_pass), str(profile_coverage_pass), str(quad_loss_coverage_pass), str(cap_recovery_bound_coverage_pass), str(cap_hold_pass), str(diversity_pass), str(cycles_pass and profile_coverage_pass and quad_loss_coverage_pass and cap_recovery_bound_coverage_pass and cap_hold_pass and diversity_pass)])
+
+
+func _run_f74_enemy_adaptive_jitter_quint_loss_test_hook() -> void:
+	if not _has_user_flag(TEST_F74_ENEMY_ADAPTIVE_JITTER_QUINT_LOSS_FLAG):
+		return
+	if not _tether_points_by_slot.has("B"):
+		print("[F74] Summary pass=false reason=missing_enemy_tether")
+		return
+
+	for _build_step in 3:
+		_run_enemy_build_step()
+
+	_ai_production_choice_index = 0
+	for _seed_step in (_AI_MAX_SLOT_B_UNITS * 7):
+		_run_enemy_production_step()
+
+	var cycle_count := 4
+	var cycle_passes := 0
+	var profile_passes := 0
+	var quint_loss_passes := 0
+	var cap_recovery_bound_passes := 0
+	var max_units_seen: int = _get_slot_unit_ids("B").size()
+	var diversity_type_set: Dictionary = {}
+	var jitter_profiles: Array[Array] = [
+		[0.05, 0.36, 0.1, 0.45, 0.16, 0.31, 0.09, 0.39, 0.12, 0.42],
+		[0.08, 0.29, 0.14, 0.41, 0.19, 0.35, 0.11, 0.37, 0.15, 0.43],
+		[0.06, 0.27, 0.44, 0.15, 0.36, 0.13, 0.32, 0.09, 0.4, 0.18],
+	]
+
+	for cycle in range(cycle_count):
+		var produced_ids: Array[String] = []
+		for unit_name in _controllable_units.keys():
+			var actor_name := str(unit_name)
+			if actor_name.begins_with("Produced_B_"):
+				produced_ids.append(actor_name)
+		if produced_ids.size() < 5:
+			print("[F74] Cycle=%d pass=false reason=insufficient_produced_enemy_units" % cycle)
+			continue
+
+		var before_loss: int = _get_slot_unit_ids("B").size()
+		_destroy_unit(produced_ids[0])
+		_destroy_unit(produced_ids[1])
+		_destroy_unit(produced_ids[2])
+		_destroy_unit(produced_ids[3])
+		_destroy_unit(produced_ids[4])
+		var after_loss: int = _get_slot_unit_ids("B").size()
+		var expected_after_loss: int = before_loss - 5
+		var loss_pass: bool = after_loss == expected_after_loss
+		if loss_pass:
+			quint_loss_passes += 1
+
+		_ai_production_timer = _AI_PRODUCTION_INTERVAL
+		var before_timer: int = _get_slot_unit_ids("B").size()
+		var recovery_step := -1
+		var used_profile_index: int = cycle % jitter_profiles.size()
+		var jitter_profile: Array = jitter_profiles[used_profile_index]
+		var used_jitter := false
+		var has_extreme_mix := false
+		for delta_value in jitter_profile:
+			if float(delta_value) <= 0.1:
+				for delta_value_b in jitter_profile:
+					if float(delta_value_b) >= 0.41:
+						has_extreme_mix = true
+						break
+			if has_extreme_mix:
+				break
+
+		for step in range(720):
+			var jitter_delta: float = float(jitter_profile[step % jitter_profile.size()])
+			if not is_equal_approx(jitter_delta, 0.25):
+				used_jitter = true
+			_update_enemy_ai(jitter_delta)
+			_update_live_units(0.05)
+			if step % 28 == 0:
+				_run_enemy_build_step()
+			var live_units: int = _get_slot_unit_ids("B").size()
+			if live_units > max_units_seen:
+				max_units_seen = live_units
+			if live_units >= _AI_MAX_SLOT_B_UNITS:
+				recovery_step = step
+				break
+
+		var after_timer: int = _get_slot_unit_ids("B").size()
+		var timer_growth_pass: bool = after_timer > before_timer
+		var timer_recovery_pass: bool = after_timer == _AI_MAX_SLOT_B_UNITS
+		var timing_bound_pass: bool = recovery_step >= 0 and recovery_step < 640
+		if timing_bound_pass:
+			cap_recovery_bound_passes += 1
+		var profile_pass: bool = used_jitter and jitter_profile.size() >= 10 and has_extreme_mix
+		if profile_pass:
+			profile_passes += 1
+
+		for unit_name in _controllable_units.keys():
+			var actor_name := str(unit_name)
+			if not actor_name.begins_with("Produced_B_"):
+				continue
+			var produced_actor: SelectableUnit2D = _controllable_units[actor_name]
+			diversity_type_set[produced_actor.unit_id] = true
+
+		var cycle_pass: bool = loss_pass and timer_growth_pass and timer_recovery_pass and timing_bound_pass
+		if cycle_pass:
+			cycle_passes += 1
+		print("[F74] Cycle=%d profile=%d quint_loss_pass=%s timer_growth_pass=%s timer_recovery_pass=%s timing_bound_pass=%s recovery_step=%d profile_pass=%s units_before=%d units_after=%d" % [cycle, used_profile_index, str(loss_pass), str(timer_growth_pass), str(timer_recovery_pass), str(timing_bound_pass), recovery_step, str(profile_pass), before_timer, after_timer])
+
+	var cycles_pass: bool = cycle_passes == cycle_count
+	var profile_coverage_pass: bool = profile_passes == cycle_count
+	var quint_loss_coverage_pass: bool = quint_loss_passes == cycle_count
+	var cap_recovery_bound_coverage_pass: bool = cap_recovery_bound_passes == cycle_count
+	var cap_hold_pass: bool = max_units_seen <= _AI_MAX_SLOT_B_UNITS
+	var diversity_pass: bool = diversity_type_set.size() >= 2
+
+	print("[F74] Aggregate cycle_passes=%d profile_passes=%d quint_loss_passes=%d cap_recovery_bound_passes=%d max_units_seen=%d cap=%d diversity=%d" % [cycle_passes, profile_passes, quint_loss_passes, cap_recovery_bound_passes, max_units_seen, _AI_MAX_SLOT_B_UNITS, diversity_type_set.size()])
+	print("[F74] Summary cycles_pass=%s profile_coverage_pass=%s quint_loss_coverage_pass=%s cap_recovery_bound_coverage_pass=%s cap_hold_pass=%s diversity_pass=%s pass=%s" % [str(cycles_pass), str(profile_coverage_pass), str(quint_loss_coverage_pass), str(cap_recovery_bound_coverage_pass), str(cap_hold_pass), str(diversity_pass), str(cycles_pass and profile_coverage_pass and quint_loss_coverage_pass and cap_recovery_bound_coverage_pass and cap_hold_pass and diversity_pass)])
 
 
 func _run_f60_drag_select_test_hook() -> void:

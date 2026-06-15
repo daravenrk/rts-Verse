@@ -179,7 +179,7 @@
 - Outcome: close Stage 0 visibility lane with truthful Pre-Alpha page, representative gameplay media, and evidence-backed tracker updates.
 - Scope boundary: remaining actions are external operator tasks; all in-repo preparation artifacts are complete.
 - Latest validation snapshot (2026-06-14): `prepublish_audit.sh` reports `READY` (required screenshots present and policy-compliant); remaining blockers are external publication and post-publish evidence synchronization.
-- Latest in-repo readiness snapshot (2026-06-14): F-73 enemy adaptive-jitter-quad-loss hook passed and reconfirmed no-regression status across F-72/F-71/F-70/F-69/F-68/F-67/F-66/F-65/F-64/F-63/F-62/F-61/F-38/F-37/F-32/F-60.
+- Latest in-repo readiness snapshot (2026-06-14): F-74 enemy adaptive-jitter-quint-loss hook passed and reconfirmed no-regression status across F-73/F-72/F-71/F-70/F-69/F-68/F-67/F-66/F-65/F-64/F-63/F-62/F-61/F-38/F-37/F-32/F-60.
 - Execution policy (2026-06-14): run Stage 1 in-repo readiness work in parallel while keeping O-3003 through O-3005 parked until manual publish evidence is captured.
 
 ### Parked Objective Queue
