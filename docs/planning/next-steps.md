@@ -128,6 +128,8 @@ Keep this list short, actionable, and current.
 - [x] Run expanded readiness smoke validation (F-73/F-72/F-71/F-70/F-69/F-68/F-67/F-66/F-65/F-64/F-63/F-62/F-61/F-38/F-37/F-32/F-60) and capture adaptive-jitter quad-loss evidence in scenario-validation-notes.
 - [x] Add adaptive-jitter quint-loss validation hook to verify deterministic five-unit loss recovery continuity across rotating jitter profiles.
 - [x] Run expanded readiness smoke validation (F-74/F-73/F-72/F-71/F-70/F-69/F-68/F-67/F-66/F-65/F-64/F-63/F-62/F-61/F-38/F-37/F-32/F-60) and capture adaptive-jitter quint-loss evidence in scenario-validation-notes.
+- [x] Add adaptive-jitter sext-loss validation hook to verify deterministic six-unit mixed-loss recovery continuity across rotating jitter profiles.
+- [x] Run expanded readiness smoke validation (F-75/F-74/F-73/F-72/F-71/F-70/F-69/F-68/F-67/F-66/F-65/F-64/F-63/F-62/F-61/F-38/F-37/F-32/F-60) and capture adaptive-jitter sext-loss evidence in scenario-validation-notes.
 - [x] Add live left-drag box-selection input state to duel map with click-vs-drag threshold and additive Shift support.
 - [x] Add drag-rectangle screen overlay feedback and connect rectangle bounds to selection projection checks.
 - [x] Run drag-selection validation flow (single, multi, additive, click-threshold preservation) and record evidence in scenario-validation-notes.
