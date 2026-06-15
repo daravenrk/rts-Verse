@@ -2,6 +2,18 @@
 
 Track scenario-level evidence for map and flow validation runs.
 
+## 2026-06-14 Enemy Adaptive-Jitter Quad-Loss Readiness Slice Validation
+
+- Flow: `Adaptive-profile jitter recovery cycles with deterministic quad-loss pressure and cap safety`
+- Scenario: `scenes/core/FirstDuelMap.tscn`
+- Validation command:
+  - `/Applications/Godot.app/Contents/MacOS/godot --headless --quit --path . res://scenes/core/FirstDuelMap.tscn -- --duel-test-f73-enemy-adaptive-jitter-quad-loss --duel-test-f72-enemy-adaptive-jitter-triple-loss --duel-test-f71-enemy-adaptive-jitter-dual-loss --duel-test-f70-enemy-adaptive-jitter-endurance --duel-test-f69-enemy-adaptive-jitter-recovery --duel-test-f68-enemy-timer-jitter-long-horizon --duel-test-f67-enemy-timer-jitter-recovery --duel-test-f66-enemy-timer-cycle-stress --duel-test-f65-enemy-timer-recovery --duel-test-f64-enemy-recovery-stress --duel-test-f63-enemy-cap-recovery --duel-test-f62-enemy-production-horizon --duel-test-f61-enemy-ai --duel-test-f38-production --duel-test-f37-combat --duel-test-f32-interaction --duel-test-f60-drag-select`
+- Result: Pass
+- Notes:
+  - F-73 validated five adaptive-profile cycles under deterministic four-unit loss pressure (`before=10`, `after_loss=6`, `after_recovery=10`).
+  - F-73 aggregate checks passed: `cycles_pass=true`, `profile_coverage_pass=true`, `quad_loss_coverage_pass=true`, `cap_recovery_bound_coverage_pass=true`, `cap_hold_pass=true`, `diversity_pass=true`, `max_units_seen=10`, `diversity=3`.
+  - Regression checks for F-72, F-71, F-70, F-69, F-68, F-67, F-66, F-65, F-64, F-63, F-62, F-61, F-38, F-37, F-32, and F-60 remained pass with no script errors.
+
 ## 2026-06-14 Enemy Adaptive-Jitter Triple-Loss Readiness Slice Validation
 
 - Flow: `Adaptive-profile jitter recovery cycles with deterministic triple-loss pressure and cap safety`
