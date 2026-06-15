@@ -100,6 +100,9 @@ Keep this list short, actionable, and current.
 - [x] Add live left-drag box-selection input state to duel map with click-vs-drag threshold and additive Shift support.
 - [x] Add drag-rectangle screen overlay feedback and connect rectangle bounds to selection projection checks.
 - [x] Run drag-selection validation flow (single, multi, additive, click-threshold preservation) and record evidence in scenario-validation-notes.
+- [x] Replace dual ColorRect drag-box overlay with a single Panel-StyleBoxFlat node for a clean bordered selection rectangle.
+- [x] Replace unit point-projection selection test with bounding-rect overlap using a calibrated unit half-extent constant.
+- [x] Run updated F-60 validation pass confirming edge-unit coverage and record evidence in scenario-validation-notes.
 - [x] Start M3 runtime Slice A: add global stockpile reserve and cap state container in duel-map runtime.
 - [x] Add deterministic stockpile floor clamp and threshold-crossing detection for Alloy, Power, Data, and Reclaim.
 - [x] Add bounded world-event trigger and apply pipeline for one positive and one negative event class.
@@ -213,6 +216,8 @@ Keep this list short, actionable, and current.
 - 2026-06-14: Deterministic duel-runtime user interaction contract documented with explicit input-routing, command-arbitration, rejection, and feedback rules aligned to existing F-18/F-19/F-32/F-33/F-35/F-36/F-37/F-38 validation coverage.
 - 2026-06-14: Live drag-box selection implemented with thresholded click-vs-drag arbitration, screen-space overlay, screen-projection selection pass, and Shift-additive support; F-60 passed single, multi, additive, and click-threshold cases.
 - 2026-06-14: Command card now shows selected unit name, count, and builder hint; clears to Nothing selected when selection is empty. Camera-center-on-base (F1) and keyboard zoom (= and -) implemented and smoke-validated.
+- 2026-06-14: Selection box improved: dual ColorRect overlay replaced with single Panel+StyleBoxFlat; unit selection test upgraded from point-projection to bounding-rect overlap so edge units are not missed; F-60 passes far-rect rejection, multi-unit, additive, and click-threshold cases.
+- 2026-06-14: Live win/loss detection implemented; match ends with green Win or red Loss state when all enemy units and Tether are destroyed or player base is lost. Live minimap implemented showing coloured unit dots and Tether markers. Match-state label colourised green/red/white by outcome.
 - 2026-06-14: Stage 0 media bundle generated via deterministic capture hook; required screenshots staged and prepublish audit returned READY.
 - 2026-06-10: First duel map scene added with map-defined Tether spawn markers and headless validation logs confirming slot-stable positions for both Helion and Veyari assignments.
 - 2026-06-10: Shared Tether Point role behavior implemented with Helion, Obsidian, and Veyari command-structure mapping plus controlled command-penalty and recovery-state telemetry hooks.

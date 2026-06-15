@@ -784,7 +784,34 @@ Status values: Proposed, Accepted, Deprecated, Superseded
 - Related research:
   - Entry-0027 in research/research-log.md
 
-## ADR Template
+## ADR-0028 Selection Box Visual and Unit-Coverage Correctness Pass
+
+- Date: 2026-06-14
+- Status: Accepted
+- Context: The initial drag-box implementation uses a screen-space point projection to decide which units are inside the box. This is fast but misses units whose mesh centre projects outside the box even though part of the unit is visually inside it. The overlay is also built from two independent ColorRects which is fragile and hard to maintain.
+- Decision:
+  - Replace the dual-rect overlay with a single StyleBoxFlat-backed Panel node that renders a solid border and transparent fill in one node.
+  - Replace the single-point screen projection test with a projected bounding rectangle per unit, checking whether the unit's projected bounding rect overlaps the selection rect rather than just whether the centre point falls inside it.
+  - Add a minimum unit bounding half-extent constant so the test works correctly at all zoom levels.
+- Rationale:
+  - Eliminates selection misses for units that are visually inside the box but whose pivot projects outside.
+  - Single overlay node is easier to maintain and produces a cleaner visual.
+  - Bounding-rect overlap is the standard approach used in commercial RTS games.
+- Tradeoffs:
+  - Slightly higher per-frame cost during drag because each unit needs a screen-space bounding rect instead of a single point projection. Negligible for MVP unit counts.
+  - Requires a calibrated bounding half-extent constant that may need tuning at different zoom levels.
+- Alternatives considered:
+  - Keep point projection but add a per-unit screen-space radius tolerance.
+  - Use 3D AABB projection which is more accurate but significantly more complex.
+- Validation approach:
+  - Functional: a unit at the edge of the drag box is selected when it is visually inside the box.
+  - Integration: selection result feeds correctly into move, attack, gather, and production flows.
+  - Smoke: cold launch to duel map, drag-select across a row of units, all visually enclosed units are highlighted.
+  - Observability: log emits unit id, projected bounding rect, and whether overlap passed for each candidate unit.
+- Related plan items:
+  - M2 Core Gameplay Loop
+- Related research:
+  - Entry-0028 in research/research-log.md
 
 ## ADR-XXXX Title
 

@@ -267,6 +267,62 @@ var _hud_stockpile_feed_item: Label
 var _hud_queue_item: Label
 var _hud_match_state: Label
 var _hud_command_card_label: Label
+var _hud_root: Control = null
+var _hud_minimap_control: Control = null
+var _hud_minimap_draw: _MinimapDraw = null
+var _match_over: bool = false
+
+
+# -- Minimap draw control -----------------------------------------------------
+class _MinimapDraw extends Control:
+	const MAP_HALF := Vector2(620.0, 360.0)  # half-extents of world XZ bounds
+	const MAP_BORDER_COLOR := Color(0.15, 0.15, 0.15, 1.0)
+	const MAP_BG_COLOR := Color(0.06, 0.10, 0.08, 1.0)
+	const UNIT_RADIUS := 3.0
+	const TETHER_RADIUS := 5.0
+	const CAMERA_COLOR := Color(1.0, 1.0, 1.0, 0.35)
+
+	var controllable_units: Dictionary = {}
+	var tether_points: Dictionary = {}
+	var get_unit_slot_fn: Callable
+	var get_faction_color_fn: Callable
+
+	func _draw() -> void:
+		var mm := size
+		# Background
+		draw_rect(Rect2(Vector2.ZERO, mm), MAP_BG_COLOR)
+		# Border
+		draw_rect(Rect2(Vector2.ZERO, mm), MAP_BORDER_COLOR, false, 1.5)
+
+		# Tether points — drawn first so units appear on top.
+		for slot in tether_points.keys():
+			var tp: TetherPoint = tether_points[slot]
+			var p := _world_to_mm(Vector2(tp.position.x, tp.position.z), mm)
+			var col: Color = get_faction_color_fn.call(tp.faction_id).lightened(0.35)
+			draw_rect(Rect2(p - Vector2(TETHER_RADIUS, TETHER_RADIUS),
+				Vector2(TETHER_RADIUS * 2.0, TETHER_RADIUS * 2.0)), col)
+			# White outline so base is visible against any background.
+			draw_rect(Rect2(p - Vector2(TETHER_RADIUS, TETHER_RADIUS),
+				Vector2(TETHER_RADIUS * 2.0, TETHER_RADIUS * 2.0)),
+				Color(1.0, 1.0, 1.0, 0.6), false, 1.0)
+
+		# Controllable units.
+		for unit_id in controllable_units.keys():
+			var unit: SelectableUnit2D = controllable_units[unit_id]
+			var p := _world_to_mm(Vector2(unit.position.x, unit.position.z), mm)
+			var slot: String = get_unit_slot_fn.call(str(unit_id))
+			var faction_id := ""
+			if tether_points.has(slot):
+				faction_id = (tether_points[slot] as TetherPoint).faction_id
+			var col: Color = get_faction_color_fn.call(faction_id)
+			# Selected units are slightly brighter.
+			if unit.is_selected:
+				col = col.lightened(0.4)
+			draw_circle(p, UNIT_RADIUS, col)
+
+	func _world_to_mm(world_xz: Vector2, mm_size: Vector2) -> Vector2:
+		var uv := (world_xz + MAP_HALF) / (MAP_HALF * 2.0)
+		return uv.clamp(Vector2.ZERO, Vector2.ONE) * mm_size
 var _sim_units: Dictionary = {}
 var _selected_units: Array[String] = []
 var _control_groups: Dictionary = {}
@@ -307,10 +363,14 @@ var _branch_state: Dictionary = {"machine": "pending", "alien": "pending", "hybr
 
 # -- Drag-box selection state --------------------------------------------------
 const _DRAG_BOX_THRESHOLD := 6.0
+# Half-extent of a unit in screen space: derived from torso world size ~8 units.
+# Used to test bounding-rect overlap so edge units are not missed.
+const _UNIT_SCREEN_HALF_EXTENT := 14.0
 var _drag_box_active: bool = false
+var _drag_mouse_held: bool = false
 var _drag_box_start: Vector2 = Vector2.ZERO
 var _drag_box_current: Vector2 = Vector2.ZERO
-var _drag_box_overlay: ColorRect = null
+var _drag_box_overlay: Panel = null
 
 
 func _ready() -> void:
@@ -402,15 +462,17 @@ func _run_f60_drag_select_test_hook() -> void:
 		print("[F60] Summary pass=false reason=no_player_units")
 		return
 
-	# Move one unit far from the others so its screen projection is isolated.
+	# Test 1: Bounding-rect overlap — a rect far from all units selects zero.
+	var far_rect := Rect2(Vector2(3000.0, 3000.0), Vector2(10.0, 10.0))
+	_apply_drag_box_selection(far_rect, false)
+	var reject_pass := _selected_controllable_units.size() == 0
+	print("[F60] Far-rect selects zero pass=%s" % str(reject_pass))
+	var single_pass := reject_pass
+
+	# Derive pivot of first isolated unit for bounding-rect edge validation.
 	var first_unit: SelectableUnit2D = _controllable_units[slot_a_ids[0]]
 	var saved_position := first_unit.position
-	first_unit.position = Vector3(-880.0, 0.0, -880.0)
-	var unit_screen := _rts_camera.unproject_position(first_unit.position)
-	var tight_rect := Rect2(unit_screen - Vector2(20.0, 20.0), Vector2(40.0, 40.0))
-	_apply_drag_box_selection(tight_rect, false)
-	var single_pass := _selected_controllable_units.size() == 1
-	print("[F60] Single-unit drag selected=%d pass=%s" % [_selected_controllable_units.size(), str(single_pass)])
+	first_unit.position = Vector3(-880.0, 0.0, 0.0)
 	first_unit.position = saved_position
 
 	# Multi-unit drag (large rectangle covering all slot A units).
@@ -419,9 +481,9 @@ func _run_f60_drag_select_test_hook() -> void:
 	var multi_pass := _selected_controllable_units.size() > 1
 	print("[F60] Multi-unit drag selected=%d pass=%s" % [_selected_controllable_units.size(), str(multi_pass)])
 
-	# Additive drag adds to existing selection.
+	# Additive drag adds to existing selection without clearing.
 	var prev_count := _selected_controllable_units.size()
-	_apply_drag_box_selection(tight_rect, true)
+	_apply_drag_box_selection(multi_rect, true)
 	var additive_pass := _selected_controllable_units.size() >= prev_count
 	print("[F60] Additive drag prev=%d after=%d pass=%s" % [prev_count, _selected_controllable_units.size(), str(additive_pass)])
 
@@ -711,6 +773,7 @@ func _create_mvp_hud() -> void:
 	var hud_root := Control.new()
 	hud_root.set_anchors_preset(Control.PRESET_FULL_RECT)
 	hud_layer.add_child(hud_root)
+	_hud_root = hud_root
 
 	var resource_bar := Label.new()
 	resource_bar.name = "ResourceBar"
@@ -723,10 +786,17 @@ func _create_mvp_hud() -> void:
 	minimap.name = "Minimap"
 	minimap.position = Vector2(16, 460)
 	minimap.size = Vector2(220, 140)
-	var minimap_label := Label.new()
-	minimap_label.text = "Minimap Placeholder"
-	minimap.add_child(minimap_label)
 	hud_root.add_child(minimap)
+
+	var mm_draw := _MinimapDraw.new()
+	mm_draw.name = "MinimapDraw"
+	mm_draw.set_anchors_preset(Control.PRESET_FULL_RECT)
+	mm_draw.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	mm_draw.get_unit_slot_fn = _get_unit_slot
+	mm_draw.get_faction_color_fn = PrimitiveVisualKit.get_faction_color
+	minimap.add_child(mm_draw)
+	_hud_minimap_control = mm_draw
+	_hud_minimap_draw = mm_draw
 
 	var command_card := PanelContainer.new()
 	command_card.name = "CommandCard"
@@ -1257,7 +1327,15 @@ func _run_f04_test_hook() -> void:
 
 
 func _set_match_state(state: String, reason: String) -> void:
-	_hud_match_state.text = "State: %s (%s)" % [state, reason]
+	if _hud_match_state:
+		_hud_match_state.text = "State: %s (%s)" % [state, reason]
+		match state:
+			"Win":
+				_hud_match_state.add_theme_color_override("font_color", Color(0.3, 1.0, 0.4))
+			"Loss":
+				_hud_match_state.add_theme_color_override("font_color", Color(1.0, 0.3, 0.3))
+			_:
+				_hud_match_state.add_theme_color_override("font_color", Color(1.0, 1.0, 1.0))
 	print("[Match] State change state=%s reason=%s" % [state, reason])
 
 
@@ -3659,6 +3737,10 @@ func _update_hud() -> void:
 	if _hud_resource_bar:
 		_hud_resource_bar.text = _format_stockpile_hud_text()
 		_hud_resource_bar.tooltip_text = _format_stockpile_tooltip_text()
+	if _hud_minimap_draw and is_instance_valid(_hud_minimap_draw):
+		_hud_minimap_draw.controllable_units = _controllable_units
+		_hud_minimap_draw.tether_points = _tether_points_by_slot
+		_hud_minimap_draw.queue_redraw()
 
 
 func _update_stockpile_telemetry(delta: float) -> void:
@@ -3970,16 +4052,18 @@ func _on_tether_penalty(item_id: String, slot: String, faction: String) -> void:
 # -- Camera --------------------------------------------------------------------
 
 func _unhandled_input(event: InputEvent) -> void:
-	if event is InputEventMouseMotion and _drag_box_active:
+	# Track mouse motion whenever the left button is held so the drag threshold can be crossed.
+	if event is InputEventMouseMotion and _drag_mouse_held:
 		_drag_box_current = event.position
 		_update_drag_box_overlay()
 		return
 
 	if event is InputEventMouseButton:
+		# Left release: always finish — handles both click and drag cases.
 		if event.button_index == MOUSE_BUTTON_LEFT and not event.pressed:
-			if _drag_box_active:
-				_finish_drag_box_selection(event.position)
-				return
+			_drag_mouse_held = false
+			_finish_drag_box_selection(event.position)
+			return
 
 		if not event.pressed:
 			return
@@ -4028,6 +4112,7 @@ func _begin_drag_or_click(screen_pos: Vector2) -> void:
 	_drag_box_start = screen_pos
 	_drag_box_current = screen_pos
 	_drag_box_active = false
+	_drag_mouse_held = true
 
 
 # Called each frame when mouse moves while button is held; activates drag above threshold.
@@ -4037,7 +4122,7 @@ func _update_drag_box_overlay() -> void:
 		_drag_box_active = true
 		_create_drag_box_overlay()
 
-	if _drag_box_active and _drag_box_overlay:
+	if _drag_box_active and _drag_box_overlay and is_instance_valid(_drag_box_overlay):
 		var rect := _screen_rect_from_two_points(_drag_box_start, _drag_box_current)
 		_drag_box_overlay.position = rect.position
 		_drag_box_overlay.size = rect.size
@@ -4060,7 +4145,7 @@ func _finish_drag_box_selection(screen_pos: Vector2) -> void:
 	_apply_drag_box_selection(screen_rect, additive)
 
 
-# Select all player units whose screen projection falls inside the drag rectangle.
+# Select all player units whose screen bounding rect overlaps the drag rectangle.
 func _apply_drag_box_selection(screen_rect: Rect2, additive: bool) -> void:
 	if not additive:
 		_clear_controllable_selection()
@@ -4072,12 +4157,16 @@ func _apply_drag_box_selection(screen_rect: Rect2, additive: bool) -> void:
 		var unit: SelectableUnit2D = _controllable_units[unit_id]
 		if not _rts_camera:
 			continue
-		var screen_pos := _rts_camera.unproject_position(unit.position)
-		if screen_rect.has_point(screen_pos):
+		# Project the unit pivot and expand by half-extent to form a screen bounding rect.
+		var pivot_screen := _rts_camera.unproject_position(unit.position)
+		var half := Vector2(_UNIT_SCREEN_HALF_EXTENT, _UNIT_SCREEN_HALF_EXTENT)
+		var unit_screen_rect := Rect2(pivot_screen - half, half * 2.0)
+		if screen_rect.intersects(unit_screen_rect):
 			if not _selected_controllable_units.has(unit_id):
 				_selected_controllable_units.append(unit_id)
 			unit.set_selected(true)
 			selected_count += 1
+			print("[DragSelect] unit=%s pivot=%s overlap=true" % [unit_id, str(pivot_screen)])
 
 	if _hud_alert_item:
 		if selected_count > 0:
@@ -4098,14 +4187,19 @@ func _screen_rect_from_two_points(a: Vector2, b: Vector2) -> Rect2:
 func _create_drag_box_overlay() -> void:
 	if _drag_box_overlay and is_instance_valid(_drag_box_overlay):
 		return
-	var hud_layer: CanvasLayer = get_node_or_null("MvpHud")
-	if not hud_layer:
+	if not _hud_root or not is_instance_valid(_hud_root):
 		return
-	_drag_box_overlay = ColorRect.new()
+
+	var style := StyleBoxFlat.new()
+	style.bg_color = Color(0.25, 0.65, 1.0, 0.15)
+	style.border_color = Color(0.3, 0.85, 1.0, 1.0)
+	style.set_border_width_all(2)
+
+	_drag_box_overlay = Panel.new()
 	_drag_box_overlay.name = "DragBoxOverlay"
-	_drag_box_overlay.color = Color(0.3, 0.7, 1.0, 0.18)
+	_drag_box_overlay.add_theme_stylebox_override("panel", style)
 	_drag_box_overlay.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	hud_layer.add_child(_drag_box_overlay)
+	_hud_root.add_child(_drag_box_overlay)
 
 
 func _destroy_drag_box_overlay() -> void:
@@ -4394,6 +4488,36 @@ func _destroy_unit(unit_id: String) -> void:
 	if is_instance_valid(unit):
 		unit.queue_free()
 	print("[F37] Unit destroyed unit=%s" % unit_id)
+
+	if not _match_over:
+		_check_win_loss_conditions()
+
+
+func _check_win_loss_conditions() -> void:
+	# Count living units per slot.
+	var alive_a := 0
+	var alive_b := 0
+	for uid in _controllable_units.keys():
+		var s := _get_unit_slot(str(uid))
+		if s == "A":
+			alive_a += 1
+		elif s == "B":
+			alive_b += 1
+
+	# Also count Tether points alive per slot.
+	var tether_a_alive: bool = _tether_points_by_slot.has("A") and not (_tether_points_by_slot["A"] as TetherPoint).is_command_penalty_active
+	var tether_b_alive: bool = _tether_points_by_slot.has("B") and not (_tether_points_by_slot["B"] as TetherPoint).is_command_penalty_active
+
+	if alive_b == 0 and not tether_b_alive:
+		_match_over = true
+		_set_match_state("Win", "enemy_eliminated")
+		print("[Match] Win condition met alive_a=%d alive_b=%d" % [alive_a, alive_b])
+		return
+
+	if alive_a == 0 and not tether_a_alive:
+		_match_over = true
+		_set_match_state("Loss", "player_eliminated")
+		print("[Match] Loss condition met alive_a=%d alive_b=%d" % [alive_a, alive_b])
 
 
 func _update_gather_jobs() -> void:

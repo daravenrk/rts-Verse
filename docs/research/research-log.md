@@ -733,6 +733,33 @@ Use this file to capture evidence-backed findings before changing architecture o
   - Add rectangle overlay UI and lifecycle updates during drag.
   - Add and run drag-select validation flow, then record results in scenario notes.
 
+## Entry-0028 Selection Box Visual and Unit-Coverage Correctness
+
+- Date: 2026-06-14
+- Query: Plan improvements to drag-box selection so all visually enclosed units are selected and the overlay is maintainable.
+- Files reviewed:
+  - scripts/core/FirstDuelMap.gd
+  - scripts/core/SelectableUnit2D.gd
+  - docs/planning/controls-standards.md
+  - docs/architecture/decision-log.md
+- Evidence:
+  - Current `_apply_drag_box_selection` tests only the unit pivot point using `_rts_camera.unproject_position(unit.position)`.
+  - Units close to the box edge whose pivot falls outside are missed even though they appear visually inside the selection rectangle.
+  - Overlay is two separate ColorRect nodes (border and fill) with manual position offsetting which is fragile and misaligns if parent control layout changes.
+  - `SelectableUnit2D` unit mesh uses a torso of size `(8, 4.8, 8)` world units, giving a maximum half-extent of about 6 world units in XZ that should be accounted for in the selection test.
+- Interpretation:
+  - A projected bounding half-extent per unit resolves edge misses without a full 3D AABB projection.
+  - A single Panel with a StyleBoxFlat is the idiomatic Godot way to draw a bordered rectangle and reduces overlay node count from 2 to 1.
+- Risks or unknowns:
+  - The bounding half-extent constant needs to match the largest unit silhouette at minimum zoom; may require tuning after testing.
+  - At extreme zoom-out the projected bounding rect will be very small so the overlap check degrades to near-point behaviour, which is acceptable.
+- Recommended decision:
+  - Accept ADR-0028 and implement bounding-rect overlap selection plus Panel-based overlay in one targeted pass.
+- Follow-up tasks:
+  - Replace dual ColorRect overlay with a single Panel plus StyleBoxFlat.
+  - Replace point-projection test with bounding-rect overlap using a calibrated half-extent constant.
+  - Run updated F-60 validation pass and record evidence.
+
 ## Research Entry Template
 
 ## Entry-XXXX Title
