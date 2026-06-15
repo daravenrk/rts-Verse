@@ -2,6 +2,18 @@
 
 Track scenario-level evidence for map and flow validation runs.
 
+## 2026-06-14 Enemy Cap-Recovery Production Readiness Slice Validation
+
+- Flow: `Enemy production resumes after capped-unit loss and recovers to cap`
+- Scenario: `scenes/core/FirstDuelMap.tscn`
+- Validation command:
+  - `/Applications/Godot.app/Contents/MacOS/godot --headless --quit --path . res://scenes/core/FirstDuelMap.tscn -- --duel-test-f63-enemy-cap-recovery --duel-test-f62-enemy-production-horizon --duel-test-f61-enemy-ai --duel-test-f38-production --duel-test-f37-combat --duel-test-f32-interaction --duel-test-f60-drag-select`
+- Result: Pass
+- Notes:
+  - F-63 confirmed cap reached baseline (`10`), deterministic loss drop (`10 -> 9`), and recovery back to cap (`9 -> 10`).
+  - F-63 confirmed production resumed after loss with produced-unit count growth (`4 -> 5`).
+  - Regression checks for F-62, F-61, F-38, F-37, F-32, and F-60 remained pass with no script errors.
+
 ## 2026-06-14 Enemy Production Horizon Stability Readiness Slice Validation
 
 - Flow: `Long-horizon enemy production saturation and guardrail stability`

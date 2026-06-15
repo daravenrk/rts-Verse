@@ -4,6 +4,9 @@ Track high-level project changes with links to decisions and plans.
 
 ## 2026-06-14
 
+- Added deterministic F-63 enemy cap-recovery validation hook (`--duel-test-f63-enemy-cap-recovery`) to verify production resumes after capped enemy unit loss.
+- F-63 validates cap reached baseline, deterministic unit-loss application, return-to-cap recovery, and produced-unit count growth after loss.
+- Revalidated with `/Applications/Godot.app/Contents/MacOS/godot --headless --quit --path . res://scenes/core/FirstDuelMap.tscn -- --duel-test-f63-enemy-cap-recovery --duel-test-f62-enemy-production-horizon --duel-test-f61-enemy-ai --duel-test-f38-production --duel-test-f37-combat --duel-test-f32-interaction --duel-test-f60-drag-select`; all summaries reported pass with no script errors.
 - Added deterministic F-62 enemy production horizon validation hook (`--duel-test-f62-enemy-production-horizon`) to stress repeated enemy production attempts under cap constraints.
 - F-62 now validates cap saturation and stability signals: growth toward cap, hard cap hold, produced-unit delta growth, rotation diversity, and cap-block behavior on extra attempts.
 - Revalidated with `/Applications/Godot.app/Contents/MacOS/godot --headless --quit --path . res://scenes/core/FirstDuelMap.tscn -- --duel-test-f62-enemy-production-horizon --duel-test-f61-enemy-ai --duel-test-f38-production --duel-test-f37-combat --duel-test-f32-interaction --duel-test-f60-drag-select`; all summaries reported pass with no script errors.
