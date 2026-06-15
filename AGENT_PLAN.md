@@ -169,6 +169,12 @@
 - Validated aggregate F-71 checks for cycle pass coverage (`7/7`), profile coverage (`profile_passes=7`), dual-loss coverage (`dual_loss_passes=7`), cap-hold safety (`max_units_seen <= cap`), and diversity stability (`diversity >= 2`).
 - Executed `/Applications/Godot.app/Contents/MacOS/godot --headless --quit --path . res://scenes/core/FirstDuelMap.tscn -- --duel-test-f71-enemy-adaptive-jitter-dual-loss --duel-test-f70-enemy-adaptive-jitter-endurance --duel-test-f69-enemy-adaptive-jitter-recovery --duel-test-f68-enemy-timer-jitter-long-horizon --duel-test-f67-enemy-timer-jitter-recovery --duel-test-f66-enemy-timer-cycle-stress --duel-test-f65-enemy-timer-recovery --duel-test-f64-enemy-recovery-stress --duel-test-f63-enemy-cap-recovery --duel-test-f62-enemy-production-horizon --duel-test-f61-enemy-ai --duel-test-f38-production --duel-test-f37-combat --duel-test-f32-interaction --duel-test-f60-drag-select` and verified pass summaries for F-71 through F-60 targeted flows with no script errors.
 
+## Closure Delta 2026-06-14 (Stage 1 Readiness Slice: Enemy Adaptive Jitter Triple-Loss Recovery)
+
+- Added deterministic F-72 enemy adaptive-jitter-triple-loss hook (`--duel-test-f72-enemy-adaptive-jitter-triple-loss`) to validate timer-path recovery continuity after deterministic three-unit losses per cycle.
+- Validated aggregate F-72 checks for cycle pass coverage (`6/6`), profile coverage (`profile_passes=6`), triple-loss coverage (`triple_loss_passes=6`), cap-recovery-bound coverage (`cap_recovery_bound_passes=6`), cap-hold safety (`max_units_seen <= cap`), and diversity stability (`diversity >= 2`).
+- Executed `/Applications/Godot.app/Contents/MacOS/godot --headless --quit --path . res://scenes/core/FirstDuelMap.tscn -- --duel-test-f72-enemy-adaptive-jitter-triple-loss --duel-test-f71-enemy-adaptive-jitter-dual-loss --duel-test-f70-enemy-adaptive-jitter-endurance --duel-test-f69-enemy-adaptive-jitter-recovery --duel-test-f68-enemy-timer-jitter-long-horizon --duel-test-f67-enemy-timer-jitter-recovery --duel-test-f66-enemy-timer-cycle-stress --duel-test-f65-enemy-timer-recovery --duel-test-f64-enemy-recovery-stress --duel-test-f63-enemy-cap-recovery --duel-test-f62-enemy-production-horizon --duel-test-f61-enemy-ai --duel-test-f38-production --duel-test-f37-combat --duel-test-f32-interaction --duel-test-f60-drag-select` and verified pass summaries for F-72 through F-60 targeted flows with no script errors.
+
 ## Story Breakdown
 
 ```yaml
