@@ -12,7 +12,7 @@ Use this worksheet during the external Stage 0 execution window to close T-0046 
 
 ## Latest Preflight Snapshot
 
-- Date: 2026-06-11
+- Date: 2026-06-14
 - Objective lane picked up: Stage 0 external publication closure
 - Commands executed:
   - `zsh docs/release/stage0-media/stage0_status_report.sh`

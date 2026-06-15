@@ -60,6 +60,13 @@
 - Implemented deterministic F-59 reinitialization replay-isolation hook in duel map.
 - Validated sequence-reset continuity, replay-signature parity, telemetry-count parity, archive growth, feed reconstruction consistency, and focused integrated smoke stability.
 
+## Closure Delta 2026-06-14
+
+- Re-ran Stage 0 external closure preflight checks as the active objective-closure gate.
+- Executed `zsh docs/release/stage0-media/stage0_status_report.sh` and `zsh docs/release/stage0-media/prepublish_audit.sh`.
+- Both checks returned `NOT READY` with unchanged media blockers and screenshot-count policy failure (`0`, required `3 to 6`).
+- Objective 3 remains parked with unchanged re-entry gate: capture required screenshots in the staging folder, rerun audit, then proceed with manual itch.io publication and tracker closure.
+
 ## Story Breakdown
 
 ```yaml
@@ -398,7 +405,7 @@ steps:
 - Active objective name: Stage 0 media capture and itch.io Coming Soon publication closure.
 - Intended gameplay outcome: present truthful Pre-Alpha visibility with representative gameplay-first media and deterministic evidence capture.
 - Scope boundary: in-repo preparation is complete; remaining execution requires manual external actions.
-- Latest validation snapshot (2026-06-11): preflight audit confirmed blockers are still external and media-capture dependent.
+- Latest validation snapshot (2026-06-14): preflight audit confirmed blockers are still external and media-capture dependent.
 
 ### Closure State
 

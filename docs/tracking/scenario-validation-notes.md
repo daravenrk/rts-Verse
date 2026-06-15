@@ -2,6 +2,18 @@
 
 Track scenario-level evidence for map and flow validation runs.
 
+## 2026-06-14 Stage 0 External Closure Preflight Revalidation
+
+- Flow: `Stage 0 external publication closure preflight`
+- Validation commands:
+  - `zsh docs/release/stage0-media/prepublish_audit.sh`
+  - `zsh docs/release/stage0-media/stage0_status_report.sh`
+- Result: Fail (`NOT READY`)
+- Notes:
+  - Required screenshots are still missing: `stage0-shot-01-opening-expansion.png`, `stage0-shot-02-contested-objective.png`, `stage0-shot-03-faction-asymmetry.png`.
+  - Screenshot count remains out of policy bounds (`0`, required `3 to 6`).
+  - Re-entry condition remains unchanged: capture and stage required screenshots, rerun prepublish audit, then proceed with manual publish runbook.
+
 ## 2026-06-11 F-59 Reinitialization Replay-Isolation and Sequence-Reset Consistency Validation
 
 - Flow: `F-59 Reinitialization replay-isolation and sequence-reset consistency loop`

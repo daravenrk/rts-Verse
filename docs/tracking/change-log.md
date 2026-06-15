@@ -2,6 +2,12 @@
 
 Track high-level project changes with links to decisions and plans.
 
+## 2026-06-14
+
+- Re-ran Stage 0 closure preflight checks with `zsh docs/release/stage0-media/prepublish_audit.sh` and `zsh docs/release/stage0-media/stage0_status_report.sh`.
+- Confirmed Stage 0 lane remains `NOT READY` with unchanged blockers: missing required screenshots `stage0-shot-01-opening-expansion.png`, `stage0-shot-02-contested-objective.png`, and `stage0-shot-03-faction-asymmetry.png`.
+- Confirmed screenshot policy still fails (`0`, required `3 to 6`) and therefore Stage 0 publication objectives remain parked pending external media capture and manual itch.io publication.
+
 ## 2026-06-11
 
 - Picked up next queued objective lane (Stage 0 external publication closure) and executed closure preflight validation.
