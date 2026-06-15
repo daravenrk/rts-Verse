@@ -8,6 +8,10 @@ Track high-level project changes with links to decisions and plans.
 - Ran `/Applications/Godot.app/Contents/MacOS/godot --path . res://scenes/core/FirstDuelMap.tscn -- --stage0-capture-media` and generated required screenshots in `docs/release/stage0-media/`.
 - Re-ran Stage 0 media audits with `zsh docs/release/stage0-media/prepublish_audit.sh` and `zsh docs/release/stage0-media/stage0_status_report.sh`; media lane now reports `READY` (screenshots `3`, captions present, count policy ok).
 - Updated closure trackers to mark Stage 0 media-freeze, staging, and audit tasks complete; remaining blockers are manual itch.io publication and post-publish evidence synchronization.
+- Added `docs/release/stage0-media/postpublish_gate.sh` as a deterministic final closure validator for evidence completeness, Stage 0 next-step closure rows, and tracker propagation markers.
+- Executed `zsh docs/release/stage0-media/postpublish_gate.sh`; result `NOT READY`, correctly identifying the remaining publish and post-publish evidence tasks.
+- Added `docs/release/stage0-media/postpublish_sync.sh` to apply publication metadata and synchronize evidence plus tracker closure updates in one command after manual publish.
+- Validated sync utility interface with `zsh docs/release/stage0-media/postpublish_sync.sh --help`.
 
 ## 2026-06-11
 

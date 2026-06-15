@@ -40,6 +40,7 @@ Define and deliver the first playable RTS vertical slice expressing daravenrk's 
   - First pass of asymmetry between two prototype factions.
   - Keyboard and mouse control baseline implemented from planning/controls-standards.md.
   - MVP HUD implemented with command card, minimap, resource bars, and alert states.
+  - Deterministic user interaction contract documented for duel runtime input routing, command arbitration, rejection rules, and feedback synchronization.
   - MVP faction pair lock: complete Human Helion and complete Alien Veyari combat rosters.
   - Prototype base expansion pressure loop.
   - Vertical-slice roster lock implemented from planning/unit-list.md.
@@ -57,7 +58,9 @@ Define and deliver the first playable RTS vertical slice expressing daravenrk's 
   - Functional: Human and alien MVP factions can complete opening, transition, and first combined-arms engagements.
   - Integration: Input, simulation, and UI flow work together without blocking issues.
   - Functional: Players can execute all core commands and camera actions using documented bindings.
+  - Functional: Interaction command paths follow defined arbitration order for build placement, attack targeting, gather targeting, and move fallback.
   - Integration: Resource, alert, and command feedback states match gameplay events without stale or missing HUD updates.
+  - Integration: Rejection paths preserve state and emit explicit reason feedback for no-selection, blocked-path, and invalid-command cases.
   - Integration: Map-aware route choice, objective contest behavior, and regroup logic function for both factions.
   - Observability: Map validation notes include stable item IDs for objective capture, contest timing, and route-denial events.
   - Integration: Tether Point state transitions integrate with command response, production availability, and recovery behavior.
@@ -125,6 +128,25 @@ Define and deliver the first playable RTS vertical slice expressing daravenrk's 
 
 - Runtime keyword scan across `scripts/` and `scenes/` found no evidence of implemented stockpile, world-event, Descent, or dynamic-evolution gameplay logic.
 - Result: M3 runtime implementation lane is confirmed open and unblocked for internal development.
+
+### M2 Immediate Execution Slice: Live Drag-Box Selection
+
+- Scope:
+  - Add drag begin/update/end input state for left mouse interaction in duel runtime.
+  - Integrate live rectangle-based selection path with existing player-ownership selection filters.
+  - Add screen-space rectangle feedback during drag with thresholded click-vs-drag arbitration.
+- Entry criteria:
+  - Current click-select flow is stable and passing F-32 baseline.
+  - Existing selection helpers remain available for reuse (`_select_single_unit`, `_box_select_units`, `_clear_controllable_selection`).
+- Exit criteria:
+  - Left-drag selects multiple controllable player units within rectangle bounds.
+  - Shift-drag appends to current selection.
+  - Simple click behavior remains unchanged under drag threshold.
+- Validation:
+  - Functional: New drag-select flow passes with single, multi, and additive selection cases.
+  - Integration: Selection output works with existing right-click command routes for move, attack, gather, and production gating.
+  - Smoke: Cold launch to duel map can execute drag-select plus move command with no input lock or stale selection state.
+  - Observability: Logs include drag-start, drag-end, rectangle bounds, additive state, and selected count.
 
 ## M4 Packaging and Readiness
 

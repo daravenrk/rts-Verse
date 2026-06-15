@@ -20,6 +20,92 @@ This document defines baseline player controls, input bindings, and RTS HUD beha
   - Explicit hotkey command overrides contextual right-click intent.
   - Shift queues commands in issued order.
 
+## Runtime Interaction Contract v1
+
+This contract defines how user input is transformed into deterministic gameplay actions in runtime.
+
+### Input to Action Pipeline
+
+- Input capture:
+  - Route raw mouse and keyboard events through one scene-level interaction router.
+  - Ignore duplicate key repeats for command actions.
+- Target resolution:
+  - Resolve click intent in this order: pending-build placement, enemy target, resource target, ground move target.
+  - When no valid target is resolved, return a rejection reason and preserve current command state.
+- Command dispatch:
+  - Convert resolved intent into one of these command types: select, move, attack, gather, build, produce.
+  - Dispatch command only when selection ownership and slot constraints are valid.
+- Simulation application:
+  - Apply accepted command through simulation-owned functions.
+  - Keep command effects deterministic and frame-order stable.
+
+### Interaction States
+
+- Selection states:
+  - none
+  - single
+  - multi
+- Command mode states:
+  - normal
+  - build_mode_active
+  - production_mode_active
+  - pending_build_placement
+- Unit command states:
+  - idle
+  - moving
+  - gathering
+  - attacking
+  - producing
+
+### Command Arbitration Order
+
+Apply command resolution in this strict order for right-click interactions.
+
+1. Pending build placement
+2. Enemy under target radius
+3. Resource node under target radius
+4. Ground move
+
+Hotkey-initiated commands always override contextual right-click intent.
+
+### Feedback Contract
+
+- Accepted command:
+  - Show immediate visual acknowledgment (selection highlight, move ping, alert text, queue update).
+  - Emit one deterministic log line tagged with command domain.
+- Rejected command:
+  - Show rejection reason in alert surface.
+  - Do not mutate command queue or unit destination state.
+- State synchronization:
+  - Resource bar, alert surface, command card, and queue display must update from authoritative runtime state every frame.
+
+### Failure Handling Rules
+
+- No selection:
+  - Reject command with explicit reason and no state mutation.
+- Blocked target or path:
+  - Reject move with explicit reason and rejection marker.
+- Invalid production choice:
+  - Reject with explicit reason and preserve menu mode.
+- Missing builder for build mode:
+  - Reject and exit pending-build state.
+
+### Validation Matrix for Interaction Contract
+
+- Functional:
+  - F-32 validates click-select and right-click move loop.
+  - F-35 validates gather command and deposit loop.
+  - F-36 validates build menu, build selection, and placement flow.
+  - F-37 validates attack command and combat resolution loop.
+  - F-38 validates production command and spawned unit availability.
+- Integration:
+  - F-18 and F-19 validate command coverage plus HUD synchronization.
+  - F-33 validates blocker rejection path and no unintended movement.
+- Smoke:
+  - Cold-launch flow reaches controllable command loop without blocked core interactions.
+- Observability:
+  - Command and rejection logs include enough context for triage: command type, selected units, reason, and result.
+
 ## Mouse Controls
 
 ### Selection

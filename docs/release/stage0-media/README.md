@@ -23,3 +23,10 @@ Place Stage 0 Coming Soon assets here before manual itch.io publication.
 - [ ] At least one asset shows contested objective pressure.
 - [ ] At least one asset shows readable HUD state.
 - [ ] Asset filenames and order align with Stage 0 media spec.
+
+## Closure Utilities
+
+- `zsh docs/release/stage0-media/prepublish_audit.sh`
+- `zsh docs/release/stage0-media/stage0_status_report.sh`
+- `zsh docs/release/stage0-media/postpublish_gate.sh`
+- `zsh docs/release/stage0-media/postpublish_sync.sh --help`

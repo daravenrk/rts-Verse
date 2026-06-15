@@ -674,6 +674,65 @@ Use this file to capture evidence-backed findings before changing architecture o
   - Use prepublish audit and status report commands as closure gates.
   - Complete evidence template and propagate closure updates across next-steps, change-log, and scenario validation notes.
 
+## Entry-0026 Duel Runtime User Interaction Contract
+
+- Date: 2026-06-14
+- Query: Design user interaction architecture for gameplay commands so selection, command dispatch, and feedback remain consistent and testable as systems scale.
+- Files reviewed:
+  - docs/planning/controls-standards.md
+  - scripts/core/FirstDuelMap.gd
+  - scripts/core/SelectableUnit2D.gd
+  - scripts/core/Skirmish.gd
+  - docs/planning/testing-strategy.md
+  - docs/tracking/scenario-validation-notes.md
+  - docs/architecture/decision-log.md
+  - docs/planning/implementation-plan.md
+- Evidence:
+  - Runtime already implements a scene-level interaction router with click selection, right-click context commands, build and production toggles, plus rejection handling.
+  - Command mutation paths are centralized in discrete functions for move, gather, attack, build, and production.
+  - Existing validation flows cover major interaction loops and HUD synchronization but were not mapped to a single interaction-state contract.
+  - Scenario evidence already confirms pass behavior for F-18, F-19, F-32, F-33, F-35, F-36, F-37, and F-38.
+- Interpretation:
+  - The codebase is ready for contract-first interaction governance rather than additional ad hoc command additions.
+  - Explicit arbitration and rejection rules are the highest leverage guardrail for regression prevention.
+- Risks or unknowns:
+  - Future ability systems may bypass current arbitration order if contract enforcement is not kept current.
+  - UI feedback paths may drift from runtime state if new command flows skip HUD synchronization rules.
+- Recommended decision:
+  - Accept ADR-0026 and adopt a deterministic user interaction contract in controls standards with required validation mapping.
+- Follow-up tasks:
+  - Keep new command and ability work gated on interaction contract updates.
+  - Add scenario notes for future interaction flows using the same acceptance and rejection evidence shape.
+  - Extend interaction contract coverage when tactical abilities and advanced command modes are introduced.
+
+## Entry-0027 Live Drag-Box Selection Planning
+
+- Date: 2026-06-14
+- Query: Plan implementation of live unit selection from click-and-drag rectangle in duel runtime.
+- Files reviewed:
+  - scripts/core/FirstDuelMap.gd
+  - docs/planning/controls-standards.md
+  - docs/planning/testing-strategy.md
+  - docs/tracking/scenario-validation-notes.md
+  - docs/planning/implementation-plan.md
+- Evidence:
+  - Runtime input handling in `_unhandled_input` currently routes left mouse press directly to `_handle_left_click_selection` with no drag-state tracking.
+  - Selection helper `_box_select_units` already exists and is used in deterministic F-01/F-02 test scaffolding.
+  - Current player selection ownership filtering is already implemented via `_is_player_controllable_unit`.
+  - Controls standards explicitly list left-drag box selection as required interaction behavior.
+- Interpretation:
+  - Core selection math and ownership filters already exist; missing piece is live input state and UI rectangle feedback.
+  - Lowest-risk implementation is to reuse current selection helpers and add a small drag threshold for click-vs-drag arbitration.
+- Risks or unknowns:
+  - Incorrect threshold tuning may cause accidental drag or accidental click behavior.
+  - Screen-space projection edge cases near camera extremes may produce unexpected rectangle overlap results.
+- Recommended decision:
+  - Accept ADR-0027 and implement drag-state plus rectangle overlay in duel input flow, then validate against existing interaction tests with a new drag-specific validation flow.
+- Follow-up tasks:
+  - Add drag-state fields and threshold constants.
+  - Add rectangle overlay UI and lifecycle updates during drag.
+  - Add and run drag-select validation flow, then record results in scenario notes.
+
 ## Research Entry Template
 
 ## Entry-XXXX Title

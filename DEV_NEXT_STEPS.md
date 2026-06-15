@@ -218,6 +218,7 @@
 
 - `zsh docs/release/stage0-media/prepublish_audit.sh`
 - `zsh docs/release/stage0-media/stage0_status_report.sh`
+- `zsh docs/release/stage0-media/postpublish_gate.sh`
 - `docs/planning/stage0-postpublish-closure-checklist.md`
 - `docs/planning/stage0-operator-closure-worksheet.md`
 

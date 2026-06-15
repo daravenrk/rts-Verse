@@ -707,6 +707,83 @@ Status values: Proposed, Accepted, Deprecated, Superseded
 - Related research:
   - Entry-0025 in research/research-log.md
 
+## ADR-0026 Deterministic User Interaction Contract for Duel Runtime
+
+- Date: 2026-06-14
+- Status: Accepted
+- Context: Core command interactions are implemented in duel runtime, but interaction behavior is spread across input handlers and command functions without a single architecture contract for state transitions, arbitration order, and rejection behavior.
+- Decision:
+  - Standardize one runtime interaction contract in controls standards with:
+    - deterministic input-to-action pipeline,
+    - explicit interaction states,
+    - strict right-click arbitration order,
+    - mandatory acceptance and rejection feedback rules,
+    - validation matrix mapped to existing flows F-18, F-19, F-32, F-33, F-35, F-36, F-37, and F-38.
+  - Keep the interaction router scene-level and gameplay mutation simulation-owned.
+  - Require rejection paths to be explicit and non-mutating.
+- Rationale:
+  - Reduces future command-regression risk as systems expand.
+  - Improves implementation consistency for new action types.
+  - Keeps interaction behavior testable and triage-friendly.
+- Tradeoffs:
+  - Adds process overhead when introducing new commands because interaction contract updates become mandatory.
+  - Requires maintaining parity between standards documentation and runtime behavior.
+- Alternatives considered:
+  - Keep interaction behavior implicitly defined by runtime code.
+  - Document only key bindings and HUD layout without command-state contracts.
+- Validation approach:
+  - Functional:
+    - F-32, F-35, F-36, F-37, and F-38 each pass for selection, gather, build, attack, and production command loops.
+  - Integration:
+    - F-18 and F-19 pass with full command coverage and HUD synchronization.
+    - F-33 passes with explicit blocker rejection and no unintended movement mutation.
+  - Smoke:
+    - Cold-launch path reaches controllable duel interactions with no blocked core command path.
+  - Observability:
+    - Runtime logs include command accepts and rejects with command type, unit context, reason, and result.
+- Related plan items:
+  - M2 Core Gameplay Loop
+  - M3 Content and Balance Pass
+- Related research:
+  - Entry-0026 in research/research-log.md
+
+## ADR-0027 Live Drag-Box Selection Integration for Duel Runtime
+
+- Date: 2026-06-14
+- Status: Accepted
+- Context: The controls standard requires left-drag box selection, and runtime test scaffolding already contains `_box_select_units`, but live mouse-drag flow currently resolves only single-click selection.
+- Decision:
+  - Add live drag-box selection handling to duel runtime input flow using screen-space drag begin/update/end states.
+  - Reuse existing selection ownership constraints so only player-controllable units are selected.
+  - Preserve click-select behavior by applying a minimum drag threshold before entering box-select mode.
+  - Render a temporary screen-space drag rectangle for user feedback while dragging.
+  - Map selection-additive behavior to the existing queue modifier (`Shift`) for drag selection.
+- Rationale:
+  - Aligns runtime interaction behavior with controls standards and player expectations.
+  - Reuses existing deterministic selection helpers instead of creating a parallel command path.
+  - Reduces micro-management friction during opening and combat control moments.
+- Tradeoffs:
+  - Adds input-state complexity in `_unhandled_input` and requires careful click-vs-drag arbitration.
+  - Requires additional HUD overlay handling for rectangle rendering.
+- Alternatives considered:
+  - Keep click-only selection in runtime and defer drag selection to a later UI pass.
+  - Implement drag selection with world-space physics queries instead of projected screen rectangle checks.
+- Validation approach:
+  - Functional:
+    - New drag-select flow selects multiple player units when drag rectangle overlaps unit screen projections.
+    - Small mouse movement below threshold preserves single-click behavior.
+  - Integration:
+    - Drag selection interoperates with move, gather, attack, build, and production command flows.
+    - Shift-drag appends to existing selection without clearing prior selection.
+  - Smoke:
+    - Cold launch to skirmish to duel map supports select-drag-command loop without input deadlock.
+  - Observability:
+    - Logs emit drag-select start/end, rectangle bounds, selected unit count, and additive flag.
+- Related plan items:
+  - M2 Core Gameplay Loop
+- Related research:
+  - Entry-0027 in research/research-log.md
+
 ## ADR Template
 
 ## ADR-XXXX Title

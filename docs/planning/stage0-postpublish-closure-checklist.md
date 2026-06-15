@@ -11,6 +11,7 @@ Use this checklist immediately after manual itch.io publication to close the fin
 ## Closure Steps
 
 1. Fill out docs/tracking/stage0-publication-evidence-template.md.
+   - or run `zsh docs/release/stage0-media/postpublish_sync.sh --help` and apply with publication metadata.
 2. Update docs/planning/next-steps.md:
    - mark all Stage 0 closure items complete (media freeze, staging, audit, publish, validation, tracker sync).
    - add one dated completed note with public URL and media count.
@@ -24,6 +25,7 @@ Use this checklist immediately after manual itch.io publication to close the fin
    - set O-3001 through O-3005 from parked to closed.
 6. Run final gate command:
    - grep -nE "^- \[ \]" docs/planning/next-steps.md
+   - zsh docs/release/stage0-media/postpublish_gate.sh
 7. Confirm no unchecked Stage 0 tasks remain.
 
 ## Copy-Ready Snippets
@@ -47,6 +49,8 @@ Use these starter lines to reduce tracker-update friction.
 - grep -nE "Prepare Stage 0 media bundle|Publish itch.io Stage 0 Coming Soon page" docs/planning/next-steps.md
 - grep -nE "Stage 0|itch.io" docs/tracking/change-log.md
 - grep -nE "Stage 0 Publication" docs/tracking/scenario-validation-notes.md
+- zsh docs/release/stage0-media/postpublish_gate.sh
+- zsh docs/release/stage0-media/postpublish_sync.sh --help
 
 ## Completion Condition
 

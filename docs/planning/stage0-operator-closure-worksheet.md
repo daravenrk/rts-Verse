@@ -38,6 +38,8 @@ Use this worksheet during the external Stage 0 execution window to close T-0046 
 
 - `zsh docs/release/stage0-media/prepublish_audit.sh`
 - `zsh docs/release/stage0-media/stage0_status_report.sh`
+- `zsh docs/release/stage0-media/postpublish_gate.sh`
+- `zsh docs/release/stage0-media/postpublish_sync.sh --help`
 - `grep -nE "Stage 0|itch.io|T-0046|T-0050" docs/tracking/change-log.md`
 - `grep -nE "Stage 0" docs/tracking/scenario-validation-notes.md`
 - `grep -nE "^\- \[ \]" docs/planning/next-steps.md`

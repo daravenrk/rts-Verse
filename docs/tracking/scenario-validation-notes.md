@@ -16,6 +16,27 @@ Track scenario-level evidence for map and flow validation runs.
   - Prepublish audit reported screenshots found `3`, clips found `0`, captions present, required screenshots present, and screenshot policy ok.
   - Remaining Stage 0 blockers are external: manual itch.io publication plus post-publish evidence and tracker synchronization.
 
+## 2026-06-14 Stage 0 Postpublish Closure Gate Baseline
+
+- Flow: `Stage 0 external closure postpublish gate`
+- Validation command:
+  - `zsh docs/release/stage0-media/postpublish_gate.sh`
+- Result: Fail (`NOT READY`)
+- Notes:
+  - Gate correctly detected incomplete publication metadata and unchecked publish checklist rows in `stage0-publication-evidence-template.md`.
+  - Gate correctly detected remaining open Stage 0 publication closure rows in `docs/planning/next-steps.md`.
+  - Gate is now the deterministic final validator to run after manual itch.io publication and tracker updates.
+
+## 2026-06-14 Stage 0 Postpublish Sync Utility Interface Validation
+
+- Flow: `Stage 0 postpublish closure synchronization utility`
+- Validation command:
+  - `zsh docs/release/stage0-media/postpublish_sync.sh --help`
+- Result: Pass
+- Notes:
+  - Utility exposes required publication metadata fields and documents synchronized target artifacts.
+  - Intended execution point is immediately after manual itch.io publish verification is complete.
+
 ## 2026-06-11 F-59 Reinitialization Replay-Isolation and Sequence-Reset Consistency Validation
 
 - Flow: `F-59 Reinitialization replay-isolation and sequence-reset consistency loop`

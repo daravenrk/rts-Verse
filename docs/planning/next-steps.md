@@ -97,6 +97,9 @@ Keep this list short, actionable, and current.
 - [ ] Publish Stage 0 itch.io Coming Soon page using runbook procedure with visible Pre-Alpha label and no public download.
 - [ ] Run post-publish validation checklist and record public URL, timestamp, media count, and first update-post confirmation.
 - [ ] Update closure trackers in one pass: next-steps, change-log, and scenario-validation-notes with publication evidence.
+- [ ] Add live left-drag box-selection input state to duel map with click-vs-drag threshold and additive Shift support.
+- [ ] Add drag-rectangle screen overlay feedback and connect rectangle bounds to selection projection checks.
+- [ ] Run drag-selection validation flow (single, multi, additive, click-threshold preservation) and record evidence in scenario-validation-notes.
 - [x] Start M3 runtime Slice A: add global stockpile reserve and cap state container in duel-map runtime.
 - [x] Add deterministic stockpile floor clamp and threshold-crossing detection for Alloy, Power, Data, and Reclaim.
 - [x] Add bounded world-event trigger and apply pipeline for one positive and one negative event class.
@@ -207,6 +210,7 @@ Keep this list short, actionable, and current.
 - 2026-06-10: Concrete MVP unlock thresholds defined for maintenance load, instability pressure, and civilization stress events, including earliest windows and telemetry requirements.
 - 2026-06-10: Stage 0 itch.io page copy draft completed from blueprint sections, including hero, about, feature bullets, trust block, and feedback CTA.
 - 2026-06-10: Structured player-facing feedback template and publish-ready submission instructions added for itch page rollout.
+- 2026-06-14: Deterministic duel-runtime user interaction contract documented with explicit input-routing, command-arbitration, rejection, and feedback rules aligned to existing F-18/F-19/F-32/F-33/F-35/F-36/F-37/F-38 validation coverage.
 - 2026-06-14: Stage 0 media bundle generated via deterministic capture hook; required screenshots staged and prepublish audit returned READY.
 - 2026-06-10: First duel map scene added with map-defined Tether spawn markers and headless validation logs confirming slot-stable positions for both Helion and Veyari assignments.
 - 2026-06-10: Shared Tether Point role behavior implemented with Helion, Obsidian, and Veyari command-structure mapping plus controlled command-penalty and recovery-state telemetry hooks.

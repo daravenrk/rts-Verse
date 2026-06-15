@@ -427,13 +427,32 @@ steps:
   reentry_condition: none
 
 - objective_id: O-3002
+  title: Stage media package and pass prepublish audit
+  status: closed
+  blocker: none
+  reentry_condition: none
+
+- objective_id: O-3003
   title: Publish itch.io Stage 0 Coming Soon page with transparent Pre-Alpha status
   status: parked
   blocker: manual itch.io web publication and verification still required
   reentry_condition: execute docs/planning/itch-stage0-publish-runbook.md and record evidence using docs/tracking/stage0-publication-evidence-template.md
+
+- objective_id: O-3004
+  title: Capture Stage 0 publication evidence and validation notes
+  status: parked
+  blocker: requires successful page publication and first-update confirmation
+  reentry_condition: complete docs/tracking/stage0-publication-evidence-template.md and pass docs/release/stage0-media/postpublish_gate.sh
+
+- objective_id: O-3005
+  title: Close Stage 0 blockers and transition to Stage 1 readiness lane
+  status: parked
+  blocker: requires closure propagation across planning and tracking artifacts
+  reentry_condition: mark Stage 0 items complete in next-steps and synchronize change-log plus scenario-validation-notes
 ```
 
 ### Operator Command Aids
 
 - `zsh docs/release/stage0-media/prepublish_audit.sh`
 - `zsh docs/release/stage0-media/stage0_status_report.sh`
+- `zsh docs/release/stage0-media/postpublish_gate.sh`
