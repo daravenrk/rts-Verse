@@ -139,6 +139,12 @@
 - Validated aggregate F-66 checks for cycle pass coverage, timer-path confirmation (`recovery_step > 0` each cycle), and cap-hold safety (`max_units_seen <= cap`).
 - Executed `/Applications/Godot.app/Contents/MacOS/godot --headless --quit --path . res://scenes/core/FirstDuelMap.tscn -- --duel-test-f66-enemy-timer-cycle-stress --duel-test-f65-enemy-timer-recovery --duel-test-f64-enemy-recovery-stress --duel-test-f63-enemy-cap-recovery --duel-test-f62-enemy-production-horizon --duel-test-f61-enemy-ai --duel-test-f38-production --duel-test-f37-combat --duel-test-f32-interaction --duel-test-f60-drag-select` and verified pass summaries for F-66 through F-60 targeted flows with no script errors.
 
+## Closure Delta 2026-06-14 (Stage 1 Readiness Slice: Enemy Timer Jitter Recovery)
+
+- Added deterministic F-67 enemy timer-jitter-recovery hook (`--duel-test-f67-enemy-timer-jitter-recovery`) to validate repeated recovery behavior under variable `_update_enemy_ai` delta cadence.
+- Validated aggregate F-67 checks for cycle pass coverage, jitter-path confirmation (`jitter_used=true` each cycle), and cap-hold safety (`max_units_seen <= cap`).
+- Executed `/Applications/Godot.app/Contents/MacOS/godot --headless --quit --path . res://scenes/core/FirstDuelMap.tscn -- --duel-test-f67-enemy-timer-jitter-recovery --duel-test-f66-enemy-timer-cycle-stress --duel-test-f65-enemy-timer-recovery --duel-test-f64-enemy-recovery-stress --duel-test-f63-enemy-cap-recovery --duel-test-f62-enemy-production-horizon --duel-test-f61-enemy-ai --duel-test-f38-production --duel-test-f37-combat --duel-test-f32-interaction --duel-test-f60-drag-select` and verified pass summaries for F-67 through F-60 targeted flows with no script errors.
+
 ## Story Breakdown
 
 ```yaml

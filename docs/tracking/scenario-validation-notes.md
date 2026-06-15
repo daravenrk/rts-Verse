@@ -2,6 +2,18 @@
 
 Track scenario-level evidence for map and flow validation runs.
 
+## 2026-06-14 Enemy Timer-Jitter Recovery Readiness Slice Validation
+
+- Flow: `Jittered timer-driven enemy recovery cycles with cap-hold safety`
+- Scenario: `scenes/core/FirstDuelMap.tscn`
+- Validation command:
+  - `/Applications/Godot.app/Contents/MacOS/godot --headless --quit --path . res://scenes/core/FirstDuelMap.tscn -- --duel-test-f67-enemy-timer-jitter-recovery --duel-test-f66-enemy-timer-cycle-stress --duel-test-f65-enemy-timer-recovery --duel-test-f64-enemy-recovery-stress --duel-test-f63-enemy-cap-recovery --duel-test-f62-enemy-production-horizon --duel-test-f61-enemy-ai --duel-test-f38-production --duel-test-f37-combat --duel-test-f32-interaction --duel-test-f60-drag-select`
+- Result: Pass
+- Notes:
+  - F-67 validated three jittered recovery cycles with per-cycle loss, growth, and return-to-cap continuity (`recovery_step=67` each cycle).
+  - F-67 aggregate checks passed: `cycles_pass=true`, `jitter_path_pass=true`, `cap_hold_pass=true`, `max_units_seen=10`.
+  - Regression checks for F-66, F-65, F-64, F-63, F-62, F-61, F-38, F-37, F-32, and F-60 remained pass with no script errors.
+
 ## 2026-06-14 Enemy Timer-Cycle Stress Readiness Slice Validation
 
 - Flow: `Repeated timer-driven enemy recovery cycles with cap-hold safety`

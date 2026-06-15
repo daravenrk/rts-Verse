@@ -63,6 +63,7 @@ const TEST_F63_ENEMY_CAP_RECOVERY_FLAG := "--duel-test-f63-enemy-cap-recovery"
 const TEST_F64_ENEMY_RECOVERY_STRESS_FLAG := "--duel-test-f64-enemy-recovery-stress"
 const TEST_F65_ENEMY_TIMER_RECOVERY_FLAG := "--duel-test-f65-enemy-timer-recovery"
 const TEST_F66_ENEMY_TIMER_CYCLE_STRESS_FLAG := "--duel-test-f66-enemy-timer-cycle-stress"
+const TEST_F67_ENEMY_TIMER_JITTER_RECOVERY_FLAG := "--duel-test-f67-enemy-timer-jitter-recovery"
 const STAGE0_CAPTURE_FLAG := "--stage0-capture-media"
 const STAGE0_CAPTURE_DIR_PREFIX := "--stage0-capture-dir="
 const STOCKPILE_CONFIG := {
@@ -468,6 +469,7 @@ func _ready() -> void:
 	_run_f64_enemy_recovery_stress_test_hook()
 	_run_f65_enemy_timer_recovery_test_hook()
 	_run_f66_enemy_timer_cycle_stress_test_hook()
+	_run_f67_enemy_timer_jitter_recovery_test_hook()
 	if _has_user_flag(STAGE0_CAPTURE_FLAG):
 		call_deferred("_run_stage0_media_capture_sequence")
 	elif _has_user_flag(TEST_AUTO_EXIT_FLAG):
@@ -834,6 +836,78 @@ func _run_f66_enemy_timer_cycle_stress_test_hook() -> void:
 
 	print("[F66] Aggregate cycle_passes=%d timer_step_passes=%d max_units_seen=%d cap=%d" % [cycle_passes, timer_step_passes, max_units_seen, _AI_MAX_SLOT_B_UNITS])
 	print("[F66] Summary cycles_pass=%s timer_path_pass=%s cap_hold_pass=%s pass=%s" % [str(cycles_pass), str(timer_path_pass), str(cap_hold_pass), str(cycles_pass and timer_path_pass and cap_hold_pass)])
+
+
+func _run_f67_enemy_timer_jitter_recovery_test_hook() -> void:
+	if not _has_user_flag(TEST_F67_ENEMY_TIMER_JITTER_RECOVERY_FLAG):
+		return
+	if not _tether_points_by_slot.has("B"):
+		print("[F67] Summary pass=false reason=missing_enemy_tether")
+		return
+
+	for _build_step in 3:
+		_run_enemy_build_step()
+
+	_ai_production_choice_index = 0
+	for _seed_step in (_AI_MAX_SLOT_B_UNITS * 3):
+		_run_enemy_production_step()
+
+	var cycle_count := 3
+	var cycle_passes := 0
+	var jitter_profile: Array[float] = [0.10, 0.30, 0.15, 0.40, 0.25, 0.05]
+	var jitter_hit_passes := 0
+	var max_units_seen: int = _get_slot_unit_ids("B").size()
+
+	for cycle in range(cycle_count):
+		var victim_id := ""
+		for unit_name in _controllable_units.keys():
+			var actor_name := str(unit_name)
+			if actor_name.begins_with("Produced_B_"):
+				victim_id = actor_name
+				break
+		if victim_id == "":
+			print("[F67] Cycle=%d pass=false reason=no_produced_enemy_unit" % cycle)
+			continue
+
+		var before_loss: int = _get_slot_unit_ids("B").size()
+		_destroy_unit(victim_id)
+		var after_loss: int = _get_slot_unit_ids("B").size()
+		var loss_pass: bool = after_loss == before_loss - 1
+
+		_ai_production_timer = _AI_PRODUCTION_INTERVAL
+		var before_timer: int = _get_slot_unit_ids("B").size()
+		var recovery_step := -1
+		var used_jitter := false
+		for step in range(180):
+			var jitter_delta: float = jitter_profile[step % jitter_profile.size()]
+			if not is_equal_approx(jitter_delta, 0.25):
+				used_jitter = true
+			_update_enemy_ai(jitter_delta)
+			_update_live_units(0.05)
+			var live_units: int = _get_slot_unit_ids("B").size()
+			if live_units > max_units_seen:
+				max_units_seen = live_units
+			if live_units >= _AI_MAX_SLOT_B_UNITS:
+				recovery_step = step
+				break
+
+		var after_timer: int = _get_slot_unit_ids("B").size()
+		var timer_growth_pass: bool = after_timer > before_timer
+		var timer_recovery_pass: bool = after_timer == _AI_MAX_SLOT_B_UNITS
+		if used_jitter:
+			jitter_hit_passes += 1
+
+		var cycle_pass: bool = loss_pass and timer_growth_pass and timer_recovery_pass
+		if cycle_pass:
+			cycle_passes += 1
+		print("[F67] Cycle=%d loss_pass=%s timer_growth_pass=%s timer_recovery_pass=%s recovery_step=%d jitter_used=%s units_before=%d units_after=%d" % [cycle, str(loss_pass), str(timer_growth_pass), str(timer_recovery_pass), recovery_step, str(used_jitter), before_timer, after_timer])
+
+	var cycles_pass: bool = cycle_passes == cycle_count
+	var jitter_path_pass: bool = jitter_hit_passes == cycle_count
+	var cap_hold_pass: bool = max_units_seen <= _AI_MAX_SLOT_B_UNITS
+
+	print("[F67] Aggregate cycle_passes=%d jitter_hit_passes=%d max_units_seen=%d cap=%d" % [cycle_passes, jitter_hit_passes, max_units_seen, _AI_MAX_SLOT_B_UNITS])
+	print("[F67] Summary cycles_pass=%s jitter_path_pass=%s cap_hold_pass=%s pass=%s" % [str(cycles_pass), str(jitter_path_pass), str(cap_hold_pass), str(cycles_pass and jitter_path_pass and cap_hold_pass)])
 
 
 func _run_f60_drag_select_test_hook() -> void:

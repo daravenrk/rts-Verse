@@ -4,6 +4,9 @@ Track high-level project changes with links to decisions and plans.
 
 ## 2026-06-14
 
+- Added deterministic F-67 enemy timer-jitter-recovery validation hook (`--duel-test-f67-enemy-timer-jitter-recovery`) to verify recovery continuity under variable AI update delta cadence.
+- F-67 validates cycle-level loss/recovery continuity with jittered timer steps, jitter-path usage per cycle, and aggregate cap-hold safety.
+- Revalidated with `/Applications/Godot.app/Contents/MacOS/godot --headless --quit --path . res://scenes/core/FirstDuelMap.tscn -- --duel-test-f67-enemy-timer-jitter-recovery --duel-test-f66-enemy-timer-cycle-stress --duel-test-f65-enemy-timer-recovery --duel-test-f64-enemy-recovery-stress --duel-test-f63-enemy-cap-recovery --duel-test-f62-enemy-production-horizon --duel-test-f61-enemy-ai --duel-test-f38-production --duel-test-f37-combat --duel-test-f32-interaction --duel-test-f60-drag-select`; all summaries reported pass with no script errors.
 - Added deterministic F-66 enemy timer-cycle-stress validation hook (`--duel-test-f66-enemy-timer-cycle-stress`) to verify repeated cap-loss recovery cycles through live AI timer updates.
 - F-66 validates cycle-level loss/recovery continuity, timer-path enforcement per cycle, and aggregate cap-hold safety across stress cycles.
 - Revalidated with `/Applications/Godot.app/Contents/MacOS/godot --headless --quit --path . res://scenes/core/FirstDuelMap.tscn -- --duel-test-f66-enemy-timer-cycle-stress --duel-test-f65-enemy-timer-recovery --duel-test-f64-enemy-recovery-stress --duel-test-f63-enemy-cap-recovery --duel-test-f62-enemy-production-horizon --duel-test-f61-enemy-ai --duel-test-f38-production --duel-test-f37-combat --duel-test-f32-interaction --duel-test-f60-drag-select`; all summaries reported pass with no script errors.
