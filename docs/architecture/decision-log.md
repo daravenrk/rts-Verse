@@ -843,6 +843,35 @@ Status values: Proposed, Accepted, Deprecated, Superseded
 - Related research:
   - Entry-0029 in research/research-log.md
 
+## ADR-0030 Duel Runtime Camera Zoom Ownership and Validation Boundary
+
+- Date: 2026-06-20
+- Status: Accepted
+- Context: A new request asked to add zoom in and out while in game. Workspace evidence already shows zoom is part of the documented control contract, default input bindings, and duel runtime camera loop.
+- Decision:
+  - Keep camera zoom ownership in the existing split: Main.gd defines default zoom actions and FirstDuelMap.gd consumes them for live camera-arm updates.
+  - Treat new zoom work as validation and tuning unless a focused failing case proves a runtime regression.
+  - Use F-19 camera validation plus input-profile override checks as the first execution path before any new camera feature expansion.
+- Rationale:
+  - Avoids duplicating already-shipped behavior or fragmenting camera ownership across additional scripts.
+  - Preserves the current contract where startup input registration stays centralized and active gameplay camera behavior stays scene-local.
+  - Narrows future debugging to two concrete surfaces: action registration and duel runtime consumption.
+- Tradeoffs:
+  - Keeps camera behavior concentrated in the large duel runtime script, which is not ideal for long-term modularity.
+  - Defers any UX improvement work, such as surfaced zoom settings or on-screen hints, until a proven user-facing gap is captured.
+- Alternatives considered:
+  - Add another camera abstraction layer immediately.
+  - Re-implement zoom bindings in the active scene without validating current behavior.
+- Validation approach:
+  - Functional: Confirm mouse wheel and keyboard zoom change camera distance during a live duel session.
+  - Integration: Confirm Main.gd action registration and any persisted input profile continue to map to the runtime zoom actions consumed by FirstDuelMap.gd.
+  - Smoke: Re-run F-19 Camera and HUD Usability Validation with explicit zoom-in and zoom-out checks.
+  - Observability: Capture camera-arm before and after values or equivalent runtime logs when investigating reported zoom failures.
+- Related plan items:
+  - M2 Core Gameplay Loop
+- Related research:
+  - Entry-0030 in research/research-log.md
+
 ## ADR-XXXX Title
 
 - Date: YYYY-MM-DD

@@ -2,6 +2,18 @@
 
 Track scenario-level evidence for map and flow validation runs.
 
+## 2026-06-20 Duel Camera Zoom Action Validation
+
+- Flow: `F-18 and F-19 command plus camera zoom action coverage`
+- Scenario: `scenes/core/FirstDuelMap.tscn`
+- Validation command:
+  - `/Applications/Godot.app/Contents/MacOS/godot --headless --quit --path . res://scenes/core/FirstDuelMap.tscn -- --duel-test-f18f19 --duel-test-auto-exit`
+- Result: Pass
+- Notes:
+  - Duel runtime loaded persisted zoom profile value `zoom_speed=1.00` and applied it to camera zoom handling.
+  - F-19 explicit zoom checks passed with `zoom_in_pass=true`, `zoom_out_pass=true`, `arm_before=700.00`, `arm_after_zoom_in=620.00`, and `arm_final=700.00`.
+  - No script errors were emitted during the focused F-18 or F-19 validation run.
+
 ## 2026-06-14 Enemy Adaptive-Jitter Sept-Loss Readiness Slice Validation
 
 - Flow: `Adaptive-profile jitter recovery cycles with deterministic sept-loss mixed pressure and cap safety`

@@ -75,6 +75,7 @@ const TEST_F75_ENEMY_ADAPTIVE_JITTER_SEXT_LOSS_FLAG := "--duel-test-f75-enemy-ad
 const TEST_F76_ENEMY_ADAPTIVE_JITTER_SEPT_LOSS_FLAG := "--duel-test-f76-enemy-adaptive-jitter-sept-loss"
 const STAGE0_CAPTURE_FLAG := "--stage0-capture-media"
 const STAGE0_CAPTURE_DIR_PREFIX := "--stage0-capture-dir="
+const INPUT_PROFILE_CONFIG_PATH := "user://input_profile.cfg"
 const STOCKPILE_CONFIG := {
 	"alloy": {"cap": 200000, "soft_ratio": 0.3, "hard_ratio": 0.1},
 	"power": {"cap": 160000, "soft_ratio": 0.35, "hard_ratio": 0.12},
@@ -407,11 +408,14 @@ var _drag_mouse_held: bool = false
 var _drag_box_start: Vector2 = Vector2.ZERO
 var _drag_box_current: Vector2 = Vector2.ZERO
 var _drag_box_overlay: Panel = null
+var _camera_zoom_speed_multiplier: float = 1.0
 
 
 func _ready() -> void:
 	var player_faction := _resolve_faction("duel_player_faction", TEST_PLAYER_FACTION_PREFIX, DEFAULT_PLAYER_FACTION)
 	var enemy_faction := _resolve_faction("duel_enemy_faction", TEST_ENEMY_FACTION_PREFIX, DEFAULT_ENEMY_FACTION)
+	_ensure_camera_input_actions()
+	_load_camera_profile_settings()
 	print("[Map] First duel environment primary=Radial Impact Zone secondary=None")
 	_create_mvp_hud()
 	_initialize_stockpile_state()
@@ -5502,6 +5506,63 @@ func _on_tether_penalty(item_id: String, slot: String, faction: String) -> void:
 	print("[HUD] Tether alert id=%s slot=%s faction=%s" % [item_id, slot, faction])
 
 
+func _load_camera_profile_settings() -> void:
+	var config := ConfigFile.new()
+	if config.load(INPUT_PROFILE_CONFIG_PATH) != OK:
+		return
+
+	var zoom_speed_value: Variant = config.get_value("camera", "zoom_speed", 1.0)
+	_camera_zoom_speed_multiplier = clampf(float(zoom_speed_value), 0.25, 3.0)
+	print("[Camera] Profile loaded zoom_speed=%.2f" % _camera_zoom_speed_multiplier)
+
+
+func _ensure_camera_input_actions() -> void:
+	_ensure_action_with_key("rts_camera_pan_up", KEY_W)
+	_ensure_action_with_key("rts_camera_pan_up", KEY_UP)
+	_ensure_action_with_key("rts_camera_pan_down", KEY_S)
+	_ensure_action_with_key("rts_camera_pan_down", KEY_DOWN)
+	_ensure_action_with_key("rts_camera_pan_left", KEY_A)
+	_ensure_action_with_key("rts_camera_pan_left", KEY_LEFT)
+	_ensure_action_with_key("rts_camera_pan_right", KEY_D)
+	_ensure_action_with_key("rts_camera_pan_right", KEY_RIGHT)
+	_ensure_action_with_key("rts_camera_rotate_left", KEY_Q)
+	_ensure_action_with_key("rts_camera_rotate_right", KEY_E)
+	_ensure_action_with_key("rts_camera_zoom_in", KEY_EQUAL)
+	_ensure_action_with_key("rts_camera_zoom_in", KEY_KP_ADD)
+	_ensure_action_with_key("rts_camera_zoom_out", KEY_MINUS)
+	_ensure_action_with_key("rts_camera_zoom_out", KEY_KP_SUBTRACT)
+	_ensure_action_with_key("rts_camera_center_selection", KEY_SPACE)
+	_ensure_action_with_key("rts_camera_center_command", KEY_F1)
+	_ensure_action_with_mouse_button("rts_mouse_zoom_in", MOUSE_BUTTON_WHEEL_UP)
+	_ensure_action_with_mouse_button("rts_mouse_zoom_out", MOUSE_BUTTON_WHEEL_DOWN)
+
+
+func _ensure_action_with_key(action: StringName, keycode: Key) -> void:
+	if not InputMap.has_action(action):
+		InputMap.add_action(action)
+
+	for existing_event in InputMap.action_get_events(action):
+		if existing_event is InputEventKey and existing_event.keycode == keycode:
+			return
+
+	var key_event := InputEventKey.new()
+	key_event.keycode = keycode
+	InputMap.action_add_event(action, key_event)
+
+
+func _ensure_action_with_mouse_button(action: StringName, mouse_button: MouseButton) -> void:
+	if not InputMap.has_action(action):
+		InputMap.add_action(action)
+
+	for existing_event in InputMap.action_get_events(action):
+		if existing_event is InputEventMouseButton and existing_event.button_index == mouse_button:
+			return
+
+	var mouse_event := InputEventMouseButton.new()
+	mouse_event.button_index = mouse_button
+	InputMap.action_add_event(action, mouse_event)
+
+
 # -- Camera --------------------------------------------------------------------
 
 func _input(event: InputEvent) -> void:
@@ -5509,6 +5570,9 @@ func _input(event: InputEvent) -> void:
 	if event is InputEventMouseMotion and _drag_mouse_held:
 		_drag_box_current = event.position
 		_update_drag_box_overlay()
+		return
+
+	if _handle_zoom_action_event(event):
 		return
 
 	if event is InputEventMouseButton:
@@ -5521,15 +5585,7 @@ func _input(event: InputEvent) -> void:
 		if not event.pressed:
 			return
 
-		if event.button_index == MOUSE_BUTTON_WHEEL_UP:
-			_camera_arm = clamp(_camera_arm - _CAMERA_ZOOM_STEP, _CAMERA_ARM_MIN, _CAMERA_ARM_MAX)
-			_apply_camera_transform()
-			return
-		elif event.button_index == MOUSE_BUTTON_WHEEL_DOWN:
-			_camera_arm = clamp(_camera_arm + _CAMERA_ZOOM_STEP, _CAMERA_ARM_MIN, _CAMERA_ARM_MAX)
-			_apply_camera_transform()
-			return
-		elif event.button_index == MOUSE_BUTTON_LEFT:
+		if event.button_index == MOUSE_BUTTON_LEFT:
 			if _pending_buildable_id != "":
 				var place_hit := _screen_to_ground_point(event.position)
 				if place_hit["ok"]:
@@ -6468,6 +6524,29 @@ func _refresh_selection_card() -> void:
 		_hud_command_card_label.text = "Selected: %d units (%s ...)%s" % [count, unit_type, builder_hint]
 
 
+
+func _handle_zoom_action_event(event: InputEvent) -> bool:
+	if event.is_action_pressed("rts_mouse_zoom_in"):
+		_apply_camera_zoom_step(-1.0)
+		return true
+	if event.is_action_pressed("rts_mouse_zoom_out"):
+		_apply_camera_zoom_step(1.0)
+		return true
+	return false
+
+
+func _apply_camera_zoom_step(direction: float) -> void:
+	_apply_camera_zoom_delta(direction * _CAMERA_ZOOM_STEP * _camera_zoom_speed_multiplier)
+
+
+func _apply_camera_zoom_delta(delta_arm: float) -> void:
+	var next_arm: float = clampf(_camera_arm + delta_arm, _CAMERA_ARM_MIN, _CAMERA_ARM_MAX)
+	if is_equal_approx(next_arm, _camera_arm):
+		return
+	_camera_arm = next_arm
+	_apply_camera_transform()
+
+
 func _process_camera(delta: float) -> void:
 	if not _rts_camera:
 		return
@@ -6491,10 +6570,10 @@ func _process_camera(delta: float) -> void:
 		_camera_yaw += _CAMERA_ROTATE_SPEED * delta
 		changed = true
 	if InputMap.has_action("rts_camera_zoom_in") and Input.is_action_pressed("rts_camera_zoom_in"):
-		_camera_arm = clamp(_camera_arm - _CAMERA_ZOOM_KEY_SPEED * delta, _CAMERA_ARM_MIN, _CAMERA_ARM_MAX)
+		_camera_arm = clamp(_camera_arm - (_CAMERA_ZOOM_KEY_SPEED * _camera_zoom_speed_multiplier * delta), _CAMERA_ARM_MIN, _CAMERA_ARM_MAX)
 		changed = true
 	if InputMap.has_action("rts_camera_zoom_out") and Input.is_action_pressed("rts_camera_zoom_out"):
-		_camera_arm = clamp(_camera_arm + _CAMERA_ZOOM_KEY_SPEED * delta, _CAMERA_ARM_MIN, _CAMERA_ARM_MAX)
+		_camera_arm = clamp(_camera_arm + (_CAMERA_ZOOM_KEY_SPEED * _camera_zoom_speed_multiplier * delta), _CAMERA_ARM_MIN, _CAMERA_ARM_MAX)
 		changed = true
 	if changed:
 		_apply_camera_transform()
@@ -6570,7 +6649,29 @@ func _run_f18_f19_test_hook() -> void:
 	_recall_control_group(1)
 	_double_tap_center_control_group(1)
 
+	var arm_before := _camera_arm
+	var zoom_in_event := InputEventAction.new()
+	zoom_in_event.action = "rts_mouse_zoom_in"
+	zoom_in_event.pressed = true
+	_input(zoom_in_event)
+	var arm_after_zoom_in := _camera_arm
+	var zoom_in_pass := arm_after_zoom_in < arm_before
+
+	var zoom_out_event := InputEventAction.new()
+	zoom_out_event.action = "rts_mouse_zoom_out"
+	zoom_out_event.pressed = true
+	_input(zoom_out_event)
+	var zoom_out_pass := _camera_arm > arm_after_zoom_in and is_equal_approx(_camera_arm, arm_before)
+
 	print("[F18] Command coverage summary actions=move,attack,attack_move,gather,repair,patrol,hold,stop groups=assign,recall,double_tap")
+	print("[F19] Camera zoom summary zoom_in_pass=%s zoom_out_pass=%s arm_before=%.2f arm_after_zoom_in=%.2f arm_final=%.2f multiplier=%.2f" % [
+		str(zoom_in_pass),
+		str(zoom_out_pass),
+		arm_before,
+		arm_after_zoom_in,
+		_camera_arm,
+		_camera_zoom_speed_multiplier
+	])
 	print("[F19] HUD sync summary resource_bar=%s alert=%s queue=%s" % [_hud_resource_bar.text, _hud_alert_item.text, _hud_queue_item.text])
 
 

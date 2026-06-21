@@ -2,6 +2,13 @@
 
 Track high-level project changes with links to decisions and plans.
 
+## 2026-06-20
+
+- Fixed duel-runtime mouse zoom ownership in `scripts/core/FirstDuelMap.gd` by routing zoom through `rts_mouse_zoom_in` and `rts_mouse_zoom_out` actions instead of raw wheel-button checks.
+- Applied persisted `camera.zoom_speed` from `user://input_profile.cfg` to both wheel-step and keyboard-held zoom so runtime camera behavior now follows the stored input-profile zoom setting.
+- Added local camera-action bootstrap in `FirstDuelMap.gd` so direct scene launches and headless scene validation still expose expected zoom and camera actions when `Main.tscn` is not the entry point.
+- Extended the F-19 duel hook with explicit zoom-action assertions and revalidated with `/Applications/Godot.app/Contents/MacOS/godot --headless --quit --path . res://scenes/core/FirstDuelMap.tscn -- --duel-test-f18f19 --duel-test-auto-exit`; the run reported `zoom_in_pass=true`, `zoom_out_pass=true`, and no script errors.
+
 ## 2026-06-14
 
 - Added deterministic F-76 enemy adaptive-jitter-sept-loss validation hook (`--duel-test-f76-enemy-adaptive-jitter-sept-loss`) to verify deterministic seven-unit mixed-loss recovery continuity under rotating jitter profiles.

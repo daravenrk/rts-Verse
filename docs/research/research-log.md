@@ -790,6 +790,38 @@ Use this file to capture evidence-backed findings before changing architecture o
   - Add explicit parallel-readiness rows in next-steps for in-repo execution continuity.
   - Keep postpublish gate as final Stage 0 closure validator once manual publication completes.
 
+## Entry-0030 Duel Runtime Zoom Request Triage
+
+- Date: 2026-06-20
+- Query: Do we need to add in-game zoom support, or is the missing work a validation or tuning pass on existing camera behavior?
+- Files reviewed:
+  - scripts/core/Main.gd
+  - scripts/core/FirstDuelMap.gd
+  - docs/planning/controls-standards.md
+  - docs/planning/testing-strategy.md
+  - docs/planning/implementation-plan.md
+  - docs/planning/next-steps.md
+  - AGENT_PLAN.md
+  - docs/architecture/decision-log.md
+- Evidence:
+  - controls-standards.md defines mouse-wheel zoom and camera zoom as part of the MVP control contract.
+  - Main.gd registers both keyboard zoom actions and mouse-wheel zoom actions and persists them through the input-profile flow.
+  - FirstDuelMap.gd handles wheel-up and wheel-down input by clamping _camera_arm and immediately applying the camera transform.
+  - FirstDuelMap.gd also processes continuous keyboard zoom through rts_camera_zoom_in and rts_camera_zoom_out during _process_camera.
+  - testing-strategy.md already includes F-19 coverage for camera zoom responsiveness.
+  - next-steps.md already marks the camera baseline and F-19 usability pass as complete.
+- Interpretation:
+  - The repository already contains an implemented zoom path for live gameplay.
+  - The most likely remaining gaps are user-visible validation, tuning, or a persisted input-profile override issue rather than absent camera functionality.
+- Risks or unknowns:
+  - A stale user input profile could erase or remap expected zoom bindings without changing source defaults.
+  - The current evidence is static code and documentation review only; no live runtime validation was executed in this research pass.
+- Recommended decision:
+  - Accept ADR-0030 and treat this request as a focused validation boundary unless a concrete failing behavior is reproduced.
+- Follow-up tasks:
+  - Run a focused F-19 live check with explicit wheel and keyboard zoom assertions if the current build still appears non-responsive.
+  - Inspect the active user input profile before editing camera code if a regression is reported.
+
 ## Research Entry Template
 
 ## Entry-XXXX Title

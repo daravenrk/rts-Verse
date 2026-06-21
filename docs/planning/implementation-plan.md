@@ -54,6 +54,7 @@ Define and deliver the first playable RTS vertical slice expressing daravenrk's 
   - Functional: Main menu shows Skirmish as playable and Campaign as disabled Coming Soon.
   - Functional: Every MVP playable unit has at least Idle, Move, Primary Action, Hit or Reaction, and Death or Disable animation coverage.
   - Integration: Camera zoom and rotation preserve readability of small 3D units and intent-signaling animation states.
+  - Integration: Runtime zoom ownership remains split between Main.gd input registration and FirstDuelMap.gd camera processing; new work should start with focused F-19 validation before further camera implementation.
   - Functional: Manual playthrough confirms loop from start to finish.
   - Functional: Human and alien MVP factions can complete opening, transition, and first combined-arms engagements.
   - Integration: Input, simulation, and UI flow work together without blocking issues.

@@ -39,6 +39,16 @@
 - Validated invalid-input guardrail blocking, duplicate-event rejection telemetry, and no unintended reserve mutation via standalone and focused integrated smoke evidence.
 - Implemented deterministic F-49 observability retention-rotation hook in duel map.
 - Validated live-window cap, archive growth, sequence-index consistency, and mixed payload retention in standalone and focused integrated smoke runs.
+
+## Closure Delta 2026-06-20
+
+- Researched a fresh request to add in-game zoom and traced the active ownership path without changing runtime code.
+- Verified from workspace evidence that zoom is already part of the documented control contract, registered in scripts/core/Main.gd, and consumed in scripts/core/FirstDuelMap.gd through both wheel-step and keyboard-held camera-arm updates.
+- Recorded ADR-0030 and Entry-0030 to keep future work bounded to focused F-19 validation, input-profile override checks, and tuning unless a concrete runtime regression is reproduced.
+- Implemented action-driven mouse zoom handling in scripts/core/FirstDuelMap.gd so duel runtime now honors remapped `rts_mouse_zoom_in` and `rts_mouse_zoom_out` bindings instead of hard-wiring wheel button indices.
+- Loaded persisted `camera.zoom_speed` from `user://input_profile.cfg` into duel runtime and applied the multiplier to both mouse-step and keyboard-held zoom paths.
+- Added direct-scene camera action bootstrap in FirstDuelMap so standalone duel launches and headless scene tests retain the expected camera bindings even when Main.tscn is bypassed.
+- Extended the F-19 hook with explicit zoom-action assertions and validated with `/Applications/Godot.app/Contents/MacOS/godot --headless --quit --path . res://scenes/core/FirstDuelMap.tscn -- --duel-test-f18f19 --duel-test-auto-exit`; the run reported `zoom_in_pass=true` and `zoom_out_pass=true` with no script errors.
 - Implemented deterministic F-50 observability reconstruction-integrity hook in duel map.
 - Validated merged archive/live reconstruction consistency, mixed payload survivability, and feed-window integrity in standalone and focused integrated smoke runs.
 - Implemented deterministic F-51 world-event catalog integrity hook in duel map.

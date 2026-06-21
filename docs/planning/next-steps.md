@@ -79,6 +79,7 @@ Keep this list short, actionable, and current.
 - [x] Build Skirmish.tscn scene tree with OptionButton, label, and start button nodes matching Skirmish.gd @onready references.
 - [x] Replace 2D simulation units with visible Node3D placeholder actors in FirstDuelMap, distinguishable by faction color.
 - [x] Add Camera3D to FirstDuelMap.tscn at documented baseline pitch and zoom with pan, rotate, and zoom bindings active.
+- [x] Verify current zoom request against runtime ownership and confirm in-game zoom already exists through Main input actions plus FirstDuelMap camera-arm handling.
 - [x] Wire resource bar, alert label, and match-state label to live game state so HUD updates from actual alloy and Tether events.
 - [x] Implement left-click selection from camera ray and multi-select modifier handling in duel map.
 - [x] Implement right-click movement command from world ray target for selected units.
@@ -209,6 +210,7 @@ Keep this list short, actionable, and current.
 - [x] Define deterministic simulation constraints.
 - [x] Convert economy-standards.md into first balance sheet draft.
 - [x] Draft test scenarios for core loop validation.
+- [ ] If a live zoom defect is reproduced, run a focused F-19 regression pass against mouse-wheel, keyboard zoom, and persisted input-profile mappings before changing camera code.
 
 ## Blocked
 
