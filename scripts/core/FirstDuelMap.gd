@@ -57,6 +57,7 @@ const TEST_F57_EVENT_ADAPTIVE_BURST_FLAG := "--duel-test-f57-event-adaptive-burs
 const TEST_F58_EVENT_ADAPTIVE_ARCHIVE_FLAG := "--duel-test-f58-event-adaptive-archive"
 const TEST_F59_EVENT_REINIT_REPLAY_FLAG := "--duel-test-f59-event-reinit-replay"
 const TEST_F60_DRAG_SELECT_FLAG := "--duel-test-f60-drag-select"
+const TEST_CAMERA_UI_FLAG := "--duel-test-camera-ui"
 const TEST_F61_ENEMY_AI_FLAG := "--duel-test-f61-enemy-ai"
 const TEST_F62_ENEMY_PRODUCTION_HORIZON_FLAG := "--duel-test-f62-enemy-production-horizon"
 const TEST_F63_ENEMY_CAP_RECOVERY_FLAG := "--duel-test-f63-enemy-cap-recovery"
@@ -262,6 +263,8 @@ const _CAMERA_PAN_SPEED := 400.0
 const _CAMERA_ROTATE_SPEED := 60.0
 const _CAMERA_ZOOM_STEP := 80.0
 const _CAMERA_ZOOM_KEY_SPEED := 520.0
+const _CAMERA_BUTTON_PAN_STEP := 96.0
+const _CAMERA_BUTTON_ROTATE_STEP := 15.0
 const _SELECT_RADIUS_UNITS := 18.0
 const _ATTACK_SELECT_RADIUS_UNITS := 14.0
 const _ATTACK_RANGE_UNITS := 18.0
@@ -476,6 +479,7 @@ func _ready() -> void:
 	_run_f58_event_adaptive_archive_replay_test_hook()
 	_run_f59_event_reinit_replay_test_hook()
 	_run_f60_drag_select_test_hook()
+	_run_camera_ui_test_hook()
 	_run_f61_enemy_ai_test_hook()
 	_run_f62_enemy_production_horizon_test_hook()
 	_run_f63_enemy_cap_recovery_test_hook()
@@ -1924,6 +1928,31 @@ func _run_f60_drag_select_test_hook() -> void:
 	])
 
 
+func _run_camera_ui_test_hook() -> void:
+	if not _has_user_flag(TEST_CAMERA_UI_FLAG):
+		return
+
+	var camera_pad_exists := _hud_root and _hud_root.has_node("CameraControls")
+	var target_before := _camera_target
+	_on_camera_pan_north_pressed()
+	var pan_pass := _camera_target.z < target_before.z
+
+	var yaw_before := _camera_yaw
+	_on_camera_rotate_right_pressed()
+	var rotate_pass := _camera_yaw > yaw_before
+
+	var arm_before := _camera_arm
+	_on_camera_zoom_in_pressed()
+	var zoom_pass := _camera_arm < arm_before
+
+	_center_camera_on_player_base()
+	var center_pass := _tether_points_by_slot.has("A") and _camera_target == (_tether_points_by_slot["A"] as TetherPoint).position
+	var pass_ok: bool = camera_pad_exists and pan_pass and rotate_pass and zoom_pass and center_pass
+	print("[CameraUI] Summary pad_exists=%s pan_pass=%s rotate_pass=%s zoom_pass=%s center_pass=%s pass=%s" % [
+		str(camera_pad_exists), str(pan_pass), str(rotate_pass), str(zoom_pass), str(center_pass), str(pass_ok)
+	])
+
+
 func _run_stage0_media_capture_sequence() -> void:
 	var output_dir := _resolve_stage0_capture_dir()
 	var make_dir_result := DirAccess.make_dir_recursive_absolute(output_dir)
@@ -2228,6 +2257,8 @@ func _create_mvp_hud() -> void:
 	_hud_minimap_control = mm_draw
 	_hud_minimap_draw = mm_draw
 
+	_create_camera_control_pad(hud_root)
+
 	var command_card := PanelContainer.new()
 	command_card.name = "CommandCard"
 	command_card.position = Vector2(960, 420)
@@ -2284,6 +2315,62 @@ func _create_mvp_hud() -> void:
 	_hud_match_state = match_state
 
 	print("[HUD] MVP HUD initialized components=resource_bar,minimap,command_card,alerts,queue_display")
+
+
+func _create_camera_control_pad(hud_root: Control) -> void:
+	var camera_panel := PanelContainer.new()
+	camera_panel.name = "CameraControls"
+	camera_panel.position = Vector2(248, 460)
+	camera_panel.size = Vector2(184, 140)
+	camera_panel.mouse_filter = Control.MOUSE_FILTER_STOP
+	hud_root.add_child(camera_panel)
+
+	var margin := MarginContainer.new()
+	margin.mouse_filter = Control.MOUSE_FILTER_STOP
+	margin.add_theme_constant_override("margin_left", 8)
+	margin.add_theme_constant_override("margin_top", 8)
+	margin.add_theme_constant_override("margin_right", 8)
+	margin.add_theme_constant_override("margin_bottom", 8)
+	camera_panel.add_child(margin)
+
+	var grid := GridContainer.new()
+	grid.columns = 3
+	grid.mouse_filter = Control.MOUSE_FILTER_STOP
+	grid.add_theme_constant_override("h_separation", 4)
+	grid.add_theme_constant_override("v_separation", 4)
+	margin.add_child(grid)
+
+	_add_camera_pad_button(grid, "RL", "Rotate camera left", _on_camera_rotate_left_pressed)
+	_add_camera_pad_button(grid, "N", "Pan camera north", _on_camera_pan_north_pressed)
+	_add_camera_pad_button(grid, "RR", "Rotate camera right", _on_camera_rotate_right_pressed)
+	_add_camera_pad_button(grid, "W", "Pan camera west", _on_camera_pan_west_pressed)
+	_add_camera_pad_button(grid, "Base", "Center on base", _center_camera_on_player_base)
+	_add_camera_pad_button(grid, "E", "Pan camera east", _on_camera_pan_east_pressed)
+	_add_camera_pad_button(grid, "-", "Zoom out", _on_camera_zoom_out_pressed)
+	_add_camera_pad_button(grid, "S", "Pan camera south", _on_camera_pan_south_pressed)
+	_add_camera_pad_button(grid, "+", "Zoom in", _on_camera_zoom_in_pressed)
+	_add_camera_pad_spacer(grid)
+	_add_camera_pad_button(grid, "Sel", "Center on selected unit", _center_camera_on_selection)
+	_add_camera_pad_spacer(grid)
+
+
+func _add_camera_pad_button(parent: Control, label: String, tooltip: String, pressed_callback: Callable) -> Button:
+	var button := Button.new()
+	button.text = label
+	button.tooltip_text = tooltip
+	button.custom_minimum_size = Vector2(52, 26)
+	button.focus_mode = Control.FOCUS_NONE
+	button.mouse_filter = Control.MOUSE_FILTER_STOP
+	button.pressed.connect(pressed_callback)
+	parent.add_child(button)
+	return button
+
+
+func _add_camera_pad_spacer(parent: Control) -> void:
+	var spacer := Control.new()
+	spacer.custom_minimum_size = Vector2(52, 26)
+	spacer.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	parent.add_child(spacer)
 
 
 func _run_tether_test_hooks() -> void:
@@ -6545,6 +6632,60 @@ func _apply_camera_zoom_delta(delta_arm: float) -> void:
 		return
 	_camera_arm = next_arm
 	_apply_camera_transform()
+
+
+func _on_camera_pan_north_pressed() -> void:
+	_nudge_camera_from_ui(Vector3(0.0, 0.0, -_CAMERA_BUTTON_PAN_STEP), "north")
+
+
+func _on_camera_pan_south_pressed() -> void:
+	_nudge_camera_from_ui(Vector3(0.0, 0.0, _CAMERA_BUTTON_PAN_STEP), "south")
+
+
+func _on_camera_pan_west_pressed() -> void:
+	_nudge_camera_from_ui(Vector3(-_CAMERA_BUTTON_PAN_STEP, 0.0, 0.0), "west")
+
+
+func _on_camera_pan_east_pressed() -> void:
+	_nudge_camera_from_ui(Vector3(_CAMERA_BUTTON_PAN_STEP, 0.0, 0.0), "east")
+
+
+func _on_camera_rotate_left_pressed() -> void:
+	_camera_yaw -= _CAMERA_BUTTON_ROTATE_STEP
+	_apply_camera_transform()
+	if _hud_alert_item:
+		_hud_alert_item.text = "Camera rotated left"
+	print("[CameraUI] Rotate left yaw=%.1f" % _camera_yaw)
+
+
+func _on_camera_rotate_right_pressed() -> void:
+	_camera_yaw += _CAMERA_BUTTON_ROTATE_STEP
+	_apply_camera_transform()
+	if _hud_alert_item:
+		_hud_alert_item.text = "Camera rotated right"
+	print("[CameraUI] Rotate right yaw=%.1f" % _camera_yaw)
+
+
+func _on_camera_zoom_in_pressed() -> void:
+	_apply_camera_zoom_step(-1.0)
+	if _hud_alert_item:
+		_hud_alert_item.text = "Camera zoomed in"
+	print("[CameraUI] Zoom in arm=%.1f" % _camera_arm)
+
+
+func _on_camera_zoom_out_pressed() -> void:
+	_apply_camera_zoom_step(1.0)
+	if _hud_alert_item:
+		_hud_alert_item.text = "Camera zoomed out"
+	print("[CameraUI] Zoom out arm=%.1f" % _camera_arm)
+
+
+func _nudge_camera_from_ui(offset: Vector3, label: String) -> void:
+	_camera_target += offset
+	_apply_camera_transform()
+	if _hud_alert_item:
+		_hud_alert_item.text = "Camera panned %s" % label
+	print("[CameraUI] Pan %s target=%s" % [label, str(_camera_target)])
 
 
 func _process_camera(delta: float) -> void:
