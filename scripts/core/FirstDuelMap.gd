@@ -74,6 +74,8 @@ const TEST_F73_ENEMY_ADAPTIVE_JITTER_QUAD_LOSS_FLAG := "--duel-test-f73-enemy-ad
 const TEST_F74_ENEMY_ADAPTIVE_JITTER_QUINT_LOSS_FLAG := "--duel-test-f74-enemy-adaptive-jitter-quint-loss"
 const TEST_F75_ENEMY_ADAPTIVE_JITTER_SEXT_LOSS_FLAG := "--duel-test-f75-enemy-adaptive-jitter-sext-loss"
 const TEST_F76_ENEMY_ADAPTIVE_JITTER_SEPT_LOSS_FLAG := "--duel-test-f76-enemy-adaptive-jitter-sept-loss"
+const TEST_F77_TETHER_ENDGAME_FLAG := "--duel-test-f77-tether-endgame"
+const TEST_F78_ENEMY_TETHER_ENDGAME_FLAG := "--duel-test-f78-enemy-tether-endgame"
 const STAGE0_CAPTURE_FLAG := "--stage0-capture-media"
 const STAGE0_CAPTURE_DIR_PREFIX := "--stage0-capture-dir="
 const INPUT_PROFILE_CONFIG_PATH := "user://input_profile.cfg"
@@ -267,6 +269,12 @@ const _CAMERA_BUTTON_PAN_STEP := 96.0
 const _CAMERA_BUTTON_ROTATE_STEP := 15.0
 const _SELECT_RADIUS_UNITS := 18.0
 const _ATTACK_SELECT_RADIUS_UNITS := 14.0
+const _TETHER_ATTACK_SELECT_RADIUS_UNITS := 28.0
+const _TETHER_COMBAT_RADIUS_UNITS := 24.0
+const _EXPANSION_HUB_MAX_HIT_POINTS := 96.0
+const _EXPANSION_HUB_COMBAT_RADIUS_UNITS := 11.0
+const _EXPANSION_HUB_SELECT_RADIUS_UNITS := 16.0
+const _TETHER_RECOVERY_SECONDS := 6.0
 const _ATTACK_RANGE_UNITS := 18.0
 const _ATTACK_DAMAGE_PER_HIT := 16.0
 const _ATTACK_COOLDOWN_SECONDS := 0.6
@@ -280,6 +288,9 @@ const _BLOCKER_RECTS: Array[Rect2] = [
 ]
 var _tether_points_by_slot: Dictionary = {}
 var _buildables_by_slot: Dictionary = {"A": {}, "B": {}}
+var _live_buildable_nodes_by_id: Dictionary = {}
+var _structure_hit_points: Dictionary = {}
+var _tether_recovery_remaining_by_slot: Dictionary = {}
 var _build_sequence: int = 0
 var _map_item_counts: Dictionary = {}
 var _map_items_by_id: Dictionary = {}
@@ -496,6 +507,8 @@ func _ready() -> void:
 	_run_f74_enemy_adaptive_jitter_quint_loss_test_hook()
 	_run_f75_enemy_adaptive_jitter_sext_loss_test_hook()
 	_run_f76_enemy_adaptive_jitter_sept_loss_test_hook()
+	_run_f77_tether_endgame_test_hook()
+	_run_f78_enemy_tether_endgame_test_hook()
 	if _has_user_flag(STAGE0_CAPTURE_FLAG):
 		call_deferred("_run_stage0_media_capture_sequence")
 	elif _has_user_flag(TEST_AUTO_EXIT_FLAG):
@@ -551,6 +564,179 @@ func _run_f61_enemy_ai_test_hook() -> void:
 	print("[F61] Enemy production progression before=%d after=%d pass=%s" % [enemy_units_before, enemy_units_after, str(production_pass)])
 	print("[F61] Enemy unit cap max=%d current=%d pass=%s" % [_AI_MAX_SLOT_B_UNITS, enemy_units_after, str(cap_pass)])
 	print("[F61] Summary active_pass=%s build_pass=%s production_pass=%s cap_pass=%s pass=%s" % [str(ai_active), str(build_pass), str(production_pass), str(cap_pass), str(ai_active and build_pass and production_pass and cap_pass)])
+
+
+func _run_f77_tether_endgame_test_hook() -> void:
+	if not _has_user_flag(TEST_F77_TETHER_ENDGAME_FLAG):
+		return
+	if not _tether_points_by_slot.has("B"):
+		print("[F77] Summary pursuit_pass=false range_pass=false cadence_pass=false secondary_guard_pass=false win_pass=false shutdown_pass=false camera_pass=false pass=false reason=missing_enemy_tether")
+		return
+
+	_ensure_build_chain_for_slot("B", ["alloy_extractor", "barracks_equivalent", "expansion_hub"])
+	var hub_target_id := _get_secondary_command_structure_id("B")
+	for enemy_id in _get_slot_unit_ids("B"):
+		_destroy_unit(enemy_id)
+
+	var attacker_id := _find_first_unit_for_slot("A")
+	if attacker_id == "":
+		print("[F77] Summary pursuit_pass=false range_pass=false cadence_pass=false secondary_guard_pass=false win_pass=false shutdown_pass=false camera_pass=false pass=false reason=missing_player_attacker")
+		return
+	var enemy_tether: TetherPoint = _tether_points_by_slot["B"]
+	var tether_target_id := enemy_tether.stable_item_id
+	var attacker: SelectableUnit2D = _controllable_units[attacker_id]
+	attacker.position = enemy_tether.position + Vector3(-(_TETHER_COMBAT_RADIUS_UNITS + _ATTACK_RANGE_UNITS + 80.0), 0.0, 0.0)
+	enemy_tether.health = _ATTACK_DAMAGE_PER_HIT * 3.0
+
+	_select_single_unit(attacker_id)
+	var target_screen := _rts_camera.unproject_position(enemy_tether.position)
+	_handle_right_click_command(target_screen)
+	var issue_pass: bool = str(_attack_orders.get(attacker_id, "")) == tether_target_id
+	var initial_health := enemy_tether.health
+	_update_live_units(0.1)
+	var pursuit_pass := issue_pass and attacker.has_move_target() and is_equal_approx(enemy_tether.health, initial_health)
+
+	var pursuit_steps := 0
+	while is_equal_approx(enemy_tether.health, initial_health) and pursuit_steps < 40:
+		_update_live_units(0.1)
+		pursuit_steps += 1
+	var first_hit_health := enemy_tether.health
+	var center_distance := Vector2(attacker.position.x, attacker.position.z).distance_to(Vector2(enemy_tether.position.x, enemy_tether.position.z))
+	var edge_distance := center_distance - _TETHER_COMBAT_RADIUS_UNITS
+	var range_pass := first_hit_health < initial_health \
+		and center_distance >= _TETHER_COMBAT_RADIUS_UNITS \
+		and edge_distance <= _ATTACK_RANGE_UNITS
+
+	_update_live_units(_ATTACK_COOLDOWN_SECONDS - 0.1)
+	var cooldown_hold_pass := is_equal_approx(enemy_tether.health, first_hit_health)
+	_update_live_units(0.11)
+	var second_hit_pass := enemy_tether.health < first_hit_health and not enemy_tether.is_command_penalty_active
+	_update_live_units(_ATTACK_COOLDOWN_SECONDS + 0.01)
+	var cadence_pass := cooldown_hold_pass and second_hit_pass and enemy_tether.is_command_penalty_active
+	var secondary_guard_pass := not _match_over \
+		and enemy_tether.recovery_state == "recovering" \
+		and _hud_alert_item.text.find("Secondary command") >= 0
+
+	_update_tether_recovery(_TETHER_RECOVERY_SECONDS + 0.01)
+	var restored_builder_id := _find_first_unit_for_slot("B")
+	var recovery_pass := not enemy_tether.is_command_penalty_active \
+		and enemy_tether.recovery_state == "stable" \
+		and restored_builder_id != "" \
+		and not _tether_recovery_remaining_by_slot.has("B")
+
+	# Destroy the live Expansion Hub through player-issued combat.
+	_select_single_unit(attacker_id)
+	var hub_node := _get_buildable_by_target_id(hub_target_id)
+	var hub_screen := _rts_camera.unproject_position(hub_node.position)
+	_handle_right_click_command(hub_screen)
+	var hub_issue_pass: bool = str(_attack_orders.get(attacker_id, "")) == hub_target_id
+	var hub_steps := 0
+	while _combat_target_exists(hub_target_id) and hub_steps < 120:
+		_update_live_units(0.1)
+		hub_steps += 1
+	var hub_destroy_pass := hub_issue_pass and not _combat_target_exists(hub_target_id) \
+		and _get_secondary_command_structure_id("B") == ""
+
+	# Eliminate the recovered builder through the unit combat path.
+	_select_single_unit(attacker_id)
+	_issue_attack_command(restored_builder_id)
+	var builder_steps := 0
+	while _controllable_units.has(restored_builder_id) and builder_steps < 120:
+		_update_live_units(0.1)
+		builder_steps += 1
+	var builder_elimination_pass := not _controllable_units.has(restored_builder_id)
+
+	# The recovered Tether is now the final live command target.
+	_select_single_unit(attacker_id)
+	_handle_right_click_command(target_screen)
+	_gather_jobs[attacker_id] = {"phase": "to_resource"}
+	_pending_buildable_id = "power_core"
+	_build_menu_active = true
+	_production_menu_active = true
+	var final_tether_steps := 0
+	while not _match_over and final_tether_steps < 260:
+		_update_live_units(0.1)
+		final_tether_steps += 1
+	var win_pass := _match_over and _hud_match_state.text == "State: Win (enemy_eliminated)"
+	var attacker_stopped := not attacker.has_move_target()
+	var shutdown_pass := _attack_orders.is_empty() and _gather_jobs.is_empty() \
+		and _pending_buildable_id == "" and not _build_menu_active \
+		and not _production_menu_active and attacker_stopped
+	var arm_before := _camera_arm
+	var zoom_event := InputEventMouseButton.new()
+	zoom_event.button_index = MOUSE_BUTTON_WHEEL_UP
+	zoom_event.pressed = true
+	_input(zoom_event)
+	var target_before := _camera_target
+	_on_camera_pan_north_pressed()
+	_process_camera(0.0)
+	var camera_pass := _camera_arm < arm_before and _camera_target.z < target_before.z
+	var pass_ok: bool = pursuit_pass and range_pass and cadence_pass \
+		and secondary_guard_pass and recovery_pass and hub_destroy_pass \
+		and builder_elimination_pass and win_pass and shutdown_pass and camera_pass
+	print("[F77] Summary pursuit_pass=%s range_pass=%s cadence_pass=%s secondary_guard_pass=%s recovery_pass=%s hub_destroy_pass=%s agency_elimination_pass=%s win_pass=%s shutdown_pass=%s camera_pass=%s pursuit_steps=%d hub_steps=%d final_tether_steps=%d pass=%s" % [
+		str(pursuit_pass), str(range_pass), str(cadence_pass),
+		str(secondary_guard_pass), str(recovery_pass), str(hub_destroy_pass),
+		str(builder_elimination_pass), str(win_pass), str(shutdown_pass),
+		str(camera_pass), pursuit_steps, hub_steps, final_tether_steps, str(pass_ok)
+	])
+
+
+func _run_f78_enemy_tether_endgame_test_hook() -> void:
+	if not _has_user_flag(TEST_F78_ENEMY_TETHER_ENDGAME_FLAG):
+		return
+	if not _tether_points_by_slot.has("A"):
+		print("[F78] Summary select_pass=false pursuit_pass=false fallback_pass=false recovery_cancel_pass=false loss_pass=false pass=false reason=missing_player_tether")
+		return
+
+	_ensure_build_chain_for_slot("A", ["alloy_extractor", "barracks_equivalent", "expansion_hub"])
+	var hub_target_id := _get_secondary_command_structure_id("A")
+	for player_id in _get_slot_unit_ids("A"):
+		_destroy_unit(player_id)
+	var enemy_ids := _get_slot_unit_ids("B")
+	if enemy_ids.is_empty():
+		print("[F78] Summary select_pass=false pursuit_pass=false fallback_pass=false recovery_cancel_pass=false loss_pass=false pass=false reason=missing_enemy_attacker")
+		return
+	var attacker_id := enemy_ids[0]
+	for index in range(1, enemy_ids.size()):
+		_destroy_unit(enemy_ids[index])
+	var player_tether: TetherPoint = _tether_points_by_slot["A"]
+	player_tether.health = _ATTACK_DAMAGE_PER_HIT * 2.0
+	var attacker: SelectableUnit2D = _controllable_units[attacker_id]
+	attacker.position = player_tether.position + Vector3(_TETHER_COMBAT_RADIUS_UNITS + _ATTACK_RANGE_UNITS + 60.0, 0.0, 0.0)
+	_ai_build_timer = 999.0
+	_ai_production_timer = 999.0
+	_ai_scan_timers[attacker_id] = 0.0
+	_update_enemy_ai(0.1)
+	var select_pass: bool = str(_attack_orders.get(attacker_id, "")) == player_tether.stable_item_id
+	var initial_health := player_tether.health
+	_update_live_units(0.1)
+	var pursuit_pass := attacker.has_move_target() and is_equal_approx(player_tether.health, initial_health)
+	var tether_steps := 0
+	while not player_tether.is_command_penalty_active and tether_steps < 50:
+		_update_live_units(0.1)
+		tether_steps += 1
+	var recovery_started_pass := player_tether.recovery_state == "recovering" \
+		and _tether_recovery_remaining_by_slot.has("A") and not _match_over
+	_structure_hit_points[hub_target_id] = _ATTACK_DAMAGE_PER_HIT * 2.0
+	_ai_scan_timers[attacker_id] = 0.0
+	_update_enemy_ai(0.1)
+	var fallback_pass: bool = str(_attack_orders.get(attacker_id, "")) == hub_target_id
+	var hub_steps := 0
+	while not _match_over and hub_steps < 80:
+		_update_live_units(0.1)
+		hub_steps += 1
+	var recovery_cancel_pass := player_tether.recovery_state == "destroyed" \
+		and not _tether_recovery_remaining_by_slot.has("A") \
+		and not _combat_target_exists(hub_target_id)
+	var loss_pass := _match_over and _hud_match_state.text == "State: Loss (player_eliminated)"
+	var pass_ok: bool = select_pass and pursuit_pass and recovery_started_pass \
+		and fallback_pass and recovery_cancel_pass and loss_pass
+	print("[F78] Summary select_pass=%s pursuit_pass=%s recovery_started_pass=%s fallback_pass=%s recovery_cancel_pass=%s loss_pass=%s tether_steps=%d hub_steps=%d pass=%s" % [
+		str(select_pass), str(pursuit_pass), str(recovery_started_pass),
+		str(fallback_pass), str(recovery_cancel_pass), str(loss_pass),
+		tether_steps, hub_steps, str(pass_ok)
+	])
 
 
 func _run_f62_enemy_production_horizon_test_hook() -> void:
@@ -2407,6 +2593,8 @@ func _run_build_chain_test_hook() -> void:
 
 
 func _build_for_slot(slot: String, buildable_id: String, placement_position: Variant = null) -> bool:
+	if _match_over:
+		return false
 	if not BUILDABLE_DEFS.has(buildable_id):
 		print("[Build] Rejected slot=%s buildable=%s reason=unknown_buildable" % [slot, buildable_id])
 		return false
@@ -2439,6 +2627,9 @@ func _build_for_slot(slot: String, buildable_id: String, placement_position: Var
 	var tier: String = str(BUILDABLE_DEFS[buildable_id]["tier"])
 	buildable_node.initialize(stable_item_id, slot, buildable_id, tier)
 	_buildables_by_slot[slot][buildable_id] = stable_item_id
+	_live_buildable_nodes_by_id[stable_item_id] = buildable_node
+	if buildable_id == "expansion_hub":
+		_structure_hit_points[stable_item_id] = _EXPANSION_HUB_MAX_HIT_POINTS
 	print("[Build] Completed slot=%s buildable=%s tier=%s stable_item_id=%s" % [slot, buildable_id, tier, stable_item_id])
 	if _hud_queue_item:
 		_hud_queue_item.text = "Built: %s" % buildable_id
@@ -2472,7 +2663,8 @@ func _run_f24_test_hook() -> void:
 		else:
 			print("[F24] Unit baseline fail faction=%s unit=%s missing=%s" % [str(profile["faction"]), str(profile["unit"]), str(actor.get_missing_required_states())])
 
-	print("[F24] Summary pass_units=%d total_units=%d" % [pass_count, F24_UNIT_PROFILES.size()])
+	var pass_ok := pass_count == F24_UNIT_PROFILES.size()
+	print("[F24] Summary pass_units=%d total_units=%d pass=%s" % [pass_count, F24_UNIT_PROFILES.size(), str(pass_ok)])
 
 
 func _run_f01_f02_test_hook() -> void:
@@ -2570,6 +2762,8 @@ func _box_select_units(selection_box: Rect2, additive: bool) -> void:
 
 
 func _issue_move_command(target: Vector3) -> void:
+	if _match_over:
+		return
 	if _selected_controllable_units.is_empty():
 		print("[F02] Move rejected reason=no_selection")
 		return
@@ -2603,6 +2797,8 @@ func _issue_move_command(target: Vector3) -> void:
 
 
 func _issue_gather_command(resource_item_id: String) -> void:
+	if _match_over:
+		return
 	if _selected_controllable_units.is_empty():
 		print("[F03] Gather rejected reason=no_selection")
 		return
@@ -2699,7 +2895,8 @@ func _run_f36_build_test_hook() -> void:
 	var place_pass := _place_pending_buildable(place_target)
 	var slot_buildables: Dictionary = _buildables_by_slot.get("A", {})
 	var has_power_core: bool = slot_buildables.has("power_core")
-	print("[F36] Summary place_pass=%s has_power_core=%s builder=%s" % [str(place_pass), str(has_power_core), builder_id])
+	var pass_ok := place_pass and has_power_core
+	print("[F36] Summary place_pass=%s has_power_core=%s builder=%s pass=%s" % [str(place_pass), str(has_power_core), builder_id, str(pass_ok)])
 
 
 func _run_f37_combat_test_hook() -> void:
@@ -2726,7 +2923,7 @@ func _run_f37_combat_test_hook() -> void:
 	if target_exists:
 		target_hp_after = float(_unit_hit_points.get(target_id, target_hp_before))
 	var damage_pass := target_hp_after < target_hp_before or not target_exists
-	print("[F37] Summary attacker=%s target=%s target_exists=%s target_hp_before=%.1f target_hp_after=%.1f damage_pass=%s" % [attacker_id, target_id, str(target_exists), target_hp_before, target_hp_after, str(damage_pass)])
+	print("[F37] Summary attacker=%s target=%s target_exists=%s target_hp_before=%.1f target_hp_after=%.1f damage_pass=%s pass=%s" % [attacker_id, target_id, str(target_exists), target_hp_before, target_hp_after, str(damage_pass), str(damage_pass)])
 
 
 func _run_f38_production_test_hook() -> void:
@@ -2812,7 +3009,8 @@ func _run_f32_interaction_test_hook() -> void:
 	_handle_right_click_command(target_screen)
 	var move_pass := _simulate_until_arrival(120)
 
-	print("[F32] Summary select_pass=%s move_pass=%s selected=%s" % [str(select_pass), str(move_pass), str(_selected_controllable_units)])
+	var pass_ok := select_pass and move_pass
+	print("[F32] Summary select_pass=%s move_pass=%s selected=%s pass=%s" % [str(select_pass), str(move_pass), str(_selected_controllable_units), str(pass_ok)])
 
 
 func _run_f33_blocker_test_hook() -> void:
@@ -2835,7 +3033,8 @@ func _run_f33_blocker_test_hook() -> void:
 	var unit_after: SelectableUnit2D = _controllable_units[first_id]
 	var still_idle := not unit_after.has_move_target()
 	var alert_ok := _hud_alert_item and _hud_alert_item.text.find("rejected") >= 0
-	print("[F33] Summary blocked_target=%s still_idle=%s alert_ok=%s" % [str(blocked_target), str(still_idle), str(alert_ok)])
+	var pass_ok := still_idle and alert_ok
+	print("[F33] Summary blocked_target=%s still_idle=%s alert_ok=%s pass=%s" % [str(blocked_target), str(still_idle), str(alert_ok), str(pass_ok)])
 
 
 func _run_f04_test_hook() -> void:
@@ -5255,6 +5454,7 @@ func _run_f09_air_wing_test_hook() -> void:
 
 func _process(delta: float) -> void:
 	_update_live_units(delta)
+	_update_tether_recovery(delta)
 	_update_gather_jobs()
 	_update_resource_income(delta)
 	_update_enemy_ai(delta)
@@ -5588,9 +5788,65 @@ func _emit_world_event_ui_ack(event_id: String) -> void:
 
 
 func _on_tether_penalty(item_id: String, slot: String, faction: String) -> void:
-	if _hud_alert_item:
-		_hud_alert_item.text = "ALERT: %s command lost (slot %s)" % [faction.capitalize(), slot]
 	print("[HUD] Tether alert id=%s slot=%s faction=%s" % [item_id, slot, faction])
+	var secondary_id := _get_secondary_command_structure_id(slot)
+	if secondary_id != "" and _tether_points_by_slot.has(slot):
+		var tether: TetherPoint = _tether_points_by_slot[slot]
+		tether.begin_recovery(secondary_id)
+		_tether_recovery_remaining_by_slot[slot] = _TETHER_RECOVERY_SECONDS
+		if _hud_alert_item:
+			_hud_alert_item.text = "Secondary command active (slot %s): Tether recovery %.0fs" % [slot, _TETHER_RECOVERY_SECONDS]
+		print("[Match] Secondary command guard slot=%s structure=%s terminal=false recovery_seconds=%.1f" % [slot, secondary_id, _TETHER_RECOVERY_SECONDS])
+	elif _hud_alert_item:
+		_hud_alert_item.text = "ALERT: %s command lost (slot %s)" % [faction.capitalize(), slot]
+	_check_win_loss_conditions()
+
+
+func _update_tether_recovery(delta: float) -> void:
+	if _match_over or _tether_recovery_remaining_by_slot.is_empty():
+		return
+	for slot_value in _tether_recovery_remaining_by_slot.keys().duplicate():
+		var slot := str(slot_value)
+		if _get_secondary_command_structure_id(slot) == "" or not _tether_points_by_slot.has(slot):
+			_cancel_tether_recovery(slot, "secondary_command_destroyed")
+			continue
+		var remaining := maxf(0.0, float(_tether_recovery_remaining_by_slot[slot]) - delta)
+		_tether_recovery_remaining_by_slot[slot] = remaining
+		if remaining > 0.0:
+			continue
+		var tether: TetherPoint = _tether_points_by_slot[slot]
+		tether.complete_recovery()
+		_tether_recovery_remaining_by_slot.erase(slot)
+		var agency_restored := _restore_slot_builder_agency(slot)
+		if _hud_alert_item:
+			_hud_alert_item.text = "Tether recovered (slot %s); command restored" % slot
+		print("[Match] Tether recovery complete slot=%s agency_restored=%s" % [slot, str(agency_restored)])
+
+
+func _cancel_tether_recovery(slot: String, reason: String) -> void:
+	if not _tether_recovery_remaining_by_slot.has(slot):
+		return
+	_tether_recovery_remaining_by_slot.erase(slot)
+	if _tether_points_by_slot.has(slot):
+		var tether: TetherPoint = _tether_points_by_slot[slot]
+		if tether.is_command_penalty_active:
+			tether.recovery_state = "destroyed"
+	if _hud_alert_item:
+		_hud_alert_item.text = "Tether recovery cancelled (slot %s): secondary command lost" % slot
+	print("[Match] Tether recovery cancelled slot=%s reason=%s" % [slot, reason])
+
+
+func _restore_slot_builder_agency(slot: String) -> bool:
+	if not _get_slot_unit_ids(slot).is_empty() or not _tether_points_by_slot.has(slot):
+		return false
+	var tether: TetherPoint = _tether_points_by_slot[slot]
+	var baseline: Array = PRODUCTION_BASELINE_UNITS.get(tether.faction_id, [])
+	if baseline.is_empty():
+		return false
+	var builder_id := str(baseline[0])
+	var spawned := _spawn_live_produced_actor(slot, tether.faction_id, builder_id)
+	print("[Match] Recovery agency slot=%s builder=%s spawned=%s" % [slot, builder_id, str(spawned)])
+	return spawned
 
 
 func _load_camera_profile_settings() -> void:
@@ -5660,6 +5916,15 @@ func _input(event: InputEvent) -> void:
 		return
 
 	if _handle_zoom_action_event(event):
+		return
+
+	# Camera controls remain live after resolution; all gameplay input stops here.
+	if _match_over:
+		if event is InputEventKey and event.pressed and not event.echo:
+			if event.is_action_pressed("rts_camera_center_command"):
+				_center_camera_on_player_base()
+			elif event.is_action_pressed("rts_camera_center_selection"):
+				_center_camera_on_selection()
 		return
 
 	if event is InputEventMouseButton:
@@ -5833,6 +6098,8 @@ func _handle_left_click_selection(screen_pos: Vector2) -> void:
 
 
 func _handle_right_click_command(screen_pos: Vector2) -> void:
+	if _match_over:
+		return
 	if _pending_buildable_id != "":
 		return
 	var hit := _screen_to_ground_point(screen_pos)
@@ -5842,6 +6109,10 @@ func _handle_right_click_command(screen_pos: Vector2) -> void:
 	var enemy_target_id := _find_enemy_unit_at_point(target)
 	if enemy_target_id != "":
 		_issue_attack_command(enemy_target_id)
+		return
+	var enemy_command_id := _find_enemy_command_target_at_point(target)
+	if enemy_command_id != "":
+		_issue_attack_command(enemy_command_id)
 		return
 	var resource_id := _find_resource_at_point(target)
 	if resource_id != "":
@@ -5925,6 +6196,8 @@ func _spawn_move_ping(world_pos: Vector3, color: Color = Color(0.95, 0.95, 0.2, 
 
 
 func _update_live_units(delta: float) -> void:
+	if _match_over:
+		return
 	for unit in _controllable_units.values():
 		unit.simulate_step(delta)
 	_resolve_unit_soft_collisions()
@@ -6020,10 +6293,11 @@ func _update_enemy_ai(delta: float) -> void:
 				nearest_id = pid
 
 		if nearest_id == "":
-			# No player units left — head toward player Tether instead.
-			if _tether_points_by_slot.has("A"):
-				var tp: TetherPoint = _tether_points_by_slot["A"]
-				enemy.queue_move(tp.position)
+			# No player units left — contest the current command target. The Tether
+			# is primary; a surviving Expansion Hub is the fallback while it recovers.
+			var command_target_id := _get_live_command_target_id("A")
+			if command_target_id != "":
+				_attack_orders[str(unit_id)] = command_target_id
 			continue
 
 		_ai_target_ids[unit_id] = nearest_id
@@ -6041,6 +6315,8 @@ func _update_enemy_ai(delta: float) -> void:
 
 
 func _run_enemy_build_step() -> void:
+	if _match_over:
+		return
 	# Build the cheapest missing structure in the T0-T1 chain for slot B.
 	var build_order := ["power_core", "alloy_extractor", "barracks_equivalent",
 		"vehicle_structure", "sensor_uplink", "expansion_hub"]
@@ -6053,6 +6329,8 @@ func _run_enemy_build_step() -> void:
 
 
 func _run_enemy_production_step() -> void:
+	if _match_over:
+		return
 	if not _tether_points_by_slot.has("B"):
 		return
 	var current_enemy_units: int = _get_slot_unit_ids("B").size()
@@ -6144,10 +6422,126 @@ func _find_enemy_unit_at_point(world_pos: Vector3) -> String:
 	return nearest_enemy
 
 
+func _find_enemy_tether_at_point(world_pos: Vector3) -> String:
+	if _selected_controllable_units.is_empty():
+		return ""
+	var selected_slot := _get_unit_slot(str(_selected_controllable_units[0]))
+	var point := Vector2(world_pos.x, world_pos.z)
+	var nearest_id := ""
+	var nearest_distance := INF
+	for slot in _tether_points_by_slot.keys():
+		if str(slot) == selected_slot:
+			continue
+		var tether: TetherPoint = _tether_points_by_slot[slot]
+		if tether.is_command_penalty_active:
+			continue
+		var distance := Vector2(tether.position.x, tether.position.z).distance_to(point)
+		if distance <= _TETHER_ATTACK_SELECT_RADIUS_UNITS and distance < nearest_distance:
+			nearest_distance = distance
+			nearest_id = tether.stable_item_id
+	return nearest_id
+
+
+func _find_enemy_command_structure_at_point(world_pos: Vector3) -> String:
+	if _selected_controllable_units.is_empty():
+		return ""
+	var selected_slot := _get_unit_slot(str(_selected_controllable_units[0]))
+	var point := Vector2(world_pos.x, world_pos.z)
+	var nearest_id := ""
+	var nearest_distance := INF
+	for target_id_value in _live_buildable_nodes_by_id.keys():
+		var target_id := str(target_id_value)
+		var node := _get_buildable_by_target_id(target_id)
+		if node == null or node.buildable_id != "expansion_hub" or node.slot == selected_slot:
+			continue
+		var distance := Vector2(node.position.x, node.position.z).distance_to(point)
+		if distance <= _EXPANSION_HUB_SELECT_RADIUS_UNITS and distance < nearest_distance:
+			nearest_distance = distance
+			nearest_id = target_id
+	return nearest_id
+
+
+func _find_enemy_command_target_at_point(world_pos: Vector3) -> String:
+	var tether_id := _find_enemy_tether_at_point(world_pos)
+	var structure_id := _find_enemy_command_structure_at_point(world_pos)
+	if tether_id == "":
+		return structure_id
+	if structure_id == "":
+		return tether_id
+	var point := Vector2(world_pos.x, world_pos.z)
+	var tether_position := _get_combat_target_position(tether_id)
+	var structure_position := _get_combat_target_position(structure_id)
+	var tether_distance := point.distance_to(Vector2(tether_position.x, tether_position.z))
+	var structure_distance := point.distance_to(Vector2(structure_position.x, structure_position.z))
+	return structure_id if structure_distance < tether_distance else tether_id
+
+
+func _get_tether_by_target_id(target_id: String) -> TetherPoint:
+	for tether_value in _tether_points_by_slot.values():
+		var tether: TetherPoint = tether_value
+		if tether.stable_item_id == target_id:
+			return tether
+	return null
+
+
+func _get_buildable_by_target_id(target_id: String) -> BuildableNode:
+	if not _live_buildable_nodes_by_id.has(target_id):
+		return null
+	var node: BuildableNode = _live_buildable_nodes_by_id[target_id]
+	return node if is_instance_valid(node) else null
+
+
+func _get_live_command_target_id(slot: String) -> String:
+	if _tether_points_by_slot.has(slot):
+		var tether: TetherPoint = _tether_points_by_slot[slot]
+		if not tether.is_command_penalty_active:
+			return tether.stable_item_id
+	return _get_secondary_command_structure_id(slot)
+
+
+func _combat_target_exists(target_id: String) -> bool:
+	if _controllable_units.has(target_id):
+		return true
+	var tether := _get_tether_by_target_id(target_id)
+	if tether != null:
+		return not tether.is_command_penalty_active
+	return _get_buildable_by_target_id(target_id) != null and float(_structure_hit_points.get(target_id, 0.0)) > 0.0
+
+
+func _get_combat_target_slot(target_id: String) -> String:
+	if _controllable_units.has(target_id):
+		return _get_unit_slot(target_id)
+	var tether := _get_tether_by_target_id(target_id)
+	if tether != null:
+		return tether.spawn_slot
+	var buildable := _get_buildable_by_target_id(target_id)
+	return buildable.slot if buildable != null else ""
+
+
+func _get_combat_target_position(target_id: String) -> Vector3:
+	if _controllable_units.has(target_id):
+		return (_controllable_units[target_id] as SelectableUnit2D).position
+	var tether := _get_tether_by_target_id(target_id)
+	if tether != null:
+		return tether.position
+	var buildable := _get_buildable_by_target_id(target_id)
+	return buildable.position if buildable != null else Vector3.ZERO
+
+
+func _get_combat_target_radius(target_id: String) -> float:
+	if _get_tether_by_target_id(target_id) != null:
+		return _TETHER_COMBAT_RADIUS_UNITS
+	if _get_buildable_by_target_id(target_id) != null:
+		return _EXPANSION_HUB_COMBAT_RADIUS_UNITS
+	return 0.0
+
+
 func _issue_attack_command(target_unit_id: String) -> void:
+	if _match_over:
+		return
 	if _selected_controllable_units.is_empty():
 		return
-	if not _controllable_units.has(target_unit_id):
+	if not _combat_target_exists(target_unit_id):
 		return
 
 	_clear_gather_jobs_for_selected_units()
@@ -6156,7 +6550,7 @@ func _issue_attack_command(target_unit_id: String) -> void:
 		var attacker_id := str(unit_id)
 		if not _controllable_units.has(attacker_id):
 			continue
-		if _get_unit_slot(attacker_id) == _get_unit_slot(target_unit_id):
+		if _get_unit_slot(attacker_id) == _get_combat_target_slot(target_unit_id):
 			continue
 		_attack_orders[attacker_id] = target_unit_id
 		accepted.append(attacker_id)
@@ -6168,11 +6562,13 @@ func _issue_attack_command(target_unit_id: String) -> void:
 
 	if _hud_alert_item:
 		_hud_alert_item.text = "Attack order: %s" % target_unit_id
-	_spawn_move_ping(_controllable_units[target_unit_id].position, Color(1.0, 0.35, 0.35, 0.85))
+	_spawn_move_ping(_get_combat_target_position(target_unit_id), Color(1.0, 0.35, 0.35, 0.85))
 	print("[F37] Attack issued attackers=%s target=%s" % [str(accepted), target_unit_id])
 
 
 func _update_attack_orders(delta: float) -> void:
+	if _match_over:
+		return
 	if _attack_orders.is_empty():
 		return
 
@@ -6196,21 +6592,54 @@ func _update_attack_orders(delta: float) -> void:
 		if not _attack_orders.has(id):
 			continue
 		var target_id := str(_attack_orders[id])
-		if not _controllable_units.has(target_id):
+		if not _combat_target_exists(target_id):
 			attackers_to_clear.append(id)
 			continue
 
 		var attacker: SelectableUnit2D = _controllable_units[id]
-		var target: SelectableUnit2D = _controllable_units[target_id]
-		var distance := Vector2(attacker.position.x, attacker.position.z).distance_to(Vector2(target.position.x, target.position.z))
-		if distance > _ATTACK_RANGE_UNITS:
-			attacker.queue_move(target.position)
+		var target_position := _get_combat_target_position(target_id)
+		var distance := Vector2(attacker.position.x, attacker.position.z).distance_to(Vector2(target_position.x, target_position.z))
+		var target_radius := _get_combat_target_radius(target_id)
+		var effective_distance := maxf(0.0, distance - target_radius)
+		if effective_distance > _ATTACK_RANGE_UNITS:
+			# Stop just inside weapon range instead of moving onto the target's
+			# center; unit soft-collision would otherwise keep two actors apart.
+			var approach_direction := Vector2(
+				target_position.x - attacker.position.x,
+				target_position.z - attacker.position.z
+			).normalized()
+			var approach_distance := target_radius + _ATTACK_RANGE_UNITS - 1.0
+			attacker.queue_move(Vector3(
+				target_position.x - approach_direction.x * approach_distance,
+				attacker.position.y,
+				target_position.z - approach_direction.y * approach_distance
+			))
 			continue
 
 		if float(_attack_cooldowns.get(id, 0.0)) > 0.0:
 			continue
 
 		_attack_cooldowns[id] = _ATTACK_COOLDOWN_SECONDS
+		var target_tether := _get_tether_by_target_id(target_id)
+		if target_tether != null:
+			var tether_hp_before := target_tether.health
+			target_tether.apply_damage(_ATTACK_DAMAGE_PER_HIT)
+			_spawn_move_ping(target_position, Color(1.0, 0.2, 0.2, 0.85))
+			print("[Combat] Tether damage attacker=%s target=%s hp_before=%.1f hp_after=%.1f" % [id, target_id, tether_hp_before, target_tether.health])
+			if target_tether.is_command_penalty_active:
+				attackers_to_clear.append(id)
+			continue
+		var target_buildable := _get_buildable_by_target_id(target_id)
+		if target_buildable != null:
+			var structure_hp_before := float(_structure_hit_points.get(target_id, _EXPANSION_HUB_MAX_HIT_POINTS))
+			var structure_hp_after := maxf(0.0, structure_hp_before - _ATTACK_DAMAGE_PER_HIT)
+			_structure_hit_points[target_id] = structure_hp_after
+			_spawn_move_ping(target_position, Color(1.0, 0.32, 0.12, 0.85))
+			print("[Combat] Structure damage attacker=%s target=%s type=%s hp_before=%.1f hp_after=%.1f" % [id, target_id, target_buildable.buildable_id, structure_hp_before, structure_hp_after])
+			if structure_hp_after <= 0.0:
+				_destroy_live_buildable(target_id, id)
+				attackers_to_clear.append(id)
+			continue
 		var hp_before := float(_unit_hit_points.get(target_id, _UNIT_BASE_HIT_POINTS))
 		var hp_after := maxf(0.0, hp_before - _ATTACK_DAMAGE_PER_HIT)
 		_unit_hit_points[target_id] = hp_after
@@ -6219,7 +6648,7 @@ func _update_attack_orders(delta: float) -> void:
 			var target_actor: SelectableUnit2D = _controllable_units[target_id]
 			var max_hp := _get_unit_max_hit_points((target_actor as SelectableUnit2D).unit_id)
 			target_actor.set_hp_fraction(hp_after / max_hp)
-		_spawn_move_ping(target.position, Color(1.0, 0.2, 0.2, 0.85))
+		_spawn_move_ping(target_position, Color(1.0, 0.2, 0.2, 0.85))
 		print("[F37] Damage attacker=%s target=%s hp_before=%.1f hp_after=%.1f" % [id, target_id, hp_before, hp_after])
 
 		if hp_after <= 0.0:
@@ -6227,6 +6656,26 @@ func _update_attack_orders(delta: float) -> void:
 
 	for attacker_id in attackers_to_clear:
 		_attack_orders.erase(attacker_id)
+
+
+func _destroy_live_buildable(target_id: String, attacker_id: String = "") -> void:
+	var buildable := _get_buildable_by_target_id(target_id)
+	if buildable == null:
+		return
+	var slot := buildable.slot
+	var buildable_id := buildable.buildable_id
+	_live_buildable_nodes_by_id.erase(target_id)
+	_structure_hit_points.erase(target_id)
+	if _buildables_by_slot.has(slot) and str((_buildables_by_slot[slot] as Dictionary).get(buildable_id, "")) == target_id:
+		(_buildables_by_slot[slot] as Dictionary).erase(buildable_id)
+	if buildable_id == "expansion_hub":
+		_cancel_tether_recovery(slot, "expansion_hub_destroyed")
+	if is_instance_valid(buildable):
+		buildable.queue_free()
+	print("[Combat] Structure destroyed attacker=%s target=%s slot=%s type=%s" % [attacker_id, target_id, slot, buildable_id])
+	if _hud_alert_item:
+		_hud_alert_item.text = "%s destroyed (slot %s)" % [buildable_id.capitalize(), slot]
+	_check_win_loss_conditions()
 
 
 func _destroy_unit(unit_id: String) -> void:
@@ -6269,20 +6718,54 @@ func _check_win_loss_conditions() -> void:
 	# Also count Tether points alive per slot.
 	var tether_a_alive: bool = _tether_points_by_slot.has("A") and not (_tether_points_by_slot["A"] as TetherPoint).is_command_penalty_active
 	var tether_b_alive: bool = _tether_points_by_slot.has("B") and not (_tether_points_by_slot["B"] as TetherPoint).is_command_penalty_active
+	var secondary_a_alive := _get_secondary_command_structure_id("A") != ""
+	var secondary_b_alive := _get_secondary_command_structure_id("B") != ""
 
-	if alive_b == 0 and not tether_b_alive:
-		_match_over = true
-		_set_match_state("Win", "enemy_eliminated")
+	if alive_b == 0 and not tether_b_alive and not secondary_b_alive:
+		_finalize_match("Win", "enemy_eliminated")
 		print("[Match] Win condition met alive_a=%d alive_b=%d" % [alive_a, alive_b])
 		return
 
-	if alive_a == 0 and not tether_a_alive:
-		_match_over = true
-		_set_match_state("Loss", "player_eliminated")
+	if alive_a == 0 and not tether_a_alive and not secondary_a_alive:
+		_finalize_match("Loss", "player_eliminated")
 		print("[Match] Loss condition met alive_a=%d alive_b=%d" % [alive_a, alive_b])
 
 
+func _get_secondary_command_structure_id(slot: String) -> String:
+	if not _buildables_by_slot.has(slot):
+		return ""
+	var slot_buildables: Dictionary = _buildables_by_slot[slot]
+	var target_id := str(slot_buildables.get("expansion_hub", ""))
+	if target_id == "" or _get_buildable_by_target_id(target_id) == null:
+		return ""
+	return target_id
+
+
+func _finalize_match(state: String, reason: String) -> void:
+	if _match_over:
+		return
+	_match_over = true
+	_attack_orders.clear()
+	_attack_cooldowns.clear()
+	_gather_jobs.clear()
+	_build_menu_active = false
+	_pending_buildable_id = ""
+	_production_menu_active = false
+	_tether_recovery_remaining_by_slot.clear()
+	_drag_mouse_held = false
+	_drag_box_active = false
+	_destroy_drag_box_overlay()
+	for unit_value in _controllable_units.values():
+		var unit: SelectableUnit2D = unit_value
+		unit.queue_move(unit.position)
+		unit.simulate_step(0.0)
+	_set_match_state(state, reason)
+	_reset_command_card_text()
+
+
 func _update_gather_jobs() -> void:
+	if _match_over:
+		return
 	if _gather_jobs.is_empty():
 		return
 
@@ -6396,6 +6879,8 @@ func _queue_live_production_by_index(index: int) -> void:
 
 
 func _queue_live_production(unit_id: String) -> bool:
+	if _match_over:
+		return false
 	var slot := _get_selected_slot_for_commands()
 	if slot == "":
 		return false
@@ -6421,6 +6906,8 @@ func _queue_live_production(unit_id: String) -> bool:
 
 
 func _spawn_live_produced_actor(slot: String, faction: String, unit_id: String) -> bool:
+	if _match_over:
+		return false
 	if not _can_produce_unit_for_slot(slot, faction, unit_id):
 		return false
 	if not _queue_unit_for_slot(slot, faction, unit_id):

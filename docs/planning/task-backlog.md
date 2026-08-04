@@ -12,7 +12,7 @@ Use this file for implementation-ready tasks linked to milestones.
 
 | ID | Milestone | Priority | Task | Owner | Estimate | Dependencies | Validation | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| T-XXXX | M# | P0/P1/P2 | Short action-oriented description | Name | S/M/L | IDs or none | Test flow or acceptance check | Todo/In Progress/Done/Blocked |
+| T-XXXX | M# | P0/P1/P2 | Short action-oriented description | Name | S/M/L | IDs or none | Test flow or acceptance check | Todo/Ready/In Progress/In Validation/In Review/Done/Blocked |
 
 ## Seed Backlog
 
@@ -63,8 +63,8 @@ Use this file for implementation-ready tasks linked to milestones.
 | T-0043 | M3 | P0 | Add player-facing readability rules for branch state, Descent status, and event warning windows | UX and Telemetry Systems | M | T-0042 | Dynamic evolution baseline includes explicit readability fail conditions and warning-window rules | Done |
 | T-0044 | M3 | P1 | Prepare Stage 0 media bundle specification with gameplay-first shot list and caption drafts | Release Planning | S | T-0043 | Media specification artifact defines required shots, captions, and acceptance checklist | Done |
 | T-0045 | M3 | P1 | Prepare deterministic itch.io Stage 0 publication runbook and post-publish validation checklist | Release Planning | S | T-0044 | Runbook artifact defines manual publication procedure and evidence capture fields | Done |
-| T-0046 | M4 | P0 | Execute Stage 0 media capture and caption finalization from the approved shot list (external operator step) | Release Operations | S | T-0045 | Media bundle has 3 to 6 screenshots, optional clips, and finalized gameplay-first captions matching current scope | Todo |
-| T-0047 | M4 | P0 | Stage media package and pass prepublish audit with zero unresolved findings | Release Operations | S | T-0046 | docs/release/stage0-media/prepublish_audit.sh reports pass and package naming plus caption checks are valid | Todo |
+| T-0046 | M4 | P0 | Execute Stage 0 media capture and caption finalization from the approved shot list (external operator step) | Release Operations | S | T-0045 | Media bundle has 3 to 6 screenshots, optional clips, and finalized gameplay-first captions matching current scope | Done |
+| T-0047 | M4 | P0 | Stage media package and pass prepublish audit with zero unresolved findings | Release Operations | S | T-0046 | docs/release/stage0-media/prepublish_audit.sh reports pass and package naming plus caption checks are valid | Done |
 | T-0048 | M4 | P0 | Publish itch.io Stage 0 Coming Soon page per runbook with Pre-Alpha transparency and no download exposed (external operator step) | Project Owner | S | T-0047 | Runbook publish steps are completed and public page shows Pre-Alpha label with follow CTA and no downloadable build | Todo |
 | T-0049 | M4 | P0 | Capture publication evidence and sync trackers after publish | Project Owner | S | T-0048 | stage0-publication-evidence-template.md is completed and URL, timestamp, media count, and update-post confirmation are recorded | Todo |
 | T-0050 | M4 | P0 | Close Stage 0 blocker lane and transition to Stage 1 planning readiness | Project Owner | S | T-0049 | next-steps blocker items are checked, DEV_NEXT_STEPS parked objectives are closed, and M4 ready queue includes Stage 1 prep tasks | Todo |
@@ -127,3 +127,6 @@ Use this file for implementation-ready tasks linked to milestones.
 | T-0107 | M3 | P0 | Run adaptive-burst archive-saturation validation and capture standalone plus focused integrated smoke evidence | QA and Validation | S | T-0106 | F-58 summary passes in isolated and integrated runs for replay consistency and archive/live observability integrity | Done |
 | T-0108 | M3 | P0 | Implement deterministic reinitialization replay-isolation runtime hook validating sequence reset, replay parity, and archive-feed consistency | Core Systems | M | T-0107 | F-59 confirms per-pass sequence reset to baseline, guardrail continuity, replay-signature parity, and archive-feed reconstruction integrity | Done |
 | T-0109 | M3 | P0 | Run reinitialization replay-isolation validation and capture standalone plus focused integrated smoke evidence | QA and Validation | S | T-0108 | F-59 summary passes in isolated and integrated runs for sequence-reset consistency and replay-observability parity | Done |
+| T-0110 | M2 | P0 | Implement live Tether and Expansion Hub combat, bounded command recovery, and reachable Win or Loss resolution | Gameplay Systems | L | T-0023, T-0063 | F-77 and F-78 pass for player and AI command-target pursuit, recovery continuity, hub contestability, terminal resolution, shutdown, and camera availability | Done |
+| T-0111 | M3 | P0 | Implement per-slot Alloy wallets, bounded world-reserve extraction, and cost-gated live construction and production | Economy Systems | L | T-0067, T-0068, T-0069, T-0070, T-0071, T-0110 | New economy flow verifies exact spend, insufficient-funds state preservation, slot isolation, reserve-to-wallet transfer, HUD clarity, and AI affordability behavior | Ready |
+| T-0112 | M2 | P0 | Correct headless test verdicts, isolate mutable flows, and classify plan-to-runtime coverage truthfully | QA and Validation | M | T-0110 | Isolated suite rejects false or missing verdicts, runs critical flows in fresh processes, and passes all 12 cases | Done |

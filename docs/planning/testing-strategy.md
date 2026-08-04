@@ -13,9 +13,31 @@ This document defines validation layers for milestone delivery.
 - Observability:
   - Validate that logs and debug signals provide enough insight for failures.
 
+## Result Semantics
+
+- `Pass` in a validation matrix means the named check passed at the recorded revision.
+- It does not, by itself, mean the complete planned system is reachable in live gameplay.
+- Coverage is classified as `Live`, `Forced live pipeline`, `Deterministic simulation`, or `Planning contract`.
+- Mutable duel flows must run in isolated Godot processes. Combining many test flags in one scene is diagnostic-only because earlier hooks can alter state used by later hooks.
+- `scripts/tests/run_headless_suite.sh` is the authoritative automated smoke suite. It fails on nonzero process exits, script or parse errors, `pass=false`, or missing expected summaries.
+
+## Plan-to-Runtime Coverage Audit
+
+| Planned area | Coverage classification | Current implementation truth |
+| --- | --- | --- |
+| Selection, movement, gathering, building, unit combat, and production | Live | Player-reachable baseline exists; economy costs and real build or production time remain pending. |
+| Tether and Expansion Hub combat, recovery, and match resolution | Live | Player and AI paths are live and covered by F-77 and F-78. |
+| Basic enemy aggression, building, and production | Live | Nearest-target aggression and timed build or production exist; map-aware objective tactics remain simulated. |
+| Global stockpile state and bounded event application | Forced live pipeline | Runtime state and application helpers exist, but events are triggered by test hooks; live scheduling is pending. |
+| Data Node ownership and contested objective pressure | Deterministic simulation | Map items exist visually; live capture, ownership, leverage, and objective-aware AI are pending. |
+| Air wings and colony resilience | Deterministic simulation | F-09 and F-10 validate state transitions in hooks; there are no complete live sortie or colony gameplay systems. |
+| Era transitions, One Box, Descent, and dynamic evolution | Deterministic simulation | F-12 through F-15 validate design contracts with test-local state; live match integration is pending. |
+| Infrastructure disruption and advanced observability stress | Deterministic simulation | F-41 through F-59 validate bounded algorithms and telemetry contracts; player-triggered live systems are pending. |
+| Day-night, biome, five-tier, and five-faction coverage | Planning contract | Documentation and placeholder/readability checks pass; full runtime content is not implemented. |
+
 ## M2 Validation Scenario Matrix
 
-| Flow | Purpose | Current Baseline Status | Evidence Source |
+| Flow | Purpose | Latest Check Result | Evidence Source |
 | --- | --- | --- | --- |
 | F-01 | Unit selection baseline | Pass | `docs/tracking/scenario-validation-notes.md` |
 | F-02 | Movement command baseline | Pass | `docs/tracking/scenario-validation-notes.md` |
@@ -62,6 +84,8 @@ This document defines validation layers for milestone delivery.
 | F-57 | Adaptive-burst long-horizon mixed-event replay stability loop | Pass | `docs/tracking/scenario-validation-notes.md` |
 | F-58 | Adaptive-burst archive-saturation replay consistency loop | Pass | `docs/tracking/scenario-validation-notes.md` |
 | F-59 | Reinitialization replay-isolation and sequence-reset consistency loop | Pass | `docs/tracking/scenario-validation-notes.md` |
+| F-77 | Live Tether recovery, Expansion Hub contestability, and player victory loop | Pass | `docs/tracking/scenario-validation-notes.md` |
+| F-78 | Enemy AI command-target fallback and player defeat loop | Pass | `docs/tracking/scenario-validation-notes.md` |
 | F-09 | Carrier and Airfield Sortie Lifecycle | Pass | `docs/tracking/scenario-validation-notes.md` |
 | F-10 | Colony and Civilian Resilience Loop | Pass | `docs/tracking/scenario-validation-notes.md` |
 | F-11 | Unified Stockpile and World Event Volatility | Pass | `docs/tracking/scenario-validation-notes.md` |
@@ -471,6 +495,35 @@ This document defines validation layers for milestone delivery.
   - Event observability coverage is complete enough to triage magnitude, ordering, and display defects.
   - Threshold visibility rules are clear for both soft and hard depletion states.
   - Validation evidence is captured in scenario-validation notes and backlog references.
+
+## Flow F-77 Live Tether Recovery and Player Victory
+
+- Setup: Duel map has both armies, live Tether Points, and a buildable Expansion Hub recovery path.
+- Steps:
+  - Eliminate the enemy army and issue a player attack against the enemy Tether from outside weapon range.
+  - Verify pursuit, effective structure-edge range, and repeated damage cooldown cadence.
+  - Destroy the Tether while a live Expansion Hub survives and confirm the match remains non-terminal.
+  - Advance the bounded recovery timer and confirm Tether recovery plus live builder agency restoration.
+  - Destroy the Expansion Hub and restored builder through normal combat, then destroy the recovered Tether.
+  - Confirm player victory, gameplay shutdown, and continued camera controls.
+- Expected:
+  - Tether destruction alone does not bypass a live secondary command structure.
+  - Recovery completes through runtime cadence and restores actionable builder agency.
+  - Expansion Hub health, destruction, and terminal-state effects are live and observable.
+  - Final elimination produces Win and freezes gameplay commands without freezing camera controls.
+
+## Flow F-78 Enemy Command-Target Fallback and Player Defeat
+
+- Setup: Duel map has an enemy combat unit, player Tether, and live player Expansion Hub.
+- Steps:
+  - Eliminate the player army and allow enemy AI to select, pursue, and destroy the player Tether.
+  - Confirm secondary command recovery begins and prevents premature defeat.
+  - Confirm enemy AI falls back to the live Expansion Hub as its next command target.
+  - Destroy the Hub through normal combat and verify recovery cancellation.
+- Expected:
+  - Enemy AI uses the same range, cooldown, damage, and target-validity rules as player combat.
+  - Hub destruction removes its live node, health, and build registry state.
+  - With no player army, Tether, or secondary command structure, the match produces Loss.
 
 ## Reporting Template
 

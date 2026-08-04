@@ -2,6 +2,41 @@
 
 Track scenario-level evidence for map and flow validation runs.
 
+## 2026-08-03 Isolated Headless Suite and Coverage-Semantics Correction
+
+- Scope: critical live gameplay hooks, endgame flows, startup integration, and truthful plan-to-runtime coverage classification.
+- Validation command:
+  - `scripts/tests/run_headless_suite.sh`
+- Result: Pass
+- Evidence:
+  - Twelve isolated cases passed: F-24, F-32, F-33, F-35, F-36, F-37, F-38, F-40, F-61, F-77, F-78, and startup-to-duel smoke.
+  - Every mutable flow ran in a fresh Godot process with its own log, eliminating shared hook-state ordering from the authoritative suite.
+  - The runner requires an explicit `pass=true` on the expected summary line and fails on nonzero exit, script or parse errors, invalid calls, `pass=false`, or failed markers.
+  - F-24, F-32, F-33, F-36, and F-37 summaries were standardized to expose final verdicts.
+  - Testing strategy now distinguishes live systems from forced pipelines, deterministic simulations, and planning contracts.
+  - Suite summary reported `passes=12 failures=0` with logs under `/tmp/rts-verse-headless-suite`.
+
+## 2026-08-03 Live Command-Structure Combat and Match Resolution
+
+- Flows: `F-77 Live Tether Recovery and Player Victory`, `F-78 Enemy Command-Target Fallback and Player Defeat`
+- Scenario: `scenes/core/FirstDuelMap.tscn`
+- Focused validation commands:
+  - `/Applications/Godot.app/Contents/MacOS/godot --headless --log-file /tmp/rts-verse-final-f77.log --quit --path . res://scenes/core/FirstDuelMap.tscn -- --duel-test-f77-tether-endgame --duel-test-auto-exit`
+  - `/Applications/Godot.app/Contents/MacOS/godot --headless --log-file /tmp/rts-verse-final-f78.log --quit --path . res://scenes/core/FirstDuelMap.tscn -- --duel-test-f78-enemy-tether-endgame --duel-test-auto-exit`
+- Regression validation command:
+  - `/Applications/Godot.app/Contents/MacOS/godot --headless --log-file /tmp/rts-verse-final-regressions.log --quit --path . res://scenes/core/FirstDuelMap.tscn -- --duel-test-f32-interaction --duel-test-f37-combat --duel-test-f61-enemy-ai --duel-test-auto-exit`
+- Startup integration commands:
+  - `/Applications/Godot.app/Contents/MacOS/godot --headless --log-file /tmp/rts-verse-final-f34-f77.log --path . -- --startup-test-auto-skirmish --skirmish-test-auto-start --duel-test-f32-interaction --duel-test-f77-tether-endgame --duel-test-auto-exit`
+  - `/Applications/Godot.app/Contents/MacOS/godot --headless --log-file /tmp/rts-verse-final-f34-f78.log --path . -- --startup-test-auto-skirmish --skirmish-test-auto-start --duel-test-f32-interaction --duel-test-f78-enemy-tether-endgame --duel-test-auto-exit`
+- Result: Pass
+- Evidence:
+  - F-77 passed pursuit, structure-edge range, cooldown cadence, secondary-command guard, timed recovery, builder-agency restoration, live Hub destruction, final Win, gameplay shutdown, and post-match camera assertions.
+  - F-78 passed enemy target selection, Tether pursuit, recovery start, Hub fallback, live Hub destruction, recovery cancellation, and final Loss assertions.
+  - Full F-22 faction and slot recovery matrix passed; F-32, F-37, F-61, and both startup-to-duel paths remained pass.
+  - Independent Test Agent found no script errors, parse errors, invalid calls, false summaries, or failed assertions across nine runs.
+  - Independent Review Agent approved with no unresolved P0-P2 findings after the live recovery and Hub-contestability corrections.
+  - The recurring macOS system CA-certificate warning remained non-fatal and all commands exited successfully.
+
 ## 2026-06-20 Duel Camera Zoom Action Validation
 
 - Flow: `F-18 and F-19 command plus camera zoom action coverage`

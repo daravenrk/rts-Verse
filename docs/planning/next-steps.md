@@ -203,6 +203,10 @@ Keep this list short, actionable, and current.
 - [x] Run headless F-59 standalone and focused integrated smoke validation and capture evidence in scenario notes.
 - [x] Define structured feedback template fields and publish feedback instructions on itch page.
 - [x] Start weekly feedback triage cadence and publish first feedback-response devlog summary.
+- [x] Implement live player and enemy AI attacks against Tether Points with reachable Win and Loss resolution.
+- [x] Implement bounded Expansion Hub command recovery, live hub combat/destruction, and emergency builder agency restoration.
+- [x] Run independent F-77/F-78 validation, core regression flows, startup smoke, and review with no open P0-P2 findings.
+- [x] Correct critical hook summaries, add an isolated failure-enforcing headless suite, and distinguish live coverage from deterministic simulations.
 
 ## Ready Queue
 
@@ -210,6 +214,7 @@ Keep this list short, actionable, and current.
 - [x] Define deterministic simulation constraints.
 - [x] Convert economy-standards.md into first balance sheet draft.
 - [x] Draft test scenarios for core loop validation.
+- [ ] Implement T-0111 per-slot Alloy wallets, bounded world-reserve extraction, and cost-gated construction and production.
 - [ ] If a live zoom defect is reproduced, run a focused F-19 regression pass against mouse-wheel, keyboard zoom, and persisted input-profile mappings before changing camera code.
 
 ## Blocked

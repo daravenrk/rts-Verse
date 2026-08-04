@@ -2,6 +2,21 @@
 
 Track high-level project changes with links to decisions and plans.
 
+## 2026-08-03
+
+- Implemented live player and enemy AI combat against Tether Points with structure-edge range, pursuit, cooldown, damage, and terminal-state integration.
+- Added live Expansion Hub combat health, right-click and AI targeting, destruction cleanup, and recovery cancellation.
+- Added bounded Tether recovery through a surviving Expansion Hub and restored zero-army agency by spawning the faction builder through the shared production path.
+- Centralized post-match shutdown for attacks, gathering, build or production modes, drag state, and movement while preserving camera controls.
+- Added deterministic F-77 player-victory and F-78 enemy-AI defeat flows; both passed standalone and startup-to-duel validation alongside F-22, F-32, F-37, and F-61 regressions.
+- Completed independent testing and review with no script errors, false summaries, or unresolved P0-P2 findings.
+- Reconciled Stage 0 media tasks T-0046 and T-0047 to Done based on the existing three-screenshot package and READY prepublish audit; external publication tasks remain open.
+- Promoted T-0111 per-slot Alloy economy and cost-gated construction or production as the next ready implementation slice.
+- Corrected F-24, F-32, F-33, F-36, and F-37 summaries so every critical hook emits an explicit machine-checkable `pass=true` or `pass=false` verdict.
+- Added `scripts/tests/run_headless_suite.sh` to run mutable flows in isolated Godot processes and fail on process errors, script or parse errors, false assertions, or missing passing summaries.
+- Reclassified testing evidence so deterministic simulations and planning-contract checks no longer imply that the corresponding live gameplay systems are implemented.
+- Executed the isolated suite twice after the harness correction; all 12 cases passed with zero failures.
+
 ## 2026-06-20
 
 - Fixed duel-runtime mouse zoom ownership in `scripts/core/FirstDuelMap.gd` by routing zoom through `rts_mouse_zoom_in` and `rts_mouse_zoom_out` actions instead of raw wheel-button checks.
