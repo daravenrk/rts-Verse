@@ -8,6 +8,7 @@ const STARTUP_STEP_GAMEPLAY_TRANSITION := "gameplay_scene_transition"
 const STARTUP_TEST_AUTO_KEYPRESS_FLAG := "--startup-test-keypress"
 const STARTUP_TEST_AUTO_SKIRMISH_FLAG := "--startup-test-auto-skirmish"
 const INPUT_PROFILE_CONFIG_PATH := "user://input_profile.cfg"
+const TEST_INPUT_PROFILE_PREFIX := "--test-input-profile="
 
 const PROFILE_ACTIONS := [
 	"rts_camera_pan_up",
@@ -164,18 +165,22 @@ func _ensure_action_with_mouse_button(action: StringName, mouse_button: MouseBut
 
 
 func _load_or_create_input_profile() -> void:
+	var profile_path := _resolve_input_profile_path()
 	var config := ConfigFile.new()
-	var load_result := config.load(INPUT_PROFILE_CONFIG_PATH)
+	var load_result := config.load(profile_path)
 	if load_result == OK:
 		_apply_input_profile(config)
-		print("[Input] Profile loaded path=%s" % INPUT_PROFILE_CONFIG_PATH)
+		print("[Input] Profile loaded path=%s" % profile_path)
 		return
 
-	_write_input_profile(config)
-	print("[Input] Profile created path=%s" % INPUT_PROFILE_CONFIG_PATH)
+	var save_result := _write_input_profile(config, profile_path)
+	if save_result != OK:
+		push_error("[Input] Failed to create profile path=%s error=%s" % [profile_path, str(save_result)])
+		return
+	print("[Input] Profile created path=%s" % profile_path)
 
 
-func _write_input_profile(config: ConfigFile) -> void:
+func _write_input_profile(config: ConfigFile, profile_path: String) -> Error:
 	config.set_value("camera", "edge_scroll", true)
 	config.set_value("camera", "sensitivity", 1.0)
 	config.set_value("camera", "zoom_speed", 1.0)
@@ -192,7 +197,12 @@ func _write_input_profile(config: ConfigFile) -> void:
 		config.set_value("bindings", "%s_keys" % action_name, keycodes)
 		config.set_value("bindings", "%s_mouse" % action_name, mouse_buttons)
 
-	config.save(INPUT_PROFILE_CONFIG_PATH)
+	return config.save(profile_path)
+
+
+func _resolve_input_profile_path() -> String:
+	var test_path := _get_user_arg_value(TEST_INPUT_PROFILE_PREFIX)
+	return test_path if not test_path.is_empty() else INPUT_PROFILE_CONFIG_PATH
 
 
 func _apply_input_profile(config: ConfigFile) -> void:
@@ -332,6 +342,13 @@ func _has_user_flag(flag: String) -> bool:
 		if argument == flag:
 			return true
 	return false
+
+
+func _get_user_arg_value(prefix: String) -> String:
+	for argument in OS.get_cmdline_user_args():
+		if argument.begins_with(prefix):
+			return argument.trim_prefix(prefix)
+	return ""
 
 
 func _on_splash_timeout() -> void:

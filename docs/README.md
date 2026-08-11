@@ -37,6 +37,7 @@ This folder contains architecture, planning, research, and delivery tracking art
 - Task backlog: docs/planning/task-backlog.md
 - Testing strategy: docs/planning/testing-strategy.md
 - Isolated headless test suite: scripts/tests/run_headless_suite.sh
+- Godot testing environment: docs/planning/godot-testing-environment.md
 - Definition of done: docs/planning/definition-of-done.md
 - Development agent team: docs/planning/development-agent-team.md
 

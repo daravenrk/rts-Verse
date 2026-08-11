@@ -2,6 +2,17 @@
 
 Track high-level project changes with links to decisions and plans.
 
+## 2026-08-11
+
+- Activated a focused Godot diagnostic stack covering environment, harness, and project integration concerns.
+- Reproduced and fixed a critical stale-log false positive where `GODOT_BIN=/usr/bin/true` previously reported all tests passing from old logs.
+- Rebuilt the headless suite around Godot 4.5+ executable verification, unique run directories, fresh-log checks, per-process watchdogs, strict summary cardinality, and dual engine-log or console validation.
+- Added an exact allowlist for the known macOS certificate diagnostic while making every other engine `ERROR:` fatal.
+- Added core-script `--check-only` parsing and expanded the authoritative live/runtime gate from 12 to 20 checks.
+- Added temporary input-profile overrides so tests no longer inherit or overwrite developer `user://` settings.
+- Added deterministic startup faction overrides and asserted Helion-versus-Veyari routing through Main, Skirmish, and the duel map.
+- Revalidated the hardened suite with `passes=20 failures=0`; the false-executable negative test now exits `2` before running cases.
+
 ## 2026-08-03
 
 - Implemented live player and enemy AI combat against Tether Points with structure-edge range, pursuit, cooldown, damage, and terminal-state integration.

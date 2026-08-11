@@ -207,6 +207,7 @@ Keep this list short, actionable, and current.
 - [x] Implement bounded Expansion Hub command recovery, live hub combat/destruction, and emergency builder agency restoration.
 - [x] Run independent F-77/F-78 validation, core regression flows, startup smoke, and review with no open P0-P2 findings.
 - [x] Correct critical hook summaries, add an isolated failure-enforcing headless suite, and distinguish live coverage from deterministic simulations.
+- [x] Harden the Godot environment with executable verification, parse checks, watchdogs, fresh logs, deterministic profiles and factions, and strict error validation.
 
 ## Ready Queue
 

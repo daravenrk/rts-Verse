@@ -79,6 +79,7 @@ const TEST_F78_ENEMY_TETHER_ENDGAME_FLAG := "--duel-test-f78-enemy-tether-endgam
 const STAGE0_CAPTURE_FLAG := "--stage0-capture-media"
 const STAGE0_CAPTURE_DIR_PREFIX := "--stage0-capture-dir="
 const INPUT_PROFILE_CONFIG_PATH := "user://input_profile.cfg"
+const TEST_INPUT_PROFILE_PREFIX := "--test-input-profile="
 const STOCKPILE_CONFIG := {
 	"alloy": {"cap": 200000, "soft_ratio": 0.3, "hard_ratio": 0.1},
 	"power": {"cap": 160000, "soft_ratio": 0.35, "hard_ratio": 0.12},
@@ -5850,13 +5851,17 @@ func _restore_slot_builder_agency(slot: String) -> bool:
 
 
 func _load_camera_profile_settings() -> void:
+	var profile_path := _get_user_arg_value(TEST_INPUT_PROFILE_PREFIX)
+	if profile_path.is_empty():
+		profile_path = INPUT_PROFILE_CONFIG_PATH
 	var config := ConfigFile.new()
-	if config.load(INPUT_PROFILE_CONFIG_PATH) != OK:
+	if config.load(profile_path) != OK:
+		print("[Camera] Profile defaults active path=%s" % profile_path)
 		return
 
 	var zoom_speed_value: Variant = config.get_value("camera", "zoom_speed", 1.0)
 	_camera_zoom_speed_multiplier = clampf(float(zoom_speed_value), 0.25, 3.0)
-	print("[Camera] Profile loaded zoom_speed=%.2f" % _camera_zoom_speed_multiplier)
+	print("[Camera] Profile loaded path=%s zoom_speed=%.2f" % [profile_path, _camera_zoom_speed_multiplier])
 
 
 func _ensure_camera_input_actions() -> void:

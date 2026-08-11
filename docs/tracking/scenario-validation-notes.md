@@ -2,6 +2,23 @@
 
 Track scenario-level evidence for map and flow validation runs.
 
+## 2026-08-11 Godot Test Environment Hardening
+
+- Scope: stale evidence, executable identity, engine errors, hangs, parsing, persistent profile state, startup matchup drift, and live-gate coverage.
+- Positive validation command:
+  - `scripts/tests/run_headless_suite.sh`
+- Negative validation command:
+  - `GODOT_BIN=/usr/bin/true scripts/tests/run_headless_suite.sh`
+- Result: Pass
+- Evidence:
+  - Installed Godot `4.5.1.stable.official.f62fdbde1` satisfies the project requirement.
+  - Core-script parse gate and 19 gameplay or startup gates passed: `passes=20 failures=0`.
+  - Each process used a unique log pair, deterministic temporary input profile, and 30-second watchdog.
+  - Startup asserted `player=helion enemy=veyari` before entering the duel scene.
+  - Both engine logs and console output were checked after filtering only the exact paired macOS certificate diagnostic.
+  - The reproduced stale-log exploit is closed: `/usr/bin/true` is rejected as an unsupported Godot executable and exits `2` without accepting prior logs.
+  - `git diff --check` and Bash syntax validation passed.
+
 ## 2026-08-03 Isolated Headless Suite and Coverage-Semantics Correction
 
 - Scope: critical live gameplay hooks, endgame flows, startup integration, and truthful plan-to-runtime coverage classification.

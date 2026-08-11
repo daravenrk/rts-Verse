@@ -3,6 +3,8 @@ extends Control
 const MAIN_SCENE_PATH := "res://scenes/core/Main.tscn"
 const FIRST_DUEL_MAP_SCENE_PATH := "res://scenes/core/FirstDuelMap.tscn"
 const SKIRMISH_TEST_AUTO_START_FLAG := "--skirmish-test-auto-start"
+const SKIRMISH_TEST_PLAYER_FACTION_PREFIX := "--skirmish-test-player-faction="
+const SKIRMISH_TEST_ENEMY_FACTION_PREFIX := "--skirmish-test-enemy-faction="
 const CampaignData := preload("res://scripts/core/CampaignData.gd")
 
 const FACTIONS := [
@@ -22,6 +24,8 @@ const FACTIONS := [
 func _ready() -> void:
 	_populate_selector(_player_selector, "player")
 	_populate_selector(_enemy_selector, "enemy")
+	_apply_test_faction_override(_player_selector, SKIRMISH_TEST_PLAYER_FACTION_PREFIX, "player")
+	_apply_test_faction_override(_enemy_selector, SKIRMISH_TEST_ENEMY_FACTION_PREFIX, "enemy")
 	_apply_campaign_order_summary()
 	_update_status()
 	print("[Skirmish] Faction gate initialized")
@@ -60,6 +64,22 @@ func _select_first_available(selector: OptionButton) -> void:
 		if not selector.is_item_disabled(index):
 			selector.select(index)
 			return
+
+
+func _apply_test_faction_override(selector: OptionButton, prefix: String, role: String) -> void:
+	var requested_faction := _get_user_arg_value(prefix)
+	if requested_faction.is_empty():
+		return
+	for index in selector.item_count:
+		if str(selector.get_item_metadata(index)) != requested_faction:
+			continue
+		if selector.is_item_disabled(index):
+			push_error("[Skirmish] Test faction unavailable role=%s faction=%s" % [role, requested_faction])
+			return
+		selector.select(index)
+		print("[Skirmish] Test faction selected role=%s faction=%s" % [role, requested_faction])
+		return
+	push_error("[Skirmish] Test faction unknown role=%s faction=%s" % [role, requested_faction])
 
 
 func _on_player_faction_selector_item_selected(_index: int) -> void:
@@ -108,3 +128,10 @@ func _has_user_flag(flag: String) -> bool:
 		if argument == flag:
 			return true
 	return false
+
+
+func _get_user_arg_value(prefix: String) -> String:
+	for argument in OS.get_cmdline_user_args():
+		if argument.begins_with(prefix):
+			return argument.trim_prefix(prefix)
+	return ""

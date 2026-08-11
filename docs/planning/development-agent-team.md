@@ -254,3 +254,39 @@ timestamp, and required confirmation.
 > only ready and unblocked work, prevent file conflicts, enforce independent test and
 > review gates, and mark Done only after all completion criteria pass. Keep external
 > publication work parked until operator evidence exists.
+
+## Godot Testing Diagnostic Stack
+
+Use this focused stack when the headless suite is failing, hanging, or producing
+untrustworthy results:
+
+| Agent | Diagnostic ownership | Write authority |
+| --- | --- | --- |
+| Godot Environment Agent | Executable, version, sandbox, logging, imports, caches, and headless launch behavior | None |
+| Harness Audit Agent | Runner timeouts, stale logs, parsing, false verdicts, isolation, and portability | None |
+| Project Test Integration Agent | CLI routing, scene transitions, profile state, faction setup, parser behavior, and test exits | None |
+| Test Infrastructure Developer | Implements approved runner and test-mode fixes | Test infrastructure and scoped runtime integration |
+| Independent Test Agent | Proves positive cases and at least one negative failure-detection case | None |
+
+The Coordinator combines the three read-only diagnoses into one bounded fix task.
+No diagnostic agent may reinterpret a known engine error as harmless without an
+exact allowlist and reproduced healthy baseline.
+
+### Godot Environment Prompt
+
+> Diagnose the Godot executable, version, headless runtime, sandbox-sensitive paths,
+> logging, imports, caches, and project launch behavior. Reproduce failures using
+> unique temporary logs. Do not edit files. Return root causes and exact commands.
+
+### Harness Audit Prompt
+
+> Audit the headless runner for stale evidence, false positives or negatives,
+> timeouts, output-stream gaps, summary matching, concurrency collisions, portability,
+> and coverage drift. Prove high-severity findings with safe negative tests. Do not
+> edit files.
+
+### Project Test Integration Prompt
+
+> Audit Godot CLI flags, Main-to-Skirmish-to-duel routing, direct-scene differences,
+> persistent profile state, faction setup, parser checks, and exit-code propagation.
+> Do not edit files. Return concrete integration defects and scoped fixes.

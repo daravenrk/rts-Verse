@@ -19,7 +19,8 @@ This document defines validation layers for milestone delivery.
 - It does not, by itself, mean the complete planned system is reachable in live gameplay.
 - Coverage is classified as `Live`, `Forced live pipeline`, `Deterministic simulation`, or `Planning contract`.
 - Mutable duel flows must run in isolated Godot processes. Combining many test flags in one scene is diagnostic-only because earlier hooks can alter state used by later hooks.
-- `scripts/tests/run_headless_suite.sh` is the authoritative automated smoke suite. It fails on nonzero process exits, script or parse errors, `pass=false`, or missing expected summaries.
+- `scripts/tests/run_headless_suite.sh` is the authoritative automated smoke suite. It verifies Godot 4.5+, unique fresh logs, per-process timeouts, isolated test profiles, deterministic startup factions, core-script parsing, both output streams, and exactly one passing summary per gameplay case.
+- The exact macOS `get_system_ca_certificates` headless diagnostic is the only allowlisted engine error; all other `ERROR:` output fails the suite.
 
 ## Plan-to-Runtime Coverage Audit
 
