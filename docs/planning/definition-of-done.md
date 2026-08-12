@@ -19,6 +19,9 @@ A task or milestone is done only when all criteria below are satisfied.
 - Functional checks pass for changed behavior.
 - Integration checks pass for connected systems.
 - Smoke check confirms core loop remains playable.
+- Runtime features are reachable in an ordinary match without test-only private state mutation.
+- Player-facing changes pass public-input, visual, and human-playability gates when applicable.
+- Release-facing changes pass an exported-build startup and representative full-match check.
 - Failures are logged with a follow-up task if deferred.
 
 ## Review Quality

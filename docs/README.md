@@ -40,6 +40,7 @@ This folder contains architecture, planning, research, and delivery tracking art
 - Godot testing environment: docs/planning/godot-testing-environment.md
 - Definition of done: docs/planning/definition-of-done.md
 - Development agent team: docs/planning/development-agent-team.md
+- Full RTS agentic workflow: docs/planning/full-rts-agentic-workflow.md
 
 ## Supporting Trackers
 

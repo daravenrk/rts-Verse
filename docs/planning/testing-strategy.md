@@ -526,6 +526,22 @@ This document defines validation layers for milestone delivery.
   - Hub destruction removes its live node, health, and build registry state.
   - With no player army, Tether, or secondary command structure, the match produces Loss.
 
+## Flow F-79 Live Paid Economy and Finite Extraction
+
+- Setup: Both slots start with isolated Alloy wallets and the duel map exposes finite safe, natural, and contested Alloy sources.
+- Steps:
+  - Pay exact structure and unit costs through the live player paths; reject one Alloy below cost without mutation.
+  - Build safe and natural extractor instances, reject duplicate source occupation, and advance passive income.
+  - Deplete the safe source and confirm the natural extractor continues independently.
+  - Exercise enemy build and production decisions below and exactly at affordability, including the second extractor decision.
+  - Verify natural nodes accept Alloy gathering, Reclaim does not, and teardown releases source occupancy.
+  - Verify the HUD shows player wallet, world reserve, choice costs, and exact shortage feedback without exposing the enemy wallet.
+- Expected:
+  - Every wallet credit equals the corresponding world and local-source debit.
+  - Player and AI use the same costs, source rules, and rejection invariants.
+  - Failed commands preserve wallets, sequences, registries, entities, and source occupancy.
+  - Safe depletion affects only its bound extractor; another live source continues producing.
+
 ## Reporting Template
 
 - Date:

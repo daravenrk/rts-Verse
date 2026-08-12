@@ -76,6 +76,7 @@ const TEST_F75_ENEMY_ADAPTIVE_JITTER_SEXT_LOSS_FLAG := "--duel-test-f75-enemy-ad
 const TEST_F76_ENEMY_ADAPTIVE_JITTER_SEPT_LOSS_FLAG := "--duel-test-f76-enemy-adaptive-jitter-sept-loss"
 const TEST_F77_TETHER_ENDGAME_FLAG := "--duel-test-f77-tether-endgame"
 const TEST_F78_ENEMY_TETHER_ENDGAME_FLAG := "--duel-test-f78-enemy-tether-endgame"
+const TEST_F79_LIVE_ECONOMY_FLAG := "--duel-test-f79-live-economy"
 const STAGE0_CAPTURE_FLAG := "--stage0-capture-media"
 const STAGE0_CAPTURE_DIR_PREFIX := "--stage0-capture-dir="
 const INPUT_PROFILE_CONFIG_PATH := "user://input_profile.cfg"
@@ -109,15 +110,45 @@ const PRODUCTION_HOTKEYS := {
 	KEY_3: 2,
 }
 const BUILDABLE_DEFS := {
-	"power_core": {"tier": "T0", "deps": []},
-	"alloy_extractor": {"tier": "T0", "deps": []},
-	"barracks_equivalent": {"tier": "T0", "deps": []},
-	"vehicle_structure": {"tier": "T1", "deps": ["power_core", "barracks_equivalent"]},
-	"sensor_uplink": {"tier": "T1", "deps": ["power_core", "barracks_equivalent"]},
-	"expansion_hub": {"tier": "T1", "deps": ["alloy_extractor", "barracks_equivalent"]},
-	"advanced_ground_structure": {"tier": "T2", "deps": ["vehicle_structure", "sensor_uplink"]},
-	"militia_barracks": {"tier": "T1", "deps": ["power_core", "barracks_equivalent"]},
-	"security_command_post": {"tier": "T2", "deps": ["militia_barracks", "sensor_uplink"]}
+	"power_core": {"tier": "T0", "deps": [], "alloy_cost": 120},
+	"alloy_extractor": {"tier": "T0", "deps": [], "alloy_cost": 90},
+	"barracks_equivalent": {"tier": "T0", "deps": [], "alloy_cost": 160},
+	"vehicle_structure": {"tier": "T1", "deps": ["power_core", "barracks_equivalent"], "alloy_cost": 240},
+	"sensor_uplink": {"tier": "T1", "deps": ["power_core", "barracks_equivalent"], "alloy_cost": 180},
+	"expansion_hub": {"tier": "T1", "deps": ["alloy_extractor", "barracks_equivalent"], "alloy_cost": 220},
+	"advanced_ground_structure": {"tier": "T2", "deps": ["vehicle_structure", "sensor_uplink"], "alloy_cost": 360},
+	"militia_barracks": {"tier": "T1", "deps": ["power_core", "barracks_equivalent"], "alloy_cost": 220},
+	"security_command_post": {"tier": "T2", "deps": ["militia_barracks", "sensor_uplink"], "alloy_cost": 320}
+}
+# Helion and Veyari T0/T1 values come from economy-standards.md. Obsidian,
+# support-artillery, and T2 values are provisional nonzero prices until their
+# canonical numeric rows are added to the balance sheet.
+const UNIT_ALLOY_COSTS := {
+	"line_engineer": 70,
+	"lancer_squad": 65,
+	"breach_team": 75,
+	"strider_bike": 110,
+	"ember_tank": 210,
+	"sunforge_artillery": 300,
+	"foundry_engineer": 70,
+	"warder_team": 65,
+	"breacher_team": 75,
+	"maul_rover": 110,
+	"cinder_mortar": 160,
+	"ruin_launcher": 300,
+	"brood_architect": 70,
+	"needle_brood": 65,
+	"rift_claw": 75,
+	"skitter_lance": 110,
+	"bulwark_husk": 210,
+	"mire_spitter": 160,
+	"singularity_lobber": 300,
+}
+const STARTING_ALLOY_WALLET := 1000
+const ALLOY_NODE_RESERVE_BY_TYPE := {
+	"safe_alloy_node": 2500,
+	"natural_alloy_node": 3000,
+	"contested_midfield_alloy_node": 4000,
 }
 const PRODUCTION_CHAINS := {
 	"helion": {
@@ -364,6 +395,10 @@ var _controllable_units: Dictionary = {}
 var _selected_controllable_units: Array[String] = []
 var _resource_alloy_total: int = 0
 var _stockpile_state: Dictionary = {}
+var _alloy_wallets_by_slot: Dictionary = {"A": STARTING_ALLOY_WALLET, "B": STARTING_ALLOY_WALLET}
+var _alloy_node_reserves_by_id: Dictionary = {}
+var _extractor_sources_by_slot: Dictionary = {"A": {}, "B": {}}
+var _alloy_source_occupant_by_id: Dictionary = {}
 var _stockpile_event_log: Array[String] = []
 var _stockpile_archive_log: Array[String] = []
 var _stockpile_sequence_id: int = 0
@@ -404,6 +439,7 @@ const _AI_BUILD_INTERVAL := 18.0
 const _AI_PRODUCTION_INTERVAL := 14.0
 # Hard cap to prevent runaway enemy production.
 const _AI_MAX_SLOT_B_UNITS := 10
+const _AI_DESIRED_EXTRACTOR_COUNT := 2
 # Passive income rate — alloy units added per second per active Alloy Extractor.
 const _EXTRACTOR_INCOME_RATE := 12
 var _ai_scan_timers: Dictionary = {}   # unit_id -> float time until next scan
@@ -411,6 +447,7 @@ var _ai_target_ids: Dictionary = {}    # unit_id -> target player unit_id or ""
 var _ai_build_timer: float = _AI_BUILD_INTERVAL
 var _ai_production_timer: float = _AI_PRODUCTION_INTERVAL
 var _ai_production_choice_index: int = 0
+var _ai_last_build_decision: Dictionary = {}
 var _resource_tick_elapsed: float = 0.0
 
 # -- Drag-box selection state --------------------------------------------------
@@ -510,6 +547,7 @@ func _ready() -> void:
 	_run_f76_enemy_adaptive_jitter_sept_loss_test_hook()
 	_run_f77_tether_endgame_test_hook()
 	_run_f78_enemy_tether_endgame_test_hook()
+	_run_f79_live_economy_test_hook()
 	if _has_user_flag(STAGE0_CAPTURE_FLAG):
 		call_deferred("_run_stage0_media_capture_sequence")
 	elif _has_user_flag(TEST_AUTO_EXIT_FLAG):
@@ -737,6 +775,234 @@ func _run_f78_enemy_tether_endgame_test_hook() -> void:
 		str(select_pass), str(pursuit_pass), str(recovery_started_pass),
 		str(fallback_pass), str(recovery_cancel_pass), str(loss_pass),
 		tether_steps, hub_steps, str(pass_ok)
+	])
+
+
+func _run_f79_live_economy_test_hook() -> void:
+	if not _has_user_flag(TEST_F79_LIVE_ECONOMY_FLAG):
+		return
+
+	_set_stockpile_reserve("alloy", _get_stockpile_cap("alloy"), "f79_world_reset")
+	_set_alloy_wallet("A", 1000, "f79_wallet_reset")
+	_set_alloy_wallet("B", 1000, "f79_wallet_reset")
+
+	var world_before_build := _get_stockpile_reserve("alloy")
+	var enemy_before_build := _get_alloy_wallet("B")
+	var build_ok := _build_for_slot("A", "power_core")
+	var exact_build_spend_ok := build_ok and _get_alloy_wallet("A") == 880
+	var build_world_unchanged_ok := _get_stockpile_reserve("alloy") == world_before_build
+	var build_slot_isolation_ok := _get_alloy_wallet("B") == enemy_before_build
+	_set_alloy_wallet("A", 225, "f79_player_production_setup")
+	var player_barracks_ok := _build_for_slot("A", "barracks_equivalent")
+	_select_single_unit(_find_first_unit_for_slot("A"))
+	var player_production_ok := _queue_live_production("lancer_squad")
+	var exact_player_production_spend_ok := player_barracks_ok and player_production_ok \
+		and _get_alloy_wallet("A") == 0
+	_set_alloy_wallet("A", 64, "f79_player_production_reject_setup")
+	var player_units_before_reject := _get_slot_unit_ids("A").size()
+	var player_sequence_before_reject := _production_sequence
+	var rejected_player_production_ok := not _queue_live_production("lancer_squad")
+	var player_production_rejection_ok := rejected_player_production_ok \
+		and _get_alloy_wallet("A") == 64 \
+		and _get_slot_unit_ids("A").size() == player_units_before_reject \
+		and _production_sequence == player_sequence_before_reject \
+		and _hud_alert_item.text.find("need 65 Alloy (have 64)") >= 0
+
+	_set_alloy_wallet("A", 10, "f79_insufficient_build_setup")
+	var wallet_before_reject := _get_alloy_wallet("A")
+	var structures_before_reject: int = _buildables_by_slot["A"].size()
+	var rejected_build_ok := not _build_for_slot("A", "alloy_extractor")
+	var build_rejection_immutable_ok: bool = rejected_build_ok \
+		and _get_alloy_wallet("A") == wallet_before_reject \
+		and _buildables_by_slot["A"].size() == structures_before_reject \
+		and _hud_alert_item.text.find("need 90 Alloy (have 10)") >= 0
+
+	_set_alloy_wallet("A", 100, "f79_transfer_setup")
+	_set_stockpile_reserve("alloy", 40, "f79_transfer_setup")
+	_alloy_node_reserves_by_id["SAFE-ALLOY-A"] = 30
+	var conservation_before := _get_alloy_wallet("A") + _get_stockpile_reserve("alloy")
+	var transfer_amount := _transfer_alloy_from_world("A", 35, "f79_gather_transfer", "SAFE-ALLOY-A")
+	var bounded_transfer_ok := transfer_amount == 21 \
+		and _get_alloy_wallet("A") == 121 \
+		and _get_stockpile_reserve("alloy") == 19 \
+		and int(_alloy_node_reserves_by_id["SAFE-ALLOY-A"]) == 9
+	var transfer_conservation_ok := conservation_before == _get_alloy_wallet("A") + _get_stockpile_reserve("alloy")
+	var transfer_slot_isolation_ok := _get_alloy_wallet("B") == enemy_before_build
+	var natural_target_ok := _find_resource_at_point(_map_items_by_id["NATURAL-ALLOY-A"].position) == "NATURAL-ALLOY-A"
+	var gather_jobs_before_reclaim: int = _gather_jobs.size()
+	_issue_gather_command("RECLAIM-CENTER")
+	var reclaim_not_alloy_ok := _find_resource_at_point(_map_items_by_id["RECLAIM-CENTER"].position) == "" \
+		and _gather_jobs.size() == gather_jobs_before_reclaim \
+		and _hud_alert_item.text.find("does not contain Alloy") >= 0
+
+	# A slot can own multiple extractor instances, but a source can have only one
+	# occupant. Build safe and natural instances at exact aggregate cost.
+	_set_alloy_wallet("A", 180, "f79_multi_extractor_setup")
+	var safe_a_position: Vector3 = _map_items_by_id["SAFE-ALLOY-A"].position
+	var natural_a_position: Vector3 = _map_items_by_id["NATURAL-ALLOY-A"].position
+	var first_extractor_ok := _build_for_slot("A", "alloy_extractor", safe_a_position)
+	var second_extractor_ok := _build_for_slot("A", "alloy_extractor", natural_a_position)
+	var player_extractors: Dictionary = _extractor_sources_by_slot["A"]
+	var multi_extractor_exact_ok := first_extractor_ok and second_extractor_ok \
+		and _get_alloy_wallet("A") == 0 and player_extractors.size() == 2 \
+		and player_extractors.values().has("SAFE-ALLOY-A") \
+		and player_extractors.values().has("NATURAL-ALLOY-A")
+	_set_alloy_wallet("A", 90, "f79_duplicate_source_setup")
+	var extractor_count_before_duplicate := player_extractors.size()
+	var duplicate_source_rejected := not _build_for_slot("A", "alloy_extractor", safe_a_position)
+	var duplicate_source_immutable_ok := duplicate_source_rejected \
+		and _get_alloy_wallet("A") == 90 \
+		and player_extractors.size() == extractor_count_before_duplicate
+
+	# Depleting the safe source idles only that extractor; the natural source
+	# continues to transfer on later ticks.
+	_set_stockpile_reserve("alloy", 100, "f79_multi_passive_setup")
+	_alloy_node_reserves_by_id["SAFE-ALLOY-A"] = 5
+	_alloy_node_reserves_by_id["NATURAL-ALLOY-A"] = 50
+	_set_alloy_wallet("A", 0, "f79_multi_passive_setup")
+	var enemy_wallet_before_multi_passive := _get_alloy_wallet("B")
+	_resource_tick_elapsed = 0.0
+	_update_resource_income(1.0)
+	var first_multi_tick_ok := _get_alloy_wallet("A") == 12 \
+		and _get_stockpile_reserve("alloy") == 88 \
+		and int(_alloy_node_reserves_by_id["SAFE-ALLOY-A"]) == 0 \
+		and int(_alloy_node_reserves_by_id["NATURAL-ALLOY-A"]) == 43
+	var wallet_before_second_multi_tick := _get_alloy_wallet("A")
+	var world_before_second_multi_tick := _get_stockpile_reserve("alloy")
+	_resource_tick_elapsed = 0.0
+	_update_resource_income(1.0)
+	var second_multi_tick_wallet_delta := _get_alloy_wallet("A") - wallet_before_second_multi_tick
+	var safe_depletion_natural_continuity_ok := first_multi_tick_ok \
+		and second_multi_tick_wallet_delta == 7 \
+		and world_before_second_multi_tick - _get_stockpile_reserve("alloy") == 7 \
+		and int(_alloy_node_reserves_by_id["SAFE-ALLOY-A"]) == 0 \
+		and int(_alloy_node_reserves_by_id["NATURAL-ALLOY-A"]) == 36 \
+		and _get_alloy_wallet("B") == enemy_wallet_before_multi_passive
+
+	# Current combat only targets Expansion Hubs, but the common destruction
+	# helper releases extractor occupancy so a future combat-capable extractor or
+	# scripted teardown can be rebuilt on the same source.
+	var player_extractor_ids: Array = player_extractors.keys().duplicate()
+	for extractor_id in player_extractor_ids:
+		_destroy_live_buildable(str(extractor_id), "f79_teardown")
+	var extractor_release_ok := (_extractor_sources_by_slot["A"] as Dictionary).is_empty() \
+		and not _alloy_source_occupant_by_id.has("SAFE-ALLOY-A") \
+		and not _alloy_source_occupant_by_id.has("NATURAL-ALLOY-A")
+
+	# Exercise the ordinary enemy AI build path one Alloy below and exactly at cost.
+	_set_alloy_wallet("B", 119, "f79_ai_build_below_cost")
+	var enemy_structures_before_reject: int = _buildables_by_slot["B"].size()
+	_run_enemy_build_step()
+	var ai_build_rejection_ok: bool = _get_alloy_wallet("B") == 119 \
+		and _buildables_by_slot["B"].size() == enemy_structures_before_reject
+	_set_alloy_wallet("B", 120, "f79_ai_build_exact_cost")
+	_run_enemy_build_step()
+	var ai_build_exact_ok: bool = _get_alloy_wallet("B") == 0 and _buildables_by_slot["B"].has("power_core")
+	_set_alloy_wallet("B", 89, "f79_ai_extractor_below_cost")
+	_run_enemy_build_step()
+	var ai_extractor_rejection_ok: bool = _get_alloy_wallet("B") == 89 and not _buildables_by_slot["B"].has("alloy_extractor")
+	_set_alloy_wallet("B", 90, "f79_ai_extractor_exact_cost")
+	_run_enemy_build_step()
+	var ai_extractor_exact_ok: bool = _get_alloy_wallet("B") == 0 \
+		and _buildables_by_slot["B"].has("alloy_extractor") \
+		and not (_extractor_sources_by_slot["B"] as Dictionary).is_empty()
+	_set_alloy_wallet("B", 160, "f79_ai_barracks_exact_cost")
+	_run_enemy_build_step()
+	var enemy_barracks_ok: bool = _buildables_by_slot["B"].has("barracks_equivalent") and _get_alloy_wallet("B") == 0
+	_set_alloy_wallet("B", 89, "f79_enemy_second_extractor_below_cost")
+	_run_enemy_build_step()
+	var enemy_second_below_cost_ok := _get_alloy_wallet("B") == 89 \
+		and (_extractor_sources_by_slot["B"] as Dictionary).size() == 1 \
+		and str(_ai_last_build_decision.get("action", "")) == "second_extractor_deferred" \
+		and str(_ai_last_build_decision.get("reason", "")) == "insufficient_alloy" \
+		and str(_ai_last_build_decision.get("source_id", "")) == "NATURAL-ALLOY-B"
+	_set_alloy_wallet("B", 90, "f79_enemy_second_extractor_exact_cost")
+	_run_enemy_build_step()
+	var enemy_sources_after_second: Dictionary = _extractor_sources_by_slot["B"]
+	var enemy_second_extractor_ok := _get_alloy_wallet("B") == 0 \
+		and enemy_sources_after_second.size() == 2 \
+		and enemy_sources_after_second.values().has("SAFE-ALLOY-B") \
+		and enemy_sources_after_second.values().has("NATURAL-ALLOY-B")
+	var enemy_second_ai_telemetry_ok := str(_ai_last_build_decision.get("action", "")) == "second_extractor_built" \
+		and str(_ai_last_build_decision.get("reason", "")) == "completed" \
+		and str(_ai_last_build_decision.get("source_id", "")) == "NATURAL-ALLOY-B" \
+		and int(_ai_last_build_decision.get("cost", 0)) == 90 \
+		and int(_ai_last_build_decision.get("wallet_before", -1)) == 90 \
+		and int(_ai_last_build_decision.get("wallet_after", -1)) == 0
+
+	# Passive extraction must debit both the bound local source and world reserve
+	# by exactly the amount credited to the owning wallet.
+	var enemy_extractor_sources: Dictionary = _extractor_sources_by_slot["B"]
+	var enemy_source_id := ""
+	for extractor_id in enemy_extractor_sources.keys():
+		if str(enemy_extractor_sources[extractor_id]) == "SAFE-ALLOY-B":
+			enemy_source_id = "SAFE-ALLOY-B"
+			break
+	_set_stockpile_reserve("alloy", 100, "f79_passive_setup")
+	_alloy_node_reserves_by_id[enemy_source_id] = 10
+	_alloy_node_reserves_by_id["NATURAL-ALLOY-B"] = 0
+	_set_alloy_wallet("B", 0, "f79_passive_setup")
+	var passive_world_before := _get_stockpile_reserve("alloy")
+	var passive_source_before := int(_alloy_node_reserves_by_id[enemy_source_id])
+	var passive_wallet_before := _get_alloy_wallet("B")
+	_resource_tick_elapsed = 0.0
+	_update_resource_income(1.0)
+	var passive_wallet_delta := _get_alloy_wallet("B") - passive_wallet_before
+	var passive_world_delta := passive_world_before - _get_stockpile_reserve("alloy")
+	var passive_source_delta := passive_source_before - int(_alloy_node_reserves_by_id[enemy_source_id])
+	var passive_conservation_ok := passive_wallet_delta == 7 \
+		and passive_wallet_delta == passive_world_delta \
+		and passive_wallet_delta == passive_source_delta
+
+	# Continue through the actual AI production function.
+	_set_alloy_wallet("B", 64, "f79_ai_insufficient_setup")
+	var enemy_units_before_reject := _get_slot_unit_ids("B").size()
+	var production_sequence_before_reject := _production_sequence
+	_run_enemy_production_step()
+	var ai_rejection_immutable_ok := _get_alloy_wallet("B") == 64 \
+		and _get_slot_unit_ids("B").size() == enemy_units_before_reject \
+		and _production_sequence == production_sequence_before_reject
+	_set_alloy_wallet("B", 65, "f79_ai_affordable_setup")
+	_run_enemy_production_step()
+	var affordable_ai_production_ok := _get_alloy_wallet("B") == 0 \
+		and _get_slot_unit_ids("B").size() == enemy_units_before_reject + 1
+
+	_update_hud()
+	var hud_text := _hud_resource_bar.text if _hud_resource_bar else ""
+	var normal_hud_ok := hud_text.find("Alloy:") >= 0 \
+		and hud_text.find("World Reserve:") >= 0 \
+		and hud_text.find("Enemy Alloy") < 0
+	_toggle_build_menu()
+	var build_cost_ui_ok := _hud_command_card_label.text.find("alloy_extractor (90)") >= 0
+	_toggle_build_menu()
+	_toggle_production_menu()
+	var production_cost_ui_ok := _hud_command_card_label.text.find("lancer_squad (65)") >= 0
+	_toggle_production_menu()
+	var hud_clarity_ok := normal_hud_ok and build_cost_ui_ok and production_cost_ui_ok
+	var pass_ok: bool = exact_build_spend_ok and exact_player_production_spend_ok \
+		and player_production_rejection_ok \
+		and build_world_unchanged_ok and build_slot_isolation_ok \
+		and build_rejection_immutable_ok and bounded_transfer_ok and transfer_conservation_ok and transfer_slot_isolation_ok \
+		and natural_target_ok and reclaim_not_alloy_ok \
+		and multi_extractor_exact_ok and duplicate_source_immutable_ok \
+		and safe_depletion_natural_continuity_ok and extractor_release_ok \
+		and ai_build_rejection_ok and ai_build_exact_ok and ai_extractor_rejection_ok and ai_extractor_exact_ok \
+		and enemy_second_below_cost_ok and enemy_second_extractor_ok and enemy_second_ai_telemetry_ok \
+		and passive_conservation_ok and enemy_barracks_ok and ai_rejection_immutable_ok \
+		and affordable_ai_production_ok and hud_clarity_ok
+	print("[F79] Summary exact_build_spend=%s exact_player_production_spend=%s player_production_rejection=%s build_world_unchanged=%s build_slot_isolation=%s build_rejection_immutable=%s bounded_transfer=%s transfer_conservation=%s transfer_slot_isolation=%s natural_target=%s reclaim_not_alloy=%s multi_extractor_exact=%s duplicate_source_immutable=%s safe_depletion_natural_continuity=%s extractor_release=%s ai_build_rejection=%s ai_build_exact=%s ai_extractor_rejection=%s ai_extractor_exact=%s enemy_second_below_cost=%s enemy_second_extractor=%s enemy_second_ai_telemetry=%s passive_conservation=%s enemy_barracks=%s ai_rejection_immutable=%s affordable_ai_production=%s hud_clarity=%s pass=%s" % [
+		str(exact_build_spend_ok), str(exact_player_production_spend_ok),
+		str(player_production_rejection_ok),
+		str(build_world_unchanged_ok), str(build_slot_isolation_ok),
+		str(build_rejection_immutable_ok), str(bounded_transfer_ok), str(transfer_conservation_ok), str(transfer_slot_isolation_ok),
+		str(natural_target_ok), str(reclaim_not_alloy_ok),
+		str(multi_extractor_exact_ok), str(duplicate_source_immutable_ok),
+		str(safe_depletion_natural_continuity_ok), str(extractor_release_ok),
+		str(ai_build_rejection_ok), str(ai_build_exact_ok), str(ai_extractor_rejection_ok), str(ai_extractor_exact_ok),
+		str(enemy_second_below_cost_ok), str(enemy_second_extractor_ok), str(enemy_second_ai_telemetry_ok),
+		str(passive_conservation_ok),
+		str(enemy_barracks_ok), str(ai_rejection_immutable_ok), str(affordable_ai_production_ok),
+		str(hud_clarity_ok), str(pass_ok)
 	])
 
 
@@ -2375,6 +2641,9 @@ func _spawn_tether_point(slot: String, faction_id: String, spawn_marker: Marker3
 
 
 func _spawn_map_items() -> void:
+	_alloy_node_reserves_by_id.clear()
+	_extractor_sources_by_slot = {"A": {}, "B": {}}
+	_alloy_source_occupant_by_id.clear()
 	for spec in MAP_ITEM_SPECS:
 		var item := MapItem.new()
 		item.name = str(spec["id"])
@@ -2383,11 +2652,29 @@ func _spawn_map_items() -> void:
 		add_child(item)
 		item.initialize(str(spec["id"]), str(spec["type"]), str(spec["lane"]))
 		_map_items_by_id[str(spec["id"])] = item
+		if ALLOY_NODE_RESERVE_BY_TYPE.has(item.item_type):
+			_alloy_node_reserves_by_id[item.stable_item_id] = int(ALLOY_NODE_RESERVE_BY_TYPE[item.item_type])
 
 		var item_type := str(spec["type"])
 		if not _map_item_counts.has(item_type):
 			_map_item_counts[item_type] = 0
 		_map_item_counts[item_type] += 1
+
+
+func _find_nearest_available_alloy_source(world_position: Vector3, max_distance: float = 260.0) -> String:
+	var nearest_id := ""
+	var nearest_distance := max_distance
+	for item_id in _alloy_node_reserves_by_id.keys():
+		if int(_alloy_node_reserves_by_id[item_id]) <= 0 or not _map_items_by_id.has(item_id):
+			continue
+		if _alloy_source_occupant_by_id.has(item_id):
+			continue
+		var item: MapItem = _map_items_by_id[item_id]
+		var distance := Vector2(world_position.x, world_position.z).distance_to(Vector2(item.position.x, item.position.z))
+		if distance <= nearest_distance:
+			nearest_distance = distance
+			nearest_id = str(item_id)
+	return nearest_id
 
 
 func _validate_map_item_catalog() -> void:
@@ -2585,12 +2872,18 @@ func _run_build_chain_test_hook() -> void:
 		return
 
 	for slot in ["A", "B"]:
+		_fund_deterministic_fixture(slot, "f22_build_chain")
 		_build_for_slot(slot, "power_core")
 		_build_for_slot(slot, "alloy_extractor")
 		_build_for_slot(slot, "barracks_equivalent")
 		_build_for_slot(slot, "vehicle_structure")
 		_build_for_slot(slot, "sensor_uplink")
 		_build_for_slot(slot, "expansion_hub")
+	var slot_a_pass := _slot_has_buildables("A", BUILD_MENU_ORDER)
+	var slot_b_pass := _slot_has_buildables("B", BUILD_MENU_ORDER)
+	print("[F22] Summary slot_a_pass=%s slot_b_pass=%s pass=%s" % [
+		str(slot_a_pass), str(slot_b_pass), str(slot_a_pass and slot_b_pass)
+	])
 
 
 func _build_for_slot(slot: String, buildable_id: String, placement_position: Variant = null) -> bool:
@@ -2600,7 +2893,7 @@ func _build_for_slot(slot: String, buildable_id: String, placement_position: Var
 		print("[Build] Rejected slot=%s buildable=%s reason=unknown_buildable" % [slot, buildable_id])
 		return false
 
-	if _buildables_by_slot[slot].has(buildable_id):
+	if buildable_id != "alloy_extractor" and _buildables_by_slot[slot].has(buildable_id):
 		print("[Build] Rejected slot=%s buildable=%s reason=already_built" % [slot, buildable_id])
 		return false
 
@@ -2615,26 +2908,79 @@ func _build_for_slot(slot: String, buildable_id: String, placement_position: Var
 			print("[Build] Rejected slot=%s buildable=%s reason=missing_dependency dependency=%s" % [slot, buildable_id, dep])
 			return false
 
-	_build_sequence += 1
-	var buildable_node := BuildableNode.new()
-	buildable_node.name = "Buildable%s_%s" % [slot, str(_build_sequence)]
+	var build_position: Vector3
 	if placement_position is Vector3:
-		buildable_node.position = placement_position
+		build_position = placement_position
 	else:
-		buildable_node.position = tether.position + Vector3(24.0 * float(_build_sequence), 0.0, 0.0)
+		build_position = tether.position + Vector3(24.0 * float(_buildables_by_slot[slot].size() + 1), 0.0, 0.0)
+	var extractor_source_id := ""
+	if buildable_id == "alloy_extractor":
+		extractor_source_id = _find_nearest_available_alloy_source(build_position)
+		if extractor_source_id == "":
+			print("[Build] Rejected slot=%s buildable=%s reason=no_local_alloy_source position=%s" % [slot, buildable_id, str(build_position)])
+			if slot == "A" and _hud_alert_item:
+				_hud_alert_item.text = "Build rejected: Alloy Extractor needs a live Alloy node"
+			return false
+
+	var buildable_node := BuildableNode.new()
+	if not is_instance_valid(buildable_node):
+		print("[Build] Rejected slot=%s buildable=%s reason=node_creation_failed" % [slot, buildable_id])
+		return false
+
+	var alloy_cost := int(BUILDABLE_DEFS[buildable_id].get("alloy_cost", 0))
+	if not _try_spend_alloy(slot, alloy_cost, "build_%s" % buildable_id):
+		buildable_node.free()
+		print("[Build] Rejected slot=%s buildable=%s reason=insufficient_alloy cost=%d wallet=%d" % [
+			slot, buildable_id, alloy_cost, _get_alloy_wallet(slot)
+		])
+		if slot == "A" and _hud_alert_item:
+			_hud_alert_item.text = "Build rejected: need %d Alloy (have %d)" % [alloy_cost, _get_alloy_wallet(slot)]
+		return false
+
+	_build_sequence += 1
+	buildable_node.name = "Buildable%s_%s" % [slot, str(_build_sequence)]
+	buildable_node.position = build_position
 	add_child(buildable_node)
+	if not is_instance_valid(buildable_node) or buildable_node.get_parent() != self:
+		_refund_alloy(slot, alloy_cost, "rollback_build_%s" % buildable_id)
+		_build_sequence -= 1
+		if is_instance_valid(buildable_node) and buildable_node.get_parent() == null:
+			buildable_node.free()
+		print("[Build] Rejected slot=%s buildable=%s reason=attach_failed debit_rolled_back=true" % [slot, buildable_id])
+		return false
 
 	var stable_item_id := "BLD-%s-%03d" % [slot, _build_sequence]
 	var tier: String = str(BUILDABLE_DEFS[buildable_id]["tier"])
 	buildable_node.initialize(stable_item_id, slot, buildable_id, tier)
-	_buildables_by_slot[slot][buildable_id] = stable_item_id
+	var buildable_registry_key := buildable_id
+	if buildable_id == "alloy_extractor" and _buildables_by_slot[slot].has("alloy_extractor"):
+		buildable_registry_key = "alloy_extractor@%s" % extractor_source_id
+	_buildables_by_slot[slot][buildable_registry_key] = stable_item_id
 	_live_buildable_nodes_by_id[stable_item_id] = buildable_node
+	if buildable_id == "alloy_extractor":
+		(_extractor_sources_by_slot[slot] as Dictionary)[stable_item_id] = extractor_source_id
+		_alloy_source_occupant_by_id[extractor_source_id] = stable_item_id
+		print("[Economy] Extractor bound slot=%s source=%s source_reserve=%d" % [
+			slot, extractor_source_id, int(_alloy_node_reserves_by_id[extractor_source_id])
+		])
 	if buildable_id == "expansion_hub":
 		_structure_hit_points[stable_item_id] = _EXPANSION_HUB_MAX_HIT_POINTS
 	print("[Build] Completed slot=%s buildable=%s tier=%s stable_item_id=%s" % [slot, buildable_id, tier, stable_item_id])
 	if _hud_queue_item:
 		_hud_queue_item.text = "Built: %s" % buildable_id
 	return true
+
+
+func _slot_has_buildables(slot: String, buildable_ids: Array) -> bool:
+	for buildable_id in buildable_ids:
+		if not _buildables_by_slot[slot].has(buildable_id):
+			return false
+	return true
+
+
+func _fund_deterministic_fixture(slot: String, fixture_id: String, amount: int = 10000) -> void:
+	_set_alloy_wallet(slot, amount, fixture_id)
+	print("[TestFixture] Economy funded slot=%s amount=%d fixture=%s" % [slot, amount, fixture_id])
 
 
 func _run_f24_test_hook() -> void:
@@ -2806,6 +3152,11 @@ func _issue_gather_command(resource_item_id: String) -> void:
 	if not _map_items_by_id.has(resource_item_id):
 		print("[F03] Gather rejected reason=unknown_resource resource=%s" % resource_item_id)
 		return
+	if not _alloy_node_reserves_by_id.has(resource_item_id):
+		if _hud_alert_item:
+			_hud_alert_item.text = "Gather rejected: target does not contain Alloy"
+		print("[F03] Gather rejected reason=non_alloy_resource resource=%s" % resource_item_id)
+		return
 
 	var resource_node: MapItem = _map_items_by_id[resource_item_id]
 	var queued_units: Array[String] = []
@@ -2869,14 +3220,15 @@ func _run_f35_gather_test_hook() -> void:
 		print("[F35] Summary pass=false reason=no_gatherer")
 		return
 
-	_set_stockpile_reserve("alloy", 0, "f35_reset")
+	_set_stockpile_reserve("alloy", _get_stockpile_cap("alloy"), "f35_world_reset")
+	_set_alloy_wallet("A", 0, "f35_wallet_reset")
 	_select_single_unit(gatherer_id)
 	_issue_gather_command("SAFE-ALLOY-A")
 	for _step in 180:
 		_update_live_units(0.1)
 		_update_gather_jobs()
 
-	var gather_pass := _resource_alloy_total > 0
+	var gather_pass := _get_alloy_wallet("A") > 0 and _get_stockpile_reserve("alloy") < _get_stockpile_cap("alloy")
 	print("[F35] Summary alloy_total=%d pass=%s gatherer=%s" % [_resource_alloy_total, str(gather_pass), gatherer_id])
 
 
@@ -2965,7 +3317,8 @@ func _run_f03_test_hook() -> void:
 	if _controllable_units.is_empty():
 		_initialize_controllable_units()
 
-	_set_stockpile_reserve("alloy", 0, "f03_reset")
+	_set_stockpile_reserve("alloy", _get_stockpile_cap("alloy"), "f03_world_reset")
+	_set_alloy_wallet("A", 0, "f03_wallet_reset")
 	var gather_node := Vector3(-460.0, 0.0, 0.0)
 	var return_node: Vector3 = _spawn_a.position
 	_select_single_unit("unit_alpha")
@@ -2984,7 +3337,7 @@ func _run_f03_test_hook() -> void:
 			cycle_pass = false
 			break
 
-		_add_stockpile_reserve("alloy", 35, "f03_deposit")
+		_transfer_alloy_from_world("A", 35, "f03_deposit", "SAFE-ALLOY-A")
 		print("[F03] Gather cycle=%d state=deposit alloy_total=%d" % [cycle + 1, _resource_alloy_total])
 
 	var gather_pass := cycle_pass and _resource_alloy_total > 0
@@ -3073,6 +3426,7 @@ func _run_production_chain_test_hook() -> void:
 
 	for slot in ["A", "B"]:
 		_produced_units_by_slot[slot].clear()
+		_fund_deterministic_fixture(slot, "production_chain")
 
 	for slot in ["A", "B"]:
 		_ensure_build_chain_for_slot(slot, ["power_core", "alloy_extractor", "barracks_equivalent", "vehicle_structure"])
@@ -3112,6 +3466,13 @@ func _queue_unit_for_slot(slot: String, faction: String, unit_id: String) -> boo
 	var tether: TetherPoint = _tether_points_by_slot[slot]
 	if tether.is_command_penalty_active:
 		print("[Production] Rejected slot=%s faction=%s unit=%s reason=command_penalty_active" % [slot, faction, unit_id])
+		return false
+
+	var alloy_cost := int(UNIT_ALLOY_COSTS.get(unit_id, 0))
+	if not _try_spend_alloy(slot, alloy_cost, "produce_%s" % unit_id):
+		print("[Production] Rejected slot=%s faction=%s unit=%s reason=insufficient_alloy cost=%d wallet=%d" % [
+			slot, faction, unit_id, alloy_cost, _get_alloy_wallet(slot)
+		])
 		return false
 
 	_production_sequence += 1
@@ -3163,6 +3524,7 @@ func _run_f16_test_hook() -> void:
 
 	for slot in ["A", "B"]:
 		_produced_units_by_slot[slot].clear()
+		_fund_deterministic_fixture(slot, "f16_roster")
 		_ensure_build_chain_for_slot(slot, [
 			"power_core",
 			"alloy_extractor",
@@ -3284,6 +3646,7 @@ func _run_t2_path_test_hook() -> void:
 
 	for slot in ["A", "B"]:
 		_produced_units_by_slot[slot].clear()
+		_fund_deterministic_fixture(slot, "t2_path")
 		_ensure_build_chain_for_slot(slot, [
 			"power_core",
 			"alloy_extractor",
@@ -5485,7 +5848,12 @@ func _update_resource_income(delta: float) -> void:
 	for slot in _buildables_by_slot.keys():
 		var built: Dictionary = _buildables_by_slot[slot]
 		if built.has("alloy_extractor"):
-			_add_stockpile_reserve("alloy", _EXTRACTOR_INCOME_RATE, "extractor_slot_%s" % slot)
+			var extractor_sources: Dictionary = _extractor_sources_by_slot.get(slot, {})
+			for extractor_id in extractor_sources.keys():
+				if not _live_buildable_nodes_by_id.has(extractor_id):
+					continue
+				var source_id := str(extractor_sources[extractor_id])
+				_transfer_alloy_from_world(str(slot), _EXTRACTOR_INCOME_RATE, "extractor_%s" % extractor_id, source_id)
 
 
 func _update_stockpile_telemetry(delta: float) -> void:
@@ -5579,6 +5947,7 @@ func _set_alert_color(color: Color) -> void:
 
 func _initialize_stockpile_state() -> void:
 	_stockpile_state.clear()
+	_alloy_wallets_by_slot = {"A": STARTING_ALLOY_WALLET, "B": STARTING_ALLOY_WALLET}
 	for resource_id in STOCKPILE_CONFIG.keys():
 		var config: Dictionary = STOCKPILE_CONFIG[resource_id]
 		var cap := int(config["cap"])
@@ -5597,7 +5966,8 @@ func _initialize_stockpile_state() -> void:
 	_emit_stockpile_snapshot()
 
 func _format_stockpile_hud_text() -> String:
-	return "Alloy: %d/%d  Power: %d/%d  Data: %d/%d  Reclaim: %d/%d" % [
+	return "Alloy: %d  World Reserve: %d/%d  Power: %d/%d  Data: %d/%d  Reclaim: %d/%d" % [
+		_get_alloy_wallet("A"),
 		_get_stockpile_reserve("alloy"), _get_stockpile_cap("alloy"),
 		_get_stockpile_reserve("power"), _get_stockpile_cap("power"),
 		_get_stockpile_reserve("data"), _get_stockpile_cap("data"),
@@ -5618,7 +5988,80 @@ func _get_stockpile_cap(resource_id: String) -> int:
 
 
 func _sync_legacy_alloy_total() -> void:
-	_resource_alloy_total = _get_stockpile_reserve("alloy")
+	_resource_alloy_total = _get_alloy_wallet("A")
+
+
+func _get_alloy_wallet(slot: String) -> int:
+	return int(_alloy_wallets_by_slot.get(slot, 0))
+
+
+func _set_alloy_wallet(slot: String, amount: int, reason: String = "manual") -> int:
+	if not _alloy_wallets_by_slot.has(slot):
+		return 0
+	var bounded_amount := maxi(0, amount)
+	_alloy_wallets_by_slot[slot] = bounded_amount
+	_sync_legacy_alloy_total()
+	_update_hud()
+	print("[Economy] Wallet set slot=%s alloy=%d reason=%s" % [slot, bounded_amount, reason])
+	return bounded_amount
+
+
+func _try_spend_alloy(slot: String, amount: int, reason: String) -> bool:
+	if amount < 0 or not _alloy_wallets_by_slot.has(slot):
+		return false
+	var wallet_before := _get_alloy_wallet(slot)
+	if wallet_before < amount:
+		print("[Economy] Spend rejected slot=%s cost=%d wallet=%d reason=%s" % [slot, amount, wallet_before, reason])
+		return false
+	_set_alloy_wallet(slot, wallet_before - amount, reason)
+	print("[Economy] Spend completed slot=%s cost=%d before=%d after=%d reason=%s" % [
+		slot, amount, wallet_before, _get_alloy_wallet(slot), reason
+	])
+	return true
+
+
+func _refund_alloy(slot: String, amount: int, reason: String) -> void:
+	if amount <= 0 or not _alloy_wallets_by_slot.has(slot):
+		return
+	_set_alloy_wallet(slot, _get_alloy_wallet(slot) + amount, reason)
+	print("[Economy] Debit rolled back slot=%s amount=%d wallet=%d reason=%s" % [
+		slot, amount, _get_alloy_wallet(slot), reason
+	])
+
+
+func _get_alloy_extraction_multiplier() -> float:
+	var world_reserve := _get_stockpile_reserve("alloy")
+	if world_reserve <= int(_stockpile_state["alloy"]["hard_threshold"]):
+		return 0.60
+	if world_reserve <= int(_stockpile_state["alloy"]["soft_threshold"]):
+		return 0.85
+	return 1.0
+
+
+func _transfer_alloy_from_world(slot: String, requested_amount: int, reason: String, resource_item_id: String = "") -> int:
+	if requested_amount <= 0 or not _alloy_wallets_by_slot.has(slot):
+		return 0
+	var effective_request := maxi(1, int(floor(float(requested_amount) * _get_alloy_extraction_multiplier())))
+	var available := _get_stockpile_reserve("alloy")
+	if resource_item_id != "":
+		if not _alloy_node_reserves_by_id.has(resource_item_id):
+			return 0
+		available = mini(available, int(_alloy_node_reserves_by_id[resource_item_id]))
+	var transferred := mini(effective_request, available)
+	if transferred <= 0:
+		print("[Economy] Transfer blocked slot=%s requested=%d reason=%s world_reserve=%d source=%s" % [
+			slot, requested_amount, reason, _get_stockpile_reserve("alloy"), resource_item_id
+		])
+		return 0
+	if resource_item_id != "":
+		_alloy_node_reserves_by_id[resource_item_id] = int(_alloy_node_reserves_by_id[resource_item_id]) - transferred
+	_set_stockpile_reserve("alloy", _get_stockpile_reserve("alloy") - transferred, reason)
+	_set_alloy_wallet(slot, _get_alloy_wallet(slot) + transferred, reason)
+	print("[Economy] Transfer completed slot=%s requested=%d transferred=%d wallet=%d world_reserve=%d source=%s source_reserve=%d" % [
+		slot, requested_amount, transferred, _get_alloy_wallet(slot), _get_stockpile_reserve("alloy"),
+		resource_item_id, int(_alloy_node_reserves_by_id.get(resource_item_id, -1))
+	])
+	return transferred
 
 
 func _set_stockpile_reserve(resource_id: String, new_reserve: int, reason: String = "manual") -> int:
@@ -6322,15 +6765,79 @@ func _update_enemy_ai(delta: float) -> void:
 func _run_enemy_build_step() -> void:
 	if _match_over:
 		return
+	# Narrow economy rule only: after the safe extractor exists, establish one
+	# additional source-bound extractor. Broader expansion timing, threat reads,
+	# and strategic source selection remain in the future macro-AI slice.
+	var enemy_extractors: Dictionary = _extractor_sources_by_slot.get("B", {})
+	if _buildables_by_slot["B"].has("alloy_extractor") \
+		and _buildables_by_slot["B"].has("barracks_equivalent") \
+		and enemy_extractors.size() < _AI_DESIRED_EXTRACTOR_COUNT:
+		var expansion_source_id := _find_nearest_unoccupied_alloy_source_for_slot("B")
+		if expansion_source_id != "":
+			var extractor_cost := int(BUILDABLE_DEFS["alloy_extractor"]["alloy_cost"])
+			if _get_alloy_wallet("B") < extractor_cost:
+				_ai_last_build_decision = {
+					"action": "second_extractor_deferred",
+					"reason": "insufficient_alloy",
+					"source_id": expansion_source_id,
+					"cost": extractor_cost,
+					"wallet": _get_alloy_wallet("B"),
+				}
+				print("[EnemyAI] Build decision action=second_extractor_deferred reason=insufficient_alloy source=%s cost=%d wallet=%d" % [
+					expansion_source_id, extractor_cost, _get_alloy_wallet("B")
+				])
+				return
+			var source_item: MapItem = _map_items_by_id[expansion_source_id]
+			var wallet_before := _get_alloy_wallet("B")
+			var built_expansion_extractor := _build_for_slot("B", "alloy_extractor", source_item.position)
+			_ai_last_build_decision = {
+				"action": "second_extractor_built" if built_expansion_extractor else "second_extractor_rejected",
+				"reason": "completed" if built_expansion_extractor else "build_rejected",
+				"source_id": expansion_source_id,
+				"cost": extractor_cost,
+				"wallet_before": wallet_before,
+				"wallet_after": _get_alloy_wallet("B"),
+			}
+			print("[EnemyAI] Build decision action=%s source=%s cost=%d wallet_before=%d wallet_after=%d" % [
+				str(_ai_last_build_decision["action"]), expansion_source_id, extractor_cost,
+				wallet_before, _get_alloy_wallet("B")
+			])
+			return
 	# Build the cheapest missing structure in the T0-T1 chain for slot B.
 	var build_order := ["power_core", "alloy_extractor", "barracks_equivalent",
 		"vehicle_structure", "sensor_uplink", "expansion_hub"]
 	for buildable_id in build_order:
 		if not _buildables_by_slot["B"].has(buildable_id):
 			var built := _build_for_slot("B", buildable_id)
+			_ai_last_build_decision = {
+				"action": "core_build_completed" if built else "core_build_rejected",
+				"buildable_id": buildable_id,
+				"wallet": _get_alloy_wallet("B"),
+			}
 			if built:
 				print("[EnemyAI] Build slot=B buildable=%s" % buildable_id)
 			return
+
+
+func _find_nearest_unoccupied_alloy_source_for_slot(slot: String) -> String:
+	if not _tether_points_by_slot.has(slot):
+		return ""
+	var tether: TetherPoint = _tether_points_by_slot[slot]
+	var nearest_id := ""
+	var nearest_distance := INF
+	for source_id in _alloy_node_reserves_by_id.keys():
+		if int(_alloy_node_reserves_by_id[source_id]) <= 0 \
+			or _alloy_source_occupant_by_id.has(source_id) \
+			or not _map_items_by_id.has(source_id):
+			continue
+		var source_item: MapItem = _map_items_by_id[source_id]
+		var distance := Vector2(tether.position.x, tether.position.z).distance_to(
+			Vector2(source_item.position.x, source_item.position.z)
+		)
+		if distance < nearest_distance:
+			nearest_distance = distance
+			nearest_id = str(source_id)
+	return nearest_id
 
 
 func _run_enemy_production_step() -> void:
@@ -6671,8 +7178,27 @@ func _destroy_live_buildable(target_id: String, attacker_id: String = "") -> voi
 	var buildable_id := buildable.buildable_id
 	_live_buildable_nodes_by_id.erase(target_id)
 	_structure_hit_points.erase(target_id)
-	if _buildables_by_slot.has(slot) and str((_buildables_by_slot[slot] as Dictionary).get(buildable_id, "")) == target_id:
-		(_buildables_by_slot[slot] as Dictionary).erase(buildable_id)
+	if _buildables_by_slot.has(slot):
+		var registry: Dictionary = _buildables_by_slot[slot]
+		for registry_key in registry.keys():
+			if str(registry[registry_key]) == target_id:
+				registry.erase(registry_key)
+				break
+	if buildable_id == "alloy_extractor" and _extractor_sources_by_slot.has(slot):
+		var extractor_sources: Dictionary = _extractor_sources_by_slot[slot]
+		var source_id := str(extractor_sources.get(target_id, ""))
+		extractor_sources.erase(target_id)
+		if source_id != "" and str(_alloy_source_occupant_by_id.get(source_id, "")) == target_id:
+			_alloy_source_occupant_by_id.erase(source_id)
+		var slot_registry: Dictionary = _buildables_by_slot[slot]
+		if not slot_registry.has("alloy_extractor") and not extractor_sources.is_empty():
+			for registry_key in slot_registry.keys():
+				if str(registry_key).begins_with("alloy_extractor@"):
+					var promoted_id: String = str(slot_registry[registry_key])
+					slot_registry.erase(registry_key)
+					slot_registry["alloy_extractor"] = promoted_id
+					break
+		print("[Economy] Extractor source released slot=%s extractor=%s source=%s rebuild_available=true" % [slot, target_id, source_id])
 	if buildable_id == "expansion_hub":
 		_cancel_tether_recovery(slot, "expansion_hub_destroyed")
 	if is_instance_valid(buildable):
@@ -6792,15 +7318,18 @@ func _update_gather_jobs() -> void:
 			_gather_jobs[unit_id] = job
 			print("[F03] Live gather state=collecting unit=%s resource=%s" % [unit_id, str(job.get("resource_id", ""))])
 		elif phase == "to_dropoff":
-			_add_stockpile_reserve("alloy", 35, "live_gather_deposit")
+			var resource_id := str(job.get("resource_id", ""))
+			var slot := _get_unit_slot(str(unit_id))
+			var transferred := _transfer_alloy_from_world(slot, 35, "live_gather_deposit", resource_id)
 			var cycles := int(job.get("cycles", 0)) + 1
-			print("[F03] Live gather state=deposit unit=%s alloy_total=%d cycles=%d" % [unit_id, _resource_alloy_total, cycles])
+			print("[F03] Live gather state=deposit unit=%s slot=%s transferred=%d wallet=%d cycles=%d" % [
+				unit_id, slot, transferred, _get_alloy_wallet(slot), cycles
+			])
 			if cycles >= 1:
 				completed_units.append(unit_id)
 			else:
 				job["cycles"] = cycles
 				job["phase"] = "to_resource"
-				var resource_id: String = str(job.get("resource_id", ""))
 				if _map_items_by_id.has(resource_id):
 					unit.queue_move(_map_items_by_id[resource_id].position)
 				_gather_jobs[unit_id] = job
@@ -6815,7 +7344,9 @@ func _find_resource_at_point(world_pos: Vector3) -> String:
 	var nearest_distance := INF
 	for item_id in _map_items_by_id.keys():
 		var item: MapItem = _map_items_by_id[item_id]
-		if item.item_type != "safe_alloy_node" and item.item_type != "contested_midfield_alloy_node" and item.item_type != "reclaim_field_cluster":
+		if item.item_type != "safe_alloy_node" \
+			and item.item_type != "natural_alloy_node" \
+			and item.item_type != "contested_midfield_alloy_node":
 			continue
 		var distance := Vector2(item.position.x, item.position.z).distance_to(point)
 		if distance < 20.0 and distance < nearest_distance:
@@ -6836,7 +7367,12 @@ func _toggle_build_menu() -> void:
 	if _build_menu_active:
 		var available: Array[String] = _get_available_buildables_for_slot(slot)
 		if _hud_command_card_label:
-			_hud_command_card_label.text = "Build Menu\nQ Power  W Alloy  E Barracks\nA Vehicle  S Sensor  D Expand\nAvailable: %s" % ", ".join(available)
+			var priced_choices: Array[String] = []
+			for buildable_id in available:
+				priced_choices.append("%s (%d)" % [buildable_id, int(BUILDABLE_DEFS[buildable_id]["alloy_cost"])])
+			_hud_command_card_label.text = "Build Menu — Alloy: %d\nQ Power  W Alloy  E Barracks\nA Vehicle  S Sensor  D Expand\nAvailable: %s" % [
+				_get_alloy_wallet(slot), ", ".join(priced_choices)
+			]
 		if _hud_queue_item:
 			_hud_queue_item.text = "Build mode active"
 	else:
@@ -6862,7 +7398,10 @@ func _toggle_production_menu() -> void:
 	_production_menu_active = not _production_menu_active
 	if _production_menu_active:
 		if _hud_command_card_label:
-			_hud_command_card_label.text = "Production Menu\n1 %s\n2 %s\n3 %s" % [options[0], options[1], options[2]]
+			_hud_command_card_label.text = "Production Menu — Alloy: %d\n1 %s\n2 %s\n3 %s" % [
+				_get_alloy_wallet(slot), _format_unit_cost_choice(options[0]),
+				_format_unit_cost_choice(options[1]), _format_unit_cost_choice(options[2])
+			]
 		if _hud_queue_item:
 			_hud_queue_item.text = "Production mode active"
 	else:
@@ -6893,7 +7432,11 @@ func _queue_live_production(unit_id: String) -> bool:
 	var faction: String = tether.faction_id
 	if not _spawn_live_produced_actor(slot, faction, unit_id):
 		if _hud_alert_item:
-			_hud_alert_item.text = "Production locked: %s" % unit_id
+			var alloy_cost := int(UNIT_ALLOY_COSTS.get(unit_id, 0))
+			if _get_alloy_wallet(slot) < alloy_cost:
+				_hud_alert_item.text = "Production rejected: need %d Alloy (have %d)" % [alloy_cost, _get_alloy_wallet(slot)]
+			else:
+				_hud_alert_item.text = "Production locked: %s" % unit_id
 		return false
 
 	var produced_actor_name := "Produced_%s_%03d" % [slot, _production_sequence]
@@ -6910,19 +7453,45 @@ func _queue_live_production(unit_id: String) -> bool:
 	return true
 
 
+func _format_unit_cost_choice(unit_id: String) -> String:
+	if unit_id == "-":
+		return "-"
+	return "%s (%d)" % [unit_id, int(UNIT_ALLOY_COSTS.get(unit_id, 0))]
+
+
 func _spawn_live_produced_actor(slot: String, faction: String, unit_id: String) -> bool:
 	if _match_over:
 		return false
 	if not _can_produce_unit_for_slot(slot, faction, unit_id):
 		return false
+	var actor := SelectableUnit2D.new()
+	if not is_instance_valid(actor):
+		print("[Production] Rejected slot=%s faction=%s unit=%s reason=actor_creation_failed" % [slot, faction, unit_id])
+		return false
+	var sequence_before := _production_sequence
+	var had_previous_record: bool = _produced_units_by_slot[slot].has(unit_id)
+	var previous_record: Variant = _produced_units_by_slot[slot].get(unit_id)
 	if not _queue_unit_for_slot(slot, faction, unit_id):
+		actor.free()
 		return false
 
+	var spawn_index_before := int(_live_production_spawn_index_by_slot.get(slot, 0))
 	var spawn_point := _get_live_production_spawn_position(slot)
-	var actor := SelectableUnit2D.new()
 	actor.name = "Produced_%s_%03d" % [slot, _production_sequence]
 	actor.set_meta("slot", slot)
 	add_child(actor)
+	if not is_instance_valid(actor) or actor.get_parent() != self:
+		_refund_alloy(slot, int(UNIT_ALLOY_COSTS.get(unit_id, 0)), "rollback_produce_%s" % unit_id)
+		_production_sequence = sequence_before
+		_live_production_spawn_index_by_slot[slot] = spawn_index_before
+		if had_previous_record:
+			_produced_units_by_slot[slot][unit_id] = previous_record
+		else:
+			_produced_units_by_slot[slot].erase(unit_id)
+		if is_instance_valid(actor) and actor.get_parent() == null:
+			actor.free()
+		print("[Production] Rejected slot=%s faction=%s unit=%s reason=attach_failed debit_rolled_back=true" % [slot, faction, unit_id])
+		return false
 	actor.initialize(unit_id, faction, spawn_point)
 	_controllable_units[actor.name] = actor
 	_register_unit_for_combat(actor.name, actor.unit_id)
@@ -6993,7 +7562,9 @@ func _select_buildable(buildable_id: String) -> void:
 		return
 	_pending_buildable_id = buildable_id
 	if _hud_command_card_label:
-		_hud_command_card_label.text = "Place %s\nLeft-click ground to place" % buildable_id
+		_hud_command_card_label.text = "Place %s — %d Alloy\nLeft-click ground to place" % [
+			buildable_id, int(BUILDABLE_DEFS[buildable_id]["alloy_cost"])
+		]
 	if _hud_queue_item:
 		_hud_queue_item.text = "Pending build: %s" % buildable_id
 
@@ -7040,7 +7611,7 @@ func _get_selected_builder_slot() -> String:
 func _get_available_buildables_for_slot(slot: String) -> Array[String]:
 	var available: Array[String] = []
 	for buildable_id in BUILD_MENU_ORDER:
-		if _buildables_by_slot[slot].has(buildable_id):
+		if buildable_id != "alloy_extractor" and _buildables_by_slot[slot].has(buildable_id):
 			continue
 		var deps: Array = BUILDABLE_DEFS[buildable_id]["deps"]
 		var deps_ok := true

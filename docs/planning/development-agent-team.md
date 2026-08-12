@@ -200,18 +200,17 @@ This gate supplements `docs/planning/definition-of-done.md`; it does not weaken 
 
 ## Initial Dispatch for the Current Repository
 
-The repository currently has no clearly defined, unblocked internal development task.
-The first run should therefore use this order:
+The repository has one clearly defined unblocked development task: T-0111 live
+per-slot economy. Use this order:
 
-1. Coordinator assigns a planning audit to the Planner.
-2. Planner reconciles stale `T-0046` and `T-0047` statuses against the completed media
-   audit, while keeping `T-0048` through `T-0050` parked on external publication.
-3. Planner proposes the next Stage 1 implementation slice with a new task ID and
-   complete validation criteria; the Coordinator reviews readiness.
-4. Developer implements the selected ready task.
-5. Test Agent validates it independently.
-6. Review Agent reviews the tested diff.
-7. Coordinator closes or returns the task and synchronizes trackers.
+1. Coordinator dispatches T-0111 to one Gameplay/Economy Developer.
+2. Soldier/UX design and black-box test planning may proceed read-only in parallel.
+3. Test Agent validates exact spending, rejection safety, slot isolation, finite
+   extraction, HUD clarity, AI affordability, and connected regressions.
+4. Review Agent reviews the tested diff and ordinary-match reachability.
+5. Coordinator closes or returns the task and synchronizes trackers.
+6. T-0114, T-0115, and T-0120 follow in dependency order using the evidence gates in
+   `docs/planning/full-rts-agentic-workflow.md`.
 
 The itch.io publication itself remains an operator action. Agents may prepare and
 validate evidence, but must not claim publication or closure without the public URL,

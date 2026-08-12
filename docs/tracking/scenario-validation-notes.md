@@ -1265,3 +1265,10 @@ Track scenario-level evidence for map and flow validation runs.
 - Notes:
   - AGENT_PLAN and DEV_NEXT_STEPS now explicitly track external Stage 0 objectives as parked.
   - Re-entry conditions and command aids are documented for deterministic continuation after manual actions.
+## 2026-08-11 T-0111 Live Economy Validation
+
+- Flow: F-79 live paid economy plus connected F-22, Production, F-16, T2Path, F-03, F-35, F-36, F-38, F-61, F-77, F-78, and startup integration.
+- Command: `RTS_TEST_LOG_DIR=/tmp/rts-verse-t0111-final2-suite scripts/tests/run_headless_suite.sh`
+- Result: Pass; 25 cases passed and zero failed on Godot 4.5.1.
+- Evidence: F-79 verified exact player and AI affordability boundaries, two extractor instances per slot, global source occupancy, duplicate rejection, finite source/world conservation, safe depletion with natural continuity, teardown release, HUD privacy, choice costs, and exact shortage feedback.
+- Independent gates: Test Agent PASS; Code Review APPROVE with no open P0-P2 findings.

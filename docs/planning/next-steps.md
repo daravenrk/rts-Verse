@@ -215,7 +215,10 @@ Keep this list short, actionable, and current.
 - [x] Define deterministic simulation constraints.
 - [x] Convert economy-standards.md into first balance sheet draft.
 - [x] Draft test scenarios for core loop validation.
-- [ ] Implement T-0111 per-slot Alloy wallets, bounded world-reserve extraction, and cost-gated construction and production.
+- [x] Implement T-0111 per-slot Alloy wallets, bounded world-reserve extraction, and cost-gated construction and production.
+- [ ] Follow T-0111 with T-0114 timed queues and T-0115 live Data Node objectives.
+- [ ] Build T-0120 as a separate black-box full-match lane; do not treat deterministic hooks as full-match evidence.
+- [ ] Apply the agent roles and evidence gates in full-rts-agentic-workflow.md to every new runtime slice.
 - [ ] If a live zoom defect is reproduced, run a focused F-19 regression pass against mouse-wheel, keyboard zoom, and persisted input-profile mappings before changing camera code.
 
 ## Blocked

@@ -37,6 +37,12 @@ fresh engine log, console log, timeout marker, and test-only input-profile path.
 
 ## Reliability Contract
 
+Godot 4.5.1 can abort in `RotatedFileLogger::rotate_file()` before project settings
+load when the sandbox cannot write the default `user://logs` path. Every automated
+case therefore supplies a unique explicit `--log-file`. For a manual or focused
+launch, use `scripts/tests/run_godot_safe.sh <normal Godot arguments>` rather than
+invoking the Godot executable directly.
+
 The suite fails when any of the following occurs:
 
 - Godot is missing, is not executable, or is older than 4.5.
@@ -69,11 +75,12 @@ Only this exact paired diagnostic is filtered. Other engine errors remain fatal.
 
 ## Current Gate Set
 
-The default suite covers project parsing, selection and movement, gathering, HUD
-match states, primitive visual baselines, map baselines, live interaction, blocker
-rejection, construction, combat, production, stockpiles, forced world-event
-application, drag selection, camera UI, enemy AI, both endgame directions, and the
-full startup-to-duel route.
+The default 25-case suite covers project parsing, selection and movement, gathering,
+HUD match states, primitive visual and map baselines, live interaction, blocker
+rejection, complete build/production/roster/T2 fixtures, construction, combat,
+production, stockpiles, forced world-event application, drag selection, camera UI,
+enemy AI, both endgame directions, live paid economy, and the full startup-to-duel
+route.
 
 Deterministic design simulations are intentionally not all part of the default live
 smoke gate. Their passing output does not imply the associated gameplay system is

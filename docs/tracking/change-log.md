@@ -12,6 +12,7 @@ Track high-level project changes with links to decisions and plans.
 - Added temporary input-profile overrides so tests no longer inherit or overwrite developer `user://` settings.
 - Added deterministic startup faction overrides and asserted Helion-versus-Veyari routing through Main, Skirmish, and the duel map.
 - Revalidated the hardened suite with `passes=20 failures=0`; the false-executable negative test now exits `2` before running cases.
+- Diagnosed a macOS Godot 4.5.1 startup crash in `RotatedFileLogger::rotate_file` when sandboxed direct launches cannot write `user://logs`; added a safe manual-launch wrapper with a unique explicit temporary log while retaining the same protection in the authoritative suite.
 
 ## 2026-08-03
 
@@ -334,3 +335,10 @@ Track high-level project changes with links to decisions and plans.
 - Added F-20 validation flow and next-step tasks for resource-zone discovery, control, denial, and recapture pacing.
 - Logged ADR-0016 and research entry for competitive-clarity-first and phase-gated complexity direction.
 - Added F-21 validation flow and implementation tasks for opening-parity and complexity-unlock pacing.
+## 2026-08-11 Full RTS Agentic Delivery Stack
+
+- Added a persistent multi-agent workflow spanning runtime planning, soldier and faction design, UX controls, gameplay and AI development, Godot testing, visual QA, code review, and human playtesting.
+- Added ordinary-match, public-input, full-match, export, soak, visual, and human evidence gates to prevent deterministic simulation coverage from being mistaken for a complete live feature.
+- Added T-0114 through T-0126 to sequence paid economy, timed queues, live objectives, faction combat identity, controls, AI, black-box matches, live events, T2 progression, architecture, presentation, exported-build validation, and balance playtests.
+- Completed T-0111 live paid economy: isolated player and enemy wallets, finite multi-source extraction, safe-plus-natural extractor instances, source occupancy, canonical costs, affordability feedback, real AI parity, rollback safety, and F-79 coverage.
+- Expanded the authoritative Godot gate to 25 isolated cases; independent QA passed and independent review approved with no open P0-P2 findings.

@@ -268,6 +268,10 @@ run_duel_case "f01_f02_selection_movement" "--duel-test-f01f02" "[F01/F02] Summa
 run_duel_case "f03_gather_simulation" "--duel-test-f03" "[F03] Summary"
 run_duel_case "f04_match_hud" "--duel-test-f04" "[F04] Summary"
 run_duel_case "f24_visual_baseline" "--duel-test-f24" "[F24] Summary"
+run_duel_case "f22_build_chain" "--duel-test-build-chain" "[F22] Summary"
+run_duel_case "production_chain" "--duel-test-production-chain" "[Production] Summary"
+run_duel_case "f16_roster_chain" "--duel-test-f16" "[F16] Summary"
+run_duel_case "t2_path" "--duel-test-t2-paths" "[T2Path] Summary"
 run_duel_case "map_baseline" "--duel-test-map-baseline" "[MapBaseline] Summary"
 run_duel_case "f32_interaction" "--duel-test-f32-interaction" "[F32] Summary"
 run_duel_case "f33_blocker" "--duel-test-f33-blocker" "[F33] Summary"
@@ -282,6 +286,7 @@ run_duel_case "camera_ui" "--duel-test-camera-ui" "[CameraUI] Summary"
 run_duel_case "f61_enemy_ai" "--duel-test-f61-enemy-ai" "[F61] Summary"
 run_duel_case "f77_player_endgame" "--duel-test-f77-tether-endgame" "[F77] Summary"
 run_duel_case "f78_enemy_endgame" "--duel-test-f78-enemy-tether-endgame" "[F78] Summary"
+run_duel_case "f79_live_economy" "--duel-test-f79-live-economy" "[F79] Summary"
 run_startup_case
 
 printf '[Suite] Summary passes=%s failures=%s logs=%s\n' "$PASSES" "$FAILURES" "$RUN_LOG_DIR"
