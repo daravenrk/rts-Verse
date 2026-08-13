@@ -1816,22 +1816,22 @@ func _run_f91_unit_profile_catalog_test_hook() -> void:
 			and float(combat.get("move_speed", 0.0)) > 0.0 and float(combat.get("range", 0.0)) > 0.0 \
 			and float(combat.get("damage", 0.0)) > 0.0 and float(combat.get("cooldown", 0.0)) > 0.0
 		(roles_by_faction[faction] as Dictionary)[str(combat.get("role", ""))] = true
-	var role_coverage := (roles_by_faction["helion"] as Dictionary).size() >= 6 \
+	var role_coverage: bool = (roles_by_faction["helion"] as Dictionary).size() >= 6 \
 		and (roles_by_faction["veyari"] as Dictionary).size() >= 6
-	var helion_actor := SelectableUnit2D.new()
-	var veyari_actor := SelectableUnit2D.new()
+	var helion_actor: SelectableUnit2D = SelectableUnit2D.new()
+	var veyari_actor: SelectableUnit2D = SelectableUnit2D.new()
 	add_child(helion_actor)
 	add_child(veyari_actor)
 	helion_actor.initialize("ember_tank", "helion", Vector3.ZERO)
 	veyari_actor.initialize("bulwark_husk", "veyari", Vector3(30.0, 0.0, 0.0))
-	var actor_profile_applied := is_equal_approx(helion_actor.move_speed, float(UnitCombatProfiles.get_profile("ember_tank")["move_speed"])) \
+	var actor_profile_applied: bool = is_equal_approx(helion_actor.move_speed, float(UnitCombatProfiles.get_profile("ember_tank")["move_speed"])) \
 		and is_equal_approx(veyari_actor.move_speed, float(UnitCombatProfiles.get_profile("bulwark_husk")["move_speed"]))
-	var faction_shape_separation := helion_actor.get_visual_signature() == "helion:armor" \
+	var faction_shape_separation: bool = helion_actor.get_visual_signature() == "helion:armor" \
 		and veyari_actor.get_visual_signature() == "veyari:armor" \
 		and helion_actor.get_visual_signature() != veyari_actor.get_visual_signature()
 	helion_actor.queue_free()
 	veyari_actor.queue_free()
-	var pass_ok := catalog_complete and numeric_valid and role_coverage and actor_profile_applied and faction_shape_separation
+	var pass_ok: bool = catalog_complete and numeric_valid and role_coverage and actor_profile_applied and faction_shape_separation
 	print("[F91] Summary catalog_complete=%s numeric_valid=%s six_roles_each=%s actor_profile_applied=%s faction_shape_separation=%s pass=%s" % [
 		str(catalog_complete), str(numeric_valid), str(role_coverage), str(actor_profile_applied), str(faction_shape_separation), str(pass_ok)
 	])
@@ -1840,21 +1840,21 @@ func _run_f91_unit_profile_catalog_test_hook() -> void:
 func _run_f92_combat_identity_test_hook() -> void:
 	if not _has_user_flag(TEST_F92_COMBAT_IDENTITY_FLAG):
 		return
-	var line_light := UnitCombatProfiles.get_damage("lancer_squad", "light")
-	var line_armor := UnitCombatProfiles.get_damage("lancer_squad", "armored")
-	var breach_light := UnitCombatProfiles.get_damage("breach_team", "light")
-	var breach_armor := UnitCombatProfiles.get_damage("breach_team", "armored")
-	var siege_light := UnitCombatProfiles.get_damage("sunforge_artillery", "light")
-	var siege_structure := UnitCombatProfiles.get_damage("sunforge_artillery", "structure")
-	var counter_bands := line_light > line_armor and breach_armor > breach_light and siege_structure > siege_light
-	var raider_speed := float(UnitCombatProfiles.get_profile("strider_bike")["move_speed"])
-	var armor_speed := float(UnitCombatProfiles.get_profile("ember_tank")["move_speed"])
-	var mobility_band := raider_speed >= armor_speed * 1.8
-	var faction_asymmetry := not is_equal_approx(float(UnitCombatProfiles.get_profile("lancer_squad")["max_hp"]), float(UnitCombatProfiles.get_profile("needle_brood")["max_hp"])) \
+	var line_light: float = UnitCombatProfiles.get_damage("lancer_squad", "light")
+	var line_armor: float = UnitCombatProfiles.get_damage("lancer_squad", "armored")
+	var breach_light: float = UnitCombatProfiles.get_damage("breach_team", "light")
+	var breach_armor: float = UnitCombatProfiles.get_damage("breach_team", "armored")
+	var siege_light: float = UnitCombatProfiles.get_damage("sunforge_artillery", "light")
+	var siege_structure: float = UnitCombatProfiles.get_damage("sunforge_artillery", "structure")
+	var counter_bands: bool = line_light > line_armor and breach_armor > breach_light and siege_structure > siege_light
+	var raider_speed: float = float(UnitCombatProfiles.get_profile("strider_bike")["move_speed"])
+	var armor_speed: float = float(UnitCombatProfiles.get_profile("ember_tank")["move_speed"])
+	var mobility_band: bool = raider_speed >= armor_speed * 1.8
+	var faction_asymmetry: bool = not is_equal_approx(float(UnitCombatProfiles.get_profile("lancer_squad")["max_hp"]), float(UnitCombatProfiles.get_profile("needle_brood")["max_hp"])) \
 		and not is_equal_approx(float(UnitCombatProfiles.get_profile("lancer_squad")["cooldown"]), float(UnitCombatProfiles.get_profile("needle_brood")["cooldown"]))
 
-	var attacker := SelectableUnit2D.new()
-	var target := SelectableUnit2D.new()
+	var attacker: SelectableUnit2D = SelectableUnit2D.new()
+	var target: SelectableUnit2D = SelectableUnit2D.new()
 	attacker.name = "F92_Attacker"
 	target.name = "F92_Target"
 	attacker.set_meta("slot", "A")
@@ -1867,15 +1867,15 @@ func _run_f92_combat_identity_test_hook() -> void:
 	_controllable_units[target.name] = target
 	_register_unit_for_combat(attacker.name, attacker.unit_id)
 	_register_unit_for_combat(target.name, target.unit_id)
-	var hp_before := float(_unit_hit_points[target.name])
+	var hp_before: float = float(_unit_hit_points[target.name])
 	_attack_orders[attacker.name] = target.name
 	_attack_cooldowns[attacker.name] = 0.0
 	_update_attack_orders(0.01)
-	var actual_delta := hp_before - float(_unit_hit_points[target.name])
-	var expected_delta := UnitCombatProfiles.get_damage("lancer_squad", "light")
-	var runtime_damage := is_equal_approx(actual_delta, expected_delta)
-	var runtime_cadence := is_equal_approx(float(_attack_cooldowns[attacker.name]), float(UnitCombatProfiles.get_profile("lancer_squad")["cooldown"]))
-	var weapon_feedback := attacker.is_attack_feedback_active()
+	var actual_delta: float = hp_before - float(_unit_hit_points[target.name])
+	var expected_delta: float = UnitCombatProfiles.get_damage("lancer_squad", "light")
+	var runtime_damage: bool = is_equal_approx(actual_delta, expected_delta)
+	var runtime_cadence: bool = is_equal_approx(float(_attack_cooldowns[attacker.name]), float(UnitCombatProfiles.get_profile("lancer_squad")["cooldown"]))
+	var weapon_feedback: bool = attacker.is_attack_feedback_active()
 	_controllable_units.erase(attacker.name)
 	_controllable_units.erase(target.name)
 	_unit_hit_points.erase(attacker.name)
@@ -1885,7 +1885,7 @@ func _run_f92_combat_identity_test_hook() -> void:
 	_attack_cooldowns.erase(target.name)
 	attacker.queue_free()
 	target.queue_free()
-	var pass_ok := counter_bands and mobility_band and faction_asymmetry and runtime_damage and runtime_cadence and weapon_feedback
+	var pass_ok: bool = counter_bands and mobility_band and faction_asymmetry and runtime_damage and runtime_cadence and weapon_feedback
 	print("[F92] Summary counter_bands=%s mobility_band=%s faction_asymmetry=%s runtime_damage=%s runtime_cadence=%s weapon_feedback=%s pass=%s" % [
 		str(counter_bands), str(mobility_band), str(faction_asymmetry), str(runtime_damage), str(runtime_cadence), str(weapon_feedback), str(pass_ok)
 	])

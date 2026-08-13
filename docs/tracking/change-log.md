@@ -354,3 +354,4 @@ Track high-level project changes with links to decisions and plans.
 - Routed live player and AI combat through per-unit range, cooldown, damage, target armor, and maximum-HP profiles while preserving generic fallback behavior for legacy fixtures.
 - Added F-91 catalog/runtime-application and F-92 counter/mobility/live-hit gates; the hardened suite now passes 38 cases with zero failures on Godot 4.5.1.
 - Left T-0116 In Validation because the existing screenshot hook does not complete under the headless renderer; rendered default/macro zoom and camera-angle readability remains a manual or offscreen-render gate.
+- Corrected Godot editor parse failures in F-91/F-92 by explicitly typing values returned through scripted actor/profile methods; cold `--check-only` parsing and the complete 38-case suite pass afterward.
