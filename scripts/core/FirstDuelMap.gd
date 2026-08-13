@@ -1,5 +1,7 @@
 extends Node3D
 
+const CampaignData = preload("res://scripts/core/CampaignData.gd")
+
 const DEFAULT_PLAYER_FACTION := "helion"
 const DEFAULT_ENEMY_FACTION := "veyari"
 const TEST_PLAYER_FACTION_PREFIX := "--duel-test-player-faction="
@@ -77,6 +79,19 @@ const TEST_F76_ENEMY_ADAPTIVE_JITTER_SEPT_LOSS_FLAG := "--duel-test-f76-enemy-ad
 const TEST_F77_TETHER_ENDGAME_FLAG := "--duel-test-f77-tether-endgame"
 const TEST_F78_ENEMY_TETHER_ENDGAME_FLAG := "--duel-test-f78-enemy-tether-endgame"
 const TEST_F79_LIVE_ECONOMY_FLAG := "--duel-test-f79-live-economy"
+const TEST_F80_CONSTRUCTION_QUEUE_FLAG := "--duel-test-f80-timed-construction"
+const TEST_F81_PRODUCTION_QUEUE_FLAG := "--duel-test-f81-production-queue"
+const TEST_F82_CANCEL_REFUND_FLAG := "--duel-test-f82-queue-destruction"
+const TEST_F83_PUBLIC_QUEUE_INPUT_FLAG := "--duel-test-f83-public-queue-input"
+const TEST_F84_RALLY_QUEUE_FLAG := "--duel-test-f84-rally-queue-contract"
+const TEST_F85_AI_TIMED_QUEUE_FLAG := "--duel-test-f85-ai-timed-queue"
+const TEST_F86_PUBLIC_DATA_CAPTURE_FLAG := "--duel-test-f86-public-data-capture"
+const TEST_F87_DATA_LIFECYCLE_FLAG := "--duel-test-f87-data-lifecycle"
+const TEST_F88_DATA_BENEFIT_FEEDBACK_FLAG := "--duel-test-f88-data-benefit-feedback"
+const TEST_F89_OBJECTIVE_AI_ENDGAME_FLAG := "--duel-test-f89-objective-ai-endgame"
+const TEST_F90_SWAPPED_OBJECTIVE_PALETTE_FLAG := "--duel-test-f90-swapped-objective-palette"
+const TEST_F91_UNIT_PROFILE_CATALOG_FLAG := "--duel-test-f91-unit-profile-catalog"
+const TEST_F92_COMBAT_IDENTITY_FLAG := "--duel-test-f92-combat-identity"
 const STAGE0_CAPTURE_FLAG := "--stage0-capture-media"
 const STAGE0_CAPTURE_DIR_PREFIX := "--stage0-capture-dir="
 const INPUT_PROFILE_CONFIG_PATH := "user://input_profile.cfg"
@@ -95,6 +110,7 @@ const WORLD_EVENT_DEFS := {
 	"E-007": {"id": "E-007", "name": "Blackout Event", "polarity": "negative", "resource": "power", "magnitude_ratio": 0.06},
 }
 const SelectableUnit2D := preload("res://scripts/core/SelectableUnit2D.gd")
+const UnitCombatProfiles := preload("res://scripts/core/UnitCombatProfiles.gd")
 const BUILD_MENU_ORDER := ["power_core", "alloy_extractor", "barracks_equivalent", "vehicle_structure", "sensor_uplink", "expansion_hub"]
 const BUILD_HOTKEYS := {
 	KEY_Q: "power_core",
@@ -110,15 +126,15 @@ const PRODUCTION_HOTKEYS := {
 	KEY_3: 2,
 }
 const BUILDABLE_DEFS := {
-	"power_core": {"tier": "T0", "deps": [], "alloy_cost": 120},
-	"alloy_extractor": {"tier": "T0", "deps": [], "alloy_cost": 90},
-	"barracks_equivalent": {"tier": "T0", "deps": [], "alloy_cost": 160},
-	"vehicle_structure": {"tier": "T1", "deps": ["power_core", "barracks_equivalent"], "alloy_cost": 240},
-	"sensor_uplink": {"tier": "T1", "deps": ["power_core", "barracks_equivalent"], "alloy_cost": 180},
-	"expansion_hub": {"tier": "T1", "deps": ["alloy_extractor", "barracks_equivalent"], "alloy_cost": 220},
-	"advanced_ground_structure": {"tier": "T2", "deps": ["vehicle_structure", "sensor_uplink"], "alloy_cost": 360},
-	"militia_barracks": {"tier": "T1", "deps": ["power_core", "barracks_equivalent"], "alloy_cost": 220},
-	"security_command_post": {"tier": "T2", "deps": ["militia_barracks", "sensor_uplink"], "alloy_cost": 320}
+	"power_core": {"tier": "T0", "deps": [], "alloy_cost": 120, "build_time": 18.0},
+	"alloy_extractor": {"tier": "T0", "deps": [], "alloy_cost": 90, "build_time": 14.0},
+	"barracks_equivalent": {"tier": "T0", "deps": [], "alloy_cost": 160, "build_time": 20.0},
+	"vehicle_structure": {"tier": "T1", "deps": ["power_core", "barracks_equivalent"], "alloy_cost": 240, "build_time": 28.0},
+	"sensor_uplink": {"tier": "T1", "deps": ["power_core", "barracks_equivalent"], "alloy_cost": 180, "build_time": 24.0},
+	"expansion_hub": {"tier": "T1", "deps": ["alloy_extractor", "barracks_equivalent"], "alloy_cost": 220, "build_time": 26.0},
+	"advanced_ground_structure": {"tier": "T2", "deps": ["vehicle_structure", "sensor_uplink"], "alloy_cost": 360, "build_time": 32.0},
+	"militia_barracks": {"tier": "T1", "deps": ["power_core", "barracks_equivalent"], "alloy_cost": 220, "build_time": 20.0},
+	"security_command_post": {"tier": "T2", "deps": ["militia_barracks", "sensor_uplink"], "alloy_cost": 320, "build_time": 30.0}
 }
 # Helion and Veyari T0/T1 values come from economy-standards.md. Obsidian,
 # support-artillery, and T2 values are provisional nonzero prices until their
@@ -144,6 +160,24 @@ const UNIT_ALLOY_COSTS := {
 	"mire_spitter": 160,
 	"singularity_lobber": 300,
 }
+const UNIT_BUILD_TIME_SECONDS := {
+	"line_engineer": 10.0, "lancer_squad": 9.0, "breach_team": 10.0,
+	"strider_bike": 13.0, "ember_tank": 22.0, "sunforge_artillery": 26.0,
+	"foundry_engineer": 10.0, "warder_team": 9.0, "breacher_team": 10.0,
+	"maul_rover": 13.0, "cinder_mortar": 18.0, "ruin_launcher": 26.0,
+	"brood_architect": 10.0, "needle_brood": 9.0, "rift_claw": 10.0,
+	"skitter_lance": 13.0, "bulwark_husk": 22.0, "mire_spitter": 18.0,
+	"singularity_lobber": 26.0,
+}
+const MAX_PRODUCTION_QUEUE_PER_PRODUCER := 5
+const DATA_OBJECTIVE_ID := "DATA-NODE-CENTER"
+const DATA_OBJECTIVE_HIT_RADIUS := 20.0
+const DATA_CAPTURE_RADIUS := 92.0
+const DATA_CAPTURE_SECONDS := 12.0
+const DATA_NEUTRALIZE_SECONDS := 8.0
+const DATA_ABANDON_SECONDS := 6.0
+const DATA_INCOME_PER_SECOND := 5
+const OBJECTIVE_AI_INTERVAL := 2.0
 const STARTING_ALLOY_WALLET := 1000
 const ALLOY_NODE_RESERVE_BY_TYPE := {
 	"safe_alloy_node": 2500,
@@ -332,6 +366,7 @@ var _hud_stockpile_feed_item: Label
 var _hud_queue_item: Label
 var _hud_match_state: Label
 var _hud_command_card_label: Label
+var _hud_objective_status: Label
 var _hud_root: Control = null
 var _hud_minimap_control: Control = null
 var _hud_minimap_draw: _MinimapDraw = null
@@ -351,6 +386,12 @@ class _MinimapDraw extends Control:
 	var tether_points: Dictionary = {}
 	var get_unit_slot_fn: Callable
 	var get_faction_color_fn: Callable
+	var objective_position: Vector3 = Vector3.ZERO
+	var objective_owner: String = ""
+	var objective_acting_slot: String = ""
+	var objective_phase: String = "neutral"
+	var objective_progress: float = 0.0
+	var objective_visible: bool = false
 
 	func _draw() -> void:
 		var mm := size
@@ -384,6 +425,17 @@ class _MinimapDraw extends Control:
 			if unit.is_selected:
 				col = col.lightened(0.4)
 			draw_circle(p, UNIT_RADIUS, col)
+		if objective_visible:
+			var op := _world_to_mm(Vector2(objective_position.x, objective_position.z), mm)
+			var objective_color := Color(0.66, 0.48, 0.9)
+			var objective_display_slot := objective_acting_slot if objective_phase == "capturing" or objective_phase == "neutralizing" or objective_phase == "recovering" else objective_owner
+			if objective_display_slot != "" and tether_points.has(objective_display_slot):
+				objective_color = get_faction_color_fn.call((tether_points[objective_display_slot] as TetherPoint).faction_id)
+			if objective_phase == "contested":
+				objective_color = Color(1.0, 0.72, 0.18)
+			var diamond := PackedVector2Array([op + Vector2(0,-6), op + Vector2(6,0), op + Vector2(0,6), op + Vector2(-6,0)])
+			draw_colored_polygon(diamond, objective_color)
+			draw_arc(op, 8.0, -PI * 0.5, -PI * 0.5 + TAU * clampf(objective_progress, 0.0, 1.0), 18, Color.WHITE, 1.5)
 
 	func _world_to_mm(world_xz: Vector2, mm_size: Vector2) -> Vector2:
 		var uv := (world_xz + MAP_HALF) / (MAP_HALF * 2.0)
@@ -396,6 +448,7 @@ var _selected_controllable_units: Array[String] = []
 var _resource_alloy_total: int = 0
 var _stockpile_state: Dictionary = {}
 var _alloy_wallets_by_slot: Dictionary = {"A": STARTING_ALLOY_WALLET, "B": STARTING_ALLOY_WALLET}
+var _data_wallets_by_slot: Dictionary = {"A": 0, "B": 0}
 var _alloy_node_reserves_by_id: Dictionary = {}
 var _extractor_sources_by_slot: Dictionary = {"A": {}, "B": {}}
 var _alloy_source_occupant_by_id: Dictionary = {}
@@ -415,6 +468,17 @@ var _unit_hit_points: Dictionary = {}
 var _production_sequence: int = 0
 var _produced_units_by_slot: Dictionary = {"A": {}, "B": {}}
 var _live_production_spawn_index_by_slot: Dictionary = {"A": 0, "B": 0}
+var _construction_job_sequence: int = 0
+var _production_job_sequence: int = 0
+var _construction_jobs_by_structure_id: Dictionary = {}
+var _production_queues_by_producer_id: Dictionary = {}
+var _rally_points_by_producer_id: Dictionary = {}
+var _selected_structure_id: String = ""
+var _active_production_producer_id: String = ""
+var _last_production_rejection_reason: String = ""
+var _cancelled_queue_job_ids: Dictionary = {}
+var _hud_production_buttons: Array[Button] = []
+var _hud_cancel_button: Button = null
 var _colony_sequence: int = 0
 var _colony_units_by_slot: Dictionary = {"A": {}, "B": {}}
 var _air_wing_state: Dictionary = {}
@@ -449,6 +513,13 @@ var _ai_production_timer: float = _AI_PRODUCTION_INTERVAL
 var _ai_production_choice_index: int = 0
 var _ai_last_build_decision: Dictionary = {}
 var _resource_tick_elapsed: float = 0.0
+var _data_objective_state: Dictionary = {}
+var _objective_sequence: int = 0
+var _objective_sim_time: float = 0.0
+var _objective_ai_timer: float = OBJECTIVE_AI_INTERVAL
+var _objective_ai_unit_ids_by_slot: Dictionary = {"A": [], "B": []}
+var _objective_command_unit_ids_by_slot: Dictionary = {"A": [], "B": []}
+var _objective_ai_issue_count_by_slot: Dictionary = {"A": 0, "B": 0}
 
 # -- Drag-box selection state --------------------------------------------------
 const _DRAG_BOX_THRESHOLD := 6.0
@@ -466,16 +537,24 @@ var _camera_zoom_speed_multiplier: float = 1.0
 func _ready() -> void:
 	var player_faction := _resolve_faction("duel_player_faction", TEST_PLAYER_FACTION_PREFIX, DEFAULT_PLAYER_FACTION)
 	var enemy_faction := _resolve_faction("duel_enemy_faction", TEST_ENEMY_FACTION_PREFIX, DEFAULT_ENEMY_FACTION)
+	if _has_user_flag(TEST_F90_SWAPPED_OBJECTIVE_PALETTE_FLAG):
+		player_faction = DEFAULT_ENEMY_FACTION
+		enemy_faction = DEFAULT_PLAYER_FACTION
 	_ensure_camera_input_actions()
 	_load_camera_profile_settings()
 	print("[Map] First duel environment primary=Radial Impact Zone secondary=None")
 	_create_mvp_hud()
 	_initialize_stockpile_state()
 	_spawn_map_items()
+	_initialize_data_objective()
 	_spawn_world_blockers()
 	_validate_map_item_catalog()
 	_spawn_tether_point("A", player_faction, _spawn_a)
 	_spawn_tether_point("B", enemy_faction, _spawn_b)
+	# Objective identity depends on the concrete match factions and therefore must
+	# be configured only after both ordinary Tethers exist.
+	_configure_data_objective_palette()
+	_apply_data_objective_visual()
 	_spawn_opening_squads()
 	_run_tether_test_hooks()
 	_run_build_chain_test_hook()
@@ -548,9 +627,26 @@ func _ready() -> void:
 	_run_f77_tether_endgame_test_hook()
 	_run_f78_enemy_tether_endgame_test_hook()
 	_run_f79_live_economy_test_hook()
+	_run_f80_timed_construction_test_hook()
+	_run_f81_production_queue_test_hook()
+	_run_f82_queue_destruction_test_hook()
+	if _has_user_flag(TEST_F83_PUBLIC_QUEUE_INPUT_FLAG):
+		call_deferred("_run_f83_public_queue_input_test_hook")
+	_run_f84_rally_queue_contract_test_hook()
+	_run_f85_ai_timed_queue_test_hook()
+	if _has_user_flag(TEST_F86_PUBLIC_DATA_CAPTURE_FLAG):
+		call_deferred("_run_f86_public_data_capture_test_hook")
+	_run_f87_data_lifecycle_test_hook()
+	_run_f88_data_benefit_feedback_test_hook()
+	_run_f89_objective_ai_endgame_test_hook()
+	_run_f90_swapped_objective_palette_test_hook()
+	_run_f91_unit_profile_catalog_test_hook()
+	_run_f92_combat_identity_test_hook()
 	if _has_user_flag(STAGE0_CAPTURE_FLAG):
 		call_deferred("_run_stage0_media_capture_sequence")
-	elif _has_user_flag(TEST_AUTO_EXIT_FLAG):
+	elif _has_user_flag(TEST_AUTO_EXIT_FLAG) \
+		and not _has_user_flag(TEST_F83_PUBLIC_QUEUE_INPUT_FLAG) \
+		and not _has_user_flag(TEST_F86_PUBLIC_DATA_CAPTURE_FLAG):
 		call_deferred("_request_test_exit")
 	_apply_camera_transform()
 
@@ -574,12 +670,14 @@ func _run_f61_enemy_ai_test_hook() -> void:
 	# Seed enough baseline structures for deterministic production options.
 	for _build_step in 3:
 		_run_enemy_build_step()
+		_advance_all_queues(30.0)
 	var builds_before: int = int(_buildables_by_slot["B"].size())
 	var enemy_units_before: int = _get_slot_unit_ids("B").size()
 
 	# Run several AI update ticks.
 	for _step in 36:
 		_update_enemy_ai(0.5)
+		_advance_all_queues(0.5)
 		_update_live_units(0.1)
 
 	# Check: at least one enemy unit should now have a move target or attack order.
@@ -657,6 +755,7 @@ func _run_f77_tether_endgame_test_hook() -> void:
 		and _hud_alert_item.text.find("Secondary command") >= 0
 
 	_update_tether_recovery(_TETHER_RECOVERY_SECONDS + 0.01)
+	_advance_all_queues(10.0)
 	var restored_builder_id := _find_first_unit_for_slot("B")
 	var recovery_pass := not enemy_tether.is_command_penalty_active \
 		and enemy_tether.recovery_state == "stable" \
@@ -790,10 +889,12 @@ func _run_f79_live_economy_test_hook() -> void:
 	var enemy_before_build := _get_alloy_wallet("B")
 	var build_ok := _build_for_slot("A", "power_core")
 	var exact_build_spend_ok := build_ok and _get_alloy_wallet("A") == 880
+	_advance_all_queues(18.0)
 	var build_world_unchanged_ok := _get_stockpile_reserve("alloy") == world_before_build
 	var build_slot_isolation_ok := _get_alloy_wallet("B") == enemy_before_build
 	_set_alloy_wallet("A", 225, "f79_player_production_setup")
 	var player_barracks_ok := _build_for_slot("A", "barracks_equivalent")
+	_advance_all_queues(20.0)
 	_select_single_unit(_find_first_unit_for_slot("A"))
 	var player_production_ok := _queue_live_production("lancer_squad")
 	var exact_player_production_spend_ok := player_barracks_ok and player_production_ok \
@@ -842,6 +943,7 @@ func _run_f79_live_economy_test_hook() -> void:
 	var natural_a_position: Vector3 = _map_items_by_id["NATURAL-ALLOY-A"].position
 	var first_extractor_ok := _build_for_slot("A", "alloy_extractor", safe_a_position)
 	var second_extractor_ok := _build_for_slot("A", "alloy_extractor", natural_a_position)
+	_advance_all_queues(14.0)
 	var player_extractors: Dictionary = _extractor_sources_by_slot["A"]
 	var multi_extractor_exact_ok := first_extractor_ok and second_extractor_ok \
 		and _get_alloy_wallet("A") == 0 and player_extractors.size() == 2 \
@@ -897,17 +999,20 @@ func _run_f79_live_economy_test_hook() -> void:
 		and _buildables_by_slot["B"].size() == enemy_structures_before_reject
 	_set_alloy_wallet("B", 120, "f79_ai_build_exact_cost")
 	_run_enemy_build_step()
+	_advance_all_queues(18.0)
 	var ai_build_exact_ok: bool = _get_alloy_wallet("B") == 0 and _buildables_by_slot["B"].has("power_core")
 	_set_alloy_wallet("B", 89, "f79_ai_extractor_below_cost")
 	_run_enemy_build_step()
 	var ai_extractor_rejection_ok: bool = _get_alloy_wallet("B") == 89 and not _buildables_by_slot["B"].has("alloy_extractor")
 	_set_alloy_wallet("B", 90, "f79_ai_extractor_exact_cost")
 	_run_enemy_build_step()
+	_advance_all_queues(14.0)
 	var ai_extractor_exact_ok: bool = _get_alloy_wallet("B") == 0 \
 		and _buildables_by_slot["B"].has("alloy_extractor") \
 		and not (_extractor_sources_by_slot["B"] as Dictionary).is_empty()
 	_set_alloy_wallet("B", 160, "f79_ai_barracks_exact_cost")
 	_run_enemy_build_step()
+	_advance_all_queues(20.0)
 	var enemy_barracks_ok: bool = _buildables_by_slot["B"].has("barracks_equivalent") and _get_alloy_wallet("B") == 0
 	_set_alloy_wallet("B", 89, "f79_enemy_second_extractor_below_cost")
 	_run_enemy_build_step()
@@ -918,6 +1023,7 @@ func _run_f79_live_economy_test_hook() -> void:
 		and str(_ai_last_build_decision.get("source_id", "")) == "NATURAL-ALLOY-B"
 	_set_alloy_wallet("B", 90, "f79_enemy_second_extractor_exact_cost")
 	_run_enemy_build_step()
+	_advance_all_queues(14.0)
 	var enemy_sources_after_second: Dictionary = _extractor_sources_by_slot["B"]
 	var enemy_second_extractor_ok := _get_alloy_wallet("B") == 0 \
 		and enemy_sources_after_second.size() == 2 \
@@ -964,6 +1070,7 @@ func _run_f79_live_economy_test_hook() -> void:
 		and _production_sequence == production_sequence_before_reject
 	_set_alloy_wallet("B", 65, "f79_ai_affordable_setup")
 	_run_enemy_production_step()
+	_advance_all_queues(9.0)
 	var affordable_ai_production_ok := _get_alloy_wallet("B") == 0 \
 		and _get_slot_unit_ids("B").size() == enemy_units_before_reject + 1
 
@@ -1003,6 +1110,784 @@ func _run_f79_live_economy_test_hook() -> void:
 		str(passive_conservation_ok),
 		str(enemy_barracks_ok), str(ai_rejection_immutable_ok), str(affordable_ai_production_ok),
 		str(hud_clarity_ok), str(pass_ok)
+	])
+
+
+func _run_f80_timed_construction_test_hook() -> void:
+	if not _has_user_flag(TEST_F80_CONSTRUCTION_QUEUE_FLAG):
+		return
+	_set_alloy_wallet("A", 1000, "f80_reset")
+	var wallet_before := _get_alloy_wallet("A")
+	var accepted := _build_for_slot("A", "power_core", Vector3(-410.0, 0.0, -70.0))
+	var structure_id := _find_pending_structure_id("A", "power_core")
+	var exact_debit := accepted and _get_alloy_wallet("A") == wallet_before - 120
+	var absent_at_enqueue: bool = not _buildables_by_slot["A"].has("power_core") and structure_id != ""
+	_update_construction_jobs(17.999)
+	var preboundary_incomplete: bool = not _buildables_by_slot["A"].has("power_core")
+	var progress_bounded := false
+	if _construction_jobs_by_structure_id.has(structure_id):
+		var remaining := float((_construction_jobs_by_structure_id[structure_id] as Dictionary)["remaining"])
+		progress_bounded = remaining > 0.0 and remaining < 18.0
+	_update_construction_jobs(0.002)
+	var exact_boundary_complete: bool = _buildables_by_slot["A"].has("power_core") \
+		and not _construction_jobs_by_structure_id.has(structure_id)
+	_update_construction_jobs(10.0)
+	var completion_once: bool = _buildables_by_slot["A"].size() == 1
+	var pass_ok: bool = accepted and exact_debit and absent_at_enqueue and preboundary_incomplete \
+		and progress_bounded and exact_boundary_complete and completion_once
+	print("[F80] Summary accepted=%s exact_debit=%s absent_at_enqueue=%s preboundary_incomplete=%s progress_bounded=%s exact_boundary_complete=%s completion_once=%s pass=%s" % [str(accepted), str(exact_debit), str(absent_at_enqueue), str(preboundary_incomplete), str(progress_bounded), str(exact_boundary_complete), str(completion_once), str(pass_ok)])
+
+
+func _run_f81_production_queue_test_hook() -> void:
+	if not _has_user_flag(TEST_F81_PRODUCTION_QUEUE_FLAG):
+		return
+	_fund_deterministic_fixture("A", "f81_queue", 1000)
+	_ensure_build_chain_for_slot("A", ["barracks_equivalent"])
+	var producer_id := str(_buildables_by_slot["A"].get("barracks_equivalent", ""))
+	var faction := (_tether_points_by_slot["A"] as TetherPoint).faction_id
+	var wallet_before := _get_alloy_wallet("A")
+	var first_ok := _enqueue_production_job(producer_id, "A", faction, "lancer_squad")
+	var second_ok := _enqueue_production_job(producer_id, "A", faction, "breach_team")
+	var queue: Array = _production_queues_by_producer_id.get(producer_id, [])
+	var unique_jobs := queue.size() == 2 and str((queue[0] as Dictionary)["job_id"]) != str((queue[1] as Dictionary)["job_id"])
+	var exact_debit := _get_alloy_wallet("A") == wallet_before - 140
+	var no_instant_spawn: bool = not _produced_units_by_slot["A"].has("lancer_squad") and not _produced_units_by_slot["A"].has("breach_team")
+	_update_production_queues(8.999)
+	queue = _production_queues_by_producer_id.get(producer_id, [])
+	var second_waited := queue.size() == 2 and is_equal_approx(float((queue[1] as Dictionary)["remaining"]), 10.0)
+	_update_production_queues(0.002)
+	var first_boundary: bool = _produced_units_by_slot["A"].has("lancer_squad") and not _produced_units_by_slot["A"].has("breach_team")
+	_update_production_queues(10.0)
+	var second_boundary: bool = _produced_units_by_slot["A"].has("breach_team")
+	var queue_drained := not _production_queues_by_producer_id.has(producer_id)
+	var pass_ok: bool = first_ok and second_ok and unique_jobs and exact_debit and no_instant_spawn and second_waited and first_boundary and second_boundary and queue_drained
+	print("[F81] Summary accepted_first=%s accepted_second=%s exact_total_debit=%s no_instant_spawn=%s fifo=%s second_waited=%s first_boundary=%s second_boundary=%s unique_jobs=%s queue_drained=%s pass=%s" % [str(first_ok), str(second_ok), str(exact_debit), str(no_instant_spawn), str(first_boundary and second_boundary), str(second_waited), str(first_boundary), str(second_boundary), str(unique_jobs), str(queue_drained), str(pass_ok)])
+
+
+func _run_f82_queue_destruction_test_hook() -> void:
+	if not _has_user_flag(TEST_F82_CANCEL_REFUND_FLAG):
+		return
+	_fund_deterministic_fixture("A", "f82_queue", 1000)
+	_ensure_build_chain_for_slot("A", ["barracks_equivalent"])
+	var producer_id := str(_buildables_by_slot["A"].get("barracks_equivalent", ""))
+	var faction := (_tether_points_by_slot["A"] as TetherPoint).faction_id
+	var production_sequence_before := _production_sequence
+	var queued_first := _enqueue_production_job(producer_id, "A", faction, "lancer_squad")
+	var queued_second := _enqueue_production_job(producer_id, "A", faction, "breach_team")
+	var destroyed_queue: Array = _production_queues_by_producer_id.get(producer_id, [])
+	var destroyed_active_job_id := str((destroyed_queue[0] as Dictionary)["job_id"])
+	var destroyed_queued_job_id := str((destroyed_queue[1] as Dictionary)["job_id"])
+	_update_production_queues(4.5)
+	var wallet_before_destroy := _get_alloy_wallet("A")
+	_rally_points_by_producer_id[producer_id] = Vector3(-200.0, 0.0, 90.0)
+	_destroy_live_buildable(producer_id, "f82_destroy")
+	_update_production_queues(30.0)
+	var producer_cleanup := not _production_queues_by_producer_id.has(producer_id) and not _rally_points_by_producer_id.has(producer_id)
+	var no_refund_on_destroy := _get_alloy_wallet("A") == wallet_before_destroy
+	var no_post_destroy_spawn := _production_sequence == production_sequence_before
+	_set_alloy_wallet("A", 200, "f82_cancel_build")
+	var source_position: Vector3 = _map_items_by_id["SAFE-ALLOY-A"].position
+	var build_accepted := _build_for_slot("A", "alloy_extractor", source_position)
+	var site_id := _find_pending_structure_id("A", "alloy_extractor")
+	_update_construction_jobs(7.0)
+	var refund := _cancel_construction_job(site_id)
+	var proportional_refund := build_accepted and refund == 45 and _get_alloy_wallet("A") == 155
+	var occupancy_released := not _alloy_source_occupant_by_id.has("SAFE-ALLOY-A")
+	_update_construction_jobs(20.0)
+	var cancelled_never_completed: bool = not _buildables_by_slot["A"].has("alloy_extractor")
+	var invalid_cancel_immutable := _cancel_construction_job("missing") == 0 and _get_alloy_wallet("A") == 155
+
+	# Rebuild a producer and prove locked manual production refund semantics.
+	_fund_deterministic_fixture("A", "f82_production_cancel", 1000)
+	_ensure_build_chain_for_slot("A", ["barracks_equivalent"])
+	producer_id = str(_buildables_by_slot["A"]["barracks_equivalent"])
+	var active_ok := _enqueue_production_job(producer_id, "A", faction, "lancer_squad")
+	var adjacent_ok := _enqueue_production_job(producer_id, "A", faction, "breach_team")
+	var queue: Array = _production_queues_by_producer_id[producer_id]
+	var active_job_id := str((queue[0] as Dictionary)["job_id"])
+	var adjacent_job_id := str((queue[1] as Dictionary)["job_id"])
+	_update_production_queues(8.999)
+	var wallet_before_active_cancel := _get_alloy_wallet("A")
+	var active_refund := _cancel_production_job(producer_id, active_job_id)
+	queue = _production_queues_by_producer_id.get(producer_id, [])
+	var epsilon_active_refund := active_refund == 0 and _get_alloy_wallet("A") == wallet_before_active_cancel \
+		and queue.size() == 1 and str((queue[0] as Dictionary)["job_id"]) == adjacent_job_id
+	var repeat_cancel_immutable := _cancel_production_job(producer_id, active_job_id) == 0
+	var wallet_before_queued_cancel := _get_alloy_wallet("A")
+	var queued_refund := _cancel_production_job(producer_id, adjacent_job_id)
+	var queued_full_refund := queued_refund == 75 and _get_alloy_wallet("A") == wallet_before_queued_cancel + 75
+	var cancellation_ids_recorded := _cancelled_queue_job_ids.has(active_job_id) and _cancelled_queue_job_ids.has(adjacent_job_id)
+	var proportional_active_ok := _enqueue_production_job(producer_id, "A", faction, "lancer_squad")
+	var proportional_queue: Array = _production_queues_by_producer_id[producer_id]
+	var proportional_job_id := str((proportional_queue[0] as Dictionary)["job_id"])
+	_update_production_queues(4.5)
+	var proportional_wallet_before := _get_alloy_wallet("A")
+	var proportional_production_refund := _cancel_production_job(producer_id, proportional_job_id)
+	var active_production_proportional := proportional_active_ok and proportional_production_refund == 32 \
+		and _get_alloy_wallet("A") == proportional_wallet_before + 32
+
+	# A site has autonomous accepted work: builder loss does not own/cancel it.
+	_set_alloy_wallet("A", 120, "f82_autonomous_site")
+	var autonomous_started := _build_for_slot("A", "power_core", Vector3(-390.0, 0.0, -100.0))
+	var autonomous_site_id := _find_pending_structure_id("A", "power_core")
+	var builder_id := _find_first_builder_id()
+	_destroy_unit(builder_id)
+	_update_construction_jobs(18.001)
+	var builder_loss_continues: bool = autonomous_started and autonomous_site_id != "" and _buildables_by_slot["A"].has("power_core")
+
+	# Site destruction has zero refund and releases its reservation.
+	_set_alloy_wallet("A", 90, "f82_site_destroy")
+	var destruction_started := _build_for_slot("A", "alloy_extractor", source_position)
+	var destruction_site_id := _find_pending_structure_id("A", "alloy_extractor")
+	var destruction_job_id := str((_construction_jobs_by_structure_id.get(destruction_site_id, {}) as Dictionary).get("job_id", ""))
+	var wallet_before_site_destroy := _get_alloy_wallet("A")
+	_destroy_live_buildable(destruction_site_id, "f82_enemy")
+	var site_destruction_zero_refund := destruction_started and wallet_before_site_destroy == _get_alloy_wallet("A") \
+		and not _alloy_source_occupant_by_id.has("SAFE-ALLOY-A") \
+		and str((_cancelled_queue_job_ids.get(destruction_job_id, {}) as Dictionary).get("reason", "")) == "site_destroyed" \
+		and int((_cancelled_queue_job_ids.get(destruction_job_id, {}) as Dictionary).get("refund", -1)) == 0
+
+	# Existing accepted production continues during penalty; new work is rejected.
+	_fund_deterministic_fixture("B", "f82_penalty", 1000)
+	var tether_b: TetherPoint = _tether_points_by_slot["B"]
+	var tether_producer := tether_b.stable_item_id
+	var builder_unit := str(PRODUCTION_BASELINE_UNITS[tether_b.faction_id][0])
+	var penalty_job_ok := _enqueue_production_job(tether_producer, "B", tether_b.faction_id, builder_unit)
+	tether_b.is_command_penalty_active = true
+	var penalty_rejects_new := not _enqueue_production_job(tether_producer, "B", tether_b.faction_id, builder_unit) \
+		and _last_production_rejection_reason == "command_penalty_active"
+	_update_production_queues(10.001)
+	var accepted_continues_during_penalty: bool = penalty_job_ok and _produced_units_by_slot["B"].has(builder_unit)
+	tether_b.is_command_penalty_active = false
+
+	# Tether and Barracks are two concrete producers and advance independently.
+	var parallel_barracks := producer_id
+	_fund_deterministic_fixture("A", "f82_parallel", 1000)
+	var tether_a := (_tether_points_by_slot["A"] as TetherPoint).stable_item_id
+	var parallel_engineer := str(PRODUCTION_BASELINE_UNITS[faction][0])
+	var parallel_a := _enqueue_production_job(tether_a, "A", faction, parallel_engineer)
+	var parallel_b := _enqueue_production_job(parallel_barracks, "A", faction, "lancer_squad")
+	_update_production_queues(4.5)
+	var parallel_progress := parallel_a and parallel_b \
+		and is_equal_approx(float(((_production_queues_by_producer_id[tether_a] as Array)[0] as Dictionary)["remaining"]), 5.5) \
+		and is_equal_approx(float(((_production_queues_by_producer_id[parallel_barracks] as Array)[0] as Dictionary)["remaining"]), 4.5)
+	for _fill in 4:
+		_enqueue_production_job(parallel_barracks, "A", faction, "lancer_squad")
+	_selected_structure_id = parallel_barracks
+	var queue_full_rejected := not _queue_live_production("lancer_squad") \
+		and _last_production_rejection_reason == "queue_full" \
+		and _hud_alert_item.text == "Production rejected: producer queue full (5)"
+	var destroyed_active_id_cancelled := _cancelled_queue_job_ids.has(destroyed_active_job_id)
+	var destroyed_queued_id_cancelled := _cancelled_queue_job_ids.has(destroyed_queued_job_id)
+
+	var pass_ok: bool = queued_first and queued_second and destroyed_active_id_cancelled and destroyed_queued_id_cancelled \
+		and producer_cleanup and no_refund_on_destroy and no_post_destroy_spawn \
+		and proportional_refund and occupancy_released and cancelled_never_completed and invalid_cancel_immutable \
+		and active_ok and adjacent_ok and epsilon_active_refund and repeat_cancel_immutable and queued_full_refund \
+		and cancellation_ids_recorded and active_production_proportional and builder_loss_continues and site_destruction_zero_refund \
+		and penalty_rejects_new and accepted_continues_during_penalty and parallel_progress and queue_full_rejected
+	print("[F82] Summary destroyed_active_id_cancelled=%s destroyed_queued_id_cancelled=%s no_refund_on_destroy=%s no_post_destroy_spawn=%s producer_cleanup=%s proportional_build_refund=%s occupancy_released=%s cancelled_never_completed=%s invalid_cancel_immutable=%s epsilon_active_refund=%s repeat_cancel_immutable=%s queued_full_refund=%s active_production_proportional=%s adjacent_fifo_preserved=%s cancellation_ids_recorded=%s autonomous_builder_loss_continues=%s site_destruction_zero_refund=%s penalty_rejects_new=%s accepted_continues_during_penalty=%s two_producer_parallel=%s exact_queue_full_feedback=%s pass=%s" % [str(destroyed_active_id_cancelled), str(destroyed_queued_id_cancelled), str(no_refund_on_destroy), str(no_post_destroy_spawn), str(producer_cleanup), str(proportional_refund), str(occupancy_released), str(cancelled_never_completed), str(invalid_cancel_immutable), str(epsilon_active_refund), str(repeat_cancel_immutable), str(queued_full_refund), str(active_production_proportional), str(epsilon_active_refund), str(cancellation_ids_recorded), str(builder_loss_continues), str(site_destruction_zero_refund), str(penalty_rejects_new), str(accepted_continues_during_penalty), str(parallel_progress), str(queue_full_rejected), str(pass_ok)])
+
+
+func _find_pending_structure_id(slot: String, buildable_id: String) -> String:
+	for structure_id_value in _construction_jobs_by_structure_id.keys():
+		var structure_id := str(structure_id_value)
+		var job: Dictionary = _construction_jobs_by_structure_id[structure_id]
+		if str(job["slot"]) == slot and str(job["buildable_id"]) == buildable_id:
+			return structure_id
+	return ""
+
+
+func _run_f83_public_queue_input_test_hook() -> void:
+	if not _has_user_flag(TEST_F83_PUBLIC_QUEUE_INPUT_FLAG):
+		return
+	get_window().size = Vector2i(1280, 720)
+	await get_tree().process_frame
+	_reset_data_objective_for_test()
+	_fund_deterministic_fixture("A", "f83_public", 1000)
+	var builder_id := _find_first_builder_id()
+	var builder: SelectableUnit2D = _controllable_units[builder_id]
+	_send_public_mouse_click(_rts_camera.unproject_position(builder.position), MOUSE_BUTTON_LEFT)
+	var builder_selected := _selected_controllable_units.has(builder_id)
+	_send_public_key(KEY_B)
+	var build_menu_opened := _build_menu_active
+	_send_public_key(KEY_E)
+	var placement := Vector3(-430.0, 0.0, -72.0)
+	_send_public_mouse_click(_rts_camera.unproject_position(placement), MOUSE_BUTTON_LEFT)
+	var site_id := _find_pending_structure_id("A", "barracks_equivalent")
+	var construction_queued := site_id != ""
+	_process(20.001)
+	var construction_completed: bool = _buildables_by_slot["A"].has("barracks_equivalent")
+	var producer_id := str(_buildables_by_slot["A"].get("barracks_equivalent", ""))
+	var producer: BuildableNode = _live_buildable_nodes_by_id[producer_id]
+	_send_public_key(KEY_P)
+	var selected_unit_resolves_producer := _production_menu_active and _active_production_producer_id == producer_id \
+		and _get_selected_or_default_producer_id() == producer_id
+	var production_menu_opened := _production_menu_active and _active_production_producer_id == producer_id
+	await get_tree().process_frame
+	var button: Button = _hud_production_buttons[0]
+	var wallet_before_affordability := _get_alloy_wallet("A")
+	_set_alloy_wallet("A", 64, "f83_clickable_rejection")
+	var clickable_while_unaffordable := not button.disabled
+	await _dispatch_gui_click(button)
+	var exact_affordability_feedback := _hud_alert_item.text == "Production rejected: need 65 Alloy (have 64)"
+	_set_alloy_wallet("A", wallet_before_affordability, "f83_restore")
+	var units_selected_before_gui := _selected_controllable_units.duplicate()
+	await _dispatch_gui_click(button)
+	var queue: Array = _production_queues_by_producer_id.get(producer_id, [])
+	var production_queued := queue.size() == 1
+	var gui_selection_retained := _selected_controllable_units == units_selected_before_gui \
+		and _active_production_producer_id == producer_id and _selected_structure_id == ""
+	_refresh_production_hud()
+	var unit_context_cancel_visible := _hud_cancel_button.visible and _selected_structure_id == ""
+	var wallet_before_cancel := _get_alloy_wallet("A")
+	await _dispatch_gui_click(_hud_cancel_button)
+	var cancel_callback := not _production_queues_by_producer_id.has(producer_id) \
+		and _get_alloy_wallet("A") > wallet_before_cancel and _selected_structure_id == "" \
+		and _active_production_producer_id == producer_id
+	# Rally is a structure command, so select the producer through the world only after
+	# proving unit-context enqueue and cancellation through real GUI dispatch.
+	_send_public_mouse_click(_rts_camera.unproject_position(producer.position), MOUSE_BUTTON_LEFT)
+	var producer_selected := _selected_structure_id == producer_id
+	var rally_target := Vector3(-300.0, 0.0, 80.0)
+	_send_public_mouse_click(_rts_camera.unproject_position(rally_target), MOUSE_BUTTON_RIGHT)
+	var rally_input := _rally_points_by_producer_id.has(producer_id)
+	await _dispatch_gui_click(button)
+	_process(9.001)
+	var produced_id := str(_produced_units_by_slot["A"].get("lancer_squad", ""))
+	var rally_dispatch := produced_id != "" and _controllable_units.has(produced_id) \
+		and Vector2((_controllable_units[produced_id] as SelectableUnit2D).position.x, (_controllable_units[produced_id] as SelectableUnit2D).position.z).distance_to(Vector2(rally_target.x, rally_target.z)) < producer.position.distance_to(rally_target)
+	var pass_ok: bool = builder_selected and build_menu_opened and construction_queued and construction_completed \
+		and selected_unit_resolves_producer and production_menu_opened and clickable_while_unaffordable and exact_affordability_feedback \
+		and production_queued and gui_selection_retained and unit_context_cancel_visible and cancel_callback \
+		and producer_selected and rally_input and rally_dispatch
+	print("[F83] Summary builder_selected=%s build_menu_opened=%s placement_input=%s construction_queued=%s construction_completed=%s selected_unit_resolves_producer=%s production_menu_opened=%s gui_selection_retained=%s unit_context_cancel_visible=%s locked_button_clickable=%s exact_affordability_feedback=%s viewport_button_queued=%s viewport_cancel_callback=%s producer_selected=%s rally_input=%s rally_dispatch=%s pass=%s" % [str(builder_selected), str(build_menu_opened), str(construction_queued), str(construction_queued), str(construction_completed), str(selected_unit_resolves_producer), str(production_menu_opened), str(gui_selection_retained), str(unit_context_cancel_visible), str(clickable_while_unaffordable), str(exact_affordability_feedback), str(production_queued), str(cancel_callback), str(producer_selected), str(rally_input), str(rally_dispatch), str(pass_ok)])
+	get_tree().quit()
+
+
+func _dispatch_gui_click(control: Control) -> void:
+	await get_tree().process_frame
+	var center := control.get_global_rect().get_center()
+	var motion := InputEventMouseMotion.new()
+	motion.position = center
+	motion.global_position = center
+	Input.parse_input_event(motion)
+	var press := InputEventMouseButton.new()
+	press.position = center
+	press.global_position = center
+	press.button_index = MOUSE_BUTTON_LEFT
+	press.pressed = true
+	Input.parse_input_event(press)
+	await get_tree().process_frame
+	var release := InputEventMouseButton.new()
+	release.position = center
+	release.global_position = center
+	release.button_index = MOUSE_BUTTON_LEFT
+	release.pressed = false
+	Input.parse_input_event(release)
+	await get_tree().process_frame
+
+
+func _send_public_key(keycode: Key) -> void:
+	var event := InputEventKey.new()
+	event.keycode = keycode
+	event.pressed = true
+	_input(event)
+
+
+func _send_public_mouse_click(screen_position: Vector2, button_index: MouseButton) -> void:
+	var press := InputEventMouseButton.new()
+	press.position = screen_position
+	press.button_index = button_index
+	press.pressed = true
+	_input(press)
+	var release := InputEventMouseButton.new()
+	release.position = screen_position
+	release.button_index = button_index
+	release.pressed = false
+	_input(release)
+
+
+func _run_f84_rally_queue_contract_test_hook() -> void:
+	if not _has_user_flag(TEST_F84_RALLY_QUEUE_FLAG):
+		return
+	_fund_deterministic_fixture("A", "f84_rally", 1000)
+	_ensure_build_chain_for_slot("A", ["barracks_equivalent"])
+	var producer_id := str(_buildables_by_slot["A"]["barracks_equivalent"])
+	var producer: BuildableNode = _live_buildable_nodes_by_id[producer_id]
+	_send_public_mouse_click(_rts_camera.unproject_position(producer.position), MOUSE_BUTTON_LEFT)
+	var existing_id := _find_first_unit_for_slot("A")
+	var existing: SelectableUnit2D = _controllable_units[existing_id]
+	var existing_had_order := existing.has_move_target()
+	var valid_target := Vector3(-300.0, 0.0, 92.0)
+	_send_public_mouse_click(_rts_camera.unproject_position(valid_target), MOUSE_BUTTON_RIGHT)
+	var set_valid := _rally_points_by_producer_id.has(producer_id) and _same_xz(_rally_points_by_producer_id[producer_id], valid_target)
+	var blocked_target := Vector3.ZERO
+	_send_public_mouse_click(_rts_camera.unproject_position(blocked_target), MOUSE_BUTTON_RIGHT)
+	var blocked_preserved := _same_xz(_rally_points_by_producer_id[producer_id], valid_target)
+	var faction := (_tether_points_by_slot["A"] as TetherPoint).faction_id
+	var queued := _enqueue_production_job(producer_id, "A", faction, "lancer_squad")
+	_update_production_queues(9.001)
+	var produced_id := str(_produced_units_by_slot["A"].get("lancer_squad", ""))
+	var dispatched := produced_id != "" and (_controllable_units[produced_id] as SelectableUnit2D).has_move_target()
+	var existing_unchanged := existing.has_move_target() == existing_had_order
+	_rally_points_by_producer_id[(_tether_points_by_slot["B"] as TetherPoint).stable_item_id] = Vector3(300.0, 0.0, 92.0)
+	var slot_isolation := _same_xz(_rally_points_by_producer_id[producer_id], valid_target)
+	_destroy_live_buildable(producer_id, "f84_cleanup")
+	var cleanup := not _rally_points_by_producer_id.has(producer_id) and _rally_points_by_producer_id.has((_tether_points_by_slot["B"] as TetherPoint).stable_item_id)
+	var pass_ok: bool = set_valid and blocked_preserved and queued and dispatched and existing_unchanged and slot_isolation and cleanup
+	print("[F84] Summary set_valid=%s blocked_rejected_preserved=%s queued=%s dispatched=%s existing_unit_unchanged=%s slot_isolation=%s producer_cleanup=%s pass=%s" % [str(set_valid), str(blocked_preserved), str(queued), str(dispatched), str(existing_unchanged), str(slot_isolation), str(cleanup), str(pass_ok)])
+
+
+func _same_xz(a: Vector3, b: Vector3) -> bool:
+	return Vector2(a.x, a.z).distance_to(Vector2(b.x, b.z)) <= 0.05
+
+
+func _run_f85_ai_timed_queue_test_hook() -> void:
+	if not _has_user_flag(TEST_F85_AI_TIMED_QUEUE_FLAG):
+		return
+	_set_alloy_wallet("B", 119, "f85_below")
+	var wallet_before := _get_alloy_wallet("B")
+	_run_enemy_build_step()
+	var below_cost_immutable := _get_alloy_wallet("B") == wallet_before and _construction_jobs_by_structure_id.is_empty()
+	_set_alloy_wallet("B", 120, "f85_exact")
+	_run_enemy_build_step()
+	var site_id := _find_pending_structure_id("B", "power_core")
+	var exact_cost_queued: bool = site_id != "" and _get_alloy_wallet("B") == 0 and not _buildables_by_slot["B"].has("power_core")
+	_set_alloy_wallet("A", 120, "f85_player_parity")
+	var player_accepted := _build_for_slot("A", "power_core", Vector3(-410.0, 0.0, -90.0))
+	var player_site_id := _find_pending_structure_id("A", "power_core")
+	var ai_job: Dictionary = _construction_jobs_by_structure_id.get(site_id, {})
+	var player_job: Dictionary = _construction_jobs_by_structure_id.get(player_site_id, {})
+	var ai_player_parity := player_accepted and not ai_job.is_empty() and not player_job.is_empty() \
+		and int(ai_job["cost"]) == int(player_job["cost"]) \
+		and is_equal_approx(float(ai_job["duration"]), float(player_job["duration"])) \
+		and str(ai_job["state"]) == str(player_job["state"])
+	_run_enemy_build_step()
+	var duplicate_suppressed := _get_pending_buildable_count("B", "power_core") == 1
+	_update_construction_jobs(17.999)
+	var preboundary: bool = not _buildables_by_slot["B"].has("power_core")
+	_update_construction_jobs(0.002)
+	var timed_completion: bool = _buildables_by_slot["B"].has("power_core")
+	var pass_ok: bool = below_cost_immutable and exact_cost_queued and duplicate_suppressed and preboundary and timed_completion and ai_player_parity
+	print("[F85] Summary below_cost_immutable=%s exact_cost_queued=%s no_instant_entity=%s duplicate_suppressed=%s preboundary=%s timed_completion=%s ai_player_cost_duration_state_parity=%s pass=%s" % [str(below_cost_immutable), str(exact_cost_queued), str(exact_cost_queued), str(duplicate_suppressed), str(preboundary), str(timed_completion), str(ai_player_parity), str(pass_ok)])
+
+
+func _run_f86_public_data_capture_test_hook() -> void:
+	if not _has_user_flag(TEST_F86_PUBLIC_DATA_CAPTURE_FLAG):
+		return
+	get_window().size = Vector2i(1280, 720)
+	await get_tree().process_frame
+	_reset_data_objective_for_test()
+	var unit_id := _find_first_unit_for_slot("A")
+	var unit: SelectableUnit2D = _controllable_units[unit_id]
+	await _dispatch_world_click(_rts_camera.unproject_position(unit.position), MOUSE_BUTTON_LEFT)
+	var stale_target_id := _find_first_unit_for_slot("B")
+	_attack_orders[unit_id] = stale_target_id
+	_attack_cooldowns[unit_id] = 0.5
+	_gather_jobs[unit_id] = {"resource_id": "SAFE-ALLOY-A", "phase": "to_resource", "cycles": 0, "dropoff": _spawn_a.position}
+	var owner_before := str(_data_objective_state["owner_slot"])
+	await _dispatch_world_click(_rts_camera.unproject_position(_get_data_objective_position()), MOUSE_BUTTON_RIGHT)
+	var public_input := (_objective_command_unit_ids_by_slot["A"] as Array).has(unit_id)
+	var independent_move_target := unit.has_move_target()
+	var arbitration_cleared := not _attack_orders.has(unit_id) and not _attack_cooldowns.has(unit_id) and not _gather_jobs.has(unit_id)
+	var no_private_mutation := str(_data_objective_state["owner_slot"]) == owner_before and float(_data_objective_state["progress"]) == 0.0
+	var distance_before_ticks := Vector2(unit.position.x, unit.position.z).distance_to(Vector2(_get_data_objective_position().x, _get_data_objective_position().z))
+	for _tick in 5:
+		_update_live_units(0.1)
+		_update_gather_jobs()
+	var survives_process_ticks := arbitration_cleared and not _attack_orders.has(unit_id) and not _gather_jobs.has(unit_id) \
+		and Vector2(unit.position.x, unit.position.z).distance_to(Vector2(_get_data_objective_position().x, _get_data_objective_position().z)) < distance_before_ticks
+	for _step in 240:
+		_update_live_units(0.1)
+		if int(_get_objective_presence()["A"]) > 0:
+			break
+	var physical_presence := int(_get_objective_presence()["A"]) > 0
+	_update_data_objective(11.999)
+	var preboundary := str(_data_objective_state["owner_slot"]) == ""
+	_update_data_objective(0.002)
+	var captured_once := str(_data_objective_state["owner_slot"]) == "A" and str(_data_objective_state["phase"]) == "owned"
+	var normal_move_order := public_input and independent_move_target and physical_presence
+	var pass_ok: bool = public_input and independent_move_target and arbitration_cleared and survives_process_ticks and no_private_mutation and physical_presence and preboundary and captured_once
+	print("[F86] Summary public_input=%s normal_move_order=%s immediate_move_target=%s arbitration_cleared=%s survives_process_ticks=%s physical_presence=%s preboundary=%s captured_once=%s no_private_mutation=%s pass=%s" % [str(public_input), str(normal_move_order), str(independent_move_target), str(arbitration_cleared), str(survives_process_ticks), str(physical_presence), str(preboundary), str(captured_once), str(no_private_mutation), str(pass_ok)])
+	get_tree().quit()
+
+
+func _dispatch_world_click(screen_position: Vector2, button: MouseButton) -> void:
+	var press := InputEventMouseButton.new()
+	press.position = screen_position
+	press.global_position = screen_position
+	press.button_index = button
+	press.pressed = true
+	Input.parse_input_event(press)
+	await get_tree().process_frame
+	var release := InputEventMouseButton.new()
+	release.position = screen_position
+	release.global_position = screen_position
+	release.button_index = button
+	release.pressed = false
+	Input.parse_input_event(release)
+	await get_tree().process_frame
+
+
+func _reset_data_objective_for_test() -> void:
+	_initialize_data_objective()
+	_data_wallets_by_slot = {"A": 0, "B": 0}
+	_attack_orders.clear()
+	_objective_ai_timer = 999.0
+	_objective_ai_unit_ids_by_slot = {"A": [], "B": []}
+	_objective_command_unit_ids_by_slot = {"A": [], "B": []}
+	var slot_indices := {"A": 0, "B": 0}
+	for unit_id_value in _controllable_units.keys():
+		var unit_id := str(unit_id_value)
+		var unit: SelectableUnit2D = _controllable_units[unit_id]
+		var slot := _get_unit_slot(unit_id)
+		var slot_index := int(slot_indices[slot])
+		slot_indices[slot] = slot_index + 1
+		var spawn_position: Vector3 = _spawn_a.position if slot == "A" else _spawn_b.position
+		unit.position = spawn_position + Vector3(0.0, 0.0, float(slot_index - 2) * 20.0)
+		unit.queue_move(unit.position)
+		_ai_scan_timers[unit_id] = 999.0
+
+
+func _position_first_slot_unit(slot: String, position: Vector3) -> String:
+	var unit_id := _find_first_unit_for_slot(slot)
+	if unit_id != "":
+		var unit: SelectableUnit2D = _controllable_units[unit_id]
+		unit.position = position
+		unit.queue_move(position)
+	return unit_id
+
+
+func _run_f87_data_lifecycle_test_hook() -> void:
+	if not _has_user_flag(TEST_F87_DATA_LIFECYCLE_FLAG):
+		return
+	_reset_data_objective_for_test()
+	var neutral_surfaces := _objective_surfaces_agree()
+	var center := _get_data_objective_position()
+	var a_id := _position_first_slot_unit("A", center + Vector3(-72,0,0))
+	_update_data_objective(0.1)
+	var capturing_surfaces := _objective_surfaces_agree()
+	_update_data_objective(11.901)
+	var a_owned := str(_data_objective_state["owner_slot"]) == "A" and _objective_surfaces_agree()
+	var b_id := _position_first_slot_unit("B", center + Vector3(72,0,0))
+	_update_data_objective(2.0)
+	var contested_freeze := str(_data_objective_state["phase"]) == "contested" and is_equal_approx(float(_data_objective_state["progress"]), 1.0) and _objective_surfaces_agree()
+	(_controllable_units[a_id] as SelectableUnit2D).position = _spawn_a.position
+	_update_data_objective(4.0)
+	var partial_security := str(_data_objective_state["phase"]) == "neutralizing" and float(_data_objective_state["progress"]) < 0.51 and _objective_surfaces_agree()
+	(_controllable_units[b_id] as SelectableUnit2D).position = _spawn_b.position
+	var wallet_before_recovery := _get_data_wallet("A")
+	_update_data_objective(5.999)
+	var recovery_preboundary := str(_data_objective_state["phase"]) == "recovering" and float(_data_objective_state["progress"]) < 1.0 \
+		and _get_data_wallet("A") == wallet_before_recovery
+	var recovery_node: MapItem = _map_items_by_id[DATA_OBJECTIVE_ID]
+	var recovery_label: Label3D = recovery_node.get_node_or_null("ObjectiveStateLabel")
+	var owner_color := PrimitiveVisualKit.get_faction_color((_tether_points_by_slot["A"] as TetherPoint).faction_id)
+	var recovery_presentation := str(_data_objective_state["acting_slot"]) == "A" and _objective_surfaces_agree() \
+		and _hud_objective_status.text.find("re-securing") >= 0 and _hud_alert_item.text.find("re-securing") >= 0 \
+		and recovery_label != null and recovery_label.text.find("RE-SECURING") >= 0 and recovery_label.modulate.is_equal_approx(owner_color)
+	_update_data_objective(0.002)
+	var recovery_boundary := str(_data_objective_state["phase"]) == "owned" and is_equal_approx(float(_data_objective_state["progress"]), 1.0) \
+		and _hud_alert_item.text.find("re-secured") >= 0 and _objective_surfaces_agree()
+	# Re-enter after recovery and prove the independent eight-second neutralization.
+	(_controllable_units[b_id] as SelectableUnit2D).position = center + Vector3(72,0,0)
+	_update_data_objective(7.999)
+	var neutralize_preboundary := str(_data_objective_state["owner_slot"]) == "A"
+	_update_data_objective(0.002)
+	var neutralized := str(_data_objective_state["owner_slot"]) == "" and str(_data_objective_state["phase"]) == "neutral"
+	_update_data_objective(11.999)
+	var recapture_separate_preboundary := str(_data_objective_state["owner_slot"]) == ""
+	_update_data_objective(0.002)
+	var b_owned := str(_data_objective_state["owner_slot"]) == "B" and _objective_surfaces_agree()
+	# Recovery -> contest -> attacker-only must preserve partial security. A
+	# contested transition must not grant the owner free progress back to 100%.
+	_reset_data_objective_for_test()
+	a_id = _position_first_slot_unit("A", center + Vector3(-72,0,0))
+	_update_data_objective(12.001)
+	b_id = _position_first_slot_unit("B", center + Vector3(72,0,0))
+	(_controllable_units[a_id] as SelectableUnit2D).position = _spawn_a.position
+	_update_data_objective(4.0)
+	(_controllable_units[b_id] as SelectableUnit2D).position = _spawn_b.position
+	_update_data_objective(1.2)
+	var recovery_progress_before_contest := float(_data_objective_state["progress"])
+	(_controllable_units[a_id] as SelectableUnit2D).position = center + Vector3(-72,0,0)
+	(_controllable_units[b_id] as SelectableUnit2D).position = center + Vector3(72,0,0)
+	_update_data_objective(0.1)
+	var recovery_contested_preserved := str(_data_objective_state["phase"]) == "contested" \
+		and is_equal_approx(float(_data_objective_state["progress"]), recovery_progress_before_contest)
+	(_controllable_units[a_id] as SelectableUnit2D).position = _spawn_a.position
+	_update_data_objective(0.001)
+	var attacker_resume_progress := float(_data_objective_state["progress"])
+	var attacker_resume_preserved := str(_data_objective_state["phase"]) == "neutralizing" \
+		and str(_data_objective_state["acting_slot"]) == "B" \
+		and attacker_resume_progress < recovery_progress_before_contest \
+		and attacker_resume_progress > recovery_progress_before_contest - 0.001 \
+		and _objective_surfaces_agree() and _hud_objective_status.text.find("Veyari Swarm neutralizing Helion Directorate") >= 0
+	var remaining_neutralize := attacker_resume_progress * DATA_NEUTRALIZE_SECONDS
+	_update_data_objective(remaining_neutralize - 0.001)
+	var resumed_neutralize_preboundary := str(_data_objective_state["owner_slot"]) == "A"
+	_update_data_objective(0.002)
+	var resumed_neutralize_boundary := str(_data_objective_state["owner_slot"]) == "" and str(_data_objective_state["phase"]) == "neutral"
+	# Neutral capture contests retain the original capturer's partial progress.
+	_reset_data_objective_for_test()
+	a_id = _position_first_slot_unit("A", center + Vector3(-72,0,0))
+	_update_data_objective(4.8)
+	var neutral_progress_before_contest := float(_data_objective_state["progress"])
+	b_id = _position_first_slot_unit("B", center + Vector3(72,0,0))
+	_update_data_objective(0.5)
+	(_controllable_units[b_id] as SelectableUnit2D).position = _spawn_b.position
+	_update_data_objective(0.1)
+	var neutral_capture_retained := str(_data_objective_state["phase"]) == "capturing" \
+		and str(_data_objective_state["acting_slot"]) == "A" and float(_data_objective_state["progress"]) > neutral_progress_before_contest
+	# Abandon a neutral capture and prove six-second decay.
+	_reset_data_objective_for_test()
+	a_id = _position_first_slot_unit("A", center + Vector3(-72,0,0))
+	_update_data_objective(6.0)
+	(_controllable_units[a_id] as SelectableUnit2D).position = _spawn_a.position
+	_update_data_objective(5.999)
+	var decay_preboundary := float(_data_objective_state["progress"]) > 0.0
+	_update_data_objective(0.002)
+	var decay_complete := str(_data_objective_state["phase"]) == "neutral" and is_equal_approx(float(_data_objective_state["progress"]), 0.0) and _objective_surfaces_agree()
+	# The 0.1 fixed substep makes one large update equivalent to many small ones.
+	_reset_data_objective_for_test()
+	a_id = _position_first_slot_unit("A", center + Vector3(-72,0,0))
+	_update_data_objective(4.3)
+	var large_delta_progress := float(_data_objective_state["progress"])
+	_reset_data_objective_for_test()
+	a_id = _position_first_slot_unit("A", center + Vector3(-72,0,0))
+	for _step in 43:
+		_update_data_objective(0.1)
+	var substep_equivalence := is_equal_approx(large_delta_progress, float(_data_objective_state["progress"]))
+	var surface_states := neutral_surfaces and capturing_surfaces and a_owned and contested_freeze and partial_security and b_owned and decay_complete
+	var contest_origin_edges := recovery_contested_preserved and attacker_resume_preserved and resumed_neutralize_preboundary \
+		and resumed_neutralize_boundary and neutral_capture_retained
+	var pass_ok: bool = surface_states and contest_origin_edges and a_owned and contested_freeze and partial_security and recovery_preboundary and recovery_presentation and recovery_boundary \
+		and neutralize_preboundary and neutralized and recapture_separate_preboundary and b_owned \
+		and decay_preboundary and decay_complete and substep_equivalence
+	print("[F87] Summary state_surfaces_agree=%s a_owned=%s contest_freezes=%s partial_security=%s recovery_5_999=%s truthful_recovery_presentation=%s recovery_6_boundary=%s income_paused_during_recovery=%s recovery_contest_preserved=%s attacker_resume_preserved=%s resumed_neutralize_preboundary=%s resumed_neutralize_boundary=%s neutral_capture_contest_retained=%s neutralize_preboundary=%s neutralized_boundary=%s separate_recapture_preboundary=%s b_owned=%s abandon_decay_5_999=%s abandon_decay_6_complete=%s large_delta_substep_equivalent=%s pass=%s" % [str(surface_states), str(a_owned), str(contested_freeze), str(partial_security), str(recovery_preboundary), str(recovery_presentation), str(recovery_boundary), str(recovery_preboundary), str(recovery_contested_preserved), str(attacker_resume_preserved), str(resumed_neutralize_preboundary), str(resumed_neutralize_boundary), str(neutral_capture_retained), str(neutralize_preboundary), str(neutralized), str(recapture_separate_preboundary), str(b_owned), str(decay_preboundary), str(decay_complete), str(substep_equivalence), str(pass_ok)])
+
+
+func _run_f88_data_benefit_feedback_test_hook() -> void:
+	if not _has_user_flag(TEST_F88_DATA_BENEFIT_FEEDBACK_FLAG):
+		return
+	_reset_data_objective_for_test()
+	_set_stockpile_reserve("data", 100, "f88_reset")
+	var center := _get_data_objective_position()
+	var a_id := _position_first_slot_unit("A", center + Vector3(-72,0,0))
+	_update_data_objective(12.001)
+	var total_before := _get_data_wallet("A") + _get_data_wallet("B") + _get_stockpile_reserve("data")
+	_update_data_objective(3.001)
+	var exact_income := _get_data_wallet("A") == 15 and _get_stockpile_reserve("data") == 85
+	var conservation := total_before == _get_data_wallet("A") + _get_data_wallet("B") + _get_stockpile_reserve("data")
+	var b_id := _position_first_slot_unit("B", center + Vector3(72,0,0))
+	var wallet_before_contest := _get_data_wallet("A")
+	_update_data_objective(3.0)
+	var contest_pause := _get_data_wallet("A") == wallet_before_contest and str(_data_objective_state["phase"]) == "contested"
+	_update_hud()
+	var hud_ok := _hud_resource_bar.text.find("Data: 15") >= 0 and _hud_resource_bar.text.find("Data World: 85/120000") >= 0 \
+		and _hud_objective_status.text.find("Contested") >= 0
+	var minimap_ok := _hud_minimap_draw.objective_visible and _hud_minimap_draw.objective_phase == "contested"
+	var visual_node: MapItem = _map_items_by_id[DATA_OBJECTIVE_ID]
+	var world_visual_ok := str(visual_node.get("objective_phase")) == "contested"
+	(_controllable_units[b_id] as SelectableUnit2D).position = _spawn_b.position
+	_set_stockpile_reserve("data", 3, "f88_clamp")
+	_update_data_objective(1.0)
+	var zero_clamp := _get_data_wallet("A") == 18 and _get_stockpile_reserve("data") == 0 and _get_data_wallet("B") == 0
+	var pass_ok: bool = exact_income and conservation and contest_pause and hud_ok and minimap_ok and world_visual_ok and zero_clamp
+	print("[F88] Summary exact_income=%s conservation=%s contest_pause=%s player_world_hud=%s minimap_state=%s world_state=%s reserve_zero_clamp=%s slot_isolation=%s pass=%s" % [str(exact_income), str(conservation), str(contest_pause), str(hud_ok), str(minimap_ok), str(world_visual_ok), str(zero_clamp), str(_get_data_wallet("B") == 0), str(pass_ok)])
+
+
+func _run_f89_objective_ai_endgame_test_hook() -> void:
+	if not _has_user_flag(TEST_F89_OBJECTIVE_AI_ENDGAME_FLAG):
+		return
+	_reset_data_objective_for_test()
+	var b_positions_before := {}
+	for unit_id_value in _controllable_units.keys():
+		var unit_id := str(unit_id_value)
+		if _get_unit_slot(unit_id) == "B":
+			b_positions_before[unit_id] = (_controllable_units[unit_id] as SelectableUnit2D).position
+			_attack_orders[unit_id] = _find_first_unit_for_slot("A")
+			_attack_cooldowns[unit_id] = 0.4
+			_gather_jobs[unit_id] = {"resource_id": "SAFE-ALLOY-B", "phase": "to_resource", "cycles": 0, "dropoff": _spawn_b.position}
+	_objective_ai_timer = 0.0
+	_update_objective_ai(0.1)
+	var ai_issued := int(_objective_ai_issue_count_by_slot["B"]) == 1
+	var assigned: Array = _objective_ai_unit_ids_by_slot["B"]
+	var no_teleport := not assigned.is_empty()
+	var stale_orders_cleared := true
+	for assigned_id_value in assigned:
+		var assigned_id := str(assigned_id_value)
+		no_teleport = no_teleport and b_positions_before.has(assigned_id) \
+			and (_controllable_units[assigned_id] as SelectableUnit2D).position.is_equal_approx(b_positions_before[assigned_id])
+		stale_orders_cleared = stale_orders_cleared and not _attack_orders.has(assigned_id) \
+			and not _attack_cooldowns.has(assigned_id) and not _gather_jobs.has(assigned_id)
+	# Destroyed units must disappear synchronously from both intent registries.
+	var destroyed_assigned_id := str(assigned[assigned.size() - 1])
+	_destroy_unit(destroyed_assigned_id)
+	var destroyed_pruned := not (_objective_ai_unit_ids_by_slot["B"] as Array).has(destroyed_assigned_id) \
+		and not (_objective_command_unit_ids_by_slot["B"] as Array).has(destroyed_assigned_id)
+	_update_objective_ai(OBJECTIVE_AI_INTERVAL + 0.001)
+	var replacement_issued := int(_objective_ai_issue_count_by_slot["B"]) == 2 and (_objective_ai_unit_ids_by_slot["B"] as Array).size() == 2
+	var replacement_assignments: Array = (_objective_ai_unit_ids_by_slot["B"] as Array).duplicate()
+	for _step in 260:
+		_update_live_units(0.1)
+		_update_enemy_ai(0.1)
+		_update_objective_ai(0.1)
+		_update_data_objective(0.1)
+	var b_captured := str(_data_objective_state["owner_slot"]) == "B"
+	var bounded_cadence := int(_objective_ai_issue_count_by_slot["B"]) == 2
+	_update_objective_ai(OBJECTIVE_AI_INTERVAL + 0.001)
+	var secure_release := (_objective_ai_unit_ids_by_slot["B"] as Array).is_empty()
+	for released_id_value in replacement_assignments:
+		_ai_scan_timers[str(released_id_value)] = 0.0
+	_update_enemy_ai(0.1)
+	var combat_resumed := false
+	for released_id_value in replacement_assignments:
+		var released_id := str(released_id_value)
+		if _controllable_units.has(released_id):
+			combat_resumed = combat_resumed or _attack_orders.has(released_id) or (_controllable_units[released_id] as SelectableUnit2D).has_move_target()
+			# Keep the secured defenders present for the subsequent generic-A
+			# contest half of this deterministic fixture.
+			_attack_orders.erase(released_id)
+			var defender: SelectableUnit2D = _controllable_units[released_id]
+			defender.position = _get_data_objective_position() + Vector3(72.0, 0.0, 0.0)
+			defender.queue_move(defender.position)
+	for unit_id_value in _controllable_units.keys():
+		var unit_id := str(unit_id_value)
+		if _get_unit_slot(unit_id) == "A":
+			_attack_orders[unit_id] = _find_first_unit_for_slot("B")
+			_attack_cooldowns[unit_id] = 0.3
+			_gather_jobs[unit_id] = {"resource_id": "SAFE-ALLOY-A", "phase": "to_resource", "cycles": 0, "dropoff": _spawn_a.position}
+	var a_issued := _run_objective_ai_step("A")
+	var a_arbitration := a_issued
+	for assigned_id_value in _objective_ai_unit_ids_by_slot["A"]:
+		var assigned_id := str(assigned_id_value)
+		a_arbitration = a_arbitration and not _attack_orders.has(assigned_id) and not _attack_cooldowns.has(assigned_id) and not _gather_jobs.has(assigned_id)
+	for _step in 260:
+		_update_live_units(0.1)
+	_update_data_objective(0.1)
+	var contested := str(_data_objective_state["phase"]) == "contested"
+	var owner_before := str(_data_objective_state["owner_slot"])
+	var progress_before := float(_data_objective_state["progress"])
+	var data_before := _get_data_wallet(owner_before)
+	_finalize_match("Win", "f89_test")
+	_update_data_objective(30.0)
+	var frozen := str(_data_objective_state["phase"]) == "frozen" and is_equal_approx(float(_data_objective_state["progress"]), progress_before) \
+		and _get_data_wallet(owner_before) == data_before and (_objective_ai_unit_ids_by_slot["A"] as Array).is_empty() and (_objective_ai_unit_ids_by_slot["B"] as Array).is_empty() \
+		and _objective_surfaces_agree()
+	var no_objective_victory := owner_before == "B"
+	var pass_ok: bool = ai_issued and no_teleport and stale_orders_cleared and destroyed_pruned and replacement_issued \
+		and bounded_cadence and b_captured and secure_release and combat_resumed and a_arbitration and contested and frozen and no_objective_victory
+	print("[F89] Summary live_ai_cadence=%s no_teleport=%s stale_orders_cleared=%s destroyed_pruned_immediate=%s replacement_issued=%s bounded_reissue=%s b_captured=%s secure_assignments_released=%s combat_resumed=%s ai_a_ordinary_command=%s ai_a_arbitration=%s contested=%s match_frozen=%s ownership_not_victory=%s pass=%s" % [str(ai_issued), str(no_teleport), str(stale_orders_cleared), str(destroyed_pruned), str(replacement_issued), str(bounded_cadence), str(b_captured), str(secure_release), str(combat_resumed), str(a_issued), str(a_arbitration), str(contested), str(frozen), str(no_objective_victory), str(pass_ok)])
+
+
+func _run_f90_swapped_objective_palette_test_hook() -> void:
+	if not _has_user_flag(TEST_F90_SWAPPED_OBJECTIVE_PALETTE_FLAG):
+		return
+	_update_hud()
+	var tether_a: TetherPoint = _tether_points_by_slot["A"]
+	var tether_b: TetherPoint = _tether_points_by_slot["B"]
+	var node: MapItem = _map_items_by_id[DATA_OBJECTIVE_ID]
+	var swapped := tether_a.faction_id == DEFAULT_ENEMY_FACTION and tether_b.faction_id == DEFAULT_PLAYER_FACTION
+	var names_match := node.get_objective_owner_display_name("A") == CampaignData.get_display_name(tether_a.faction_id) \
+		and node.get_objective_owner_display_name("B") == CampaignData.get_display_name(tether_b.faction_id)
+	var colors_match := node.get_objective_owner_color("A").is_equal_approx(PrimitiveVisualKit.get_faction_color(tether_a.faction_id)) \
+		and node.get_objective_owner_color("B").is_equal_approx(PrimitiveVisualKit.get_faction_color(tether_b.faction_id))
+	var immediate_state := node.objective_phase == "neutral" and _hud_objective_status.text == "Data Node: Neutral" \
+		and _hud_minimap_draw.objective_visible and _hud_minimap_draw.objective_phase == "neutral"
+	var pass_ok := swapped and names_match and colors_match and immediate_state
+	print("[F90] Summary swapped_orientation=%s ordinary_post_tether_palette=%s names_match=%s colors_match=%s immediate_hud_minimap=%s pass=%s" % [str(swapped), str(names_match and colors_match), str(names_match), str(colors_match), str(immediate_state), str(pass_ok)])
+
+
+func _run_f91_unit_profile_catalog_test_hook() -> void:
+	if not _has_user_flag(TEST_F91_UNIT_PROFILE_CATALOG_FLAG):
+		return
+	var catalog_complete := true
+	var numeric_valid := true
+	var roles_by_faction := {"helion": {}, "veyari": {}}
+	for profile_entry in F24_UNIT_PROFILES:
+		var unit_type := str((profile_entry as Dictionary)["unit"])
+		var faction := str((profile_entry as Dictionary)["faction"])
+		catalog_complete = catalog_complete and UnitCombatProfiles.has_profile(unit_type)
+		var combat := UnitCombatProfiles.get_profile(unit_type)
+		catalog_complete = catalog_complete and str(combat.get("faction", "")) == faction
+		numeric_valid = numeric_valid and float(combat.get("max_hp", 0.0)) > 0.0 \
+			and float(combat.get("move_speed", 0.0)) > 0.0 and float(combat.get("range", 0.0)) > 0.0 \
+			and float(combat.get("damage", 0.0)) > 0.0 and float(combat.get("cooldown", 0.0)) > 0.0
+		(roles_by_faction[faction] as Dictionary)[str(combat.get("role", ""))] = true
+	var role_coverage := (roles_by_faction["helion"] as Dictionary).size() >= 6 \
+		and (roles_by_faction["veyari"] as Dictionary).size() >= 6
+	var helion_actor := SelectableUnit2D.new()
+	var veyari_actor := SelectableUnit2D.new()
+	add_child(helion_actor)
+	add_child(veyari_actor)
+	helion_actor.initialize("ember_tank", "helion", Vector3.ZERO)
+	veyari_actor.initialize("bulwark_husk", "veyari", Vector3(30.0, 0.0, 0.0))
+	var actor_profile_applied := is_equal_approx(helion_actor.move_speed, float(UnitCombatProfiles.get_profile("ember_tank")["move_speed"])) \
+		and is_equal_approx(veyari_actor.move_speed, float(UnitCombatProfiles.get_profile("bulwark_husk")["move_speed"]))
+	var faction_shape_separation := helion_actor.get_visual_signature() == "helion:armor" \
+		and veyari_actor.get_visual_signature() == "veyari:armor" \
+		and helion_actor.get_visual_signature() != veyari_actor.get_visual_signature()
+	helion_actor.queue_free()
+	veyari_actor.queue_free()
+	var pass_ok := catalog_complete and numeric_valid and role_coverage and actor_profile_applied and faction_shape_separation
+	print("[F91] Summary catalog_complete=%s numeric_valid=%s six_roles_each=%s actor_profile_applied=%s faction_shape_separation=%s pass=%s" % [
+		str(catalog_complete), str(numeric_valid), str(role_coverage), str(actor_profile_applied), str(faction_shape_separation), str(pass_ok)
+	])
+
+
+func _run_f92_combat_identity_test_hook() -> void:
+	if not _has_user_flag(TEST_F92_COMBAT_IDENTITY_FLAG):
+		return
+	var line_light := UnitCombatProfiles.get_damage("lancer_squad", "light")
+	var line_armor := UnitCombatProfiles.get_damage("lancer_squad", "armored")
+	var breach_light := UnitCombatProfiles.get_damage("breach_team", "light")
+	var breach_armor := UnitCombatProfiles.get_damage("breach_team", "armored")
+	var siege_light := UnitCombatProfiles.get_damage("sunforge_artillery", "light")
+	var siege_structure := UnitCombatProfiles.get_damage("sunforge_artillery", "structure")
+	var counter_bands := line_light > line_armor and breach_armor > breach_light and siege_structure > siege_light
+	var raider_speed := float(UnitCombatProfiles.get_profile("strider_bike")["move_speed"])
+	var armor_speed := float(UnitCombatProfiles.get_profile("ember_tank")["move_speed"])
+	var mobility_band := raider_speed >= armor_speed * 1.8
+	var faction_asymmetry := not is_equal_approx(float(UnitCombatProfiles.get_profile("lancer_squad")["max_hp"]), float(UnitCombatProfiles.get_profile("needle_brood")["max_hp"])) \
+		and not is_equal_approx(float(UnitCombatProfiles.get_profile("lancer_squad")["cooldown"]), float(UnitCombatProfiles.get_profile("needle_brood")["cooldown"]))
+
+	var attacker := SelectableUnit2D.new()
+	var target := SelectableUnit2D.new()
+	attacker.name = "F92_Attacker"
+	target.name = "F92_Target"
+	attacker.set_meta("slot", "A")
+	target.set_meta("slot", "B")
+	add_child(attacker)
+	add_child(target)
+	attacker.initialize("lancer_squad", "helion", Vector3(0.0, 0.0, 0.0))
+	target.initialize("needle_brood", "veyari", Vector3(20.0, 0.0, 0.0))
+	_controllable_units[attacker.name] = attacker
+	_controllable_units[target.name] = target
+	_register_unit_for_combat(attacker.name, attacker.unit_id)
+	_register_unit_for_combat(target.name, target.unit_id)
+	var hp_before := float(_unit_hit_points[target.name])
+	_attack_orders[attacker.name] = target.name
+	_attack_cooldowns[attacker.name] = 0.0
+	_update_attack_orders(0.01)
+	var actual_delta := hp_before - float(_unit_hit_points[target.name])
+	var expected_delta := UnitCombatProfiles.get_damage("lancer_squad", "light")
+	var runtime_damage := is_equal_approx(actual_delta, expected_delta)
+	var runtime_cadence := is_equal_approx(float(_attack_cooldowns[attacker.name]), float(UnitCombatProfiles.get_profile("lancer_squad")["cooldown"]))
+	var weapon_feedback := attacker.is_attack_feedback_active()
+	_controllable_units.erase(attacker.name)
+	_controllable_units.erase(target.name)
+	_unit_hit_points.erase(attacker.name)
+	_unit_hit_points.erase(target.name)
+	_attack_orders.erase(attacker.name)
+	_attack_cooldowns.erase(attacker.name)
+	_attack_cooldowns.erase(target.name)
+	attacker.queue_free()
+	target.queue_free()
+	var pass_ok := counter_bands and mobility_band and faction_asymmetry and runtime_damage and runtime_cadence and weapon_feedback
+	print("[F92] Summary counter_bands=%s mobility_band=%s faction_asymmetry=%s runtime_damage=%s runtime_cadence=%s weapon_feedback=%s pass=%s" % [
+		str(counter_bands), str(mobility_band), str(faction_asymmetry), str(runtime_damage), str(runtime_cadence), str(weapon_feedback), str(pass_ok)
 	])
 
 
@@ -2677,6 +3562,270 @@ func _find_nearest_available_alloy_source(world_position: Vector3, max_distance:
 	return nearest_id
 
 
+func _initialize_data_objective() -> void:
+	_data_objective_state = {
+		"node_id": DATA_OBJECTIVE_ID, "owner_slot": "", "phase": "neutral",
+		"acting_slot": "", "progress": 0.0, "income_accumulator": 0.0,
+		"progress_bucket": -1, "occupants_a": 0, "occupants_b": 0,
+		"decay_active": false, "decay_elapsed": 0.0, "decay_start_progress": 0.0,
+		"recovery_active": false, "recovery_elapsed": 0.0, "recovery_start_progress": 0.0,
+		"contested_origin_phase": "neutral",
+	}
+	_objective_sequence = 0
+	_objective_sim_time = 0.0
+	_objective_ai_issue_count_by_slot = {"A": 0, "B": 0}
+	_configure_data_objective_palette()
+	_apply_data_objective_visual()
+
+
+func _configure_data_objective_palette() -> void:
+	if not _map_items_by_id.has(DATA_OBJECTIVE_ID) or not _tether_points_by_slot.has("A") or not _tether_points_by_slot.has("B"):
+		return
+	var node: MapItem = _map_items_by_id[DATA_OBJECTIVE_ID]
+	var faction_a := (_tether_points_by_slot["A"] as TetherPoint).faction_id
+	var faction_b := (_tether_points_by_slot["B"] as TetherPoint).faction_id
+	node.set_objective_faction_palette(
+		CampaignData.get_display_name(faction_a), PrimitiveVisualKit.get_faction_color(faction_a),
+		CampaignData.get_display_name(faction_b), PrimitiveVisualKit.get_faction_color(faction_b)
+	)
+
+
+func _get_objective_slot_name(slot: String) -> String:
+	if _tether_points_by_slot.has(slot):
+		return CampaignData.get_display_name((_tether_points_by_slot[slot] as TetherPoint).faction_id)
+	return slot
+
+
+func _get_data_objective_position() -> Vector3:
+	if _map_items_by_id.has(DATA_OBJECTIVE_ID):
+		return (_map_items_by_id[DATA_OBJECTIVE_ID] as MapItem).position
+	return Vector3.ZERO
+
+
+func _get_objective_presence() -> Dictionary:
+	var counts := {"A": 0, "B": 0}
+	var center := _get_data_objective_position()
+	for unit_id_value in _controllable_units.keys():
+		var unit_id := str(unit_id_value)
+		var slot := _get_unit_slot(unit_id)
+		if slot != "A" and slot != "B":
+			continue
+		var unit: SelectableUnit2D = _controllable_units[unit_id]
+		if Vector2(unit.position.x, unit.position.z).distance_to(Vector2(center.x, center.z)) <= DATA_CAPTURE_RADIUS:
+			counts[slot] = int(counts[slot]) + 1
+	return counts
+
+
+func _update_data_objective(delta: float) -> void:
+	if _match_over or delta <= 0.0 or _data_objective_state.is_empty():
+		return
+	var remaining := delta
+	while remaining > 0.0:
+		var step := minf(0.1, remaining)
+		_update_data_objective_step(step)
+		remaining -= step
+
+
+func _update_data_objective_step(delta: float) -> void:
+	_objective_sim_time += delta
+	var presence := _get_objective_presence()
+	var a_count := int(presence["A"])
+	var b_count := int(presence["B"])
+	_data_objective_state["occupants_a"] = a_count
+	_data_objective_state["occupants_b"] = b_count
+	var owner := str(_data_objective_state["owner_slot"])
+	var phase := str(_data_objective_state["phase"])
+	var acting := str(_data_objective_state["acting_slot"])
+	var progress := float(_data_objective_state["progress"])
+	var both := a_count > 0 and b_count > 0
+	var lone := "A" if a_count > 0 and b_count == 0 else ("B" if b_count > 0 and a_count == 0 else "")
+	if both:
+		if phase != "contested":
+			_data_objective_state["contested_origin_phase"] = phase
+		_set_data_objective_phase("contested", acting, progress, "both_slots_present")
+		return
+	if owner == "":
+		if lone != "":
+			_data_objective_state["decay_active"] = false
+			if (phase != "capturing" and phase != "contested") or acting != lone:
+				progress = 0.0
+			_set_data_objective_phase("capturing", lone, progress, "uncontested_presence")
+			progress = minf(1.0, progress + delta / DATA_CAPTURE_SECONDS)
+			_data_objective_state["progress"] = progress
+			_emit_objective_progress_if_needed()
+			if progress >= 1.0:
+				_complete_data_capture(lone)
+		else:
+			if phase == "contested" and acting != "":
+				_set_data_objective_phase("capturing", acting, progress, "contest_cleared_empty")
+			if progress > 0.0 and not bool(_data_objective_state["decay_active"]):
+				_data_objective_state["decay_active"] = true
+				_data_objective_state["decay_elapsed"] = 0.0
+				_data_objective_state["decay_start_progress"] = progress
+			_data_objective_state["decay_elapsed"] = float(_data_objective_state["decay_elapsed"]) + delta
+			var decay_ratio := clampf(float(_data_objective_state["decay_elapsed"]) / DATA_ABANDON_SECONDS, 0.0, 1.0)
+			progress = lerpf(float(_data_objective_state["decay_start_progress"]), 0.0, decay_ratio)
+			_data_objective_state["progress"] = progress
+			if progress <= 0.0:
+				_set_data_objective_phase("neutral", "", 0.0, "abandoned_decay")
+		return
+	if lone == "" or lone == owner:
+		if phase == "neutralizing":
+			_set_data_objective_phase("recovering", owner, progress, "attacker_withdrew_security_recovery")
+			phase = "recovering"
+		if phase == "recovering":
+			if not bool(_data_objective_state["recovery_active"]):
+				_data_objective_state["recovery_active"] = true
+				_data_objective_state["recovery_elapsed"] = 0.0
+				_data_objective_state["recovery_start_progress"] = progress
+			_data_objective_state["recovery_elapsed"] = float(_data_objective_state["recovery_elapsed"]) + delta
+			var recovery_ratio := clampf(float(_data_objective_state["recovery_elapsed"]) / DATA_ABANDON_SECONDS, 0.0, 1.0)
+			progress = lerpf(float(_data_objective_state["recovery_start_progress"]), 1.0, recovery_ratio)
+			_data_objective_state["progress"] = progress
+			_emit_objective_progress_if_needed()
+			if progress >= 1.0:
+				_set_data_objective_phase("owned", "", 1.0, "security_recovered")
+		elif phase == "contested":
+			# A contest can interrupt neutralization at partial security. The owner
+			# must recover that security over the full six-second scale; income stays
+			# paused until progress reaches 1.0 again.
+			if progress < 1.0:
+				_set_data_objective_phase("recovering", owner, progress, "contest_cleared_security_recovery")
+			else:
+				_set_data_objective_phase("owned", "", 1.0, "contest_cleared_owner")
+		if str(_data_objective_state["phase"]) == "owned":
+			_data_objective_state["income_accumulator"] = float(_data_objective_state["income_accumulator"]) + delta
+			while float(_data_objective_state["income_accumulator"]) >= 1.0:
+				_data_objective_state["income_accumulator"] = float(_data_objective_state["income_accumulator"]) - 1.0
+				_transfer_data_from_world(owner, DATA_INCOME_PER_SECOND, DATA_OBJECTIVE_ID)
+		return
+	# Enemy-only presence on owned node.
+	if (phase != "neutralizing" and phase != "recovering" and phase != "contested") or acting != lone:
+		var contested_origin := str(_data_objective_state.get("contested_origin_phase", "owned"))
+		var preserve_partial := phase == "neutralizing" or phase == "recovering" \
+			or (phase == "contested" and (contested_origin == "neutralizing" or contested_origin == "recovering"))
+		if not preserve_partial:
+			progress = 1.0
+		_data_objective_state["recovery_active"] = false
+		_set_data_objective_phase("neutralizing", lone, progress, "enemy_presence")
+	progress = maxf(0.0, progress - delta / DATA_NEUTRALIZE_SECONDS)
+	_data_objective_state["progress"] = progress
+	_emit_objective_progress_if_needed()
+	if progress <= 0.0:
+		var previous_owner := owner
+		_data_objective_state["owner_slot"] = ""
+		_data_objective_state["income_accumulator"] = 0.0
+		_set_data_objective_phase("neutral", "", 0.0, "neutralized_by_%s_from_%s" % [lone, previous_owner])
+
+
+func _set_data_objective_phase(phase: String, acting_slot: String, progress: float, reason: String) -> void:
+	var changed := str(_data_objective_state["phase"]) != phase or str(_data_objective_state["acting_slot"]) != acting_slot
+	if not changed:
+		return
+	var owner_before := str(_data_objective_state["owner_slot"])
+	_data_objective_state["phase"] = phase
+	_data_objective_state["acting_slot"] = acting_slot
+	_data_objective_state["progress"] = clampf(progress, 0.0, 1.0)
+	_data_objective_state["progress_bucket"] = -1
+	_emit_objective_event(phase, owner_before, owner_before, reason)
+	_apply_data_objective_visual()
+	_announce_data_objective_transition(phase, owner_before, acting_slot, reason)
+
+
+func _complete_data_capture(slot: String) -> void:
+	var owner_before := str(_data_objective_state["owner_slot"])
+	_data_objective_state["owner_slot"] = slot
+	_data_objective_state["phase"] = "owned"
+	_data_objective_state["acting_slot"] = ""
+	_data_objective_state["progress"] = 1.0
+	_data_objective_state["income_accumulator"] = 0.0
+	_emit_objective_event("captured", owner_before, slot, "capture_complete")
+	_apply_data_objective_visual()
+	_announce_data_objective_transition("captured", owner_before, slot, "capture_complete")
+
+
+func _announce_data_objective_transition(phase: String, owner: String, acting: String, reason: String) -> void:
+	if not _hud_alert_item:
+		return
+	match phase:
+		"capturing": _hud_alert_item.text = "%s is capturing the Data Node" % _get_objective_slot_name(acting)
+		"contested": _hud_alert_item.text = "Data Node contested — income paused"
+		"captured": _hud_alert_item.text = "Data Node secured by %s" % _get_objective_slot_name(acting)
+		"neutralizing":
+			_hud_alert_item.text = "%s is neutralizing %s control" % [_get_objective_slot_name(acting), _get_objective_slot_name(owner)]
+		"recovering": _hud_alert_item.text = "%s is re-securing the Data Node" % _get_objective_slot_name(owner)
+		"neutral":
+			if reason.begins_with("neutralized_by_"):
+				var lost_slot := reason.get_slice("_from_", 1)
+				_hud_alert_item.text = "%s lost control of the Data Node" % _get_objective_slot_name(lost_slot)
+		"owned":
+			if reason == "security_recovered":
+				_hud_alert_item.text = "Data Node re-secured by %s" % _get_objective_slot_name(owner)
+
+
+func _emit_objective_progress_if_needed() -> void:
+	var bucket := mini(4, int(floor(float(_data_objective_state["progress"]) * 4.0)))
+	if bucket <= int(_data_objective_state["progress_bucket"]):
+		return
+	_data_objective_state["progress_bucket"] = bucket
+	_emit_objective_event("progress", str(_data_objective_state["owner_slot"]), str(_data_objective_state["owner_slot"]), "threshold")
+	_apply_data_objective_visual()
+
+
+func _emit_objective_event(event: String, owner_before: String, owner_after: String, reason: String) -> void:
+	_objective_sequence += 1
+	print("[Objective] event=%s node_id=%s owner_before=%s owner_after=%s acting_slot=%s occupants_a=%d occupants_b=%d progress=%.3f reason=%s seq=%d sim_time=%.3f" % [event, DATA_OBJECTIVE_ID, owner_before if owner_before != "" else "none", owner_after if owner_after != "" else "none", str(_data_objective_state["acting_slot"]), int(_data_objective_state["occupants_a"]), int(_data_objective_state["occupants_b"]), float(_data_objective_state["progress"]), reason, _objective_sequence, _objective_sim_time])
+
+
+func _apply_data_objective_visual() -> void:
+	if _map_items_by_id.has(DATA_OBJECTIVE_ID):
+		var node: MapItem = _map_items_by_id[DATA_OBJECTIVE_ID]
+		if node.has_method("set_objective_state"):
+			node.set_objective_state(str(_data_objective_state["owner_slot"]), str(_data_objective_state["phase"]), float(_data_objective_state["progress"]), "", null, str(_data_objective_state["acting_slot"]))
+	_update_objective_hud()
+
+
+func _update_objective_hud() -> void:
+	if not _hud_objective_status or _data_objective_state.is_empty():
+		return
+	var owner := str(_data_objective_state["owner_slot"])
+	var phase := str(_data_objective_state["phase"])
+	var acting := str(_data_objective_state["acting_slot"])
+	var pct := int(round(float(_data_objective_state["progress"]) * 100.0))
+	match phase:
+		"neutral": _hud_objective_status.text = "Data Node: Neutral"
+		"capturing": _hud_objective_status.text = "Data Node: %s capturing — %d%%" % [_get_objective_slot_name(acting), pct]
+		"owned": _hud_objective_status.text = "Data Node: Owned by %s — +%d Data/s" % [_get_objective_slot_name(owner), DATA_INCOME_PER_SECOND]
+		"contested": _hud_objective_status.text = "Data Node: Contested — income paused"
+		"neutralizing": _hud_objective_status.text = "Data Node: %s neutralizing %s — %d%% secured" % [_get_objective_slot_name(acting), _get_objective_slot_name(owner), pct]
+		"recovering": _hud_objective_status.text = "Data Node: %s re-securing — %d%% secured" % [_get_objective_slot_name(owner), pct]
+		"frozen": _hud_objective_status.text = "Data Node: Frozen — owner %s" % (_get_objective_slot_name(owner) if owner != "" else "none")
+
+
+func _objective_surfaces_agree() -> bool:
+	_apply_data_objective_visual()
+	_update_hud()
+	if not _map_items_by_id.has(DATA_OBJECTIVE_ID) or not _hud_minimap_draw or not _hud_objective_status:
+		return false
+	var node: MapItem = _map_items_by_id[DATA_OBJECTIVE_ID]
+	var owner := str(_data_objective_state["owner_slot"])
+	var phase := str(_data_objective_state["phase"])
+	var acting := str(_data_objective_state["acting_slot"])
+	var world_agrees := node.objective_owner == owner and node.objective_acting_slot == acting and node.objective_phase == phase \
+		and is_equal_approx(node.objective_progress, float(_data_objective_state["progress"]))
+	var minimap_agrees := _hud_minimap_draw.objective_visible and _hud_minimap_draw.objective_owner == owner and _hud_minimap_draw.objective_acting_slot == acting \
+		and _hud_minimap_draw.objective_phase == phase and is_equal_approx(_hud_minimap_draw.objective_progress, float(_data_objective_state["progress"]))
+	var hud_phase_text := "re-securing" if phase == "recovering" else phase
+	var hud_agrees := _hud_objective_status.text.to_lower().find(hud_phase_text) >= 0
+	var identity_slot := owner if owner != "" else str(_data_objective_state["acting_slot"])
+	var identity_agrees := true
+	if identity_slot != "" and phase != "contested":
+		var faction_name := _get_objective_slot_name(identity_slot)
+		var label: Label3D = node.get_node_or_null("ObjectiveStateLabel")
+		identity_agrees = _hud_objective_status.text.find(faction_name) >= 0 and label != null and label.text.find(faction_name) >= 0
+	return world_agrees and minimap_agrees and hud_agrees and identity_agrees
+
+
 func _validate_map_item_catalog() -> void:
 	for key in REQUIRED_COUNTS.keys():
 		var expected_count: int = int(REQUIRED_COUNTS[key])
@@ -2702,7 +3851,9 @@ func _create_mvp_hud() -> void:
 
 	var hud_root := Control.new()
 	hud_root.set_anchors_preset(Control.PRESET_FULL_RECT)
-	hud_root.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	# PASS keeps child Buttons reachable through viewport GUI dispatch. World input is
+	# handled in `_input`, with interactive HUD bounds explicitly excluded there.
+	hud_root.mouse_filter = Control.MOUSE_FILTER_PASS
 	hud_layer.add_child(hud_root)
 	_hud_root = hud_root
 
@@ -2744,6 +3895,28 @@ func _create_mvp_hud() -> void:
 	command_card.add_child(command_label)
 	_hud_command_card_label = command_label
 	hud_root.add_child(command_card)
+	for index in 3:
+		var production_button := Button.new()
+		production_button.name = "ProductionChoice%d" % (index + 1)
+		production_button.position = Vector2(965, 455 + index * 34)
+		production_button.size = Vector2(285, 30)
+		production_button.visible = false
+		production_button.mouse_filter = Control.MOUSE_FILTER_STOP
+		production_button.focus_mode = Control.FOCUS_NONE
+		production_button.pressed.connect(_on_production_button_pressed.bind(index))
+		hud_root.add_child(production_button)
+		_hud_production_buttons.append(production_button)
+	var cancel_button := Button.new()
+	cancel_button.name = "CancelQueueHead"
+	cancel_button.text = "Cancel active job"
+	cancel_button.position = Vector2(960, 385)
+	cancel_button.size = Vector2(180, 30)
+	cancel_button.visible = false
+	cancel_button.mouse_filter = Control.MOUSE_FILTER_STOP
+	cancel_button.focus_mode = Control.FOCUS_NONE
+	cancel_button.pressed.connect(_on_cancel_queue_head_pressed)
+	hud_root.add_child(cancel_button)
+	_hud_cancel_button = cancel_button
 
 	var alert_stack := VBoxContainer.new()
 	alert_stack.name = "Alerts"
@@ -2764,6 +3937,13 @@ func _create_mvp_hud() -> void:
 	hud_root.add_child(alert_stack)
 	_hud_alert_item = alert_item
 	_hud_stockpile_feed_item = stockpile_feed_item
+	var objective_status := Label.new()
+	objective_status.name = "ObjectiveStatus"
+	objective_status.text = "Data Node: Neutral"
+	objective_status.position = Vector2(480, 92)
+	objective_status.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	hud_root.add_child(objective_status)
+	_hud_objective_status = objective_status
 
 	var queue_display := VBoxContainer.new()
 	queue_display.name = "QueueDisplay"
@@ -2873,12 +4053,7 @@ func _run_build_chain_test_hook() -> void:
 
 	for slot in ["A", "B"]:
 		_fund_deterministic_fixture(slot, "f22_build_chain")
-		_build_for_slot(slot, "power_core")
-		_build_for_slot(slot, "alloy_extractor")
-		_build_for_slot(slot, "barracks_equivalent")
-		_build_for_slot(slot, "vehicle_structure")
-		_build_for_slot(slot, "sensor_uplink")
-		_build_for_slot(slot, "expansion_hub")
+		_ensure_build_chain_for_slot(slot, BUILD_MENU_ORDER)
 	var slot_a_pass := _slot_has_buildables("A", BUILD_MENU_ORDER)
 	var slot_b_pass := _slot_has_buildables("B", BUILD_MENU_ORDER)
 	print("[F22] Summary slot_a_pass=%s slot_b_pass=%s pass=%s" % [
@@ -2922,12 +4097,18 @@ func _build_for_slot(slot: String, buildable_id: String, placement_position: Var
 				_hud_alert_item.text = "Build rejected: Alloy Extractor needs a live Alloy node"
 			return false
 
+	var alloy_cost := int(BUILDABLE_DEFS[buildable_id].get("alloy_cost", 0))
+	var build_time := float(BUILDABLE_DEFS[buildable_id].get("build_time", 1.0))
+	if build_time <= 0.0:
+		print("[Build] Rejected slot=%s buildable=%s reason=invalid_duration" % [slot, buildable_id])
+		return false
+	if _has_pending_buildable(slot, buildable_id) and buildable_id != "alloy_extractor":
+		print("[Build] Rejected slot=%s buildable=%s reason=already_queued" % [slot, buildable_id])
+		return false
 	var buildable_node := BuildableNode.new()
 	if not is_instance_valid(buildable_node):
 		print("[Build] Rejected slot=%s buildable=%s reason=node_creation_failed" % [slot, buildable_id])
 		return false
-
-	var alloy_cost := int(BUILDABLE_DEFS[buildable_id].get("alloy_cost", 0))
 	if not _try_spend_alloy(slot, alloy_cost, "build_%s" % buildable_id):
 		buildable_node.free()
 		print("[Build] Rejected slot=%s buildable=%s reason=insufficient_alloy cost=%d wallet=%d" % [
@@ -2951,24 +4132,101 @@ func _build_for_slot(slot: String, buildable_id: String, placement_position: Var
 
 	var stable_item_id := "BLD-%s-%03d" % [slot, _build_sequence]
 	var tier: String = str(BUILDABLE_DEFS[buildable_id]["tier"])
-	buildable_node.initialize(stable_item_id, slot, buildable_id, tier)
-	var buildable_registry_key := buildable_id
-	if buildable_id == "alloy_extractor" and _buildables_by_slot[slot].has("alloy_extractor"):
-		buildable_registry_key = "alloy_extractor@%s" % extractor_source_id
-	_buildables_by_slot[slot][buildable_registry_key] = stable_item_id
+	buildable_node.initialize(stable_item_id, slot, buildable_id, tier, false)
 	_live_buildable_nodes_by_id[stable_item_id] = buildable_node
+	_structure_hit_points[stable_item_id] = _EXPANSION_HUB_MAX_HIT_POINTS
+	_construction_job_sequence += 1
+	var job_id := "CJOB-%s-%03d" % [slot, _construction_job_sequence]
+	_construction_jobs_by_structure_id[stable_item_id] = {
+		"job_id": job_id, "structure_id": stable_item_id, "slot": slot,
+		"buildable_id": buildable_id, "cost": alloy_cost, "duration": build_time,
+		"remaining": build_time, "source_id": extractor_source_id, "state": "active",
+		"progress_bucket": -1, "builder_id": "",
+	}
 	if buildable_id == "alloy_extractor":
-		(_extractor_sources_by_slot[slot] as Dictionary)[stable_item_id] = extractor_source_id
 		_alloy_source_occupant_by_id[extractor_source_id] = stable_item_id
-		print("[Economy] Extractor bound slot=%s source=%s source_reserve=%d" % [
+		print("[Economy] Extractor source reserved slot=%s source=%s source_reserve=%d" % [
 			slot, extractor_source_id, int(_alloy_node_reserves_by_id[extractor_source_id])
 		])
-	if buildable_id == "expansion_hub":
-		_structure_hit_points[stable_item_id] = _EXPANSION_HUB_MAX_HIT_POINTS
-	print("[Build] Completed slot=%s buildable=%s tier=%s stable_item_id=%s" % [slot, buildable_id, tier, stable_item_id])
+	print("[Queue] event=accepted kind=construction job_id=%s owner=%s item=%s producer=autonomous_site cost=%d duration=%.3f elapsed=0.000 state=active reason=accepted" % [job_id, slot, buildable_id, alloy_cost, build_time])
 	if _hud_queue_item:
-		_hud_queue_item.text = "Built: %s" % buildable_id
+		_hud_queue_item.text = "Building: %s 0%% (%.0fs)" % [buildable_id, build_time]
 	return true
+
+
+func _has_pending_buildable(slot: String, buildable_id: String) -> bool:
+	for job_value in _construction_jobs_by_structure_id.values():
+		var job: Dictionary = job_value
+		if str(job["slot"]) == slot and str(job["buildable_id"]) == buildable_id:
+			return true
+	return false
+
+
+func _update_construction_jobs(delta: float) -> void:
+	if _match_over or delta <= 0.0:
+		return
+	for structure_id_value in _construction_jobs_by_structure_id.keys().duplicate():
+		var structure_id := str(structure_id_value)
+		if not _construction_jobs_by_structure_id.has(structure_id):
+			continue
+		var job: Dictionary = _construction_jobs_by_structure_id[structure_id]
+		job["remaining"] = maxf(0.0, float(job["remaining"]) - delta)
+		var duration := float(job["duration"])
+		var progress := clampf(1.0 - float(job["remaining"]) / duration, 0.0, 1.0)
+		var bucket := mini(4, int(floor(progress * 4.0)))
+		if bucket > int(job["progress_bucket"]):
+			job["progress_bucket"] = bucket
+			print("[Queue] event=progress kind=construction job_id=%s owner=%s item=%s producer=autonomous_site cost=%d duration=%.3f elapsed=%.3f state=active reason=tick progress=%.3f" % [str(job["job_id"]), str(job["slot"]), str(job["buildable_id"]), int(job["cost"]), duration, duration - float(job["remaining"]), progress])
+		if _live_buildable_nodes_by_id.has(structure_id):
+			var site: BuildableNode = _live_buildable_nodes_by_id[structure_id]
+			if is_instance_valid(site) and site.has_method("set_construction_progress"):
+				site.set_construction_progress(progress)
+		if float(job["remaining"]) <= 0.0:
+			_complete_construction_job(structure_id)
+
+
+func _complete_construction_job(structure_id: String) -> bool:
+	if not _construction_jobs_by_structure_id.has(structure_id) or not _live_buildable_nodes_by_id.has(structure_id):
+		return false
+	var job: Dictionary = _construction_jobs_by_structure_id[structure_id]
+	var slot := str(job["slot"])
+	var buildable_id := str(job["buildable_id"])
+	var source_id := str(job["source_id"])
+	var registry_key := buildable_id
+	if buildable_id == "alloy_extractor" and _buildables_by_slot[slot].has("alloy_extractor"):
+		registry_key = "alloy_extractor@%s" % source_id
+	_buildables_by_slot[slot][registry_key] = structure_id
+	if buildable_id == "alloy_extractor":
+		(_extractor_sources_by_slot[slot] as Dictionary)[structure_id] = source_id
+	var node: BuildableNode = _live_buildable_nodes_by_id[structure_id]
+	if node.has_method("complete_construction"):
+		node.complete_construction()
+	_construction_jobs_by_structure_id.erase(structure_id)
+	print("[Queue] event=completed kind=construction job_id=%s owner=%s item=%s producer=autonomous_site cost=%d duration=%.3f elapsed=%.3f state=completed reason=timer" % [str(job["job_id"]), slot, buildable_id, int(job["cost"]), float(job["duration"]), float(job["duration"])])
+	print("[Build] Completed slot=%s buildable=%s tier=%s stable_item_id=%s" % [slot, buildable_id, str(BUILDABLE_DEFS[buildable_id]["tier"]), structure_id])
+	return true
+
+
+func _cancel_construction_job(structure_id: String, reason: String = "player_cancelled", refund_allowed: bool = true) -> int:
+	if not _construction_jobs_by_structure_id.has(structure_id):
+		return 0
+	var job: Dictionary = _construction_jobs_by_structure_id[structure_id]
+	var refund := 0
+	if refund_allowed:
+		refund = int(floor(float(job["cost"]) * float(job["remaining"]) / float(job["duration"])))
+		_refund_alloy(str(job["slot"]), refund, "cancel_build_%s" % str(job["buildable_id"]))
+	var source_id := str(job["source_id"])
+	if source_id != "" and str(_alloy_source_occupant_by_id.get(source_id, "")) == structure_id:
+		_alloy_source_occupant_by_id.erase(source_id)
+	var site_node: BuildableNode = _live_buildable_nodes_by_id.get(structure_id)
+	_construction_jobs_by_structure_id.erase(structure_id)
+	_live_buildable_nodes_by_id.erase(structure_id)
+	_structure_hit_points.erase(structure_id)
+	if is_instance_valid(site_node):
+		site_node.queue_free()
+	print("[Queue] event=cancelled kind=construction job_id=%s owner=%s item=%s producer=autonomous_site cost=%d duration=%.3f elapsed=%.3f state=cancelled reason=%s refund=%d" % [str(job["job_id"]), str(job["slot"]), str(job["buildable_id"]), int(job["cost"]), float(job["duration"]), float(job["duration"]) - float(job["remaining"]), reason, refund])
+	_cancelled_queue_job_ids[str(job["job_id"])] = {"reason": reason, "refund": refund, "kind": "construction"}
+	return refund
 
 
 func _slot_has_buildables(slot: String, buildable_ids: Array) -> bool:
@@ -3084,6 +4342,7 @@ func _clear_controllable_selection() -> void:
 func _select_single_unit(unit_id: String, additive: bool = false) -> void:
 	if not additive:
 		_clear_controllable_selection()
+		_selected_structure_id = ""
 	if not _controllable_units.has(unit_id):
 		return
 	var unit: SelectableUnit2D = _controllable_units[unit_id]
@@ -3246,10 +4505,12 @@ func _run_f36_build_test_hook() -> void:
 	_select_buildable("power_core")
 	var place_target := Vector3(-420.0, 0.0, -20.0)
 	var place_pass := _place_pending_buildable(place_target)
+	var absent_at_enqueue: bool = not _buildables_by_slot["A"].has("power_core")
+	_advance_all_queues(18.0)
 	var slot_buildables: Dictionary = _buildables_by_slot.get("A", {})
 	var has_power_core: bool = slot_buildables.has("power_core")
-	var pass_ok := place_pass and has_power_core
-	print("[F36] Summary place_pass=%s has_power_core=%s builder=%s pass=%s" % [str(place_pass), str(has_power_core), builder_id, str(pass_ok)])
+	var pass_ok: bool = place_pass and absent_at_enqueue and has_power_core
+	print("[F36] Summary place_pass=%s absent_at_enqueue=%s has_power_core=%s builder=%s pass=%s" % [str(place_pass), str(absent_at_enqueue), str(has_power_core), builder_id, str(pass_ok)])
 
 
 func _run_f37_combat_test_hook() -> void:
@@ -3293,10 +4554,13 @@ func _run_f38_production_test_hook() -> void:
 	_toggle_production_menu()
 	var infantry_pass := _queue_live_production("lancer_squad")
 	var vehicle_pass := _queue_live_production("strider_bike")
+	var no_instant_spawn: bool = not _produced_units_by_slot["A"].has("lancer_squad") \
+		and not _produced_units_by_slot["A"].has("strider_bike")
+	_advance_all_queues(30.0)
 	var produced_infantry := _find_controllable_unit_by_type("A", "lancer_squad") != ""
 	var produced_vehicle := _find_controllable_unit_by_type("A", "strider_bike") != ""
-	var pass_ok := infantry_pass and vehicle_pass and produced_infantry and produced_vehicle
-	print("[F38] Summary infantry_pass=%s vehicle_pass=%s produced_infantry=%s produced_vehicle=%s pass=%s" % [str(infantry_pass), str(vehicle_pass), str(produced_infantry), str(produced_vehicle), str(pass_ok)])
+	var pass_ok := infantry_pass and vehicle_pass and no_instant_spawn and produced_infantry and produced_vehicle
+	print("[F38] Summary infantry_pass=%s vehicle_pass=%s no_instant_spawn=%s produced_infantry=%s produced_vehicle=%s pass=%s" % [str(infantry_pass), str(vehicle_pass), str(no_instant_spawn), str(produced_infantry), str(produced_vehicle), str(pass_ok)])
 
 
 func _find_controllable_unit_by_type(slot: String, unit_type: String) -> String:
@@ -3380,7 +4644,9 @@ func _run_f33_blocker_test_hook() -> void:
 	var select_screen := _rts_camera.unproject_position(first_unit.position)
 	_handle_left_click_selection(select_screen)
 
-	var blocked_target := Vector3(0.0, 0.0, 0.0)
+	# The center blocker now hosts the intentional Data objective interaction. Keep
+	# this legacy movement rejection case on a non-interactive flank blocker.
+	var blocked_target := Vector3(-290.0, 0.0, 170.0)
 	var blocked_screen := _rts_camera.unproject_position(blocked_target)
 	_handle_right_click_command(blocked_screen)
 
@@ -3444,6 +4710,9 @@ func _run_production_chain_test_hook() -> void:
 		for unit_id in PRODUCTION_BASELINE_UNITS[faction]:
 			if not _queue_unit_for_slot(slot, faction, str(unit_id)):
 				slot_pass = false
+		_advance_all_queues(120.0)
+		for unit_id in PRODUCTION_BASELINE_UNITS[faction]:
+			slot_pass = slot_pass and _produced_units_by_slot[slot].has(unit_id)
 
 		print("[Production] Slot summary slot=%s faction=%s produced=%s pass=%s" % [slot, faction, str(_produced_units_by_slot[slot].keys()), str(slot_pass)])
 		overall_pass = overall_pass and slot_pass
@@ -3454,32 +4723,184 @@ func _run_production_chain_test_hook() -> void:
 func _ensure_build_chain_for_slot(slot: String, buildables: Array) -> void:
 	for buildable_id in buildables:
 		if not _buildables_by_slot[slot].has(buildable_id):
-			_build_for_slot(slot, str(buildable_id))
+			if _build_for_slot(slot, str(buildable_id)):
+				_advance_all_queues(float(BUILDABLE_DEFS[str(buildable_id)]["build_time"]) + 0.001)
+
+
+func _advance_all_queues(delta: float) -> void:
+	_update_construction_jobs(delta)
+	_update_production_queues(delta)
 
 
 func _queue_unit_for_slot(slot: String, faction: String, unit_id: String) -> bool:
+	var producer_id := _find_producer_id_for_unit(slot, faction, unit_id)
+	return _enqueue_production_job(producer_id, slot, faction, unit_id)
+
+
+func _find_producer_id_for_unit(slot: String, faction: String, unit_id: String) -> String:
+	if not PRODUCTION_CHAINS.has(faction) or not PRODUCTION_CHAINS[faction].has(unit_id):
+		return ""
 	var producer := str(PRODUCTION_CHAINS[faction][unit_id])
-	if producer != "tether_point" and not _buildables_by_slot[slot].has(producer):
-		print("[Production] Rejected slot=%s faction=%s unit=%s reason=missing_producer producer=%s" % [slot, faction, unit_id, producer])
+	if producer == "tether_point":
+		if _tether_points_by_slot.has(slot):
+			return (_tether_points_by_slot[slot] as TetherPoint).stable_item_id
+		return ""
+	if not _buildables_by_slot[slot].has(producer):
+		return ""
+	return str(_buildables_by_slot[slot][producer])
+
+
+func _enqueue_production_job(producer_id: String, slot: String, faction: String, unit_id: String) -> bool:
+	_last_production_rejection_reason = ""
+	if _match_over or producer_id == "":
+		_last_production_rejection_reason = "missing_producer"
+		print("[Production] Rejected slot=%s faction=%s unit=%s reason=missing_producer" % [slot, faction, unit_id])
+		return false
+	if not _is_live_producer(producer_id, slot):
+		_last_production_rejection_reason = "producer_not_operational"
+		print("[Production] Rejected slot=%s faction=%s unit=%s reason=producer_not_operational producer=%s" % [slot, faction, unit_id, producer_id])
+		return false
+	var expected_id := _find_producer_id_for_unit(slot, faction, unit_id)
+	if expected_id != producer_id:
+		_last_production_rejection_reason = "wrong_producer"
+		print("[Production] Rejected slot=%s faction=%s unit=%s reason=wrong_producer producer=%s" % [slot, faction, unit_id, producer_id])
 		return false
 
 	var tether: TetherPoint = _tether_points_by_slot[slot]
 	if tether.is_command_penalty_active:
+		_last_production_rejection_reason = "command_penalty_active"
 		print("[Production] Rejected slot=%s faction=%s unit=%s reason=command_penalty_active" % [slot, faction, unit_id])
 		return false
 
+	var queue: Array = _production_queues_by_producer_id.get(producer_id, [])
+	if queue.size() >= MAX_PRODUCTION_QUEUE_PER_PRODUCER:
+		_last_production_rejection_reason = "queue_full"
+		print("[Production] Rejected slot=%s faction=%s unit=%s reason=queue_full producer=%s" % [slot, faction, unit_id, producer_id])
+		return false
 	var alloy_cost := int(UNIT_ALLOY_COSTS.get(unit_id, 0))
+	var duration := float(UNIT_BUILD_TIME_SECONDS.get(unit_id, 0.0))
+	if alloy_cost <= 0 or duration <= 0.0:
+		_last_production_rejection_reason = "invalid_cost_or_duration"
+		print("[Production] Rejected slot=%s faction=%s unit=%s reason=invalid_cost_or_duration" % [slot, faction, unit_id])
+		return false
 	if not _try_spend_alloy(slot, alloy_cost, "produce_%s" % unit_id):
+		_last_production_rejection_reason = "insufficient_alloy"
 		print("[Production] Rejected slot=%s faction=%s unit=%s reason=insufficient_alloy cost=%d wallet=%d" % [
 			slot, faction, unit_id, alloy_cost, _get_alloy_wallet(slot)
 		])
 		return false
 
-	_production_sequence += 1
-	var stable_item_id := "UNT-%s-%03d" % [slot, _production_sequence]
-	_produced_units_by_slot[slot][unit_id] = stable_item_id
-	print("[Production] Completed slot=%s faction=%s unit=%s producer=%s stable_item_id=%s" % [slot, faction, unit_id, producer, stable_item_id])
+	_production_job_sequence += 1
+	var job_id := "PJOB-%s-%03d" % [slot, _production_job_sequence]
+	queue.append({
+		"job_id": job_id, "producer_id": producer_id, "slot": slot, "faction": faction,
+		"unit_id": unit_id, "cost": alloy_cost, "duration": duration, "remaining": duration,
+		"state": "active" if queue.is_empty() else "queued", "progress_bucket": -1,
+	})
+	_production_queues_by_producer_id[producer_id] = queue
+	_active_production_producer_id = producer_id
+	print("[Queue] event=accepted kind=production job_id=%s owner=%s item=%s producer=%s cost=%d duration=%.3f elapsed=0.000 state=%s reason=accepted" % [job_id, slot, unit_id, producer_id, alloy_cost, duration, str(queue.back()["state"])])
 	return true
+
+
+func _is_live_producer(producer_id: String, slot: String) -> bool:
+	if _tether_points_by_slot.has(slot) and (_tether_points_by_slot[slot] as TetherPoint).stable_item_id == producer_id:
+		return true
+	if not _live_buildable_nodes_by_id.has(producer_id):
+		return false
+	var node: BuildableNode = _live_buildable_nodes_by_id[producer_id]
+	return is_instance_valid(node) and node.slot == slot and node.is_ready_for_commands()
+
+
+func _update_production_queues(delta: float) -> void:
+	if _match_over or delta <= 0.0:
+		return
+	for producer_value in _production_queues_by_producer_id.keys().duplicate():
+		var producer_id := str(producer_value)
+		if not _production_queues_by_producer_id.has(producer_id):
+			continue
+		if not _is_producer_id_live_any_slot(producer_id):
+			_cancel_all_production_jobs(producer_id, "producer_destroyed", false)
+			continue
+		var budget := delta
+		var guard := 0
+		while budget > 0.0 and guard < MAX_PRODUCTION_QUEUE_PER_PRODUCER:
+			var queue: Array = _production_queues_by_producer_id.get(producer_id, [])
+			if queue.is_empty():
+				_production_queues_by_producer_id.erase(producer_id)
+				break
+			var job: Dictionary = queue[0]
+			job["state"] = "active"
+			var consumed := minf(budget, float(job["remaining"]))
+			job["remaining"] = float(job["remaining"]) - consumed
+			budget -= consumed
+			var duration := float(job["duration"])
+			var progress := clampf(1.0 - float(job["remaining"]) / duration, 0.0, 1.0)
+			var bucket := mini(4, int(floor(progress * 4.0)))
+			if bucket > int(job["progress_bucket"]):
+				job["progress_bucket"] = bucket
+				print("[Queue] event=progress kind=production job_id=%s owner=%s item=%s producer=%s cost=%d duration=%.3f elapsed=%.3f state=active reason=tick progress=%.3f" % [str(job["job_id"]), str(job["slot"]), str(job["unit_id"]), producer_id, int(job["cost"]), duration, duration - float(job["remaining"]), progress])
+			queue[0] = job
+			_production_queues_by_producer_id[producer_id] = queue
+			if float(job["remaining"]) > 0.0:
+				break
+			_complete_production_job(producer_id)
+			guard += 1
+
+
+func _is_producer_id_live_any_slot(producer_id: String) -> bool:
+	for slot in _tether_points_by_slot.keys():
+		if (_tether_points_by_slot[slot] as TetherPoint).stable_item_id == producer_id:
+			return true
+	return _live_buildable_nodes_by_id.has(producer_id) and is_instance_valid(_live_buildable_nodes_by_id[producer_id])
+
+
+func _complete_production_job(producer_id: String) -> bool:
+	var queue: Array = _production_queues_by_producer_id.get(producer_id, [])
+	if queue.is_empty():
+		return false
+	var job: Dictionary = queue.pop_front()
+	var spawned := _spawn_completed_produced_actor(job)
+	if not spawned:
+		_refund_alloy(str(job["slot"]), int(job["cost"]), "production_completion_failure")
+		print("[Queue] event=cancelled kind=production job_id=%s owner=%s item=%s producer=%s cost=%d duration=%.3f elapsed=%.3f state=cancelled reason=spawn_failure refund=%d" % [str(job["job_id"]), str(job["slot"]), str(job["unit_id"]), producer_id, int(job["cost"]), float(job["duration"]), float(job["duration"]), int(job["cost"])])
+	else:
+		print("[Queue] event=completed kind=production job_id=%s owner=%s item=%s producer=%s cost=%d duration=%.3f elapsed=%.3f state=completed reason=timer" % [str(job["job_id"]), str(job["slot"]), str(job["unit_id"]), producer_id, int(job["cost"]), float(job["duration"]), float(job["duration"])])
+	if queue.is_empty():
+		_production_queues_by_producer_id.erase(producer_id)
+	else:
+		(queue[0] as Dictionary)["state"] = "active"
+		_production_queues_by_producer_id[producer_id] = queue
+	return spawned
+
+
+func _cancel_production_job(producer_id: String, job_id: String, reason: String = "player_cancelled", refund_allowed: bool = true) -> int:
+	var queue: Array = _production_queues_by_producer_id.get(producer_id, [])
+	for index in queue.size():
+		var job: Dictionary = queue[index]
+		if str(job["job_id"]) != job_id:
+			continue
+		var refund := 0
+		if refund_allowed:
+			refund = int(job["cost"]) if index > 0 else int(floor(float(job["cost"]) * float(job["remaining"]) / float(job["duration"])))
+			_refund_alloy(str(job["slot"]), refund, "cancel_production_%s" % str(job["unit_id"]))
+		queue.remove_at(index)
+		if not queue.is_empty():
+			(queue[0] as Dictionary)["state"] = "active"
+		if queue.is_empty():
+			_production_queues_by_producer_id.erase(producer_id)
+		else:
+			_production_queues_by_producer_id[producer_id] = queue
+		print("[Queue] event=cancelled kind=production job_id=%s owner=%s item=%s producer=%s cost=%d duration=%.3f elapsed=%.3f state=cancelled reason=%s refund=%d" % [job_id, str(job["slot"]), str(job["unit_id"]), producer_id, int(job["cost"]), float(job["duration"]), float(job["duration"]) - float(job["remaining"]), reason, refund])
+		_cancelled_queue_job_ids[job_id] = {"reason": reason, "refund": refund, "kind": "production"}
+		return refund
+	return 0
+
+
+func _cancel_all_production_jobs(producer_id: String, reason: String, refund_allowed: bool) -> void:
+	var queue: Array = _production_queues_by_producer_id.get(producer_id, []).duplicate(true)
+	for job_value in queue:
+		_cancel_production_job(producer_id, str((job_value as Dictionary)["job_id"]), reason, refund_allowed)
 
 
 func _run_map_baseline_test_hook() -> void:
@@ -5817,12 +7238,17 @@ func _run_f09_air_wing_test_hook() -> void:
 # -- Live systems --------------------------------------------------------------
 
 func _process(delta: float) -> void:
+	_update_construction_jobs(delta)
+	_update_production_queues(delta)
 	_update_live_units(delta)
+	_update_data_objective(delta)
 	_update_tether_recovery(delta)
 	_update_gather_jobs()
 	_update_resource_income(delta)
 	_update_enemy_ai(delta)
+	_update_objective_ai(delta)
 	_update_stockpile_telemetry(delta)
+	_refresh_production_hud()
 	_update_hud()
 	_process_camera(delta)
 
@@ -5834,7 +7260,15 @@ func _update_hud() -> void:
 	if _hud_minimap_draw and is_instance_valid(_hud_minimap_draw):
 		_hud_minimap_draw.controllable_units = _controllable_units
 		_hud_minimap_draw.tether_points = _tether_points_by_slot
+		_hud_minimap_draw.objective_visible = _data_objective_state.has("node_id")
+		if _data_objective_state.has("node_id"):
+			_hud_minimap_draw.objective_position = _get_data_objective_position()
+			_hud_minimap_draw.objective_owner = str(_data_objective_state["owner_slot"])
+			_hud_minimap_draw.objective_acting_slot = str(_data_objective_state["acting_slot"])
+			_hud_minimap_draw.objective_phase = str(_data_objective_state["phase"])
+			_hud_minimap_draw.objective_progress = float(_data_objective_state["progress"])
 		_hud_minimap_draw.queue_redraw()
+	_update_objective_hud()
 
 
 func _update_resource_income(delta: float) -> void:
@@ -5948,6 +7382,7 @@ func _set_alert_color(color: Color) -> void:
 func _initialize_stockpile_state() -> void:
 	_stockpile_state.clear()
 	_alloy_wallets_by_slot = {"A": STARTING_ALLOY_WALLET, "B": STARTING_ALLOY_WALLET}
+	_data_wallets_by_slot = {"A": 0, "B": 0}
 	for resource_id in STOCKPILE_CONFIG.keys():
 		var config: Dictionary = STOCKPILE_CONFIG[resource_id]
 		var cap := int(config["cap"])
@@ -5966,13 +7401,39 @@ func _initialize_stockpile_state() -> void:
 	_emit_stockpile_snapshot()
 
 func _format_stockpile_hud_text() -> String:
-	return "Alloy: %d  World Reserve: %d/%d  Power: %d/%d  Data: %d/%d  Reclaim: %d/%d" % [
+	return "Alloy: %d  World Reserve: %d/%d  Power: %d/%d  Data: %d  Data World: %d/%d  Reclaim: %d/%d" % [
 		_get_alloy_wallet("A"),
 		_get_stockpile_reserve("alloy"), _get_stockpile_cap("alloy"),
 		_get_stockpile_reserve("power"), _get_stockpile_cap("power"),
-		_get_stockpile_reserve("data"), _get_stockpile_cap("data"),
+		_get_data_wallet("A"), _get_stockpile_reserve("data"), _get_stockpile_cap("data"),
 		_get_stockpile_reserve("reclaim"), _get_stockpile_cap("reclaim")
 	]
+
+
+func _get_data_wallet(slot: String) -> int:
+	return int(_data_wallets_by_slot.get(slot, 0))
+
+
+func _set_data_wallet(slot: String, amount: int, reason: String = "manual") -> int:
+	if not _data_wallets_by_slot.has(slot):
+		return 0
+	_data_wallets_by_slot[slot] = maxi(0, amount)
+	print("[Data] event=wallet_set owner=%s amount=%d reason=%s" % [slot, _get_data_wallet(slot), reason])
+	return _get_data_wallet(slot)
+
+
+func _transfer_data_from_world(slot: String, requested: int, node_id: String) -> int:
+	if requested <= 0 or not _data_wallets_by_slot.has(slot):
+		return 0
+	var world_before := _get_stockpile_reserve("data")
+	var wallet_before := _get_data_wallet(slot)
+	var actual := mini(requested, world_before)
+	if actual <= 0:
+		return 0
+	_set_stockpile_reserve("data", world_before - actual, "objective_income")
+	_data_wallets_by_slot[slot] = wallet_before + actual
+	print("[Data] event=income node_id=%s owner=%s requested=%d actual=%d wallet_before=%d wallet_after=%d world_before=%d world_after=%d" % [node_id, slot, requested, actual, wallet_before, _get_data_wallet(slot), world_before, _get_stockpile_reserve("data")])
+	return actual
 
 
 func _get_stockpile_reserve(resource_id: String) -> int:
@@ -6357,6 +7818,10 @@ func _ensure_action_with_mouse_button(action: StringName, mouse_button: MouseBut
 # -- Camera --------------------------------------------------------------------
 
 func _input(event: InputEvent) -> void:
+	if event is InputEventMouse and _is_pointer_over_interactive_hud(event.position):
+		_drag_mouse_held = false
+		_destroy_drag_box_overlay()
+		return
 	# Track mouse motion whenever the left button is held so the drag threshold can be crossed.
 	if event is InputEventMouseMotion and _drag_mouse_held:
 		_drag_box_current = event.position
@@ -6378,6 +7843,8 @@ func _input(event: InputEvent) -> void:
 	if event is InputEventMouseButton:
 		# Left release: always finish — handles both click and drag cases.
 		if event.button_index == MOUSE_BUTTON_LEFT and not event.pressed:
+			if not _drag_mouse_held:
+				return
 			_drag_mouse_held = false
 			_finish_drag_box_selection(event.position)
 			return
@@ -6387,6 +7854,7 @@ func _input(event: InputEvent) -> void:
 
 		if event.button_index == MOUSE_BUTTON_LEFT:
 			if _pending_buildable_id != "":
+				_drag_mouse_held = false
 				var place_hit := _screen_to_ground_point(event.position)
 				if place_hit["ok"]:
 					_place_pending_buildable(place_hit["point"])
@@ -6415,6 +7883,14 @@ func _input(event: InputEvent) -> void:
 			var selected_index: int = int(PRODUCTION_HOTKEYS[event.keycode])
 			_queue_live_production_by_index(selected_index)
 			return
+
+
+func _is_pointer_over_interactive_hud(screen_position: Vector2) -> bool:
+	for button in _hud_production_buttons:
+		if button.visible and button.get_global_rect().has_point(screen_position):
+			return true
+	return _hud_cancel_button != null and _hud_cancel_button.visible \
+		and _hud_cancel_button.get_global_rect().has_point(screen_position)
 
 
 func _begin_drag_or_click(screen_pos: Vector2) -> void:
@@ -6526,6 +8002,13 @@ func _handle_left_click_selection(screen_pos: Vector2) -> void:
 		return
 
 	var ground_point: Vector3 = hit["point"]
+	var structure_id := _find_friendly_structure_at_point(ground_point, "A")
+	if structure_id != "":
+		_clear_controllable_selection()
+		_selected_structure_id = structure_id
+		_refresh_production_hud()
+		print("[Selection] structure=%s slot=A" % structure_id)
+		return
 	var nearest_id := ""
 	var nearest_distance := INF
 	for unit_id in _controllable_units.keys():
@@ -6543,6 +8026,29 @@ func _handle_left_click_selection(screen_pos: Vector2) -> void:
 	else:
 		if not additive:
 			_clear_controllable_selection()
+			_selected_structure_id = ""
+
+
+func _find_friendly_structure_at_point(world_pos: Vector3, slot: String) -> String:
+	var point := Vector2(world_pos.x, world_pos.z)
+	var nearest_id := ""
+	var nearest_distance := INF
+	if _tether_points_by_slot.has(slot):
+		var tether: TetherPoint = _tether_points_by_slot[slot]
+		var tether_distance := point.distance_to(Vector2(tether.position.x, tether.position.z))
+		if tether_distance <= _TETHER_ATTACK_SELECT_RADIUS_UNITS:
+			nearest_id = tether.stable_item_id
+			nearest_distance = tether_distance
+	for id_value in _live_buildable_nodes_by_id.keys():
+		var id := str(id_value)
+		var node: BuildableNode = _live_buildable_nodes_by_id[id]
+		if not is_instance_valid(node) or node.slot != slot:
+			continue
+		var distance := point.distance_to(Vector2(node.position.x, node.position.z))
+		if distance <= node.get_selection_radius() and distance < nearest_distance:
+			nearest_id = id
+			nearest_distance = distance
+	return nearest_id
 
 
 func _handle_right_click_command(screen_pos: Vector2) -> void:
@@ -6562,11 +8068,84 @@ func _handle_right_click_command(screen_pos: Vector2) -> void:
 	if enemy_command_id != "":
 		_issue_attack_command(enemy_command_id)
 		return
+	var objective_id := _find_data_objective_at_point(target)
+	if objective_id != "":
+		_issue_objective_command(objective_id)
+		return
 	var resource_id := _find_resource_at_point(target)
 	if resource_id != "":
 		_issue_gather_command(resource_id)
 		return
+	if _selected_structure_id != "" and _is_live_producer(_selected_structure_id, _get_selected_slot_for_commands()):
+		if _is_point_blocked(target):
+			if _hud_alert_item:
+				_hud_alert_item.text = "Rally rejected: blocked; previous rally preserved"
+			print("[Rally] event=rejected producer=%s reason=blocked" % _selected_structure_id)
+			return
+		_rally_points_by_producer_id[_selected_structure_id] = target
+		_spawn_move_ping(target, Color(0.3, 0.9, 1.0, 0.85))
+		if _hud_alert_item:
+			_hud_alert_item.text = "Rally set: %s" % str(target)
+		print("[Rally] event=set producer=%s target=%s" % [_selected_structure_id, str(target)])
+		return
 	_issue_move_command(target)
+
+
+func _find_data_objective_at_point(world_pos: Vector3) -> String:
+	if _data_objective_state.is_empty():
+		return ""
+	var center := _get_data_objective_position()
+	return DATA_OBJECTIVE_ID if Vector2(world_pos.x, world_pos.z).distance_to(Vector2(center.x, center.z)) <= DATA_OBJECTIVE_HIT_RADIUS else ""
+
+
+func _issue_objective_command(objective_id: String, unit_ids: Array[String] = []) -> bool:
+	if _match_over or objective_id != DATA_OBJECTIVE_ID:
+		_emit_objective_event("rejected", str(_data_objective_state.get("owner_slot", "")), str(_data_objective_state.get("owner_slot", "")), "invalid_or_match_over")
+		return false
+	var commanded := unit_ids.duplicate()
+	if commanded.is_empty():
+		commanded = _selected_controllable_units.duplicate()
+	var slot := ""
+	for unit_id in commanded:
+		if not _controllable_units.has(unit_id):
+			continue
+		var unit_slot := _get_unit_slot(unit_id)
+		if slot == "":
+			slot = unit_slot
+		if unit_slot != slot:
+			return false
+	if slot != "A" and slot != "B":
+		return false
+	_clear_incompatible_orders_for_units(commanded)
+	var valid_ids: Array[String] = []
+	var center := _get_data_objective_position()
+	var side := -1.0 if slot == "A" else 1.0
+	for index in commanded.size():
+		var unit_id: String = str(commanded[index])
+		if not _controllable_units.has(unit_id) or _get_unit_slot(unit_id) != slot:
+			continue
+		var target := center + Vector3(side * 72.0, 0.0, float((index % 3) - 1) * 10.0)
+		(_controllable_units[unit_id] as SelectableUnit2D).queue_move(target)
+		valid_ids.append(unit_id)
+	if valid_ids.is_empty():
+		return false
+	_objective_command_unit_ids_by_slot[slot] = valid_ids
+	_spawn_move_ping(center, Color(0.8, 0.45, 1.0, 0.9))
+	_emit_objective_event("command", str(_data_objective_state["owner_slot"]), str(_data_objective_state["owner_slot"]), "ordinary_move_slot_%s" % slot)
+	if _hud_alert_item:
+		_hud_alert_item.text = "Moving to contest Data Node" if str(_data_objective_state["owner_slot"]) != "" else "Capturing Data Node"
+	return true
+
+
+func _clear_incompatible_orders_for_units(unit_ids: Array[String]) -> void:
+	for unit_id_value in unit_ids:
+		var unit_id := str(unit_id_value)
+		_attack_orders.erase(unit_id)
+		_attack_cooldowns.erase(unit_id)
+		_gather_jobs.erase(unit_id)
+		for slot in ["A", "B"]:
+			(_objective_command_unit_ids_by_slot[slot] as Array).erase(unit_id)
+			(_objective_ai_unit_ids_by_slot[slot] as Array).erase(unit_id)
 
 
 func _screen_to_ground_point(screen_pos: Vector2) -> Dictionary:
@@ -6717,6 +8296,12 @@ func _update_enemy_ai(delta: float) -> void:
 			continue
 		if _get_unit_slot(str(unit_id)) != "B":
 			continue
+		if (_objective_ai_unit_ids_by_slot["B"] as Array).has(str(unit_id)):
+			var objective_center := _get_data_objective_position()
+			var objective_unit: SelectableUnit2D = _controllable_units[unit_id]
+			if Vector2(objective_unit.position.x, objective_unit.position.z).distance_to(Vector2(objective_center.x, objective_center.z)) <= DATA_CAPTURE_RADIUS:
+				objective_unit.queue_move(objective_unit.position)
+			continue
 		# Decrement this unit's scan timer.
 		var timer: float = float(_ai_scan_timers.get(unit_id, 0.0)) - delta
 		_ai_scan_timers[unit_id] = timer
@@ -6754,12 +8339,109 @@ func _update_enemy_ai(delta: float) -> void:
 		var target_unit: SelectableUnit2D = _controllable_units[nearest_id]
 		var range_dist := Vector2(enemy.position.x, enemy.position.z).distance_to(
 			Vector2(target_unit.position.x, target_unit.position.z))
-		if range_dist <= _ATTACK_RANGE_UNITS:
+		if range_dist <= _get_unit_attack_range(enemy.unit_id):
 			# In range — issue attack order via the existing combat system.
 			_attack_orders[str(unit_id)] = nearest_id
 		else:
 			# Out of range — move toward target.
 			enemy.queue_move(target_unit.position)
+
+
+func _update_objective_ai(delta: float) -> void:
+	if _match_over:
+		return
+	_objective_ai_timer -= delta
+	if _objective_ai_timer > 0.0:
+		return
+	_objective_ai_timer = OBJECTIVE_AI_INTERVAL
+	_run_objective_ai_step("B")
+
+
+func _run_objective_ai_step(slot: String) -> bool:
+	if _match_over or (slot != "A" and slot != "B"):
+		return false
+	_prune_objective_unit_references()
+	var owner := str(_data_objective_state.get("owner_slot", ""))
+	var phase := str(_data_objective_state.get("phase", "neutral"))
+	if owner == slot and phase == "owned":
+		_release_objective_ai_assignments(slot, "securely_owned")
+		return false
+	var current_assignments: Array = _objective_ai_unit_ids_by_slot[slot]
+	if _objective_ai_intent_is_valid(slot, current_assignments):
+		return false
+	_release_objective_ai_assignments(slot, "reassign")
+	var center := _get_data_objective_position()
+	var candidates: Array[String] = []
+	for unit_id_value in _controllable_units.keys():
+		var unit_id := str(unit_id_value)
+		if _get_unit_slot(unit_id) == slot:
+			candidates.append(unit_id)
+	candidates.sort_custom(func(a: String, b: String) -> bool:
+		var ua: SelectableUnit2D = _controllable_units[a]
+		var ub: SelectableUnit2D = _controllable_units[b]
+		var da := Vector2(ua.position.x, ua.position.z).distance_squared_to(Vector2(center.x, center.z))
+		var db := Vector2(ub.position.x, ub.position.z).distance_squared_to(Vector2(center.x, center.z))
+		return a < b if is_equal_approx(da, db) else da < db
+	)
+	var assigned: Array[String] = []
+	for index in mini(2, candidates.size()):
+		assigned.append(candidates[index])
+	if assigned.is_empty():
+		return false
+	var issued := _issue_objective_command(DATA_OBJECTIVE_ID, assigned)
+	if issued:
+		_objective_ai_unit_ids_by_slot[slot] = assigned
+		_objective_ai_issue_count_by_slot[slot] = int(_objective_ai_issue_count_by_slot.get(slot, 0)) + 1
+	print("[ObjectiveAI] slot=%s assigned=%s issued=%s" % [slot, str(assigned), str(issued)])
+	return issued
+
+
+func _objective_ai_intent_is_valid(slot: String, assignments: Array) -> bool:
+	if assignments.is_empty():
+		return false
+	var live_slot_count := 0
+	for unit_id_value in _controllable_units.keys():
+		if _get_unit_slot(str(unit_id_value)) == slot:
+			live_slot_count += 1
+	if assignments.size() < mini(2, live_slot_count):
+		return false
+	var commanded: Array = _objective_command_unit_ids_by_slot[slot]
+	var center := _get_data_objective_position()
+	for unit_id_value in assignments:
+		var unit_id := str(unit_id_value)
+		if not _controllable_units.has(unit_id) or not commanded.has(unit_id):
+			return false
+		var unit: SelectableUnit2D = _controllable_units[unit_id]
+		var in_radius := Vector2(unit.position.x, unit.position.z).distance_to(Vector2(center.x, center.z)) <= DATA_CAPTURE_RADIUS
+		if not in_radius and not unit.has_move_target():
+			return false
+	return true
+
+
+func _release_objective_ai_assignments(slot: String, reason: String) -> void:
+	var released: Array = (_objective_ai_unit_ids_by_slot[slot] as Array).duplicate()
+	if released.is_empty():
+		return
+	_objective_ai_unit_ids_by_slot[slot] = []
+	for unit_id_value in released:
+		(_objective_command_unit_ids_by_slot[slot] as Array).erase(str(unit_id_value))
+	print("[ObjectiveAI] slot=%s event=released units=%s reason=%s" % [slot, str(released), reason])
+
+
+func _prune_objective_unit_references() -> void:
+	for slot in ["A", "B"]:
+		var live_ai: Array[String] = []
+		for unit_id_value in _objective_ai_unit_ids_by_slot[slot]:
+			var unit_id := str(unit_id_value)
+			if _controllable_units.has(unit_id):
+				live_ai.append(unit_id)
+		_objective_ai_unit_ids_by_slot[slot] = live_ai
+		var live_commands: Array[String] = []
+		for unit_id_value in _objective_command_unit_ids_by_slot[slot]:
+			var unit_id := str(unit_id_value)
+			if _controllable_units.has(unit_id):
+				live_commands.append(unit_id)
+		_objective_command_unit_ids_by_slot[slot] = live_commands
 
 
 func _run_enemy_build_step() -> void:
@@ -6771,7 +8453,7 @@ func _run_enemy_build_step() -> void:
 	var enemy_extractors: Dictionary = _extractor_sources_by_slot.get("B", {})
 	if _buildables_by_slot["B"].has("alloy_extractor") \
 		and _buildables_by_slot["B"].has("barracks_equivalent") \
-		and enemy_extractors.size() < _AI_DESIRED_EXTRACTOR_COUNT:
+		and enemy_extractors.size() + _get_pending_buildable_count("B", "alloy_extractor") < _AI_DESIRED_EXTRACTOR_COUNT:
 		var expansion_source_id := _find_nearest_unoccupied_alloy_source_for_slot("B")
 		if expansion_source_id != "":
 			var extractor_cost := int(BUILDABLE_DEFS["alloy_extractor"]["alloy_cost"])
@@ -6807,7 +8489,7 @@ func _run_enemy_build_step() -> void:
 	var build_order := ["power_core", "alloy_extractor", "barracks_equivalent",
 		"vehicle_structure", "sensor_uplink", "expansion_hub"]
 	for buildable_id in build_order:
-		if not _buildables_by_slot["B"].has(buildable_id):
+		if not _buildables_by_slot["B"].has(buildable_id) and not _has_pending_buildable("B", buildable_id):
 			var built := _build_for_slot("B", buildable_id)
 			_ai_last_build_decision = {
 				"action": "core_build_completed" if built else "core_build_rejected",
@@ -6840,12 +8522,21 @@ func _find_nearest_unoccupied_alloy_source_for_slot(slot: String) -> String:
 	return nearest_id
 
 
+func _get_pending_buildable_count(slot: String, buildable_id: String) -> int:
+	var count := 0
+	for job_value in _construction_jobs_by_structure_id.values():
+		var job: Dictionary = job_value
+		if str(job["slot"]) == slot and str(job["buildable_id"]) == buildable_id:
+			count += 1
+	return count
+
+
 func _run_enemy_production_step() -> void:
 	if _match_over:
 		return
 	if not _tether_points_by_slot.has("B"):
 		return
-	var current_enemy_units: int = _get_slot_unit_ids("B").size()
+	var current_enemy_units: int = _get_slot_unit_ids("B").size() + _get_queued_unit_count_for_slot("B")
 	if current_enemy_units >= _AI_MAX_SLOT_B_UNITS:
 		print("[EnemyAI] Production skipped reason=unit_cap_reached current=%d max=%d" % [current_enemy_units, _AI_MAX_SLOT_B_UNITS])
 		return
@@ -6863,10 +8554,19 @@ func _run_enemy_production_step() -> void:
 	for offset in range(producible_options.size()):
 		var idx: int = (start_index + offset) % producible_options.size()
 		var unit_id: String = str(producible_options[idx])
-		if _spawn_live_produced_actor("B", faction, unit_id):
+		if _queue_unit_for_slot("B", faction, unit_id):
 			_ai_production_choice_index = (idx + 1) % producible_options.size()
-			print("[EnemyAI] Produced slot=B faction=%s unit=%s next_index=%d" % [faction, unit_id, _ai_production_choice_index])
+			print("[EnemyAI] Production queued slot=B faction=%s unit=%s next_index=%d" % [faction, unit_id, _ai_production_choice_index])
 			return
+
+
+func _get_queued_unit_count_for_slot(slot: String) -> int:
+	var count := 0
+	for queue_value in _production_queues_by_producer_id.values():
+		for job_value in (queue_value as Array):
+			if str((job_value as Dictionary)["slot"]) == slot:
+				count += 1
+	return count
 
 
 func _register_unit_for_combat(unit_name: String, unit_type: String) -> void:
@@ -6875,11 +8575,26 @@ func _register_unit_for_combat(unit_name: String, unit_type: String) -> void:
 
 
 func _get_unit_max_hit_points(unit_type: String) -> float:
-	if unit_type == "ember_tank" or unit_type == "bulwark_husk":
-		return 180.0
-	if unit_type == "strider_bike" or unit_type == "skitter_lance":
-		return 90.0
-	return _UNIT_BASE_HIT_POINTS
+	return float(UnitCombatProfiles.get_profile(unit_type).get("max_hp", _UNIT_BASE_HIT_POINTS))
+
+
+func _get_unit_attack_range(unit_type: String) -> float:
+	return float(UnitCombatProfiles.get_profile(unit_type).get("range", _ATTACK_RANGE_UNITS))
+
+
+func _get_unit_attack_cooldown(unit_type: String) -> float:
+	return float(UnitCombatProfiles.get_profile(unit_type).get("cooldown", _ATTACK_COOLDOWN_SECONDS))
+
+
+func _get_combat_target_armor(target_id: String) -> String:
+	if _controllable_units.has(target_id):
+		var target: SelectableUnit2D = _controllable_units[target_id]
+		return str(target.combat_profile.get("armor", "light"))
+	return "structure"
+
+
+func _get_unit_attack_damage(attacker_unit_type: String, target_id: String) -> float:
+	return UnitCombatProfiles.get_damage(attacker_unit_type, _get_combat_target_armor(target_id))
 
 
 func _find_first_unit_for_slot(slot: String) -> String:
@@ -6964,7 +8679,7 @@ func _find_enemy_command_structure_at_point(world_pos: Vector3) -> String:
 	for target_id_value in _live_buildable_nodes_by_id.keys():
 		var target_id := str(target_id_value)
 		var node := _get_buildable_by_target_id(target_id)
-		if node == null or node.buildable_id != "expansion_hub" or node.slot == selected_slot:
+		if node == null or node.slot == selected_slot:
 			continue
 		var distance := Vector2(node.position.x, node.position.z).distance_to(point)
 		if distance <= _EXPANSION_HUB_SELECT_RADIUS_UNITS and distance < nearest_distance:
@@ -7109,18 +8824,19 @@ func _update_attack_orders(delta: float) -> void:
 			continue
 
 		var attacker: SelectableUnit2D = _controllable_units[id]
+		var attack_range := _get_unit_attack_range(attacker.unit_id)
 		var target_position := _get_combat_target_position(target_id)
 		var distance := Vector2(attacker.position.x, attacker.position.z).distance_to(Vector2(target_position.x, target_position.z))
 		var target_radius := _get_combat_target_radius(target_id)
 		var effective_distance := maxf(0.0, distance - target_radius)
-		if effective_distance > _ATTACK_RANGE_UNITS:
+		if effective_distance > attack_range:
 			# Stop just inside weapon range instead of moving onto the target's
 			# center; unit soft-collision would otherwise keep two actors apart.
 			var approach_direction := Vector2(
 				target_position.x - attacker.position.x,
 				target_position.z - attacker.position.z
 			).normalized()
-			var approach_distance := target_radius + _ATTACK_RANGE_UNITS - 1.0
+			var approach_distance := target_radius + attack_range - 1.0
 			attacker.queue_move(Vector3(
 				target_position.x - approach_direction.x * approach_distance,
 				attacker.position.y,
@@ -7131,11 +8847,13 @@ func _update_attack_orders(delta: float) -> void:
 		if float(_attack_cooldowns.get(id, 0.0)) > 0.0:
 			continue
 
-		_attack_cooldowns[id] = _ATTACK_COOLDOWN_SECONDS
+		var attack_damage := _get_unit_attack_damage(attacker.unit_id, target_id)
+		_attack_cooldowns[id] = _get_unit_attack_cooldown(attacker.unit_id)
+		attacker.play_attack_feedback()
 		var target_tether := _get_tether_by_target_id(target_id)
 		if target_tether != null:
 			var tether_hp_before := target_tether.health
-			target_tether.apply_damage(_ATTACK_DAMAGE_PER_HIT)
+			target_tether.apply_damage(attack_damage)
 			_spawn_move_ping(target_position, Color(1.0, 0.2, 0.2, 0.85))
 			print("[Combat] Tether damage attacker=%s target=%s hp_before=%.1f hp_after=%.1f" % [id, target_id, tether_hp_before, target_tether.health])
 			if target_tether.is_command_penalty_active:
@@ -7144,7 +8862,7 @@ func _update_attack_orders(delta: float) -> void:
 		var target_buildable := _get_buildable_by_target_id(target_id)
 		if target_buildable != null:
 			var structure_hp_before := float(_structure_hit_points.get(target_id, _EXPANSION_HUB_MAX_HIT_POINTS))
-			var structure_hp_after := maxf(0.0, structure_hp_before - _ATTACK_DAMAGE_PER_HIT)
+			var structure_hp_after := maxf(0.0, structure_hp_before - attack_damage)
 			_structure_hit_points[target_id] = structure_hp_after
 			_spawn_move_ping(target_position, Color(1.0, 0.32, 0.12, 0.85))
 			print("[Combat] Structure damage attacker=%s target=%s type=%s hp_before=%.1f hp_after=%.1f" % [id, target_id, target_buildable.buildable_id, structure_hp_before, structure_hp_after])
@@ -7153,7 +8871,7 @@ func _update_attack_orders(delta: float) -> void:
 				attackers_to_clear.append(id)
 			continue
 		var hp_before := float(_unit_hit_points.get(target_id, _UNIT_BASE_HIT_POINTS))
-		var hp_after := maxf(0.0, hp_before - _ATTACK_DAMAGE_PER_HIT)
+		var hp_after := maxf(0.0, hp_before - attack_damage)
 		_unit_hit_points[target_id] = hp_after
 		# Update target's visual HP bar.
 		if _controllable_units.has(target_id):
@@ -7176,6 +8894,14 @@ func _destroy_live_buildable(target_id: String, attacker_id: String = "") -> voi
 		return
 	var slot := buildable.slot
 	var buildable_id := buildable.buildable_id
+	if _construction_jobs_by_structure_id.has(target_id):
+		_cancel_construction_job(target_id, "site_destroyed", false)
+		print("[Combat] Construction site destroyed attacker=%s target=%s slot=%s type=%s" % [attacker_id, target_id, slot, buildable_id])
+		return
+	_cancel_all_production_jobs(target_id, "producer_destroyed", false)
+	_rally_points_by_producer_id.erase(target_id)
+	if _selected_structure_id == target_id:
+		_selected_structure_id = ""
 	_live_buildable_nodes_by_id.erase(target_id)
 	_structure_hit_points.erase(target_id)
 	if _buildables_by_slot.has(slot):
@@ -7219,6 +8945,9 @@ func _destroy_unit(unit_id: String) -> void:
 	_attack_cooldowns.erase(unit_id)
 	_gather_jobs.erase(unit_id)
 	_attack_orders.erase(unit_id)
+	for slot in ["A", "B"]:
+		(_objective_ai_unit_ids_by_slot[slot] as Array).erase(unit_id)
+		(_objective_command_unit_ids_by_slot[slot] as Array).erase(unit_id)
 
 	var attackers_to_clear: Array[String] = []
 	for attacker_id in _attack_orders.keys():
@@ -7285,6 +9014,12 @@ func _finalize_match(state: String, reason: String) -> void:
 	_tether_recovery_remaining_by_slot.clear()
 	_drag_mouse_held = false
 	_drag_box_active = false
+	_objective_ai_unit_ids_by_slot = {"A": [], "B": []}
+	_objective_command_unit_ids_by_slot = {"A": [], "B": []}
+	if not _data_objective_state.is_empty():
+		_data_objective_state["phase"] = "frozen"
+		_emit_objective_event("frozen", str(_data_objective_state["owner_slot"]), str(_data_objective_state["owner_slot"]), reason)
+		_apply_data_objective_visual()
 	_destroy_drag_box_overlay()
 	for unit_value in _controllable_units.values():
 		var unit: SelectableUnit2D = unit_value
@@ -7385,7 +9120,7 @@ func _toggle_production_menu() -> void:
 	var slot := _get_selected_slot_for_commands()
 	if slot == "":
 		if _hud_alert_item:
-			_hud_alert_item.text = "Production rejected: select a unit"
+			_hud_alert_item.text = "Production rejected: select a producer or unit"
 		return
 	var tether: TetherPoint = _tether_points_by_slot[slot]
 	var faction: String = tether.faction_id
@@ -7397,6 +9132,7 @@ func _toggle_production_menu() -> void:
 
 	_production_menu_active = not _production_menu_active
 	if _production_menu_active:
+		_active_production_producer_id = _selected_structure_id if _selected_structure_id != "" else _find_first_available_producer_for_options(slot, faction, options)
 		if _hud_command_card_label:
 			_hud_command_card_label.text = "Production Menu — Alloy: %d\n1 %s\n2 %s\n3 %s" % [
 				_get_alloy_wallet(slot), _format_unit_cost_choice(options[0]),
@@ -7404,8 +9140,80 @@ func _toggle_production_menu() -> void:
 			]
 		if _hud_queue_item:
 			_hud_queue_item.text = "Production mode active"
+		_refresh_production_hud()
 	else:
+		for button in _hud_production_buttons:
+			button.visible = false
 		_reset_command_card_text()
+
+
+func _on_production_button_pressed(index: int) -> void:
+	_queue_live_production_by_index(index)
+
+
+func _on_cancel_queue_head_pressed() -> void:
+	var target_id := _selected_structure_id
+	if target_id == "":
+		target_id = _active_production_producer_id
+	if target_id == "":
+		return
+	if _construction_jobs_by_structure_id.has(target_id):
+		_cancel_construction_job(target_id)
+	elif _production_queues_by_producer_id.has(target_id):
+		var queue: Array = _production_queues_by_producer_id[target_id]
+		if not queue.is_empty():
+			_cancel_production_job(target_id, str((queue[0] as Dictionary)["job_id"]))
+	_refresh_production_hud()
+
+
+func _refresh_production_hud() -> void:
+	var slot := _get_selected_slot_for_commands()
+	var producer_id := _get_selected_or_default_producer_id()
+	var faction := ""
+	if slot != "" and _tether_points_by_slot.has(slot):
+		faction = (_tether_points_by_slot[slot] as TetherPoint).faction_id
+	var options: Array[String] = []
+	if slot != "":
+		options = _get_production_options_for_slot(slot, faction)
+	for index in _hud_production_buttons.size():
+		var button: Button = _hud_production_buttons[index]
+		button.visible = _production_menu_active and index < options.size() and options[index] != "-"
+		if not button.visible:
+			continue
+		var unit_id := options[index]
+		button.text = "%d  %s — %d Alloy — %.0fs" % [index + 1, unit_id.capitalize(), int(UNIT_ALLOY_COSTS.get(unit_id, 0)), float(UNIT_BUILD_TIME_SECONDS.get(unit_id, 0.0))]
+		button.disabled = false
+	var queue: Array = _production_queues_by_producer_id.get(producer_id, [])
+	if not queue.is_empty():
+		var head: Dictionary = queue[0]
+		var progress := 1.0 - float(head["remaining"]) / float(head["duration"])
+		_hud_queue_item.text = "%s: %s %d%%, %.1fs left; queued=%d" % [producer_id, str(head["unit_id"]), int(progress * 100.0), float(head["remaining"]), queue.size()]
+	elif _construction_jobs_by_structure_id.has(_selected_structure_id):
+		var construction: Dictionary = _construction_jobs_by_structure_id[_selected_structure_id]
+		var construction_progress := 1.0 - float(construction["remaining"]) / float(construction["duration"])
+		_hud_queue_item.text = "%s %d%%, %.1fs left" % [str(construction["buildable_id"]), int(construction_progress * 100.0), float(construction["remaining"])]
+	var effective_id := _selected_structure_id if _selected_structure_id != "" else _active_production_producer_id
+	_hud_cancel_button.visible = effective_id != "" \
+		and (_construction_jobs_by_structure_id.has(effective_id) or not queue.is_empty())
+
+
+func _get_selected_or_default_producer_id() -> String:
+	if _selected_structure_id != "" and _is_live_producer(_selected_structure_id, _get_selected_slot_for_commands()):
+		return _selected_structure_id
+	if _active_production_producer_id != "" and _is_producer_id_live_any_slot(_active_production_producer_id):
+		return _active_production_producer_id
+	var slot := _get_selected_slot_for_commands()
+	if slot != "" and _tether_points_by_slot.has(slot):
+		return (_tether_points_by_slot[slot] as TetherPoint).stable_item_id
+	return ""
+
+
+func _find_first_available_producer_for_options(slot: String, faction: String, options: Array[String]) -> String:
+	for unit_id in options:
+		var producer_id := _find_producer_id_for_unit(slot, faction, unit_id)
+		if producer_id != "":
+			return producer_id
+	return ""
 
 
 func _queue_live_production_by_index(index: int) -> void:
@@ -7430,75 +9238,90 @@ func _queue_live_production(unit_id: String) -> bool:
 		return false
 	var tether: TetherPoint = _tether_points_by_slot[slot]
 	var faction: String = tether.faction_id
-	if not _spawn_live_produced_actor(slot, faction, unit_id):
+	var producer_id := _find_producer_id_for_unit(slot, faction, unit_id)
+	if _selected_structure_id != "" and _is_live_producer(_selected_structure_id, slot):
+		producer_id = _selected_structure_id
+	if not _enqueue_production_job(producer_id, slot, faction, unit_id):
 		if _hud_alert_item:
 			var alloy_cost := int(UNIT_ALLOY_COSTS.get(unit_id, 0))
-			if _get_alloy_wallet(slot) < alloy_cost:
-				_hud_alert_item.text = "Production rejected: need %d Alloy (have %d)" % [alloy_cost, _get_alloy_wallet(slot)]
-			else:
-				_hud_alert_item.text = "Production locked: %s" % unit_id
+			match _last_production_rejection_reason:
+				"insufficient_alloy": _hud_alert_item.text = "Production rejected: need %d Alloy (have %d)" % [alloy_cost, _get_alloy_wallet(slot)]
+				"missing_producer", "producer_not_operational": _hud_alert_item.text = "Production rejected: missing operational producer for %s" % unit_id
+				"command_penalty_active": _hud_alert_item.text = "Production rejected: command penalty active"
+				"queue_full": _hud_alert_item.text = "Production rejected: producer queue full (%d)" % MAX_PRODUCTION_QUEUE_PER_PRODUCER
+				_: _hud_alert_item.text = "Production rejected: %s" % _last_production_rejection_reason
 		return false
 
-	var produced_actor_name := "Produced_%s_%03d" % [slot, _production_sequence]
-	var spawn_point := Vector3.ZERO
-	if _controllable_units.has(produced_actor_name):
-		var produced_actor: SelectableUnit2D = _controllable_units[produced_actor_name]
-		spawn_point = produced_actor.position
-	_spawn_move_ping(spawn_point, Color(0.65, 0.9, 1.0, 0.85))
 	if _hud_queue_item:
 		_hud_queue_item.text = "Queued: %s" % unit_id
 	if _hud_alert_item:
-		_hud_alert_item.text = "Produced: %s" % unit_id
-	print("[F38] Production spawn slot=%s faction=%s unit=%s actor=%s" % [slot, faction, unit_id, produced_actor_name])
+		_hud_alert_item.text = "Production queued: %s" % unit_id
+	_refresh_production_hud()
 	return true
 
 
 func _format_unit_cost_choice(unit_id: String) -> String:
 	if unit_id == "-":
 		return "-"
-	return "%s (%d)" % [unit_id, int(UNIT_ALLOY_COSTS.get(unit_id, 0))]
+	return "%s (%d) — %.0fs" % [unit_id, int(UNIT_ALLOY_COSTS.get(unit_id, 0)), float(UNIT_BUILD_TIME_SECONDS.get(unit_id, 0.0))]
 
 
 func _spawn_live_produced_actor(slot: String, faction: String, unit_id: String) -> bool:
-	if _match_over:
-		return false
-	if not _can_produce_unit_for_slot(slot, faction, unit_id):
+	return _queue_unit_for_slot(slot, faction, unit_id)
+
+
+func _spawn_completed_produced_actor(job: Dictionary) -> bool:
+	var slot := str(job["slot"])
+	var faction := str(job["faction"])
+	var unit_id := str(job["unit_id"])
+	var producer_id := str(job["producer_id"])
+	if _match_over or not _is_live_producer(producer_id, slot):
 		return false
 	var actor := SelectableUnit2D.new()
 	if not is_instance_valid(actor):
 		print("[Production] Rejected slot=%s faction=%s unit=%s reason=actor_creation_failed" % [slot, faction, unit_id])
 		return false
-	var sequence_before := _production_sequence
-	var had_previous_record: bool = _produced_units_by_slot[slot].has(unit_id)
-	var previous_record: Variant = _produced_units_by_slot[slot].get(unit_id)
-	if not _queue_unit_for_slot(slot, faction, unit_id):
-		actor.free()
-		return false
-
 	var spawn_index_before := int(_live_production_spawn_index_by_slot.get(slot, 0))
-	var spawn_point := _get_live_production_spawn_position(slot)
+	var spawn_point := _get_producer_spawn_position(producer_id, slot)
+	_production_sequence += 1
 	actor.name = "Produced_%s_%03d" % [slot, _production_sequence]
 	actor.set_meta("slot", slot)
 	add_child(actor)
 	if not is_instance_valid(actor) or actor.get_parent() != self:
-		_refund_alloy(slot, int(UNIT_ALLOY_COSTS.get(unit_id, 0)), "rollback_produce_%s" % unit_id)
-		_production_sequence = sequence_before
+		_production_sequence -= 1
 		_live_production_spawn_index_by_slot[slot] = spawn_index_before
-		if had_previous_record:
-			_produced_units_by_slot[slot][unit_id] = previous_record
-		else:
-			_produced_units_by_slot[slot].erase(unit_id)
 		if is_instance_valid(actor) and actor.get_parent() == null:
 			actor.free()
-		print("[Production] Rejected slot=%s faction=%s unit=%s reason=attach_failed debit_rolled_back=true" % [slot, faction, unit_id])
+		print("[Production] Rejected slot=%s faction=%s unit=%s reason=attach_failed" % [slot, faction, unit_id])
 		return false
 	actor.initialize(unit_id, faction, spawn_point)
 	_controllable_units[actor.name] = actor
 	_register_unit_for_combat(actor.name, actor.unit_id)
+	_produced_units_by_slot[slot][unit_id] = actor.name
+	if _rally_points_by_producer_id.has(producer_id):
+		actor.queue_move(_rally_points_by_producer_id[producer_id])
+		print("[Rally] event=dispatched producer=%s unit=%s target=%s" % [producer_id, actor.name, str(_rally_points_by_producer_id[producer_id])])
+	print("[Production] Completed slot=%s faction=%s unit=%s producer=%s stable_item_id=%s" % [slot, faction, unit_id, producer_id, actor.name])
 	return true
 
 
+func _get_producer_spawn_position(producer_id: String, slot: String) -> Vector3:
+	if _live_buildable_nodes_by_id.has(producer_id):
+		var producer: BuildableNode = _live_buildable_nodes_by_id[producer_id]
+		var index: int = int(_live_production_spawn_index_by_slot.get(slot, 0))
+		_live_production_spawn_index_by_slot[slot] = index + 1
+		var side := 1.0 if slot == "A" else -1.0
+		return producer.position + Vector3(side * 22.0, 0.0, float((index % 3) - 1) * 12.0)
+	return _get_live_production_spawn_position(slot)
+
+
 func _get_selected_slot_for_commands() -> String:
+	if _selected_structure_id != "":
+		for slot in _tether_points_by_slot.keys():
+			if (_tether_points_by_slot[slot] as TetherPoint).stable_item_id == _selected_structure_id:
+				return str(slot)
+		if _live_buildable_nodes_by_id.has(_selected_structure_id):
+			return (_live_buildable_nodes_by_id[_selected_structure_id] as BuildableNode).slot
 	if _selected_controllable_units.is_empty():
 		return ""
 	return _get_unit_slot(str(_selected_controllable_units[0]))
@@ -7514,7 +9337,11 @@ func _get_production_options_for_slot(slot: String, faction: String) -> Array[St
 		if i >= baseline.size():
 			continue
 		var unit_id := str(baseline[i])
-		if _can_produce_unit_for_slot(slot, faction, unit_id):
+		var producer_type := str(PRODUCTION_CHAINS.get(faction, {}).get(unit_id, ""))
+		var selected_matches := _selected_structure_id == "" \
+			or (_live_buildable_nodes_by_id.has(_selected_structure_id) \
+			and (_live_buildable_nodes_by_id[_selected_structure_id] as BuildableNode).buildable_id == producer_type)
+		if selected_matches:
 			options.append(unit_id)
 
 	if options.size() < 3:

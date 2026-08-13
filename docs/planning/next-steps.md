@@ -216,7 +216,9 @@ Keep this list short, actionable, and current.
 - [x] Convert economy-standards.md into first balance sheet draft.
 - [x] Draft test scenarios for core loop validation.
 - [x] Implement T-0111 per-slot Alloy wallets, bounded world-reserve extraction, and cost-gated construction and production.
-- [ ] Follow T-0111 with T-0114 timed queues and T-0115 live Data Node objectives.
+- [x] Implement T-0114 timed construction and producer-owned production queues with clickable controls, cancellation, refunds, rally points, and AI timing parity.
+- [x] Implement T-0115 live Data Node objectives with public capture, contesting, ownership benefits, HUD/minimap feedback, and AI response.
+- [ ] Finish T-0116 validation: data-driven Helion/Veyari combat roles, counter relationships, faction geometry, facing, and attack feedback are implemented and pass 38 automated gates; rendered zoom/angle readability and first balance review remain.
 - [ ] Build T-0120 as a separate black-box full-match lane; do not treat deterministic hooks as full-match evidence.
 - [ ] Apply the agent roles and evidence gates in full-rts-agentic-workflow.md to every new runtime slice.
 - [ ] If a live zoom defect is reproduced, run a focused F-19 regression pass against mouse-wheel, keyboard zoom, and persisted input-profile mappings before changing camera code.

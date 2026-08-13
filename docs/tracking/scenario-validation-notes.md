@@ -1272,3 +1272,27 @@ Track scenario-level evidence for map and flow validation runs.
 - Result: Pass; 25 cases passed and zero failed on Godot 4.5.1.
 - Evidence: F-79 verified exact player and AI affordability boundaries, two extractor instances per slot, global source occupancy, duplicate rejection, finite source/world conservation, safe depletion with natural continuity, teardown release, HUD privacy, choice costs, and exact shortage feedback.
 - Independent gates: Test Agent PASS; Code Review APPROVE with no open P0-P2 findings.
+## 2026-08-12 T-0114 Timed Queue Validation
+
+- Flow: F-80 through F-85 plus connected F-22, Production, F-16, T2Path, F-35, F-36, F-38, F-61, F-77 through F-79, and startup integration.
+- Command: `scripts/tests/run_headless_suite.sh`
+- Result: Pass; 31 cases passed and zero failed on Godot 4.5.1.
+- Evidence: construction remains non-operational until its canonical boundary; production runs FIFO per concrete producer; viewport-dispatched GUI clicks enqueue and cancel; proportional/full/zero-refund policies, source release, producer/site destruction, rally dispatch, command disruption, parallel producers, and AI/player timing parity pass.
+- Independent gates: Test Agent PASS; Code and UX Review APPROVE with no open P0-P2 findings.
+- Environment note: direct sandboxed Godot invocations without `--log-file` can abort in `RotatedFileLogger::rotate_file`; use `scripts/tests/run_godot_safe.sh` for manual runs.
+## 2026-08-12 T-0115 Live Data Objective Validation
+
+- Flow: F-86 through F-90 plus the complete connected regression and startup suite.
+- Command: `scripts/tests/run_headless_suite.sh`
+- Result: Pass; 36 cases passed and zero failed on Godot 4.5.1.
+- Evidence: viewport-issued objective movement, physical capture, 12/8/12-second capture lifecycle, six-second decay/recovery, contest-origin progress preservation, finite +5 Data/s conservation, faction-correct world/HUD/minimap state, bounded objective AI, destruction pruning, combat resumption, and terminal freeze.
+- Independent gates: Test Agent PASS; Code and UX Review APPROVE with no open P0-P2 findings.
+
+## 2026-08-13 T-0116 Combat Identity Automated Validation
+
+- Flow: F-91 authoritative profile coverage and F-92 live combat identity plus the complete regression/startup suite.
+- Command: `RTS_TEST_LOG_DIR=/tmp/rts-verse-t0116-first scripts/tests/run_headless_suite.sh`
+- Result: Pass; 38 cases passed and zero failed on Godot 4.5.1. Logs: `/tmp/rts-verse-t0116-first/run.hO6uT6`.
+- Evidence: all 12 locked Helion/Veyari profiles have positive runtime bands and six role classes per faction; spawned actors receive catalog movement values and faction-distinct geometry signatures; line, breach, and siege counter multipliers are ordered correctly; raiders meet the mobility band; a live attack order applies exact profile damage/cooldown and activates weapon feedback.
+- Regression: F-37 unit combat, F-61 AI, F-77/F-78 endgame, economy, timed production, public GUI input, objective capture, and startup remain passing.
+- Remaining gate: rendered readability at default/macro zoom and representative camera angles. A headless Stage 0 capture attempt was stopped because `frame_post_draw` did not complete; no screenshot from that attempt is counted as evidence.

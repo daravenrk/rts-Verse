@@ -13,6 +13,10 @@ Track high-level project changes with links to decisions and plans.
 - Added deterministic startup faction overrides and asserted Helion-versus-Veyari routing through Main, Skirmish, and the duel map.
 - Revalidated the hardened suite with `passes=20 failures=0`; the false-executable negative test now exits `2` before running cases.
 - Diagnosed a macOS Godot 4.5.1 startup crash in `RotatedFileLogger::rotate_file` when sandboxed direct launches cannot write `user://logs`; added a safe manual-launch wrapper with a unique explicit temporary log while retaining the same protection in the authoritative suite.
+- Completed T-0114 timed construction and production: operational construction sites, canonical durations, producer-owned FIFO queues, deterministic cancellation/refunds, destruction cleanup, rally points, concrete AI producer timing, and clickable production controls.
+- Expanded the hardened suite to 31 cases with F-80 through F-85; independent QA passed and independent code/UX review approved with no open P0-P2 findings.
+- Completed T-0115 live Data Node gameplay: public proximity capture, contest/neutralize/re-secure lifecycle, finite private Data income, faction-consistent world/HUD/minimap feedback, bounded objective AI, command arbitration, and match freeze.
+- Expanded the suite to 36 cases with F-86 through F-90; independent QA passed and independent code/UX review approved with no open P0-P2 findings.
 
 ## 2026-08-03
 
@@ -342,3 +346,11 @@ Track high-level project changes with links to decisions and plans.
 - Added T-0114 through T-0126 to sequence paid economy, timed queues, live objectives, faction combat identity, controls, AI, black-box matches, live events, T2 progression, architecture, presentation, exported-build validation, and balance playtests.
 - Completed T-0111 live paid economy: isolated player and enemy wallets, finite multi-source extraction, safe-plus-natural extractor instances, source occupancy, canonical costs, affordability feedback, real AI parity, rollback safety, and F-79 coverage.
 - Expanded the authoritative Godot gate to 25 isolated cases; independent QA passed and independent review approved with no open P0-P2 findings.
+
+## 2026-08-13 T-0116 Combat Identity Implementation
+
+- Added `UnitCombatProfiles.gd` as the authoritative live catalog for Helion and Veyari T0-T1 role, armor, movement, durability, range, damage, cadence, visual recipe, and target multipliers.
+- Replaced the shared block-unit presentation with faction-specific primitive silhouettes for builder, line, breach, raider, armor, and siege roles; added movement facing and bounded weapon-flash feedback.
+- Routed live player and AI combat through per-unit range, cooldown, damage, target armor, and maximum-HP profiles while preserving generic fallback behavior for legacy fixtures.
+- Added F-91 catalog/runtime-application and F-92 counter/mobility/live-hit gates; the hardened suite now passes 38 cases with zero failures on Godot 4.5.1.
+- Left T-0116 In Validation because the existing screenshot hook does not complete under the headless renderer; rendered default/macro zoom and camera-angle readability remains a manual or offscreen-render gate.

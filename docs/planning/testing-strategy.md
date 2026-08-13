@@ -542,6 +542,27 @@ This document defines validation layers for milestone delivery.
   - Failed commands preserve wallets, sequences, registries, entities, and source occupancy.
   - Safe depletion affects only its bound extractor; another live source continues producing.
 
+## Flows F-80 through F-85 Timed Construction and Production
+
+- Validate non-operational construction sites, exact completion boundaries, producer-owned FIFO queues, cancellation/refund/destruction rules, viewport-dispatched production controls, rally behavior, and AI timing parity.
+- Require machine summaries for every flow and preserve public-input coverage separately from domain lifecycle checks.
+
+## Flows F-86 through F-90 Live Data Objective
+
+- Validate public movement-to-capture, deterministic capture/neutralize/recover boundaries, finite Data conservation, faction-correct HUD/world/minimap feedback, bounded objective AI, match freeze, and swapped-faction palette initialization.
+- Require physical presence or ordinary AI movement for reachability claims; state-machine fixtures remain focused lifecycle evidence rather than full-match proof.
+
+## Flow F-91 Unit Profile Catalog and Runtime Application
+
+- Verify all locked Helion/Veyari T0-T1 profiles define faction, role, armor, HP, speed, range, damage, cooldown, visual recipe, and target multipliers.
+- Verify spawned actors consume the same catalog and equivalent roles retain faction-distinct geometry signatures.
+
+## Flow F-92 Live Combat Identity and Counter Bands
+
+- Verify line weapons favor light targets, breach weapons favor armor, siege weapons favor structures, and raiders materially outrun mainline armor.
+- Issue a live attack order and verify exact catalog damage, cooldown, and weapon feedback are applied through the ordinary combat updater.
+- Preserve F-37, F-61, and F-77/F-78 as regression gates for unit combat, AI use, and terminal structure combat.
+
 ## Reporting Template
 
 - Date:
