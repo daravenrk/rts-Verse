@@ -92,6 +92,7 @@ const TEST_F89_OBJECTIVE_AI_ENDGAME_FLAG := "--duel-test-f89-objective-ai-endgam
 const TEST_F90_SWAPPED_OBJECTIVE_PALETTE_FLAG := "--duel-test-f90-swapped-objective-palette"
 const TEST_F91_UNIT_PROFILE_CATALOG_FLAG := "--duel-test-f91-unit-profile-catalog"
 const TEST_F92_COMBAT_IDENTITY_FLAG := "--duel-test-f92-combat-identity"
+const TEST_F93_PUBLIC_NAV_FORMATION_FLAG := "--duel-test-f93-public-navigation-formation"
 const STAGE0_CAPTURE_FLAG := "--stage0-capture-media"
 const STAGE0_CAPTURE_DIR_PREFIX := "--stage0-capture-dir="
 const INPUT_PROFILE_CONFIG_PATH := "user://input_profile.cfg"
@@ -347,6 +348,8 @@ const _ATTACK_COOLDOWN_SECONDS := 0.6
 const _UNIT_BASE_HIT_POINTS := 100.0
 const _UNIT_COLLISION_RADIUS := 8.0
 const _UNIT_COLLISION_MAX_PUSH_PER_TICK := 4.5
+const _NAV_CLEARANCE := 10.0
+const _FORMATION_SPACING := 28.0
 const _BLOCKER_RECTS: Array[Rect2] = [
 	Rect2(Vector2(-60.0, -60.0), Vector2(120.0, 120.0)),
 	Rect2(Vector2(-340.0, 120.0), Vector2(100.0, 100.0)),
@@ -642,11 +645,14 @@ func _ready() -> void:
 	_run_f90_swapped_objective_palette_test_hook()
 	_run_f91_unit_profile_catalog_test_hook()
 	_run_f92_combat_identity_test_hook()
+	if _has_user_flag(TEST_F93_PUBLIC_NAV_FORMATION_FLAG):
+		call_deferred("_run_f93_public_navigation_formation_test_hook")
 	if _has_user_flag(STAGE0_CAPTURE_FLAG):
 		call_deferred("_run_stage0_media_capture_sequence")
 	elif _has_user_flag(TEST_AUTO_EXIT_FLAG) \
 		and not _has_user_flag(TEST_F83_PUBLIC_QUEUE_INPUT_FLAG) \
-		and not _has_user_flag(TEST_F86_PUBLIC_DATA_CAPTURE_FLAG):
+		and not _has_user_flag(TEST_F86_PUBLIC_DATA_CAPTURE_FLAG) \
+		and not _has_user_flag(TEST_F93_PUBLIC_NAV_FORMATION_FLAG):
 		call_deferred("_request_test_exit")
 	_apply_camera_transform()
 
@@ -1889,6 +1895,94 @@ func _run_f92_combat_identity_test_hook() -> void:
 	print("[F92] Summary counter_bands=%s mobility_band=%s faction_asymmetry=%s runtime_damage=%s runtime_cadence=%s weapon_feedback=%s pass=%s" % [
 		str(counter_bands), str(mobility_band), str(faction_asymmetry), str(runtime_damage), str(runtime_cadence), str(weapon_feedback), str(pass_ok)
 	])
+
+
+func _run_f93_public_navigation_formation_test_hook() -> void:
+	if not _has_user_flag(TEST_F93_PUBLIC_NAV_FORMATION_FLAG):
+		return
+	get_window().size = Vector2i(1280, 720)
+	await get_tree().process_frame
+	var unit_ids: Array[String] = _get_slot_unit_ids("A").slice(0, 4)
+	_clear_controllable_selection()
+	for index in unit_ids.size():
+		var unit: SelectableUnit2D = _controllable_units[unit_ids[index]]
+		unit.position = Vector3(-180.0, 0.0, float(index - 2) * 18.0)
+		unit.set_selected(true)
+		_selected_controllable_units.append(unit_ids[index])
+	var stale_target_id := _find_first_unit_for_slot("B")
+	for unit_id in unit_ids:
+		_attack_orders[unit_id] = stale_target_id
+		_attack_cooldowns[unit_id] = 0.5
+		_gather_jobs[unit_id] = {"resource_id": "SAFE-ALLOY-A", "phase": "to_resource"}
+		(_objective_command_unit_ids_by_slot["A"] as Array).append(unit_id)
+	var first_target := Vector3(180.0, 0.0, 0.0)
+	await _dispatch_world_click(_rts_camera.unproject_position(first_target), MOUSE_BUTTON_RIGHT)
+	var public_order := true
+	var routed_around_blocker := false
+	var arbitration_cleared := true
+	var first_pending_counts: Dictionary = {}
+	for unit_id in unit_ids:
+		var unit: SelectableUnit2D = _controllable_units[unit_id]
+		public_order = public_order and unit.has_move_target() and unit.get_pending_waypoint_count() >= 2
+		routed_around_blocker = routed_around_blocker or unit.get_pending_waypoint_count() >= 3
+		arbitration_cleared = arbitration_cleared and not _attack_orders.has(unit_id) and not _attack_cooldowns.has(unit_id) \
+			and not _gather_jobs.has(unit_id) and not (_objective_command_unit_ids_by_slot["A"] as Array).has(unit_id)
+		first_pending_counts[unit_id] = unit.get_pending_waypoint_count()
+	var second_target := Vector3(180.0, 0.0, -150.0)
+	await _dispatch_public_key_state(KEY_SHIFT, true)
+	await _dispatch_world_click(_rts_camera.unproject_position(second_target), MOUSE_BUTTON_RIGHT)
+	await _dispatch_public_key_state(KEY_SHIFT, false)
+	var shift_queue_recorded := true
+	for unit_id in unit_ids:
+		shift_queue_recorded = shift_queue_recorded \
+			and (_controllable_units[unit_id] as SelectableUnit2D).get_pending_waypoint_count() > int(first_pending_counts[unit_id])
+	var stayed_clear := true
+	var first_leg_reached_by_unit: Dictionary = {}
+	for unit_id in unit_ids:
+		first_leg_reached_by_unit[unit_id] = false
+	_ai_build_timer = 999.0
+	_ai_production_timer = 999.0
+	_objective_ai_timer = 999.0
+	for enemy_id in _get_slot_unit_ids("B"):
+		_ai_scan_timers[enemy_id] = 999.0
+		_attack_orders.erase(enemy_id)
+	_data_objective_state["phase"] = "frozen"
+	for _step in 60:
+		_process(0.3)
+		for unit_id in unit_ids:
+			var unit: SelectableUnit2D = _controllable_units[unit_id]
+			stayed_clear = stayed_clear and not _is_navigation_point_blocked(Vector2(unit.position.x, unit.position.z))
+			if unit.position.distance_to(first_target) <= 34.0:
+				first_leg_reached_by_unit[unit_id] = true
+	var first_leg_reached := true
+	for unit_id in unit_ids:
+		first_leg_reached = first_leg_reached and bool(first_leg_reached_by_unit[unit_id])
+	var second_arrival := true
+	var distinct_arrival := true
+	var arrival_positions: Array[Vector2] = []
+	for unit_id in unit_ids:
+		var unit: SelectableUnit2D = _controllable_units[unit_id]
+		second_arrival = second_arrival and not unit.has_move_target() and unit.position.distance_to(second_target) <= 34.0
+		var point := Vector2(unit.position.x, unit.position.z)
+		for existing in arrival_positions:
+			distinct_arrival = distinct_arrival and point.distance_to(existing) >= 16.0
+		arrival_positions.append(point)
+	var pass_ok: bool = public_order and routed_around_blocker and arbitration_cleared and stayed_clear and first_leg_reached \
+		and distinct_arrival and shift_queue_recorded and second_arrival
+	print("[F93] Summary public_rmb=%s blocker_route=%s arbitration_cleared=%s stayed_clear=%s first_leg_reached=%s nonstacked=%s shift_queue=%s queued_second_arrival=%s final_positions=%s pass=%s" % [
+		str(public_order), str(routed_around_blocker), str(arbitration_cleared), str(stayed_clear), str(first_leg_reached), str(distinct_arrival),
+		str(shift_queue_recorded), str(second_arrival), str(arrival_positions), str(pass_ok)
+	])
+	get_tree().quit()
+
+
+func _dispatch_public_key_state(keycode: Key, pressed: bool) -> void:
+	var event := InputEventKey.new()
+	event.keycode = keycode
+	event.physical_keycode = keycode
+	event.pressed = pressed
+	Input.parse_input_event(event)
+	await get_tree().process_frame
 
 
 func _run_f62_enemy_production_horizon_test_hook() -> void:
@@ -3332,7 +3426,7 @@ func _run_stage0_media_capture_sequence() -> void:
 			"name": "stage0-shot-03-faction-asymmetry.png",
 			"target": Vector3(120.0, 0.0, 84.0),
 			"yaw": 32.0,
-			"arm": 620.0,
+			"arm": 360.0,
 			"state": "asymmetry"
 		}
 	]
@@ -3369,7 +3463,6 @@ func _save_stage0_screenshot(path: String) -> bool:
 		return false
 	if image.is_empty():
 		return false
-	image.flip_y()
 	var save_result := image.save_png(path)
 	return save_result == OK
 
@@ -4293,16 +4386,40 @@ func _run_f01_f02_test_hook() -> void:
 
 	print("[F01] Selection summary selected_units=%s pass=%s" % [str(_selected_controllable_units), str(selection_pass)])
 
-	var first_move := Vector3(-30, 0, 84)
+	for index in _selected_controllable_units.size():
+		(_controllable_units[_selected_controllable_units[index]] as SelectableUnit2D).position = Vector3(-400.0 + float(index) * 36.0, 0.0, -120.0)
+	var first_move := Vector3(-220, 0, -180)
 	_issue_move_command(first_move)
 	var first_move_pass := _simulate_until_arrival(90)
 
-	var second_move := Vector3(64, 0, 28)
+	var second_move := Vector3(-120, 0, -110)
 	_issue_move_command(second_move)
 	var second_move_pass := _simulate_until_arrival(90)
 
-	print("[F02] Movement summary first_target=%s first_pass=%s second_target=%s second_pass=%s" % [str(first_move), str(first_move_pass), str(second_move), str(second_move_pass)])
-	print("[F01/F02] Summary pass=%s" % str(selection_pass and first_move_pass and second_move_pass))
+	# Regression: the command center is valid, but a naive 2x2 formation overlaps
+	# the expanded center blocker. Formation assignment must relocate the footprint
+	# without dropping any selected unit.
+	var blocker_edge_move := Vector3(-30, 0, 84)
+	_issue_move_command(blocker_edge_move)
+	var blocker_edge_all_assigned := true
+	for unit_id in _selected_controllable_units:
+		blocker_edge_all_assigned = blocker_edge_all_assigned and (_controllable_units[unit_id] as SelectableUnit2D).has_move_target()
+	var blocker_edge_move_pass := _simulate_until_arrival(120)
+	var blocker_edge_clear := true
+	var blocker_edge_distinct := true
+	var blocker_edge_centroid := Vector3.ZERO
+	for first_index in _selected_controllable_units.size():
+		var first_unit: SelectableUnit2D = _controllable_units[_selected_controllable_units[first_index]]
+		blocker_edge_centroid += first_unit.position
+		blocker_edge_clear = blocker_edge_clear and not _is_navigation_point_blocked(Vector2(first_unit.position.x, first_unit.position.z))
+		for second_index in range(first_index + 1, _selected_controllable_units.size()):
+			var second_unit: SelectableUnit2D = _controllable_units[_selected_controllable_units[second_index]]
+			blocker_edge_distinct = blocker_edge_distinct and first_unit.position.distance_to(second_unit.position) >= _FORMATION_SPACING * 0.5
+	blocker_edge_centroid /= float(_selected_controllable_units.size())
+	var blocker_edge_fallback := blocker_edge_centroid.distance_to(blocker_edge_move) > 1.0
+
+	print("[F02] Movement summary first_target=%s first_pass=%s second_target=%s second_pass=%s blocker_edge_target=%s blocker_edge_all_assigned=%s blocker_edge_pass=%s blocker_edge_clear=%s blocker_edge_distinct=%s blocker_edge_fallback=%s" % [str(first_move), str(first_move_pass), str(second_move), str(second_move_pass), str(blocker_edge_move), str(blocker_edge_all_assigned), str(blocker_edge_move_pass), str(blocker_edge_clear), str(blocker_edge_distinct), str(blocker_edge_fallback)])
+	print("[F01/F02] Summary pass=%s" % str(selection_pass and first_move_pass and second_move_pass and blocker_edge_all_assigned and blocker_edge_move_pass and blocker_edge_clear and blocker_edge_distinct and blocker_edge_fallback))
 
 
 func _initialize_controllable_units() -> void:
@@ -4367,29 +4484,31 @@ func _box_select_units(selection_box: Rect2, additive: bool) -> void:
 	print("[F01] Box select additive=%s units=%s" % [str(additive), str(_selected_controllable_units)])
 
 
-func _issue_move_command(target: Vector3) -> void:
+func _issue_move_command(target: Vector3, append: bool = false) -> void:
 	if _match_over:
 		return
 	if _selected_controllable_units.is_empty():
 		print("[F02] Move rejected reason=no_selection")
 		return
-	_clear_gather_jobs_for_selected_units()
-	if _is_point_blocked(target):
+	if _is_navigation_point_blocked(Vector2(target.x, target.z)):
 		_reject_move("target_blocked", target)
 		return
-
 	var queued_units: Array[String] = []
 	var blocked_units: Array[String] = []
-
-	for unit_id in _selected_controllable_units:
-		var unit: SelectableUnit2D = _controllable_units[unit_id]
-		var from := Vector2(unit.position.x, unit.position.z)
-		var to := Vector2(target.x, target.z)
-		if _is_path_blocked(from, to):
-			blocked_units.append(unit_id)
-			continue
-		unit.queue_move(target)
-		queued_units.append(unit_id)
+	var ordered_ids: Array[String] = _selected_controllable_units.duplicate()
+	ordered_ids.sort()
+	var assignment := _find_valid_formation_assignment(target, ordered_ids, append)
+	var formation_targets: Array = assignment.get("targets", [])
+	var paths: Array = assignment.get("paths", [])
+	if paths.size() != ordered_ids.size():
+		blocked_units = ordered_ids.duplicate()
+	else:
+		if not append:
+			_clear_incompatible_orders_for_units(_selected_controllable_units)
+		for index in ordered_ids.size():
+			var unit_id: String = ordered_ids[index]
+			(_controllable_units[unit_id] as SelectableUnit2D).queue_path(paths[index], append)
+			queued_units.append(unit_id)
 
 	if queued_units.is_empty():
 		_reject_move("path_blocked", target)
@@ -4399,7 +4518,146 @@ func _issue_move_command(target: Vector3) -> void:
 	_spawn_move_ping(target)
 	if not blocked_units.is_empty() and _hud_alert_item:
 		_hud_alert_item.text = "Blocked: %d unit path(s) rejected" % blocked_units.size()
-	print("[F02] Move issued units=%s blocked_units=%s target=%s" % [str(queued_units), str(blocked_units), str(target)])
+	print("[F02] Move issued units=%s blocked_units=%s target=%s formation=%s append=%s" % [str(queued_units), str(blocked_units), str(target), str(formation_targets), str(append)])
+
+
+func _get_formation_targets(center: Vector3, count: int) -> Array[Vector3]:
+	var targets: Array[Vector3] = []
+	if count <= 1:
+		targets.append(center)
+		return targets
+	var columns: int = ceili(sqrt(float(count)))
+	var rows: int = ceili(float(count) / float(columns))
+	for index in count:
+		var column := index % columns
+		var row := index / columns
+		var x_offset := (float(column) - float(columns - 1) * 0.5) * _FORMATION_SPACING
+		var z_offset := (float(row) - float(rows - 1) * 0.5) * _FORMATION_SPACING
+		targets.append(center + Vector3(x_offset, 0.0, z_offset))
+	return targets
+
+
+func _find_valid_formation_assignment(center: Vector3, ordered_ids: Array[String], append: bool) -> Dictionary:
+	var center_offsets: Array[Vector2] = [Vector2.ZERO]
+	for distance_scale: float in [0.75, 1.5]:
+		var distance: float = _FORMATION_SPACING * distance_scale
+		center_offsets.append_array([
+			Vector2(0.0, distance),
+			Vector2(distance, 0.0),
+			Vector2(0.0, -distance),
+			Vector2(-distance, 0.0),
+			Vector2(distance, distance),
+			Vector2(distance, -distance),
+			Vector2(-distance, -distance),
+			Vector2(-distance, distance),
+		])
+	for center_offset in center_offsets:
+		var candidate_center := center + Vector3(center_offset.x, 0.0, center_offset.y)
+		for rotation_quarters in 4:
+			var base_targets := _get_formation_targets(candidate_center, ordered_ids.size())
+			var targets: Array[Vector3] = []
+			var angle := float(rotation_quarters) * PI * 0.5
+			for base_target in base_targets:
+				var offset := Vector2(base_target.x - candidate_center.x, base_target.z - candidate_center.z).rotated(angle)
+				targets.append(candidate_center + Vector3(offset.x, 0.0, offset.y))
+			var paths: Array = []
+			var valid := true
+			for index in ordered_ids.size():
+				var unit: SelectableUnit2D = _controllable_units[ordered_ids[index]]
+				var origin := unit.get_planned_destination() if append else unit.position
+				var path := _plan_navigation_path(origin, targets[index])
+				if path.is_empty():
+					valid = false
+					break
+				paths.append(path)
+			if valid:
+				return {"targets": targets, "paths": paths, "center": candidate_center}
+	return {"targets": [], "paths": []}
+
+
+func _get_navigation_blockers() -> Array[Rect2]:
+	var blockers: Array[Rect2] = []
+	for rect in _BLOCKER_RECTS:
+		blockers.append(rect.grow(_NAV_CLEARANCE))
+	return blockers
+
+
+func _is_navigation_point_blocked(point: Vector2) -> bool:
+	for rect in _get_navigation_blockers():
+		var rect_end := rect.position + rect.size
+		if point.x >= rect.position.x and point.x <= rect_end.x and point.y >= rect.position.y and point.y <= rect_end.y:
+			return true
+	return false
+
+
+func _is_navigation_segment_clear(from: Vector2, to: Vector2) -> bool:
+	for rect in _get_navigation_blockers():
+		if _is_navigation_point_blocked(from) or _is_navigation_point_blocked(to):
+			return false
+		var corners: Array[Vector2] = [
+			rect.position,
+			rect.position + Vector2(rect.size.x, 0.0),
+			rect.position + rect.size,
+			rect.position + Vector2(0.0, rect.size.y),
+		]
+		for index in 4:
+			if Geometry2D.segment_intersects_segment(from, to, corners[index], corners[(index + 1) % 4]) != null:
+				return false
+	return true
+
+
+func _plan_navigation_path(from_world: Vector3, to_world: Vector3) -> Array[Vector3]:
+	var from := Vector2(from_world.x, from_world.z)
+	var to := Vector2(to_world.x, to_world.z)
+	var result: Array[Vector3] = []
+	if _is_navigation_point_blocked(from) or _is_navigation_point_blocked(to):
+		return result
+	if _is_navigation_segment_clear(from, to):
+		result.append(Vector3(to.x, to_world.y, to.y))
+		return result
+	var nodes: Array[Vector2] = [from, to]
+	var epsilon := 1.0
+	for rect in _get_navigation_blockers():
+		nodes.append(rect.position - Vector2(epsilon, epsilon))
+		nodes.append(rect.position + Vector2(rect.size.x + epsilon, -epsilon))
+		nodes.append(rect.position + rect.size + Vector2(epsilon, epsilon))
+		nodes.append(rect.position + Vector2(-epsilon, rect.size.y + epsilon))
+	var distances: Array[float] = []
+	var previous: Array[int] = []
+	var visited: Array[bool] = []
+	for index in nodes.size():
+		distances.append(0.0 if index == 0 else INF)
+		previous.append(-1)
+		visited.append(false)
+	for _iteration in nodes.size():
+		var current := -1
+		var best := INF
+		for index in nodes.size():
+			if not visited[index] and distances[index] < best:
+				best = distances[index]
+				current = index
+		if current < 0:
+			break
+		if current == 1:
+			break
+		visited[current] = true
+		for neighbor in nodes.size():
+			if neighbor == current or visited[neighbor] or not _is_navigation_segment_clear(nodes[current], nodes[neighbor]):
+				continue
+			var candidate := distances[current] + nodes[current].distance_to(nodes[neighbor])
+			if candidate < distances[neighbor]:
+				distances[neighbor] = candidate
+				previous[neighbor] = current
+	if previous[1] < 0:
+		return result
+	var route_indices: Array[int] = []
+	var cursor := 1
+	while cursor > 0:
+		route_indices.push_front(cursor)
+		cursor = previous[cursor]
+	for index in route_indices:
+		result.append(Vector3(nodes[index].x, to_world.y, nodes[index].y))
+	return result
 
 
 func _issue_gather_command(resource_item_id: String) -> void:
@@ -4442,9 +4700,11 @@ func _issue_gather_command(resource_item_id: String) -> void:
 
 
 func _simulate_until_arrival(max_steps: int) -> bool:
+	var saw_movement := false
 	for _step in max_steps:
 		for unit_id in _selected_controllable_units:
 			var unit: SelectableUnit2D = _controllable_units[unit_id]
+			saw_movement = saw_movement or unit.has_move_target()
 			unit.simulate_step(0.1)
 
 		var still_moving := false
@@ -4455,7 +4715,7 @@ func _simulate_until_arrival(max_steps: int) -> bool:
 				break
 
 		if not still_moving:
-			return true
+			return saw_movement
 
 	return false
 
@@ -4578,13 +4838,13 @@ func _run_f03_test_hook() -> void:
 	if not _has_user_flag(TEST_F03_FLAG):
 		return
 
-	if _controllable_units.is_empty():
-		_initialize_controllable_units()
+	_initialize_controllable_units()
 
 	_set_stockpile_reserve("alloy", _get_stockpile_cap("alloy"), "f03_world_reset")
 	_set_alloy_wallet("A", 0, "f03_wallet_reset")
 	var gather_node := Vector3(-460.0, 0.0, 0.0)
 	var return_node: Vector3 = _spawn_a.position
+	(_controllable_units["unit_alpha"] as SelectableUnit2D).position = Vector3(-400.0, 0.0, -100.0)
 	_select_single_unit("unit_alpha")
 
 	var cycle_pass := true
@@ -7785,6 +8045,7 @@ func _ensure_camera_input_actions() -> void:
 	_ensure_action_with_key("rts_camera_zoom_out", KEY_KP_SUBTRACT)
 	_ensure_action_with_key("rts_camera_center_selection", KEY_SPACE)
 	_ensure_action_with_key("rts_camera_center_command", KEY_F1)
+	_ensure_action_with_key("rts_queue_modifier", KEY_SHIFT)
 	_ensure_action_with_mouse_button("rts_mouse_zoom_in", MOUSE_BUTTON_WHEEL_UP)
 	_ensure_action_with_mouse_button("rts_mouse_zoom_out", MOUSE_BUTTON_WHEEL_DOWN)
 
@@ -8088,7 +8349,8 @@ func _handle_right_click_command(screen_pos: Vector2) -> void:
 			_hud_alert_item.text = "Rally set: %s" % str(target)
 		print("[Rally] event=set producer=%s target=%s" % [_selected_structure_id, str(target)])
 		return
-	_issue_move_command(target)
+	var append_order := InputMap.has_action("rts_queue_modifier") and Input.is_action_pressed("rts_queue_modifier")
+	_issue_move_command(target, append_order)
 
 
 func _find_data_objective_at_point(world_pos: Vector3) -> String:
@@ -8272,10 +8534,14 @@ func _resolve_unit_soft_collisions() -> void:
 			var push := minf(penetration * 0.5, _UNIT_COLLISION_MAX_PUSH_PER_TICK)
 			var offset := normal * push
 
-			a.position.x += offset.x
-			a.position.z += offset.y
-			b.position.x -= offset.x
-			b.position.z -= offset.y
+			var candidate_a := Vector2(a.position.x + offset.x, a.position.z + offset.y)
+			var candidate_b := Vector2(b.position.x - offset.x, b.position.z - offset.y)
+			if not _is_navigation_point_blocked(candidate_a):
+				a.position.x = candidate_a.x
+				a.position.z = candidate_a.y
+			if not _is_navigation_point_blocked(candidate_b):
+				b.position.x = candidate_b.x
+				b.position.z = candidate_b.y
 
 
 func _update_enemy_ai(delta: float) -> void:

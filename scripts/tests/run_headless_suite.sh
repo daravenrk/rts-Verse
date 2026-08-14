@@ -300,6 +300,7 @@ run_duel_case "f89_objective_ai_endgame" "--duel-test-f89-objective-ai-endgame" 
 run_duel_case "f90_swapped_objective_palette" "--duel-test-f90-swapped-objective-palette" "[F90] Summary"
 run_duel_case "f91_unit_profile_catalog" "--duel-test-f91-unit-profile-catalog" "[F91] Summary"
 run_duel_case "f92_combat_identity" "--duel-test-f92-combat-identity" "[F92] Summary"
+run_duel_case "f93_public_navigation_formation" "--duel-test-f93-public-navigation-formation" "[F93] Summary"
 run_startup_case
 
 printf '[Suite] Summary passes=%s failures=%s logs=%s\n' "$PASSES" "$FAILURES" "$RUN_LOG_DIR"

@@ -18,6 +18,9 @@ var move_speed: float = 96.0
 var is_selected: bool = false
 var _move_target: Vector3 = Vector3.ZERO
 var _has_move_target: bool = false
+var _move_waypoints: Array[Vector3] = []
+var _settle_target: Vector3 = Vector3.ZERO
+var _has_settle_target: bool = false
 var _materials: Array[StandardMaterial3D] = []
 var _hp_bar_fill: MeshInstance3D = null
 var _hp_bar_bg: MeshInstance3D = null
@@ -156,7 +159,37 @@ func set_hp_fraction(fraction: float) -> void:
 
 
 func queue_move(target: Vector3) -> void:
+	_move_waypoints.clear()
+	_settle_target = target
+	_has_settle_target = true
 	_move_target = target
+	_has_move_target = true
+
+
+func queue_path(waypoints: Array[Vector3], append: bool = false) -> void:
+	if not append:
+		_move_waypoints.clear()
+		_has_move_target = false
+	for waypoint in waypoints:
+		_move_waypoints.append(waypoint)
+	if not waypoints.is_empty():
+		_settle_target = waypoints.back()
+		_has_settle_target = true
+	if not _has_move_target:
+		_begin_next_waypoint()
+
+
+func stop_movement() -> void:
+	_move_waypoints.clear()
+	_has_move_target = false
+	_has_settle_target = false
+
+
+func _begin_next_waypoint() -> void:
+	if _move_waypoints.is_empty():
+		_has_move_target = false
+		return
+	_move_target = _move_waypoints.pop_front()
 	_has_move_target = true
 
 
@@ -166,19 +199,23 @@ func simulate_step(delta: float) -> void:
 		if _weapon_flash:
 			_weapon_flash.visible = _weapon_flash_remaining > 0.0
 	if not _has_move_target:
-		return
+		if _has_settle_target and Vector2(position.x, position.z).distance_to(Vector2(_settle_target.x, _settle_target.z)) > 0.75:
+			_move_target = _settle_target
+			_has_move_target = true
+		else:
+			return
 	var to_target := Vector3(_move_target.x - position.x, 0.0, _move_target.z - position.z)
 	var distance := to_target.length()
 	if distance <= 0.5:
 		position.x = _move_target.x
 		position.z = _move_target.z
-		_has_move_target = false
+		_begin_next_waypoint()
 		return
 	var step := move_speed * delta
 	if step >= distance:
 		position.x = _move_target.x
 		position.z = _move_target.z
-		_has_move_target = false
+		_begin_next_waypoint()
 	else:
 		var move_vec := to_target.normalized() * step
 		position.x += move_vec.x
@@ -188,6 +225,14 @@ func simulate_step(delta: float) -> void:
 
 func has_move_target() -> bool:
 	return _has_move_target
+
+
+func get_pending_waypoint_count() -> int:
+	return _move_waypoints.size() + (1 if _has_move_target else 0)
+
+
+func get_planned_destination() -> Vector3:
+	return _settle_target if _has_settle_target else position
 
 
 func play_attack_feedback() -> void:

@@ -355,3 +355,12 @@ Track high-level project changes with links to decisions and plans.
 - Added F-91 catalog/runtime-application and F-92 counter/mobility/live-hit gates; the hardened suite now passes 38 cases with zero failures on Godot 4.5.1.
 - Left T-0116 In Validation because the existing screenshot hook does not complete under the headless renderer; rendered default/macro zoom and camera-angle readability remains a manual or offscreen-render gate.
 - Corrected Godot editor parse failures in F-91/F-92 by explicitly typing values returned through scripted actor/profile methods; cold `--check-only` parsing and the complete 38-case suite pass afterward.
+- Corrected Godot 4.5 rendered screenshot orientation by removing the obsolete vertical flip and added a closer 360-arm faction-asymmetry capture. Windowed Metal evidence is upright; independent review keeps T-0116 In Validation because only armor/siege are readable enough and all-role evidence remains open.
+
+## 2026-08-13 T-0117 Navigation Foundation
+
+- Added deterministic visibility-graph routing around clearance-expanded static blockers, unique grid formation destinations, waypoint execution, formation settling after collision displacement, and Shift-appended route support.
+- Routed ordinary ground right-click movement through the shared navigation layer while preserving blocked-destination rejection.
+- Added F-93 public navigation/formation validation; the hardened suite passes 39 cases with zero failures on Godot 4.5.1.
+- Added atomic translated-formation fallback for valid commands near blocker edges; restored F-02's `(-30, 84)` regression and proved all four units receive clear, distinct destinations.
+- Recorded the A/S/P binding contradiction as an implementation constraint: tactical unit context must own planned order keys, while production and camera behavior need explicit contextual precedence before F-94 through F-98.

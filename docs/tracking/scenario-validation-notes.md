@@ -1296,3 +1296,13 @@ Track scenario-level evidence for map and flow validation runs.
 - Evidence: all 12 locked Helion/Veyari profiles have positive runtime bands and six role classes per faction; spawned actors receive catalog movement values and faction-distinct geometry signatures; line, breach, and siege counter multipliers are ordered correctly; raiders meet the mobility band; a live attack order applies exact profile damage/cooldown and activates weapon feedback.
 - Regression: F-37 unit combat, F-61 AI, F-77/F-78 endgame, economy, timed production, public GUI input, objective capture, and startup remain passing.
 - Remaining gate: rendered readability at default/macro zoom and representative camera angles. A headless Stage 0 capture attempt was stopped because `frame_post_draw` did not complete; no screenshot from that attempt is counted as evidence.
+
+## 2026-08-13 T-0116 Rendered Review and T-0117 F-93 Validation
+
+- Rendered command: `scripts/tests/run_godot_safe.sh --path . res://scenes/core/FirstDuelMap.tscn -- --stage0-capture-media --stage0-capture-dir=/tmp/rts-verse-t0116-rendered-fixed`.
+- Rendered result: Pass for capture mechanics; three upright 1280x720 Metal frames were produced. Faction separation and armor/siege shapes are visible, but builder/line/breach/raider readability and weapon feedback remain insufficient to close T-0116. The top resource bar also overlaps at 1280x720 and remains assigned to T-0118.
+- F-93 command: `RTS_TEST_LOG_DIR=/tmp/rts-verse-t0117-final scripts/tests/run_headless_suite.sh`.
+- F-93 result: Pass; 39 cases passed and zero failed. A public right-click replaced stale combat/gather/objective intent, routed four units across the center blocker, preserved expanded clearance, and settled at non-stacked formation destinations. A real Shift key event appended leg two while leg one remained active; all units traversed both legs and finished the second formation. F-02 also restored the original blocker-edge target `(-30, 84)` and proved the complete four-unit formation translates to clear, distinct slots instead of partially dispatching or rejecting the group.
+- Independent QA reran F-02, F-33, and F-93 and approved the bounded navigation foundation with no open P0-P2 findings.
+- Additional corrections: append planning starts at the prior queued endpoint; collision pushes cannot enter clearance-expanded blockers; formation assignment is atomic and tries deterministic rotations; F-02 now fails rejected motion and its fixture accepts all four units.
+- Logs: `/tmp/rts-verse-t0117-f93-final/run.MipZFD`.

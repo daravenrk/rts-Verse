@@ -219,6 +219,7 @@ Keep this list short, actionable, and current.
 - [x] Implement T-0114 timed construction and producer-owned production queues with clickable controls, cancellation, refunds, rally points, and AI timing parity.
 - [x] Implement T-0115 live Data Node objectives with public capture, contesting, ownership benefits, HUD/minimap feedback, and AI response.
 - [ ] Finish T-0116 validation: data-driven Helion/Veyari combat roles, counter relationships, faction geometry, facing, and attack feedback are implemented and pass 38 automated gates; rendered zoom/angle readability and first balance review remain.
+- [ ] Continue T-0117 after the passing F-93 navigation foundation: resolve contextual A/S/P bindings, then implement attack-move, stop/hold, patrol, repair, and shared order arbitration through F-94 to F-98.
 - [ ] Build T-0120 as a separate black-box full-match lane; do not treat deterministic hooks as full-match evidence.
 - [ ] Apply the agent roles and evidence gates in full-rts-agentic-workflow.md to every new runtime slice.
 - [ ] If a live zoom defect is reproduced, run a focused F-19 regression pass against mouse-wheel, keyboard zoom, and persisted input-profile mappings before changing camera code.

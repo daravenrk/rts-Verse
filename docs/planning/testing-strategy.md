@@ -563,6 +563,13 @@ This document defines validation layers for milestone delivery.
 - Issue a live attack order and verify exact catalog damage, cooldown, and weapon feedback are applied through the ordinary combat updater.
 - Preserve F-37, F-61, and F-77/F-78 as regression gates for unit combat, AI use, and terminal structure combat.
 
+## Flow F-93 Public Navigation, Formation, and Shift-Appended Movement
+
+- Select four live units and dispatch an ordinary viewport right-click across the central blocker.
+- Verify each unit receives a deterministic waypoint route, never enters blocker clearance, completes at a distinct formation slot, and does not remain stacked after settling.
+- Hold the public queue modifier and dispatch a second right-click; verify the route is appended and the group completes the second formation leg.
+- Preserve F-33 blocked-destination rejection while changing cross-blocker paths from rejection to deterministic routing.
+
 ## Reporting Template
 
 - Date:
